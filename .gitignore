@@ -1,0 +1,71 @@
+# Secrets
+.env
+.env.*
+!.env.a2a.example
+*.key
+*.pem
+
+# IDE
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyinstaller-cache/
+
+# Virtual environments
+venv/
+.venv/
+.opencode/
+.claude/
+env/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Build artifacts
+dist/
+build/
+*.dmg
+python-standalone/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Release helpers (not tracked)
+.create_release.py
+.release_notes.md
+repo.bundle
+
+# Test artifacts
+<MagicMock*
+.tmp-data-*/
+.refactor-log.md
+.review_phase_1.py
+.final_combined_review.py
+.review_*.py
+/.review-drive/
+/.adversarial-review/
+
+# Accidentally vendored site-packages fragments — guard against recurrence of the
+# pre-rc.7 "dump site-packages into the source tree" bug (see Version History
+# entry for 4.50.0-rc.7 for the purge rationale). Anchored to repo root so a
+# legitimate same-named subfolder deeper in the tree is not accidentally hidden.
+/Python
+/Python.framework/
+/webview/
+/jsonschema/
+/jsonschema_specifications/
+/certifi/
+.specify/
+.cursor/
+.claude/
+openspec/changes/archive

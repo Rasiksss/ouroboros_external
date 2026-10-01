@@ -1,0 +1,86 @@
+"""Shared dependency-spec resolution for skill payloads."""
+
+from __future__ import annotations
+
+import pathlib
+from typing import Any
+
+from ouroboros.skills.install_specs import normalize_install_specs
+from ouroboros.utils import read_json_dict
+
+
+def _coerce_dependency_specs(raw: Any) -> Any:
+    if raw in (None, "", [], {}):
+        return []
+    if isinstance(raw, list):
+        # Bare string lists mean Python packages by convention. Object lists
+        # are already OpenClaw/Ouroboros install specs.
+        if all(isinstance(item, str) for item in raw):
+            return [{"kind": "pip", "package": item} for item in raw]
+        return raw
+    if isinstance(raw, dict):
+        out: list[dict[str, Any]] = []
+        for key, kind in (
+            ("python", "pip"),
+            ("pip", "pip"),
+            ("npm", "npm"),
+            ("node", "npm"),
+        ):
+            value = raw.get(key)
+            if value in (None, "", [], {}):
+                continue
+            items = value if isinstance(value, list) else [value]
+            for item in items:
+                if isinstance(item, dict):
+                    spec = dict(item)
+                    spec.setdefault("kind", kind)
+                    out.append(spec)
+                else:
+                    out.append({"kind": kind, "package": str(item)})
+        if out:
+            return out
+        if raw.get("kind"):
+            return raw
+    return raw
+
+
+def normalize_declared_dependency_specs(raw: Any) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[str]]:
+    return normalize_install_specs(_coerce_dependency_specs(raw))
+
+
+def _manifest_install_specs(manifest: Any) -> list[dict[str, Any]]:
+    extras = dict(getattr(manifest, "raw_extra", {}) or {})
+    raw = extras.get("install_specs")
+    if raw in (None, "", [], {}):
+        raw = extras.get("install")
+    if raw in (None, "", [], {}):
+        raw = extras.get("dependencies")
+    auto, _manual, _warnings = normalize_declared_dependency_specs(raw)
+    return auto
+
+
+def _payload_sidecar_specs(skill_dir: pathlib.Path) -> list[dict[str, Any]]:
+    for filename in (".ouroboroshub.json", ".clawhub.json"):
+        path = pathlib.Path(skill_dir) / filename
+        record = read_json_dict(path)
+        if not record:
+            continue
+        auto = list((record.get("install_specs") or {}).get("auto") or [])
+        if auto:
+            return auto
+    return []
+
+
+def auto_install_specs_for_skill(drive_root: pathlib.Path, loaded: Any) -> list[dict[str, Any]]:
+    """Return normalized auto-install specs declared for ``loaded``.
+
+    ClawHub provenance remains authoritative when present. Other sources can
+    declare dependencies in their reviewed manifest or, for official catalog
+    installs, in a payload sidecar.
+    """
+
+    sidecar = _payload_sidecar_specs(pathlib.Path(loaded.skill_dir))
+    if sidecar:
+        return sidecar
+
+    return _manifest_install_specs(getattr(loaded, "manifest", None))

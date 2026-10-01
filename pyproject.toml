@@ -1,0 +1,180 @@
+[build-system]
+requires = ["setuptools>=80.0.0", "wheel>=0.46.2", "jaraco.context>=6.1.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ouroboros"
+version = "1.0.0"
+description = "Headless personal agent runtime"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+
+dependencies = [
+    "a2a-sdk[http-server]==1.0.3",
+    "mcp==1.28.1",
+    "requests",
+    "httpx",
+    "openai>=1.0",
+    "playwright",
+    "playwright-stealth",
+    "starlette",
+    "python-multipart",
+    "uvicorn[standard]",
+    "kafka-python>=2.0",
+    "PyYAML>=6.0",
+    # Python 3.10 needs typing_extensions.NotRequired for gateway contracts.
+    "typing_extensions>=4.5.0",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "psycopg[binary]>=3",
+    "boto3>=1.34",
+    "cryptography>=42.0",
+    "pypdf>=5.0,<7",
+    "openpyxl>=3.1,<4",
+    "python-docx>=1.1,<2",
+    "pre-commit>=4.6.1",
+    "urllib3>=2.6.3",
+]
+
+[project.scripts]
+ouroboros = "ouroboros.app.cli:main"
+ouroboros-server = "server:main"
+
+[tool.uv]
+native-tls = true
+
+[[tool.uv.index]]
+name = "nexus"
+url = "https://nexus.genai.int/repository/pypi-proxy/simple"
+default = true
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.4",
+    "mypy>=1.8",
+    "types-PyYAML",
+    "moto[s3]>=5.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests_headless", "tests", "skills"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+# Default local pytest excludes token-burning integration/browser suites.
+addopts = "-q --tb=short -m 'not integration and not browser'"
+markers = [
+    "integration: requires real provider/database services and credentials; excluded from default runs, opt in via `pytest -m integration`",
+    "browser: requires Playwright and a browser binary; excluded from routine runs unless explicitly selected",
+]
+
+[tool.setuptools]
+py-modules = ["server"]
+
+[tool.setuptools.packages.find]
+include = ["new_core*", "ouroboros*", "supervisor*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+# Pyflakes + pycodestyle + isort + bugbear + pyupgrade (PEP 585/604) + Ruff extras.
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "SIM",
+    "C4",
+    "PIE",
+    "RUF",
+    "ASYNC",
+    "ISC",
+]
+ignore = [
+    "E501",   # line length (review / formatter)
+    "E402",   # intentional lazy imports (server, agent, workers)
+    "B008",   # Depends() / default callable args (Starlette)
+    "B904",   # raise-from in broad except handlers
+    "SIM105", # contextlib.suppress vs try/except/pass in cleanup
+    "SIM108", # ternary vs if/else readability
+]
+fixable = ["ALL"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "SIM102",
+    "SIM114",
+    "SIM117",
+    "E741",
+    "B017",
+    "RUF001",
+    "RUF002",
+    "RUF003",
+    "RUF012",
+    "RUF043",
+]
+"tests_headless/**/*.py" = ["SIM102"]
+"skills/*/tests/*.py" = [
+    "SIM102",
+    "SIM114",
+    "SIM117",
+    "E741",
+    "B017",
+    "RUF001",
+    "RUF002",
+    "RUF012",
+    "RUF043",
+]
+"ouroboros/platform_layer.py" = ["SIM115"]
+"ouroboros/llm/client.py" = ["RUF012"]
+"ouroboros/skills/loader.py" = ["SIM102"]
+"ouroboros/agent/context.py" = ["RUF001"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ouroboros", "supervisor"]
+combine-as-imports = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.10"
+files = ["server.py", "ouroboros", "supervisor", "new_core"]
+check_untyped_defs = true
+ignore_missing_imports = false
+warn_unused_configs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+strict_equality = true
+show_error_codes = true
+pretty = true
+
+# Optional / headless-removed modules: no stubs or not in this tree.
+[[tool.mypy.overrides]]
+module = [
+    "kafka.*",
+    "dialog_bot_sdk.*",
+    "a2a.*",
+    "aef_pyframework.*",
+    "openai",
+    "openai.*",
+    "grpc",
+    "grpc.*",
+    "boto3",
+    "botocore.*",
+    "docx.*",
+    "openpyxl.*",
+    "pypdf.*",
+    "ouroboros.tools.commit_gate",
+    "ouroboros.local_model",
+]
+ignore_missing_imports = true

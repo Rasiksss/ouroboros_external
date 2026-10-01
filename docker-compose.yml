@@ -1,0 +1,80 @@
+# One Ouroboros headless agent + A2A Inspector chat UI.
+#
+# Prerequisites (local laptop — PyPI, no Nexus CA):
+#   docker build -f Dockerfile.local --platform linux/amd64 -t ouroboros-headless .
+# CI / registry: docker build --secret id=nexus_ca,src=/path/to/ca.crt ...
+#   # Create .env and set GIGACHAT_B2BANK_*, CLOUDRU_FOUNDATION_MODELS_API_KEY,
+#   # and/or SELFHOSTED_LLM_BASE_URL (plain OUROBOROS_MODEL_* IDs, no provider:: prefix)
+#
+# Usage:
+#   docker compose --env-file .env -f docker-compose.yml up -d
+#   ./scripts/a2a_smoke.sh
+#
+# Health: http://localhost:8080/health/liveness
+# A2A:    http://localhost:18800
+# Chat UI (A2A Inspector): http://localhost:8088
+#   In Inspector, connect to http://agent:18800 (Docker DNS), not localhost:18800.
+#   Click Connect before sending chat — otherwise "Client not initialized".
+
+services:
+  agent:
+    image: ouroboros-headless
+    hostname: agent
+    env_file:
+      - ./.env
+    ports:
+      # Bound to the loopback address explicitly: the short "18800:18800" form publishes
+      # on 0.0.0.0, which would put an unauthenticated endpoint on every interface of the
+      # host. See docs/A2A_DOCKER.md.
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:18800:18800"
+    environment:
+      OUROBOROS_DATA_DIR: /data
+      # The A2A endpoint authenticates nobody: anyone who can reach port 18800 can
+      # queue work here, which is only acceptable because this compose file publishes
+      # it to the local machine. See docs/A2A_DOCKER.md.
+      A2A_ENABLED: "true"
+      A2A_HOST: "0.0.0.0"
+      A2A_PORT: "18800"
+      A2A_AGENT_NAME: agent
+      A2A_PUBLIC_URL: http://agent:18800
+      SELFHOSTED_LLM_BASE_URL: ${SELFHOSTED_LLM_BASE_URL}
+      SELFHOSTED_LLM_API_KEY: ${SELFHOSTED_LLM_API_KEY}
+      OUROBOROS_LLM_HTTP_READ_TIMEOUT_SEC: ${OUROBOROS_LLM_HTTP_READ_TIMEOUT_SEC:-300}
+      OUROBOROS_BACKGROUND_LLM_HTTP_READ_TIMEOUT_SEC: ${OUROBOROS_BACKGROUND_LLM_HTTP_READ_TIMEOUT_SEC:-300}
+      OUROBOROS_MODEL: ${OUROBOROS_MODEL:-zai-org-glm-51-fp8-sglang}
+      OUROBOROS_MODEL_LIGHT: ${OUROBOROS_MODEL_LIGHT:-zai-org-glm-51-fp8-sglang}
+      OUROBOROS_MODEL_FALLBACK: ${OUROBOROS_MODEL_FALLBACK:-zai-org-glm-51-fp8-sglang}
+    volumes:
+      - agent-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health/readiness', timeout=3)",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 120s
+    networks:
+      - ouroboros-a2a
+
+  inspector:
+    image: a2a-inspector:latest
+    ports:
+      - "127.0.0.1:8088:8080"
+    depends_on:
+      agent:
+        condition: service_healthy
+    networks:
+      - ouroboros-a2a
+
+networks:
+  ouroboros-a2a:
+    driver: bridge
+
+volumes:
+  agent-data:
