@@ -65,9 +65,11 @@
 
 ### 2.2. ouroboros (`C:\Users\magom\Desktop\ouroboros`)
 
-- Основная версия: корпоративная ветка `release/1.5.1`, HEAD `ec596862` (08.10.2026); лежит вне
-  `Krab_ext`, чтобы не раздувать папку. Старая внешняя копия — `Krab_ext/ouroboros_external`; именно она
-  развёрнута на dev (`ouroboros-agent-1`, Python 3.10).
+- Основная версия: снимок корпоративной ветки `release/1.5.1` @ `ec596862` (08.10.2026) без истории —
+  репозиторий `https://github.com/Rasiksss/ouroboros_external`, ветка `dev`, корневой коммит
+  `17b3f93` (14.10.2026, вместе с `aifa-symbiosis/`; ADR-0030). Лежит вне `Krab_ext`, чтобы не
+  раздувать папку. Старая внешняя копия — `Krab_ext/ouroboros_external` (в GitHub — ветка `main`,
+  `0e327f1`); именно она развёрнута на dev (`ouroboros-agent-1`, Python 3.10).
 - Python 3.12; обязательны PostgreSQL и S3; правила — `AGENTS.md`, `.rules/`, `docs/INVARIANTS.md`.
 
 **Что умеет.**
