@@ -1,0 +1,1987 @@
+{
+  "schema_version": 1,
+  "label": "task3-run1",
+  "case_id": "p6-task3-run1",
+  "document": {
+    "doc_id": "fbffab30-7dfc-4fad-ad43-ca627f8ea1c4",
+    "owner_id": "1",
+    "filename": "Бухгалтерская отчетность на 30.06.2026.pdf",
+    "sha256": "f5f4ac05ef3eb002244c0525e90adbde37a556793b41571b7232eea968be7d8d",
+    "text_chars": 119826
+  },
+  "query": "По данным этого отчёта рассчитай для каждого доступного периода долю дебиторской задолженности в оборотных активах по формуле RECEIVABLES / CURRENT_ASSETS * 100. Это нестандартный показатель: сначала получи оба исходных показателя из отчёта, затем выполни расчёт отдельным атомом и покажи результат со ссылками на доказательства.",
+  "intent": [
+    "plan",
+    {
+      "goal_id": "c6921d3a-0c25-490c-8ad9-bdca2d729ed3",
+      "raw_query": "По данным этого отчёта рассчитай для каждого доступного периода долю дебиторской задолженности в оборотных активах по формуле RECEIVABLES / CURRENT_ASSETS * 100. Это нестандартный показатель: сначала получи оба исходных показателя из отчёта, затем выполни расчёт отдельным атомом и покажи результат со ссылками на доказательства.",
+      "intent_kind": "calculate_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+        "ad_hoc_formula": {
+          "spec_id": "5724643b-97c3-4aeb-9f0d-3e94e4c5ebc1",
+          "term": "Доля дебиторской задолженности в оборотных активах",
+          "expression": "ACCOUNTS_RECEIVABLE / TOTAL_CURRENT_ASSETS * 100",
+          "dependencies": [
+            "ACCOUNTS_RECEIVABLE",
+            "TOTAL_CURRENT_ASSETS"
+          ],
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "name_ru": "Доля дебиторской задолженности в оборотных активах",
+          "name_en": "Receivables to Current Assets Ratio",
+          "definition": "Доля дебиторской задолженности в оборотных активах, выраженная в процентах.",
+          "unit": "%",
+          "components": [
+            {
+              "spec_id": "b6c9d123-c10a-446b-bd63-bee0c0ce8e38",
+              "term": "Дебиторская задолженность",
+              "assumptions": "",
+              "origin": "ad_hoc",
+              "key": "ACCOUNTS_RECEIVABLE",
+              "name_ru": "Дебиторская задолженность",
+              "name_en": "",
+              "aliases_ru": [],
+              "aliases_en": [],
+              "definition": "",
+              "hint": "",
+              "value_kind": "other"
+            },
+            {
+              "spec_id": "ed999fb2-5749-49bd-be9f-764ca4f0f557",
+              "term": "Итого оборотных активов",
+              "assumptions": "",
+              "origin": "ad_hoc",
+              "key": "TOTAL_CURRENT_ASSETS",
+              "name_ru": "Итого оборотных активов",
+              "name_en": "",
+              "aliases_ru": [],
+              "aliases_en": [],
+              "definition": "",
+              "hint": "",
+              "value_kind": "other"
+            }
+          ]
+        }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "correction": null,
+      "goal_ref": "goal-1",
+      "depends_on": [],
+      "additional_goals": []
+    },
+    ""
+  ],
+  "diagnostics": {
+    "intent_kind": "calculate_ad_hoc_metric"
+  },
+  "model_calls": [
+    {
+      "index": 1,
+      "role": "intent",
+      "system": "Ты — модуль разбора запроса финансового аналитика (intent.parse) и маршрутизатор.\nКАЖДОЕ сообщение пользователя сначала попадает к тебе. Ты решаешь одно из двух: передать запрос\nпланировщику (route=\"plan\") или ответить самому по контексту диалога (route=\"answer\").\nТы НЕ анализируешь отчётность, НЕ извлекаешь числа, НЕ строишь план шагов и НЕ пишешь ответ\nпользователю — ты только определяешь маршрут и структуру намерения.\n\nСОСТАВНОЙ ЗАПРОС. Если пользователь просит результаты РАЗНЫХ intent_kind, основной результат\nверни в полях верхнего уровня, а каждый следующий — отдельным объектом additional_goals. Дай им\nлокальные goal_ref (`goal-1`, `goal-2`, ...). В depends_on перечисляй goal_ref только когда второй\nрезультат действительно использует результат первого; независимые просьбы имеют depends_on=[].\nНе называй атомы и шаги. Например, «извлеки прибыль и посчитай 2+2» — независимые цели, а\n«извлеки прибыль и рассчитай рентабельность по этой прибыли» — расчёт зависит от извлечения.\nКаждый объект additional_goals заполняй ПОЛНОСТЬЮ по той же схеме, что основную цель. Все поля-\nмассивы (`targets`, `analysis_concepts`, `unresolved`, `ambiguities`, `depends_on`) ВСЕГДА должны\nбыть JSON-массивами, хотя бы пустыми `[]`, и НИКОГДА `null`. Для `calculate_ad_hoc_metric`\n`ad_hoc_formula` должна быть заполнена; `null` допустим только если расчёт невозможно выразить\nпроверяемой арифметикой и конкретная причина записана в `unresolved`.\n\nМАРШРУТ (route):\n- \"plan\" — запрос пользователя подходит под ОДИН ИЗ intent_kind из списка ниже: извлечь или посчитать\n  показатель (в том числе которого нет в реестре), полный анализ, форма, структура/таблица раскрытия,\n  вопрос по содержимому документа, сравнение, объяснение изменения, проверка отчёта, план-факт,\n  наблюдение за изменениями. Такой запрос ты ОБЯЗАН вернуть с route=\"plan\" и заполненным intent_kind:\n  он передаётся планировщику, отвечать на него самому нельзя.\n- \"answer\" — запрос НЕ подходит ни под один intent_kind: приветствие, вопрос о твоих возможностях,\n  просьба пояснить или переформулировать уже данный ответ, общий вопрос, для которого не нужны данные\n  из отчёта, поиск новостей/календаря/отчётности в интернете, настройки. Тогда intent_kind=null,\n  targets=[], остальные поля пустые.\n- Сомневаешься между \"plan\" и \"answer\", а запрос касается показателей или данных из документа, —\n  выбирай \"plan\".\nУчитывай блок «Контекст диалога» (документы, роль, последние реплики): короткая реплика вроде\n«а за прошлый год?» или «и по прибыли тоже» — продолжение предыдущего запроса; собери цель целиком.\n\nПЕРИОД. period_ref заполняй ТОЛЬКО периодом, который пользователь назвал в своей реплике (или в\nпредыдущей, если текущая — её продолжение). Не выводи период из имени документа, текущей даты,\nтипичного отчётного цикла или собственных знаний. Если периода нет — верни null: система сама возьмёт\nВСЕ доступные периоды отчёта. Отсутствие периода — НЕ неоднозначность: никогда не добавляй его в\nunresolved/ambiguities и не проси уточнить.\n\nЗакрытые перечисления (используй ТОЛЬКО эти значения, ничего своего):\n- intent_kind — один из:\n  \"extract_registered_metric\" (просят показать/сообщить значение одного или нескольких конкретно\n    названных показателей — \"какой/сколько/покажи/дай\", — и показатель похож на что-то из\n    кандидатов ниже),\n  \"extract_ad_hoc_metric\" (то же самое действие — показать значение, — но названный показатель\n    явно НЕ похож ни на один код из кандидатов ниже и не является стандартной строкой отчётности),\n  \"calculate_registered_metric\" (явно просят ПОСЧИТАТЬ/РАССЧИТАТЬ/ВЫЧИСЛИТЬ показатель, и он похож\n    на что-то из кандидатов ниже),\n  \"calculate_ad_hoc_metric\" (просят посчитать/рассчитать показатель, которого нет среди кандидатов),\n  \"full_analysis\" (запрошен широкий/полный разбор без перечисления конкретных показателей),\n  \"extract_structure\" (запрошена структура/таблица раскрытия — сегменты, сроки погашения долга,\n    состав группы, — а не один числовой показатель),\n  \"document_qa\" (вопрос про содержимое документа — цитату, формулировку, условие договора, — а не\n    про значение показателя),\n  \"compare_metrics\" (явное сравнение конкретных показателей между периодами или компаниями),\n  \"explain_change\" (вопрос \"почему/за счёт чего изменился\" НАЗВАННЫЙ показатель — ищут ПРИЧИНУ\n    изменения ОДНОГО числа, не общую сводку различий),\n  \"validate_report\" (запрошена сверка/проверка непротиворечивости данных внутри отчёта или между\n    несколькими отчётами),\n  \"plan_fact_analysis\" (сравнение фактических показателей с планом/бюджетом),\n  \"monitor_changes\" (вопрос \"что изменилось/что нового у эмитента\" БЕЗ причинного \"почему\" и без\n    одного названного показателя — общая сводка изменений показателей отчёта между отчётными\n    периодами (текущий период против предыдущего) с объяснением, ИЛИ просьба следить за\n    изменениями),\n  \"form\" (запрошена конкретная форма/таблица/layout по роли заказчика)\n\nРазграничение \"explain_change\" от \"monitor_changes\" (частая путаница — оба про \"изменения\"):\n  - \"почему выручка упала?\", \"за счёт чего вырос долг?\" → explain_change (назван ОДИН показатель,\n    вопрос \"почему\").\n  - \"что изменилось у эмитента?\", \"что нового в отчёте по сравнению с прошлым?\", \"следи за\n    изменениями по этой компании\" → monitor_changes (показатель НЕ назван, вопрос \"что\", не\n    \"почему\" — общий обзор различий, а не причина одного числа).\n- role: одно из other, risks, baifp, die, cib, dgr. Если роль выбрана в интерфейсе, верни именно её:\n  UI-роль — источник истины для scope полного анализа и формы. Без UI-роли используй роль только если\n  пользователь явно назвал роль/формат заказчика; иначе null.\n\n«Извлеки все показатели» / «извлеки показатели из отчёта» — это form с role=\"other\",\nа НЕ extract_ad_hoc_metric: пользователь просит общую таблицу зарегистрированных показателей,\nа не один новый показатель с названием «все показатели». Если период не назван, оставь\nperiod_ref=null: канонический runtime сам построит таблицу по всем отчётным периодам документа.\n\nПоказатели (targets[].concept) — ТОЛЬКО коды из списка кандидатов ниже, и только когда\nintent_kind — \"extract_registered_metric\" или \"calculate_registered_metric\". Если пользователь\nназвал показатель, а среди кандидатов нет уверенного совпадения — НЕ придумывай код, вместо\nэтого добавь исходную фразу пользователя в unresolved (дословно, как её сказал пользователь) и\nиспользуй соответствующий \"*_ad_hoc_metric\" — независимо от глагола: для просьбы показать/дать/\nизвлечь значение (\"покажи\", \"дай\", \"какой\", \"сколько\", \"извлеки\") — \"extract_ad_hoc_metric\", для\n\"посчитай/рассчитай\" — \"calculate_ad_hoc_metric\". Вид \"extract_registered_metric\" или\n\"calculate_registered_metric\" с пустыми targets и непустым unresolved — ошибка: показатель без\nкандидата ВСЕГДА получает \"*_ad_hoc_metric\". Если два и более кандидата одинаково подходят и\nневозможно выбрать однозначно — добавь запись в ambiguities с term (что сказал пользователь) и\ncandidates (коды-кандидаты), а этот показатель НЕ добавляй в targets.\n\nШирокая категория во множественном смысле — НЕ неоднозначность одного показателя. Например,\n«извлеки прибыль» / «покажи показатели прибыли» означает выбрать ВСЕ подходящие кандидаты,\nкоторые сами являются видами прибыли (валовая, от продаж, до налогообложения, чистая), и вернуть\nих отдельными targets: дальше детерминированный runtime соберёт один scoped FormOutput. Не включай\nсвязанные, но не являющиеся видами прибыли показатели (например EPS или рентабельность). Если же\nформулировка требует ОДНО значение («какая прибыль?») и несколько видов подходят одинаково — это\nнастоящая ambiguities, её нужно вернуть для уточнения.\n\nДля всех intent_kind, кроме \"extract_registered_metric\" и \"calculate_registered_metric\", список\ntargets ВСЕГДА пустой []: не перечисляй показатели, которые могли бы войти в полный анализ, форму,\nструктуру или другой составной результат — это решает не ты.\n\nПОКАЗАТЕЛЬ ВНЕ РЕЕСТРА — ИЗВЛЕЧЕНИЕ (intent_kind=\"extract_ad_hoc_metric\"). Пользователь НЕ обязан\nописывать показатель. Ты, опираясь на свои знания финансовой отчётности, сам придумываешь его\nописание, по которому система найдёт строку в отчёте, и заполняешь ad_hoc_concept:\n  name_ru, name_en — стандартное название;\n  aliases_ru, aliases_en — 5–10 реальных вариантов формулировки в отчётности (включая типичные\n    сокращения и английские термины);\n  definition — что это за величина (одно-два предложения);\n  hint — где и как искать в отчёте (какая форма или примечание, в каких единицах);\n  value_kind — \"flow\" (за период), \"stock\" (на дату), \"ratio\" (отношение/процент) или \"other\".\n\nРАСЧЁТ.\n- \"calculate_registered_metric\": показатель есть среди кандидатов — заполни targets; формула берётся\n  из реестра, свою не придумывай.\n- \"calculate_ad_hoc_metric\": показателя нет в реестре. Пользователь формулу НЕ обязан называть: если\n  он её не назвал, выдай формулу сам по общепринятой методике (выбранную трактовку укажи в\n  assumptions). Заполни ad_hoc_formula:\n    name_ru, name_en, definition — что считаем; unit — единицы результата (\"%\", \"x\", \"RUB\" ...);\n    expression — арифметика ТОЛЬКО из чисел, круглых скобок и символов через + - * / (никаких\n      функций, степеней, условий);\n    components — ОБЪЕКТ «символ → название показателя на русском»: по одному на КАЖДЫЙ символ выражения\n      (символ — ЗАГЛАВНЫМИ латинскими буквами, цифрами и _). Название пиши в стандартной формулировке\n      отчётности; если такой показатель есть среди кандидатов ниже — ДОСЛОВНО как в списке кандидатов\n      (тогда система сопоставит его с реестром). Описание понятий (синонимы, определение) не нужно —\n      его система запросит отдельно;\n    assumptions — принятые допущения (строка, может быть пустой).\n  Каждый символ выражения обязан иметь компонент и наоборот; компоненты — ЗАПОЛНЕННЫЕ объекты (null и\n  пустые объекты недопустимы). Если формулу нельзя свести к арифметике над показателями отчётности —\n  оставь ad_hoc_formula null и назови причину в unresolved.\n  Для промежуточного коэффициента покрытия / быстрой ликвидности по РСБУ используй устойчивую\n  стандартную трактовку: (Итого оборотных активов - Запасы) / Итого краткосрочных обязательств.\n  Не собирай числитель из торговой дебиторской задолженности: она уже общего итога строки 1230.\n  ПРИМЕР ad_hoc_formula (запрос «посчитай оборачиваемость запасов»). Пример показывает ТОЛЬКО форму:\n  name_en, definition, assumptions и components заполняй под запрос пользователя, не копируй из примера.\n  \"ad_hoc_formula\": {\"name_ru\": \"Оборачиваемость запасов\", \"name_en\": \"Inventory turnover\",\n    \"definition\": \"Сколько раз за период запасы полностью реализуются: выручка, делённая на запасы.\", \"unit\": \"раз\",\n    \"expression\": \"REV / INV\",\n    \"assumptions\": \"Запасы берутся на конец периода.\",\n    \"components\": {\"REV\": \"Выручка\", \"INV\": \"Запасы\"}}\n\nДля intent_kind=\"explain_change\" отдельно заполни analysis_concepts — коды НАЗВАННЫХ\nпользователем показателей ТОЛЬКО из списка кандидатов ниже. Это семантический scope объяснения,\nа не targets скалярного извлечения. Широкая категория во множественном смысле включает все её\nпрямые виды: например «финансовые вложения» включает долгосрочные и краткосрочные финансовые\nвложения, если оба кода есть среди кандидатов. Связанные, но не являющиеся видами категории\nпоказатели не включай. Для остальных intent_kind верни analysis_concepts=[].\n\nЕсли в запросе нет ни компании, ни конкретного показателя, или запрос использует местоимение/дейксис\nбез антецедента (\"она\", \"их\", \"как обычно\") и контекст диалога не помогает — считай неразрешённую\nчасть (компанию или сам показатель) отдельным пунктом ambiguities или unresolved, не додумывай\nзначение. Компанию не спрашивай, если документ прикреплён: он и задаёт компанию.\n\nЕсли запрос вне области сценария (инвестиционный совет, прогноз котировок/курса, ESG-метрика,\nлюбой показатель не из финансовой отчётности) — соответствующая часть просьбы идёт в unresolved\nкак есть, targets для неё не создаётся.\n\nЯВНАЯ ПОПРАВКА ПОЛЬЗОВАТЕЛЯ (Срез 10): если пользователь прямо исправляет ранее названное\nзначение (например «нет, EBITDA была 120», «исправь значение на 5 млн») или отменяет свою\nпредыдущую поправку, НЕ считай это новым независимым фактом. Заполни поле correction.\n- action=\"apply\" для новой поправки, action=\"cancel\" для отмены/возврата к исходному.\n- concept — код из кандидатов, только если однозначно распознан; иначе null.\n- evidence_id — только если пользователь буквально назвал идентификатор доказательства; не выдумывай.\n- value — число для apply, null для cancel.\n- unit/period_ref/basis — только если явно названы пользователем.\n- reason — явно названная причина, иначе пустая строка.\nТочное связывание с существующим evidence делает Case после intent.parse; модель его не угадывает.\n\nВерни СТРОГО JSON вида:\n{\n  \"route\": \"plan\" | \"answer\",\n  \"intent_kind\": \"extract_registered_metric\" | \"extract_ad_hoc_metric\" | \"calculate_registered_metric\"\n    | \"calculate_ad_hoc_metric\" | \"full_analysis\" | \"extract_structure\" | \"document_qa\"\n    | \"compare_metrics\" | \"explain_change\" | \"validate_report\" | \"plan_fact_analysis\"\n    | \"monitor_changes\" | \"form\" | null,\n  \"targets\": [{\"concept\": \"ENUM_FROM_CANDIDATES\"}, ...],\n  \"analysis_concepts\": [\"ENUM_FROM_CANDIDATES\", ...],\n  \"ad_hoc_concept\": null | {\"name_ru\": \"...\", \"name_en\": \"...\", \"aliases_ru\": [\"...\"], \"aliases_en\": [\"...\"],\n    \"definition\": \"...\", \"hint\": \"...\", \"value_kind\": \"flow|stock|ratio|other\"},\n  \"ad_hoc_formula\": null | {\"name_ru\": \"...\", \"name_en\": \"...\", \"definition\": \"...\", \"unit\": \"%\",\n    \"expression\": \"A / B * 100\", \"assumptions\": \"\",\n    \"components\": {\"A\": \"название показателя A\", \"B\": \"название показателя B\"}},\n  \"entity_ref\": \"название компании как в запросе, или null\",\n  \"period_ref\": \"период, названный пользователем (например \\\"2024\\\", \\\"Q1 2025\\\"), или null\",\n  \"role\": \"other|risks|baifp|die|cib|dgr, или null\",\n  \"unresolved\": [\"фраза пользователя, которую не удалось сопоставить\", ...],\n  \"ambiguities\": [{\"term\": \"...\", \"candidates\": [\"ENUM1\", \"ENUM2\"], \"reason\": \"...\"}],\n  \"correction\": null | {\"action\": \"apply|cancel\", \"concept\": \"ENUM_FROM_CANDIDATES|null\",\n    \"evidence_id\": \"literal evidence id|null\", \"value\": 123.45, \"unit\": \"RUB|null\",\n    \"period_ref\": \"2024|null\", \"basis\": \"IFRS|null\", \"reason\": \"...\"},\n  \"goal_ref\": \"goal-1\",\n  \"depends_on\": [],\n  \"additional_goals\": [{\"goal_ref\": \"goal-2\", \"depends_on\": [\"goal-1\"],\n    \"intent_kind\": \"...\", \"targets\": [], \"analysis_concepts\": [], \"ad_hoc_concept\": null,\n    \"ad_hoc_formula\": null, \"entity_ref\": null, \"period_ref\": null, \"role\": null,\n    \"unresolved\": [], \"ambiguities\": [], \"correction\": null}]\n}\nНикакого текста вне JSON.\n\nВАЖНО: в этом вызове route ВСЕГДА \"plan\" — ответ «сам» не поддерживается; выбери наиболее подходящий intent_kind.",
+      "prompt": "Запрос пользователя: 'По данным этого отчёта рассчитай для каждого доступного периода долю дебиторской задолженности в оборотных активах по формуле RECEIVABLES / CURRENT_ASSETS * 100. Это нестандартный показатель: сначала получи оба исходных показателя из отчёта, затем выполни расчёт отдельным атомом и покажи результат со ссылками на доказательства.'\n\n\n## Контекст диалога\nПрикреплённые документы:\n- «fbffab30-7dfc-4fad-ad43-ca627f8ea1c4» (активный — с ним и работай, если запрос не называет другой)\nРоль пользователя, выбранная в интерфейсе: Общая (other). Это источник истины для состава полного анализа и формы; не заменяй её ролью, упомянутой или угаданной из текста. Верни этот же код role.\n\nКандидаты показателей (единственные допустимые коды для targets[].concept):\n- ACCOUNTS_RECEIVABLE: Дебиторская задолженность\n- TOTAL_CURRENT_ASSETS: Итого оборотных активов\n- INTEREST_RECEIVED: Полученные проценты\n- DIVIDENDS_RECEIVED: Дивиденды полученные\n- ACCOUNTS_RECEIVABLE_TURNOVER: Оборачиваемость дебиторской задолженности\n- TOTAL_ASSETS: Итого активы\n- OTHER_ASSETS: Прочие активы\n- WORKING_CAPITAL: Оборотный капитал\n- ACCOUNTS_PAYABLE: Кредиторская задолженность\n- JUNIOR_DEBT: Субординированная задолженность\n- COST_TO_ASSETS: Затраты к активам\n- DOUBTFUL_ACCOUNTS_ALLOWANCE: Резерв под ожидаемые кредитные убытки (дебиторская задолженность)\n- CHANGES_OCF_ASSETS_LIABILITIES: Изменения в оборотном капитале\n- INTANGIBLE_ASSETS: Нематериальные активы\n- RISK_WEIGHTED_ASSETS: Активы, взвешенные по риску (RWA)\n- ROA: Рентабельность активов\n- INTEREST_INCOME_ACCRUED: Проценты к получению\n- OPERATING_INCOME_CIR: Операционный доход, рассчитанный через CIR\n- FUTURE_CAPEX_LIABILITIES: Обязательства будущих периодов по капитальным затратам\n- COMBINED_ASSET_PURCHASES: Приобретение основных средств и нематериальных активов\n- CASH_EQUIVALENTS: Денежные средства и их эквиваленты\n- ASSET_SALES_PROCEEDS: Поступления от продажи основных средств и нематериальных активов\n- NET_INCOME: Чистая прибыль\n- CURRENCY_METALS_INCOME: Чистый доход от операций с иностранными валютами и драгоценными металлами\n- FEE_AND_COMMISSION_INCOME: Комиссионный доход\n- OPERATING_PROFIT: Операционная прибыль\n- PROFIT_FROM_SALES: Прибыль (убыток) от продаж\n- DEFERRED_TAX_ASSETS: Отложенные налоговые активы\n- DEFERRED_TAX_LIABILITIES: Отложенные налоговые обязательства",
+      "system_chars": 14763,
+      "prompt_chars": 2353,
+      "elapsed_s": 3.119,
+      "response": "{\"route\":\"plan\",\"intent_kind\":\"calculate_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":{\"name_ru\":\"Доля дебиторской задолженности в оборотных активах\",\"name_en\":\"Receivables to Current Assets Ratio\",\"definition\":\"Доля дебиторской задолженности в оборотных активах, выраженная в процентах.\",\"unit\":\"%\",\"expression\":\"RECEIVABLES / CURRENT_ASSETS * 100\",\"assumptions\":\"\",\"components\":{\"RECEIVABLES\":\"Дебиторская задолженность\",\"CURRENT_ASSETS\":\"Итого оборотных активов\"}},\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[]}",
+      "usage": {
+        "in": 5418,
+        "out": 208,
+        "cached": 0,
+        "model": "deepseek-ai/DeepSeek-V4-Pro"
+      },
+      "cost_usd": 0.013187
+    }
+  ],
+  "room_calls": [],
+  "events": [
+    {
+      "type": "plan_graph",
+      "graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "planner_version": "1.0.0",
+      "root": {
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "1a32d13d05cd3cb9eb09cd673489b87ccf9b163b756afecbe42cf8e587867a2c"
+      },
+      "nodes": [
+        {
+          "node_key": {
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+          },
+          "produces": [
+            "document_text"
+          ],
+          "requires": [],
+          "sandbox_profile": "document_read",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+          },
+          "produces": [
+            "RunPassport"
+          ],
+          "requires": [
+            {
+              "atom_name": "ingest.document",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "locate",
+            "atom_version": "1.0.2",
+            "args_fingerprint": "concept=ACCOUNTS_RECEIVABLE;entity=ent-09f97cec158f1edc680cf391"
+          },
+          "produces": [
+            "CandidateLocator:ACCOUNTS_RECEIVABLE"
+          ],
+          "requires": [
+            {
+              "atom_name": "identify.classify",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+            },
+            {
+              "atom_name": "ingest.document",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+            }
+          ],
+          "sandbox_profile": "document_read",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "read.value",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "concept=ACCOUNTS_RECEIVABLE;entity=ent-09f97cec158f1edc680cf391"
+          },
+          "produces": [
+            "ExtractedMetric:ACCOUNTS_RECEIVABLE"
+          ],
+          "requires": [
+            {
+              "atom_name": "identify.classify",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+            },
+            {
+              "atom_name": "locate",
+              "atom_version": "1.0.2",
+              "args_fingerprint": "concept=ACCOUNTS_RECEIVABLE;entity=ent-09f97cec158f1edc680cf391"
+            }
+          ],
+          "sandbox_profile": "document_read",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "norm.unit",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "370d3f9cb6d17c795a21af40b7fe313f7a22a571ac7839f14d47cc41c5af9992"
+          },
+          "produces": [
+            "Verified:unit"
+          ],
+          "requires": [
+            {
+              "atom_name": "read.value",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "concept=ACCOUNTS_RECEIVABLE;entity=ent-09f97cec158f1edc680cf391"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "norm.time",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "05966981cf9302823e3d888436879a4dbd9c0144473f5c9ee4549f30ca0dfb22"
+          },
+          "produces": [
+            "Verified:time"
+          ],
+          "requires": [
+            {
+              "atom_name": "norm.unit",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "370d3f9cb6d17c795a21af40b7fe313f7a22a571ac7839f14d47cc41c5af9992"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "verify.bounds",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "a266a61eccbe65d83f5ba0fa413976cba84c934e50b8cc46ea1ab2ada63a70e7"
+          },
+          "produces": [
+            "Verified:bounds"
+          ],
+          "requires": [
+            {
+              "atom_name": "norm.time",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "05966981cf9302823e3d888436879a4dbd9c0144473f5c9ee4549f30ca0dfb22"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "locate",
+            "atom_version": "1.0.2",
+            "args_fingerprint": "concept=TOTAL_CURRENT_ASSETS;entity=ent-09f97cec158f1edc680cf391"
+          },
+          "produces": [
+            "CandidateLocator:TOTAL_CURRENT_ASSETS"
+          ],
+          "requires": [
+            {
+              "atom_name": "identify.classify",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+            },
+            {
+              "atom_name": "ingest.document",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+            }
+          ],
+          "sandbox_profile": "document_read",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "read.value",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "concept=TOTAL_CURRENT_ASSETS;entity=ent-09f97cec158f1edc680cf391"
+          },
+          "produces": [
+            "ExtractedMetric:TOTAL_CURRENT_ASSETS"
+          ],
+          "requires": [
+            {
+              "atom_name": "identify.classify",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+            },
+            {
+              "atom_name": "locate",
+              "atom_version": "1.0.2",
+              "args_fingerprint": "concept=TOTAL_CURRENT_ASSETS;entity=ent-09f97cec158f1edc680cf391"
+            }
+          ],
+          "sandbox_profile": "document_read",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "norm.unit",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "ef3a09833e7f48f3e998421f2b88bec0da2262526d58475b86f71c9031e5d576"
+          },
+          "produces": [
+            "Verified:unit"
+          ],
+          "requires": [
+            {
+              "atom_name": "read.value",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "concept=TOTAL_CURRENT_ASSETS;entity=ent-09f97cec158f1edc680cf391"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "norm.time",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "c9916eb33d7d3425286de8bbfc52a2fcbdf8dbfb7e4a5a0d9b753d8e194a905e"
+          },
+          "produces": [
+            "Verified:time"
+          ],
+          "requires": [
+            {
+              "atom_name": "norm.unit",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "ef3a09833e7f48f3e998421f2b88bec0da2262526d58475b86f71c9031e5d576"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "verify.bounds",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "0e1404ca0704291cfeb45a845cd54ebac962ead3c6f8d885e4dccedf02b179c0"
+          },
+          "produces": [
+            "Verified:bounds"
+          ],
+          "requires": [
+            {
+              "atom_name": "norm.time",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "c9916eb33d7d3425286de8bbfc52a2fcbdf8dbfb7e4a5a0d9b753d8e194a905e"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "calc.formula",
+            "atom_version": "2.0.0",
+            "args_fingerprint": "concept=Доля дебиторской задолженности в оборотных активах;entity=ent-09f97cec158f1edc680cf391"
+          },
+          "produces": [
+            "CalculatedMetric:Доля дебиторской задолженности в оборотных активах"
+          ],
+          "requires": [
+            {
+              "atom_name": "identify.classify",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+            },
+            {
+              "atom_name": "verify.bounds",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "a266a61eccbe65d83f5ba0fa413976cba84c934e50b8cc46ea1ab2ada63a70e7"
+            },
+            {
+              "atom_name": "verify.bounds",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "0e1404ca0704291cfeb45a845cd54ebac962ead3c6f8d885e4dccedf02b179c0"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "verify.identity",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "efda7e625cfb0201bde26ddb4d229db7defa502a1629d2867398bf8810591426"
+          },
+          "produces": [
+            "Verified:identity"
+          ],
+          "requires": [
+            {
+              "atom_name": "calc.formula",
+              "atom_version": "2.0.0",
+              "args_fingerprint": "concept=Доля дебиторской задолженности в оборотных активах;entity=ent-09f97cec158f1edc680cf391"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "verify.cross",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "2cb33c27acb8c4d25e47c8b01b7567ea608892ce0c9685102718897b973d739f"
+          },
+          "produces": [
+            "Verified:cross"
+          ],
+          "requires": [
+            {
+              "atom_name": "verify.identity",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "efda7e625cfb0201bde26ddb4d229db7defa502a1629d2867398bf8810591426"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "norm.time",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "d8e572b4893f48b7cfc878233f466cd95b247558ded95d5e6c6430af1d76ac55"
+          },
+          "produces": [
+            "Verified:time"
+          ],
+          "requires": [
+            {
+              "atom_name": "verify.cross",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "2cb33c27acb8c4d25e47c8b01b7567ea608892ce0c9685102718897b973d739f"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "verify.bounds",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "1a32d13d05cd3cb9eb09cd673489b87ccf9b163b756afecbe42cf8e587867a2c"
+          },
+          "produces": [
+            "Verified:bounds"
+          ],
+          "requires": [
+            {
+              "atom_name": "norm.time",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "d8e572b4893f48b7cfc878233f466cd95b247558ded95d5e6c6430af1d76ac55"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        }
+      ],
+      "scenarios": []
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "e36a3ac0-81c1-4d3f-88f1-51e2b79ea8e2",
+        "node_key": {
+          "atom_name": "ingest.document",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "dc69631f-2778-4395-94a6-03963a4e61d8",
+        "node_key": {
+          "atom_name": "identify.classify",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "503f4726-c79c-4fc8-9768-aedc88b01bb2",
+        "node_key": {
+          "atom_name": "locate",
+          "atom_version": "1.0.2",
+          "args_fingerprint": "concept=ACCOUNTS_RECEIVABLE;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "e08efdb8-f3ce-4919-b890-dad1595c3150",
+        "node_key": {
+          "atom_name": "read.value",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "concept=ACCOUNTS_RECEIVABLE;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "c28ba76e-a940-4050-8b43-95e1e5da2d13",
+        "node_key": {
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "370d3f9cb6d17c795a21af40b7fe313f7a22a571ac7839f14d47cc41c5af9992"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "546d1406-720f-4e3b-bfbf-89e0f2544e81",
+        "node_key": {
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "05966981cf9302823e3d888436879a4dbd9c0144473f5c9ee4549f30ca0dfb22"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "6bea2c7e-c0b3-407d-96ca-b9134885a372",
+        "node_key": {
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "a266a61eccbe65d83f5ba0fa413976cba84c934e50b8cc46ea1ab2ada63a70e7"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "6038a4ab-a675-48ad-b3a3-86907719eca5",
+        "node_key": {
+          "atom_name": "locate",
+          "atom_version": "1.0.2",
+          "args_fingerprint": "concept=TOTAL_CURRENT_ASSETS;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "7666df81-ad97-43a6-b654-2f016ab9fa47",
+        "node_key": {
+          "atom_name": "read.value",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "concept=TOTAL_CURRENT_ASSETS;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "42f0814c-7366-4a05-a358-5ee37998f9b4",
+        "node_key": {
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "ef3a09833e7f48f3e998421f2b88bec0da2262526d58475b86f71c9031e5d576"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "e2d075a3-a0d8-422e-9834-1edd5b7296ce",
+        "node_key": {
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "c9916eb33d7d3425286de8bbfc52a2fcbdf8dbfb7e4a5a0d9b753d8e194a905e"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "dc66ce3a-52ce-47eb-b03f-3a14a3115c89",
+        "node_key": {
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "0e1404ca0704291cfeb45a845cd54ebac962ead3c6f8d885e4dccedf02b179c0"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "56952737-2160-498b-8d20-ad5bc8707053",
+        "node_key": {
+          "atom_name": "calc.formula",
+          "atom_version": "2.0.0",
+          "args_fingerprint": "concept=Доля дебиторской задолженности в оборотных активах;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "405bdfc5-6bd4-4261-be94-624f258bf68e",
+        "node_key": {
+          "atom_name": "verify.identity",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "efda7e625cfb0201bde26ddb4d229db7defa502a1629d2867398bf8810591426"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "190bd499-5b8a-4c3d-aa49-dbb4214da698",
+        "node_key": {
+          "atom_name": "verify.cross",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "2cb33c27acb8c4d25e47c8b01b7567ea608892ce0c9685102718897b973d739f"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "f7fe745d-16a9-4fbf-83d0-660a13c46e02",
+        "node_key": {
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "d8e572b4893f48b7cfc878233f466cd95b247558ded95d5e6c6430af1d76ac55"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "ca82eae9-39e5-4fb2-8ef9-79a4aab49034",
+        "node_key": {
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "1a32d13d05cd3cb9eb09cd673489b87ccf9b163b756afecbe42cf8e587867a2c"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "e36a3ac0-81c1-4d3f-88f1-51e2b79ea8e2",
+        "node_key": {
+          "atom_name": "ingest.document",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:14.286186Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "e36a3ac0-81c1-4d3f-88f1-51e2b79ea8e2",
+        "node_key": {
+          "atom_name": "ingest.document",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "DocumentText(document_id='ent-09f97cec158f1edc680cf391', documen"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:14.286186Z",
+        "finished_at": "2026-10-01T21:43:14.289199Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "dc69631f-2778-4395-94a6-03963a4e61d8",
+        "node_key": {
+          "atom_name": "identify.classify",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:14.300603Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "dc69631f-2778-4395-94a6-03963a4e61d8",
+        "node_key": {
+          "atom_name": "identify.classify",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "f3c5d2d5-6163-4911-b00a-f541eb64292d"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:14.300603Z",
+        "finished_at": "2026-10-01T21:43:14.617566Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "503f4726-c79c-4fc8-9768-aedc88b01bb2",
+        "node_key": {
+          "atom_name": "locate",
+          "atom_version": "1.0.2",
+          "args_fingerprint": "concept=ACCOUNTS_RECEIVABLE;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:14.625989Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "6038a4ab-a675-48ad-b3a3-86907719eca5",
+        "node_key": {
+          "atom_name": "locate",
+          "atom_version": "1.0.2",
+          "args_fingerprint": "concept=TOTAL_CURRENT_ASSETS;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:14.625989Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "503f4726-c79c-4fc8-9768-aedc88b01bb2",
+        "node_key": {
+          "atom_name": "locate",
+          "atom_version": "1.0.2",
+          "args_fingerprint": "concept=ACCOUNTS_RECEIVABLE;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "69d26933-3712-4a7b-a6b6-419e69a6e832",
+          "63df170d-1223-4f70-bfe3-59ae71afdaf0"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:14.625989Z",
+        "finished_at": "2026-10-01T21:43:28.476137Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "6038a4ab-a675-48ad-b3a3-86907719eca5",
+        "node_key": {
+          "atom_name": "locate",
+          "atom_version": "1.0.2",
+          "args_fingerprint": "concept=TOTAL_CURRENT_ASSETS;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "2fffb7ab-75a2-4fc8-8e28-8e567f1db36e"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:14.625989Z",
+        "finished_at": "2026-10-01T21:43:28.476137Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "e08efdb8-f3ce-4919-b890-dad1595c3150",
+        "node_key": {
+          "atom_name": "read.value",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "concept=ACCOUNTS_RECEIVABLE;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:28.488165Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "7666df81-ad97-43a6-b654-2f016ab9fa47",
+        "node_key": {
+          "atom_name": "read.value",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "concept=TOTAL_CURRENT_ASSETS;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:28.488165Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "e08efdb8-f3ce-4919-b890-dad1595c3150",
+        "node_key": {
+          "atom_name": "read.value",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "concept=ACCOUNTS_RECEIVABLE;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:28.488165Z",
+        "finished_at": "2026-10-01T21:43:30.604368Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "7666df81-ad97-43a6-b654-2f016ab9fa47",
+        "node_key": {
+          "atom_name": "read.value",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "concept=TOTAL_CURRENT_ASSETS;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:28.488165Z",
+        "finished_at": "2026-10-01T21:43:30.604368Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "c28ba76e-a940-4050-8b43-95e1e5da2d13",
+        "node_key": {
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "370d3f9cb6d17c795a21af40b7fe313f7a22a571ac7839f14d47cc41c5af9992"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.616927Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "c28ba76e-a940-4050-8b43-95e1e5da2d13",
+        "node_key": {
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "370d3f9cb6d17c795a21af40b7fe313f7a22a571ac7839f14d47cc41c5af9992"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "6d7aadb9-388d-4952-a243-c141f212c229",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "7cfc8fcd-25be-4a38-bfad-f6f559652ff9",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "82a653a7-2410-4180-94bb-53800d57a543",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.616927Z",
+        "finished_at": "2026-10-01T21:43:30.619985Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "42f0814c-7366-4a05-a358-5ee37998f9b4",
+        "node_key": {
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "ef3a09833e7f48f3e998421f2b88bec0da2262526d58475b86f71c9031e5d576"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.624091Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "42f0814c-7366-4a05-a358-5ee37998f9b4",
+        "node_key": {
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "ef3a09833e7f48f3e998421f2b88bec0da2262526d58475b86f71c9031e5d576"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "8b9fada2-438a-44c8-a7d1-d5295fe6ca26",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "6c9a38ed-ddb2-4653-930d-fb949b4ae448",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "4082e636-013a-4166-9f40-6c21ff18b4de",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.624091Z",
+        "finished_at": "2026-10-01T21:43:30.626823Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "546d1406-720f-4e3b-bfbf-89e0f2544e81",
+        "node_key": {
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "05966981cf9302823e3d888436879a4dbd9c0144473f5c9ee4549f30ca0dfb22"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.630918Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "546d1406-720f-4e3b-bfbf-89e0f2544e81",
+        "node_key": {
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "05966981cf9302823e3d888436879a4dbd9c0144473f5c9ee4549f30ca0dfb22"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "fe4617f4-106a-40c2-88c9-da5a5df208cb",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "7ebdbfa8-7498-449b-a734-cbfc987194f6",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "9e0daaf1-b80b-4c40-b5b1-fe9edf6f68af",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.630918Z",
+        "finished_at": "2026-10-01T21:43:30.633681Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "e2d075a3-a0d8-422e-9834-1edd5b7296ce",
+        "node_key": {
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "c9916eb33d7d3425286de8bbfc52a2fcbdf8dbfb7e4a5a0d9b753d8e194a905e"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.637570Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "e2d075a3-a0d8-422e-9834-1edd5b7296ce",
+        "node_key": {
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "c9916eb33d7d3425286de8bbfc52a2fcbdf8dbfb7e4a5a0d9b753d8e194a905e"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "3ae51c50-b638-4af4-86fc-594c4cc7ca64",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "6aade7b1-4d0e-43d0-862d-c42f3cd23f63",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "363936d0-e3f2-4a3c-9f9b-eb94d596c15a",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.637570Z",
+        "finished_at": "2026-10-01T21:43:30.640213Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "6bea2c7e-c0b3-407d-96ca-b9134885a372",
+        "node_key": {
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "a266a61eccbe65d83f5ba0fa413976cba84c934e50b8cc46ea1ab2ada63a70e7"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.644233Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "6bea2c7e-c0b3-407d-96ca-b9134885a372",
+        "node_key": {
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "a266a61eccbe65d83f5ba0fa413976cba84c934e50b8cc46ea1ab2ada63a70e7"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "ddf00142-58ed-43b1-ae55-9e6a7bb32e9e",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "e52d2e03-c4ca-486e-b3f4-6cb5e573db01",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "9d43be3d-cb4a-443b-b383-24657ba0c7f3",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.644233Z",
+        "finished_at": "2026-10-01T21:43:30.646965Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "dc66ce3a-52ce-47eb-b03f-3a14a3115c89",
+        "node_key": {
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "0e1404ca0704291cfeb45a845cd54ebac962ead3c6f8d885e4dccedf02b179c0"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.651213Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "dc66ce3a-52ce-47eb-b03f-3a14a3115c89",
+        "node_key": {
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "0e1404ca0704291cfeb45a845cd54ebac962ead3c6f8d885e4dccedf02b179c0"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "7b0e3ff4-77a2-4362-97ef-3f1ba6f8f885",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "ac120312-35cb-4d8d-bffa-539f37ddc967",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "80da64e6-28f6-4939-a8f1-dd8e799f8f30",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.651213Z",
+        "finished_at": "2026-10-01T21:43:30.654002Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "56952737-2160-498b-8d20-ad5bc8707053",
+        "node_key": {
+          "atom_name": "calc.formula",
+          "atom_version": "2.0.0",
+          "args_fingerprint": "concept=Доля дебиторской задолженности в оборотных активах;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.658148Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "56952737-2160-498b-8d20-ad5bc8707053",
+        "node_key": {
+          "atom_name": "calc.formula",
+          "atom_version": "2.0.0",
+          "args_fingerprint": "concept=Доля дебиторской задолженности в оборотных активах;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "CalculatedMetric(schema_version='1.0', output_type='CalculatedMe",
+          "CalculatedMetric(schema_version='1.0', output_type='CalculatedMe",
+          "CalculatedMetric(schema_version='1.0', output_type='CalculatedMe"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.658148Z",
+        "finished_at": "2026-10-01T21:43:30.674215Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "405bdfc5-6bd4-4261-be94-624f258bf68e",
+        "node_key": {
+          "atom_name": "verify.identity",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "efda7e625cfb0201bde26ddb4d229db7defa502a1629d2867398bf8810591426"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.679639Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "405bdfc5-6bd4-4261-be94-624f258bf68e",
+        "node_key": {
+          "atom_name": "verify.identity",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "efda7e625cfb0201bde26ddb4d229db7defa502a1629d2867398bf8810591426"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "6cbadd41-a01a-4a18-958a-b02c7a1fb4a2",
+          "CalculatedMetric(schema_version='1.0', output_type='CalculatedMe",
+          "08955925-f09c-4bd3-85da-37b4cd1716c3",
+          "CalculatedMetric(schema_version='1.0', output_type='CalculatedMe",
+          "cb15c8d7-178c-4941-a168-ac94a72bb056",
+          "CalculatedMetric(schema_version='1.0', output_type='CalculatedMe"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.679639Z",
+        "finished_at": "2026-10-01T21:43:30.682557Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "190bd499-5b8a-4c3d-aa49-dbb4214da698",
+        "node_key": {
+          "atom_name": "verify.cross",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "2cb33c27acb8c4d25e47c8b01b7567ea608892ce0c9685102718897b973d739f"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.687147Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "190bd499-5b8a-4c3d-aa49-dbb4214da698",
+        "node_key": {
+          "atom_name": "verify.cross",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "2cb33c27acb8c4d25e47c8b01b7567ea608892ce0c9685102718897b973d739f"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "9d132092-b8eb-469b-8359-ddd0a0e4107a",
+          "CalculatedMetric(schema_version='1.0', output_type='CalculatedMe",
+          "a37bdcf3-5a1b-4248-9fe9-0ba8c34c8b50",
+          "CalculatedMetric(schema_version='1.0', output_type='CalculatedMe",
+          "015fbea9-c3c5-4fc0-8980-ad15373cf9e3",
+          "CalculatedMetric(schema_version='1.0', output_type='CalculatedMe"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.687147Z",
+        "finished_at": "2026-10-01T21:43:30.689124Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "f7fe745d-16a9-4fbf-83d0-660a13c46e02",
+        "node_key": {
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "d8e572b4893f48b7cfc878233f466cd95b247558ded95d5e6c6430af1d76ac55"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.693140Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "f7fe745d-16a9-4fbf-83d0-660a13c46e02",
+        "node_key": {
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "d8e572b4893f48b7cfc878233f466cd95b247558ded95d5e6c6430af1d76ac55"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "5869b566-6b9e-4b3f-b550-e283964c0498",
+          "CalculatedMetric(schema_version='1.0', output_type='CalculatedMe",
+          "82d5df90-82ec-49b3-be67-7355bfe51efe",
+          "CalculatedMetric(schema_version='1.0', output_type='CalculatedMe",
+          "8058a645-e709-4bc6-afcb-7c84a60633fd",
+          "CalculatedMetric(schema_version='1.0', output_type='CalculatedMe"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.693140Z",
+        "finished_at": "2026-10-01T21:43:30.695157Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "ca82eae9-39e5-4fb2-8ef9-79a4aab49034",
+        "node_key": {
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "1a32d13d05cd3cb9eb09cd673489b87ccf9b163b756afecbe42cf8e587867a2c"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.699569Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ae4a7cd226d585179ad3d04b1dfd89a4dba99131ca93fe0440110ff48d1abdd3",
+      "node_run": {
+        "node_run_id": "ca82eae9-39e5-4fb2-8ef9-79a4aab49034",
+        "node_key": {
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "1a32d13d05cd3cb9eb09cd673489b87ccf9b163b756afecbe42cf8e587867a2c"
+        },
+        "run_id": "6f98aca9-d3d8-4db4-973b-6fd9204c59e6",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "1151e5e1-20d1-4601-9b34-70acbbbe6d1a",
+          "CalculatedMetric(schema_version='1.0', output_type='CalculatedMe",
+          "ff07c9f9-966a-4b4b-a57b-94d487d7f161",
+          "CalculatedMetric(schema_version='1.0', output_type='CalculatedMe",
+          "e251939d-3c3f-4beb-95b4-d38debe31ff9",
+          "CalculatedMetric(schema_version='1.0', output_type='CalculatedMe"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-01T21:43:30.699569Z",
+        "finished_at": "2026-10-01T21:43:30.702383Z"
+      }
+    },
+    {
+      "type": "typed_result",
+      "status": "complete",
+      "result": {
+        "schema_version": "1.0",
+        "output_type": "CalculatedMetric",
+        "status": "supported",
+        "metric_id": "b0802941-2bd4-4b4e-8248-9271a37be00f",
+        "derived_fact": {
+          "evidence_id": "aa6ae738-104c-4253-80f2-ea5b8d65aaef",
+          "produced_by_atom": "calc.formula",
+          "produced_by_atom_version": "2.0.0",
+          "source_ref": "ДОЛЯ ДЕБИТОРСКОЙ ЗАДОЛЖЕННОСТИ В ОБОРОТНЫХ АКТИВАХ@extracted",
+          "document_version": null,
+          "concept": "Доля дебиторской задолженности в оборотных активах",
+          "period_ref": "30.06.2026",
+          "basis": null,
+          "supersedes": null,
+          "created_at": "2026-10-01T21:43:30.673474Z",
+          "formula_id": "ed0a4b5e-4f45-4136-aa81-05e4eea17014",
+          "formula_version": "rsbu_nf_ru:9b1a2e11507b873bc5a9a93d406d56f4ef0d2af621d3ccd6414e06d5becbdf68",
+          "expression": "ACCOUNTS_RECEIVABLE / TOTAL_CURRENT_ASSETS * 100",
+          "inputs": [
+            "e13d8121-4641-4518-8c71-d212687b2830",
+            "bfab946c-22f0-4aa7-95ba-831232c004a4"
+          ],
+          "value": 35.09173937403068,
+          "unit": "%"
+        },
+        "concept": "Доля дебиторской задолженности в оборотных активах",
+        "period_ref": "30.06.2026",
+        "definition_origin": "ad_hoc"
+      }
+    },
+    {
+      "type": "typed_result",
+      "status": "complete",
+      "result": {
+        "schema_version": "1.0",
+        "output_type": "CalculatedMetric",
+        "status": "supported",
+        "metric_id": "4e53c208-8001-4349-a2f8-3248fe991d6b",
+        "derived_fact": {
+          "evidence_id": "57824f3d-2b60-4fbb-8c18-00a7d3ed42e7",
+          "produced_by_atom": "calc.formula",
+          "produced_by_atom_version": "2.0.0",
+          "source_ref": "ДОЛЯ ДЕБИТОРСКОЙ ЗАДОЛЖЕННОСТИ В ОБОРОТНЫХ АКТИВАХ@extracted",
+          "document_version": null,
+          "concept": "Доля дебиторской задолженности в оборотных активах",
+          "period_ref": "31.12.2025",
+          "basis": null,
+          "supersedes": null,
+          "created_at": "2026-10-01T21:43:30.673822Z",
+          "formula_id": "ed0a4b5e-4f45-4136-aa81-05e4eea17014",
+          "formula_version": "rsbu_nf_ru:9b1a2e11507b873bc5a9a93d406d56f4ef0d2af621d3ccd6414e06d5becbdf68",
+          "expression": "ACCOUNTS_RECEIVABLE / TOTAL_CURRENT_ASSETS * 100",
+          "inputs": [
+            "39c3cd38-2537-465d-85c8-735b66c88c81",
+            "d494ba63-d3e2-43f2-a2b3-e2c5b57adf47"
+          ],
+          "value": 31.471059307041273,
+          "unit": "%"
+        },
+        "concept": "Доля дебиторской задолженности в оборотных активах",
+        "period_ref": "31.12.2025",
+        "definition_origin": "ad_hoc"
+      }
+    },
+    {
+      "type": "typed_result",
+      "status": "complete",
+      "result": {
+        "schema_version": "1.0",
+        "output_type": "CalculatedMetric",
+        "status": "supported",
+        "metric_id": "7bd61bd2-1be0-453f-b7ef-ce123dcb4eb8",
+        "derived_fact": {
+          "evidence_id": "d3d02417-b8ac-43e2-93a7-427e39a87a2f",
+          "produced_by_atom": "calc.formula",
+          "produced_by_atom_version": "2.0.0",
+          "source_ref": "ДОЛЯ ДЕБИТОРСКОЙ ЗАДОЛЖЕННОСТИ В ОБОРОТНЫХ АКТИВАХ@extracted",
+          "document_version": null,
+          "concept": "Доля дебиторской задолженности в оборотных активах",
+          "period_ref": "31.12.2024",
+          "basis": null,
+          "supersedes": null,
+          "created_at": "2026-10-01T21:43:30.674157Z",
+          "formula_id": "ed0a4b5e-4f45-4136-aa81-05e4eea17014",
+          "formula_version": "rsbu_nf_ru:9b1a2e11507b873bc5a9a93d406d56f4ef0d2af621d3ccd6414e06d5becbdf68",
+          "expression": "ACCOUNTS_RECEIVABLE / TOTAL_CURRENT_ASSETS * 100",
+          "inputs": [
+            "fb985c69-ef47-4959-8482-a333923d0c4e",
+            "e860774f-d573-4e6d-b240-af442ffbba6d"
+          ],
+          "value": 71.93761355277847,
+          "unit": "%"
+        },
+        "concept": "Доля дебиторской задолженности в оборотных активах",
+        "period_ref": "31.12.2024",
+        "definition_origin": "ad_hoc"
+      }
+    }
+  ],
+  "manifest": {
+    "schema_version": "1.0",
+    "case_id": "p6-task3-run1",
+    "document_id": "fbffab30-7dfc-4fad-ad43-ca627f8ea1c4",
+    "document_version": "sha256:e78b291d495b39a83fec83c2c25e232f75744563b2553b3036e5643727f30780",
+    "goal_type": "calculate_ad_hoc_metric",
+    "goal_types": [
+      "calculate_ad_hoc_metric"
+    ],
+    "period_scope": "all_available",
+    "result": {
+      "schema_version": "1.0",
+      "output_type": "CalculatedMetric",
+      "status": "supported",
+      "metric_id": "7bd61bd2-1be0-453f-b7ef-ce123dcb4eb8",
+      "derived_fact": {
+        "evidence_id": "d3d02417-b8ac-43e2-93a7-427e39a87a2f",
+        "produced_by_atom": "calc.formula",
+        "produced_by_atom_version": "2.0.0",
+        "source_ref": "ДОЛЯ ДЕБИТОРСКОЙ ЗАДОЛЖЕННОСТИ В ОБОРОТНЫХ АКТИВАХ@extracted",
+        "document_version": null,
+        "concept": "Доля дебиторской задолженности в оборотных активах",
+        "period_ref": "31.12.2024",
+        "basis": null,
+        "supersedes": null,
+        "created_at": "2026-10-01T21:43:30.674157Z",
+        "formula_id": "ed0a4b5e-4f45-4136-aa81-05e4eea17014",
+        "formula_version": "rsbu_nf_ru:9b1a2e11507b873bc5a9a93d406d56f4ef0d2af621d3ccd6414e06d5becbdf68",
+        "expression": "ACCOUNTS_RECEIVABLE / TOTAL_CURRENT_ASSETS * 100",
+        "inputs": [
+          "fb985c69-ef47-4959-8482-a333923d0c4e",
+          "e860774f-d573-4e6d-b240-af442ffbba6d"
+        ],
+        "value": 71.93761355277847,
+        "unit": "%"
+      },
+      "concept": "Доля дебиторской задолженности в оборотных активах",
+      "period_ref": "31.12.2024",
+      "definition_origin": "ad_hoc"
+    },
+    "results": [
+      {
+        "schema_version": "1.0",
+        "output_type": "CalculatedMetric",
+        "status": "supported",
+        "metric_id": "b0802941-2bd4-4b4e-8248-9271a37be00f",
+        "derived_fact": {
+          "evidence_id": "aa6ae738-104c-4253-80f2-ea5b8d65aaef",
+          "produced_by_atom": "calc.formula",
+          "produced_by_atom_version": "2.0.0",
+          "source_ref": "ДОЛЯ ДЕБИТОРСКОЙ ЗАДОЛЖЕННОСТИ В ОБОРОТНЫХ АКТИВАХ@extracted",
+          "document_version": null,
+          "concept": "Доля дебиторской задолженности в оборотных активах",
+          "period_ref": "30.06.2026",
+          "basis": null,
+          "supersedes": null,
+          "created_at": "2026-10-01T21:43:30.673474Z",
+          "formula_id": "ed0a4b5e-4f45-4136-aa81-05e4eea17014",
+          "formula_version": "rsbu_nf_ru:9b1a2e11507b873bc5a9a93d406d56f4ef0d2af621d3ccd6414e06d5becbdf68",
+          "expression": "ACCOUNTS_RECEIVABLE / TOTAL_CURRENT_ASSETS * 100",
+          "inputs": [
+            "e13d8121-4641-4518-8c71-d212687b2830",
+            "bfab946c-22f0-4aa7-95ba-831232c004a4"
+          ],
+          "value": 35.09173937403068,
+          "unit": "%"
+        },
+        "concept": "Доля дебиторской задолженности в оборотных активах",
+        "period_ref": "30.06.2026",
+        "definition_origin": "ad_hoc"
+      },
+      {
+        "schema_version": "1.0",
+        "output_type": "CalculatedMetric",
+        "status": "supported",
+        "metric_id": "4e53c208-8001-4349-a2f8-3248fe991d6b",
+        "derived_fact": {
+          "evidence_id": "57824f3d-2b60-4fbb-8c18-00a7d3ed42e7",
+          "produced_by_atom": "calc.formula",
+          "produced_by_atom_version": "2.0.0",
+          "source_ref": "ДОЛЯ ДЕБИТОРСКОЙ ЗАДОЛЖЕННОСТИ В ОБОРОТНЫХ АКТИВАХ@extracted",
+          "document_version": null,
+          "concept": "Доля дебиторской задолженности в оборотных активах",
+          "period_ref": "31.12.2025",
+          "basis": null,
+          "supersedes": null,
+          "created_at": "2026-10-01T21:43:30.673822Z",
+          "formula_id": "ed0a4b5e-4f45-4136-aa81-05e4eea17014",
+          "formula_version": "rsbu_nf_ru:9b1a2e11507b873bc5a9a93d406d56f4ef0d2af621d3ccd6414e06d5becbdf68",
+          "expression": "ACCOUNTS_RECEIVABLE / TOTAL_CURRENT_ASSETS * 100",
+          "inputs": [
+            "39c3cd38-2537-465d-85c8-735b66c88c81",
+            "d494ba63-d3e2-43f2-a2b3-e2c5b57adf47"
+          ],
+          "value": 31.471059307041273,
+          "unit": "%"
+        },
+        "concept": "Доля дебиторской задолженности в оборотных активах",
+        "period_ref": "31.12.2025",
+        "definition_origin": "ad_hoc"
+      },
+      {
+        "schema_version": "1.0",
+        "output_type": "CalculatedMetric",
+        "status": "supported",
+        "metric_id": "7bd61bd2-1be0-453f-b7ef-ce123dcb4eb8",
+        "derived_fact": {
+          "evidence_id": "d3d02417-b8ac-43e2-93a7-427e39a87a2f",
+          "produced_by_atom": "calc.formula",
+          "produced_by_atom_version": "2.0.0",
+          "source_ref": "ДОЛЯ ДЕБИТОРСКОЙ ЗАДОЛЖЕННОСТИ В ОБОРОТНЫХ АКТИВАХ@extracted",
+          "document_version": null,
+          "concept": "Доля дебиторской задолженности в оборотных активах",
+          "period_ref": "31.12.2024",
+          "basis": null,
+          "supersedes": null,
+          "created_at": "2026-10-01T21:43:30.674157Z",
+          "formula_id": "ed0a4b5e-4f45-4136-aa81-05e4eea17014",
+          "formula_version": "rsbu_nf_ru:9b1a2e11507b873bc5a9a93d406d56f4ef0d2af621d3ccd6414e06d5becbdf68",
+          "expression": "ACCOUNTS_RECEIVABLE / TOTAL_CURRENT_ASSETS * 100",
+          "inputs": [
+            "fb985c69-ef47-4959-8482-a333923d0c4e",
+            "e860774f-d573-4e6d-b240-af442ffbba6d"
+          ],
+          "value": 71.93761355277847,
+          "unit": "%"
+        },
+        "concept": "Доля дебиторской задолженности в оборотных активах",
+        "period_ref": "31.12.2024",
+        "definition_origin": "ad_hoc"
+      }
+    ],
+    "ad_hoc_definition": {
+      "spec_id": "5724643b-97c3-4aeb-9f0d-3e94e4c5ebc1",
+      "term": "Доля дебиторской задолженности в оборотных активах",
+      "expression": "ACCOUNTS_RECEIVABLE / TOTAL_CURRENT_ASSETS * 100",
+      "dependencies": [
+        "ACCOUNTS_RECEIVABLE",
+        "TOTAL_CURRENT_ASSETS"
+      ],
+      "assumptions": "",
+      "origin": "ad_hoc",
+      "name_ru": "Доля дебиторской задолженности в оборотных активах",
+      "name_en": "Receivables to Current Assets Ratio",
+      "definition": "Доля дебиторской задолженности в оборотных активах, выраженная в процентах.",
+      "unit": "%",
+      "components": [
+        {
+          "spec_id": "b6c9d123-c10a-446b-bd63-bee0c0ce8e38",
+          "term": "Дебиторская задолженность",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "ACCOUNTS_RECEIVABLE",
+          "name_ru": "Дебиторская задолженность",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+        },
+        {
+          "spec_id": "ed999fb2-5749-49bd-be9f-764ca4f0f557",
+          "term": "Итого оборотных активов",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "TOTAL_CURRENT_ASSETS",
+          "name_ru": "Итого оборотных активов",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "status": "no_outcome",
+    "moves": 0,
+    "author_attempts": 0,
+    "model_calls": 1,
+    "elapsed_s": 24.989,
+    "usage": {
+      "in": 5418,
+      "out": 208,
+      "cached": 0
+    },
+    "cost_usd": 0.013187
+  }
+}

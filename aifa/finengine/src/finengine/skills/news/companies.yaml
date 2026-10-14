@@ -1,0 +1,116 @@
+# Per-company direct-disclosure feeds.
+#
+# Connectors generated automatically at pipeline start from this catalog,
+# one virtual source per entry. Each one fetches material events (8-K)
+# straight from the company's official disclosure channel — no waiting
+# for CNBC/Reuters to write about it.
+#
+# Fields:
+#   canonical        display name (matches entities.watchlist_* in sources.yaml)
+#   region           RU/US/EU/CN/global
+#   ticker           stock ticker (informational)
+#   edgar_cik        SEC Central Index Key — required for EDGAR connector
+#   edgar_form       форма SEC для ленты: 8-K (умолчание, эмитенты США)
+#                    или 6-K — ИНОСТРАННЫЕ эмитенты 8-K не подают вовсе,
+#                    и запрос по 8-K отдаёт валидную ПУСТУЮ ленту навсегда
+#   edisclosure_id   e-disclosure.ru company id (RU disclosures) — not yet active
+#   ir_rss           direct RSS from company's IR page if available
+#   ir_html_url      IR press-release page URL for HTML scrape fallback
+#   weight           ranking weight (0.0..1.0). Official = 0.95+.
+
+companies:
+  # ===== US public companies (SEC EDGAR 8-K + 10-Q) =====
+  - {canonical: "JP Morgan",       region: US, ticker: JPM,   edgar_cik: "0000019617", weight: 0.95}
+  - {canonical: "Wells Fargo",     region: US, ticker: WFC,   edgar_cik: "0000072971", weight: 0.95}
+  - {canonical: "Citigroup",       region: US, ticker: C,     edgar_cik: "0000831001", weight: 0.95}
+  - {canonical: "Goldman Sachs",   region: US, ticker: GS,    edgar_cik: "0000886982", weight: 0.95}
+  - {canonical: "Morgan Stanley",  region: US, ticker: MS,    edgar_cik: "0000895421", weight: 0.95}
+  - {canonical: "Bank of America", region: US, ticker: BAC,   edgar_cik: "0000070858", weight: 0.95}
+  - {canonical: "Amazon",          region: US, ticker: AMZN,  edgar_cik: "0001018724", weight: 0.95}
+  - {canonical: "Meta",            region: US, ticker: META,  edgar_cik: "0001326801", weight: 0.95}
+  - {canonical: "Microsoft",       region: US, ticker: MSFT,  edgar_cik: "0000789019", weight: 0.95}
+  - {canonical: "Alphabet",        region: US, ticker: GOOGL, edgar_cik: "0001652044", weight: 0.95}
+  - {canonical: "Apple",           region: US, ticker: AAPL,  edgar_cik: "0000320193", weight: 0.95}
+  - {canonical: "Nvidia",          region: US, ticker: NVDA,  edgar_cik: "0001045810", weight: 0.95}
+  - {canonical: "Lyft",            region: US, ticker: LYFT,  edgar_cik: "0001759509", weight: 0.85}
+  - {canonical: "Tesla",           region: US, ticker: TSLA,  edgar_cik: "0001318605", weight: 0.95}
+  - {canonical: "Netflix",         region: US, ticker: NFLX,  edgar_cik: "0001065280", weight: 0.9}
+  - {canonical: "Walt Disney",     region: US, ticker: DIS,   edgar_cik: "0001744489", weight: 0.9}
+  - {canonical: "Walmart",         region: US, ticker: WMT,   edgar_cik: "0000104169", weight: 0.9}
+  - {canonical: "IBM",             region: US, ticker: IBM,   edgar_cik: "0000051143", weight: 0.9}
+  - {canonical: "Block (Square)",  region: US, ticker: XYZ,   edgar_cik: "0001512673", weight: 0.85}
+  - {canonical: "Affirm",          region: US, ticker: AFRM,  edgar_cik: "0001820953", weight: 0.85}
+  - {canonical: "PayPal",          region: US, ticker: PYPL,  edgar_cik: "0001633917", weight: 0.9}
+  - {canonical: "Oracle",          region: US, ticker: ORCL,  edgar_cik: "0001341439", weight: 0.9}
+  - {canonical: "AMD",             region: US, ticker: AMD,   edgar_cik: "0000002488", weight: 0.95}
+  - {canonical: "Broadcom",        region: US, ticker: AVGO,  edgar_cik: "0001730168", weight: 0.95}
+  - {canonical: "Uber",            region: US, ticker: UBER,  edgar_cik: "0001543151", weight: 0.9}
+  - {canonical: "DoorDash",        region: US, ticker: DASH,  edgar_cik: "0001792789", weight: 0.85}
+  - {canonical: "Shopify",         region: US, ticker: SHOP,  edgar_cik: "0001594805", weight: 0.85}
+  - {canonical: "Instacart",       region: US, ticker: CART,  edgar_cik: "0001579091", weight: 0.85}
+  - {canonical: "Alibaba",         region: CN, ticker: BABA,  edgar_cik: "0001577552", edgar_form: 6-K, weight: 0.95}
+  - {canonical: "JD.Com",          region: CN, ticker: JD,    edgar_cik: "0001549802", edgar_form: 6-K, weight: 0.9}
+  - {canonical: "Baidu",           region: CN, ticker: BIDU,  edgar_cik: "0001329099", edgar_form: 6-K, weight: 0.85}
+  - {canonical: "Grab",            region: global, ticker: GRAB, edgar_cik: "0001855612", edgar_form: 6-K, weight: 0.85}
+  - {canonical: "Sea (+Shopee)",   region: global, ticker: SE, edgar_cik: "0001703399", edgar_form: 6-K, weight: 0.85}
+  - {canonical: "TSMC",            region: CN, ticker: TSM,   edgar_cik: "0001046179", edgar_form: 6-K, weight: 0.95}
+  - {canonical: "ASML",            region: EU, ticker: ASML,  edgar_cik: "0000937966", edgar_form: 6-K, weight: 0.95}
+  - {canonical: "Palantir",        region: US, ticker: PLTR,  edgar_cik: "0001321655", weight: 0.85}
+  - {canonical: "PagSeguro",       region: global, ticker: PAGS, edgar_cik: "0001712807", edgar_form: 6-K, weight: 0.8}
+  - {canonical: "Spotify",         region: US, ticker: SPOT,  edgar_cik: "0001639920", edgar_form: 6-K, weight: 0.85}
+  - {canonical: "Klarna",          region: EU, ticker: KLAR,  edgar_cik: "0002003292", edgar_form: 6-K, weight: 0.85}
+
+  # ===== Companies without SEC EDGAR / without e-disclosure =====
+  # No CIK because they're listed elsewhere (HK / Tokyo / Korea / private)
+  # or don't file with SEC. Google News RSS proxy still works for them.
+  - {canonical: "Tencent",           region: CN, weight: 0.9}
+  - {canonical: "Xiaomi",            region: CN, weight: 0.85}
+  - {canonical: "BYD",               region: CN, weight: 0.85}
+  - {canonical: "Huawei",            region: CN, weight: 0.85}
+  - {canonical: "PingAn",            region: CN, weight: 0.85}
+  - {canonical: "SMIC",              region: CN, weight: 0.85}
+  - {canonical: "Meituan",           region: CN, weight: 0.85}
+  - {canonical: "ICBC",              region: CN, weight: 0.9}
+  - {canonical: "Agricultural Bank of China", region: CN, weight: 0.9}
+  - {canonical: "China Construction Bank",    region: CN, weight: 0.9}
+  - {canonical: "Bank of China",     region: CN, weight: 0.9}
+  - {canonical: "China Merchants Bank", region: CN, weight: 0.85}
+  - {canonical: "Pony AI",           region: CN, weight: 0.7}
+  - {canonical: "Weride",            region: CN, weight: 0.7}
+  - {canonical: "ByteDance",         region: CN, weight: 0.75}
+  - {canonical: "MiniMax",           region: CN, weight: 0.65}
+  - {canonical: "Zhipu AI",          region: CN, weight: 0.65}
+  - {canonical: "DeepSeek",          region: CN, weight: 0.7}
+  - {canonical: "Rakuten",           region: global, weight: 0.75}
+  - {canonical: "Naver",             region: global, weight: 0.75}
+  - {canonical: "Kakao Corp",        region: global, weight: 0.75}
+  - {canonical: "Kaspi",             region: global, weight: 0.7}
+  - {canonical: "DeliveryHero",      region: EU, weight: 0.7}
+  - {canonical: "Just Eat Takeaway", region: EU, weight: 0.7}
+  - {canonical: "Raiffeisen",        region: EU, weight: 0.75}
+  - {canonical: "OpenAI",            region: US, weight: 0.85}
+  - {canonical: "Anthropic",         region: US, weight: 0.75}
+  - {canonical: "xAI",               region: US, weight: 0.7}
+  - {canonical: "UBTech",            region: CN, weight: 0.6}
+
+  # ===== Russian public companies — e-disclosure.ru =====
+  # Scraped via Playwright (chromium); the portal renders disclosures
+  # in an ASP.NET grid that plain HTTP can't access. IDs verified
+  # against e-disclosure.ru/portal/company.aspx?id=<NNN>.
+  - {canonical: "Сбер",            region: RU, edisclosure_id: 3043,  weight: 0.95}
+  - {canonical: "ВТБ",             region: RU, edisclosure_id: 1210,  weight: 0.95}
+  - {canonical: "Совкомбанк",      region: RU, edisclosure_id: 30052, weight: 0.85}
+  - {canonical: "МТС Банк",        region: RU, edisclosure_id: 1285,  weight: 0.85}
+  - {canonical: "МТС",             region: RU, edisclosure_id: 236,   weight: 0.85}
+  - {canonical: "Ozon",            region: RU, edisclosure_id: 38334, weight: 0.85}
+  - {canonical: "Yandex",          region: RU, edisclosure_id: 34514, weight: 0.85}
+  - {canonical: "VK",              region: RU, edisclosure_id: 38965, weight: 0.85}
+  - {canonical: "X5 Retail",       region: RU, edisclosure_id: 39008, weight: 0.85}
+  - {canonical: "Magnit",          region: RU, edisclosure_id: 17783, weight: 0.85}
+  - {canonical: "Lenta",           region: RU, edisclosure_id: 38380, weight: 0.85}
+  - {canonical: "Positive Technologies", region: RU, edisclosure_id: 38196, weight: 0.85}
+  - {canonical: "Газпром",         region: RU, edisclosure_id: 934,   weight: 0.95}
+  - {canonical: "Лукойл",          region: RU, edisclosure_id: 17,    weight: 0.95}
+  - {canonical: "Роснефть",        region: RU, edisclosure_id: 6505,  weight: 0.95}
+  - {canonical: "Новатэк",         region: RU, edisclosure_id: 225,   weight: 0.9}
+  - {canonical: "Татнефть",        region: RU, edisclosure_id: 118,   weight: 0.9}

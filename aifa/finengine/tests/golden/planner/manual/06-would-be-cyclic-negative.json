@@ -1,0 +1,30 @@
+{
+  "scenario_id": "planner-06-would-be-cyclic-negative",
+  "description": "Отрицательный фикстур: узел B требует A, а A транзитивно требует B. Валидный `PlanGraph` по контракту Фазы 0 такое допускает как ДАННЫЕ (сам тип не проверяет ацикличность) — это фикстур для будущего теста GraphPlanner/PlanFeasibility (Срез 3), который обязан отклонить такой граф с feasible=false, а не молча зациклиться.",
+  "target": {"target_id": "t-6", "concept": "CIRCULAR_DEMO", "period_ref": "p-2024-fy", "entity_ref": "demo", "output_kind": "scalar"},
+  "plan_graph": {
+    "plan_id": "plan-06",
+    "root": {"atom_name": "calc.a", "atom_version": "1.0.0", "args_fingerprint": "demo=circular"},
+    "nodes": [
+      {
+        "node_key": {"atom_name": "calc.a", "atom_version": "1.0.0", "args_fingerprint": "demo=circular"},
+        "requires": [{"atom_name": "calc.b", "atom_version": "1.0.0", "args_fingerprint": "demo=circular"}],
+        "produces": ["A"],
+        "sandbox_profile": "compute_no_network"
+      },
+      {
+        "node_key": {"atom_name": "calc.b", "atom_version": "1.0.0", "args_fingerprint": "demo=circular"},
+        "requires": [{"atom_name": "calc.a", "atom_version": "1.0.0", "args_fingerprint": "demo=circular"}],
+        "produces": ["B"],
+        "sandbox_profile": "compute_no_network"
+      }
+    ],
+    "graph_hash": "sha256:manual-fixture-06"
+  },
+  "expected_feasibility": {
+    "feasible": false,
+    "unreachable_targets": ["t-6"],
+    "reason": "цикл calc.a -> calc.b -> calc.a — ни один узел не достижим от входного листа за конечное число шагов"
+  },
+  "must_be_rejected_by": "GraphPlanner (Срез 3) — этот файл сознательно нарушает ацикличность и НЕ должен проходить как валидный исполняемый план"
+}

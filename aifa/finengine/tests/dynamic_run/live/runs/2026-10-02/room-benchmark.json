@@ -1,0 +1,35 @@
+[
+  {
+    "run": 1,
+    "create_s": 0.023,
+    "exec_s": 0.091,
+    "total_s": 0.19,
+    "output": {
+      "value": 1
+    },
+    "error": null,
+    "station_fault": false
+  },
+  {
+    "run": 2,
+    "create_s": 0.015,
+    "exec_s": 0.048,
+    "total_s": 0.077,
+    "output": {
+      "value": 2
+    },
+    "error": null,
+    "station_fault": false
+  },
+  {
+    "run": 3,
+    "create_s": 0.013,
+    "exec_s": 0.049,
+    "total_s": 0.077,
+    "output": {
+      "value": 3
+    },
+    "error": null,
+    "station_fault": false
+  }
+]

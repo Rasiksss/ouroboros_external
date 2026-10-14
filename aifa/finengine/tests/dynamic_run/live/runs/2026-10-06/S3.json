@@ -1,0 +1,1837 @@
+{
+ "label": "S3",
+ "query": "Сравни выручку за доступные периоды с внешним индексом из CSV по адресу https://example.invalid/aifa-planner-missing.csv. Если источник недоступен, не подменяй его другим и не выдумывай значения — заверши задачу честным отказом с причиной.",
+ "doc_id": "a3c81e32-43b4-4c29-8e59-4ef643b83785",
+ "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+ "elapsed_s": 142.2,
+ "events": [
+  {
+   "schema_version": "1.0",
+   "event_id": "6490b1d0-5d23-4d4f-9652-72f08c18d238",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 1,
+   "occurred_at": "2026-10-06T15:39:52.147294Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "session_id",
+    "session_id": "e15b22f6-ac9c-44fb-8d15-dcfa923bfb94"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "6fa17b8b-e983-44e4-b5e8-93a9835fb58a",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 2,
+   "occurred_at": "2026-10-06T15:39:52.147353Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "thinking",
+    "text": "Разбираю запрос…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "e483bcf6-696f-4f34-8728-1dcb72c6c704",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 3,
+   "occurred_at": "2026-10-06T15:40:25.028271Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_call",
+    "name": "financial_pipeline",
+    "args_summary": "Сравни выручку за доступные периоды с внешним индексом из…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d8e3f5d7-538e-42ee-b9b8-7a50e0b40fab",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 4,
+   "occurred_at": "2026-10-06T15:40:25.028398Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 1,
+    "status": "rejected",
+    "action": "rejected",
+    "objective": "",
+    "reason": "",
+    "scenarios": [],
+    "new_atoms": [],
+    "steps": [],
+    "outcome": "",
+    "details": "атомы ['eph.fetch_external_index'] объявлены в new_atoms, но не вызваны в steps: создание атома его не запускает — добавь шаг с этим атомом в этот же ход"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "81450cff-5529-45d4-9f64-5126808dc101",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 5,
+   "occurred_at": "2026-10-06T15:40:43.994019Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 2,
+    "status": "running",
+    "action": "execute",
+    "objective": "Извлечь выручку за все периоды отчёта и скачать внешний CSV-индекс",
+    "reason": "Пользователь просит сравнить выручку с внешним индексом. Сначала нужно получить оба источника данных: выручку из отчёта и CSV-файл.",
+    "scenarios": [],
+    "new_atoms": [
+     {
+      "name": "eph.fetch_external_index",
+      "kind": "download",
+      "purpose": "Скачивает публичный CSV-файл по указанному URL. Файл содержит временной ряд внешнего индекса для сравнения с выручкой.",
+      "output_type": "dyn:external_index_csv",
+      "url": "https://example.invalid/aifa-planner-missing.csv"
+     }
+    ],
+    "steps": [
+     {
+      "atom": "read.value",
+      "concept": "Revenue",
+      "period_ref": null
+     },
+     {
+      "atom": "eph.fetch_external_index",
+      "concept": "eph.fetch_external_index",
+      "period_ref": null
+     }
+    ],
+    "outcome": "",
+    "details": ""
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d06d7657-e4c0-4ee2-a4d6-72a9df3ca2ea",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 6,
+   "occurred_at": "2026-10-06T15:40:44.082495Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "plan_graph",
+    "graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+     "atom_name": "eph.fetch_external_index",
+     "atom_version": "0528599e5c03",
+     "args_fingerprint": "concept=eph.fetch_external_index;entity=ЛУКОЙЛ"
+    },
+    "nodes": [
+     {
+      "node_key": {
+       "atom_name": "ingest.document",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "document_text"
+      ],
+      "requires": [],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "identify.classify",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "RunPassport"
+      ],
+      "requires": [
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ЛУКОЙЛ"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "locate",
+       "atom_version": "1.0.2",
+       "args_fingerprint": "concept=Revenue;entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "CandidateLocator:Revenue"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ЛУКОЙЛ"
+       },
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ЛУКОЙЛ"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "read.value",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "concept=Revenue;entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "ExtractedMetric:Revenue"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ЛУКОЙЛ"
+       },
+       {
+        "atom_name": "locate",
+        "atom_version": "1.0.2",
+        "args_fingerprint": "concept=Revenue;entity=ЛУКОЙЛ"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.unit",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "4dcaf1ea7c54ec97b9c2276a0b1f8014ea041709f37f9f50e65dfe67ad30cc92"
+      },
+      "produces": [
+       "Verified:unit"
+      ],
+      "requires": [
+       {
+        "atom_name": "read.value",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "concept=Revenue;entity=ЛУКОЙЛ"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.time",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "e39fe4a64f9e76aad55bbea47897de86c54bd5eb3fe707b3cc83205f6dc148e0"
+      },
+      "produces": [
+       "Verified:time"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "4dcaf1ea7c54ec97b9c2276a0b1f8014ea041709f37f9f50e65dfe67ad30cc92"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "0ad512c47168386c2ff76f73db29ffe572f5ca13d651b07b72345f4d6e2c4c3e"
+      },
+      "produces": [
+       "Verified:bounds"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "e39fe4a64f9e76aad55bbea47897de86c54bd5eb3fe707b3cc83205f6dc148e0"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "eph.fetch_external_index",
+       "atom_version": "0528599e5c03",
+       "args_fingerprint": "concept=eph.fetch_external_index;entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "dyn:external_index_csv:eph.fetch_external_index"
+      ],
+      "requires": [],
+      "sandbox_profile": "download:example.invalid",
+      "status": "pending",
+      "scenario_refs": []
+     }
+    ],
+    "scenarios": []
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "6a876f5b-fb12-4d15-adda-1611844b6ab2",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 7,
+   "occurred_at": "2026-10-06T15:40:44.088715Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "f60ab7db-99d6-4ad3-955f-13b7031fb168",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "7fafddd7-02db-4160-9a94-4c7d29d47dcf",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 8,
+   "occurred_at": "2026-10-06T15:40:44.093391Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "3afaf67e-fe68-4707-8e84-39a18f2c97cd",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "94a5f0fd-8246-4c4d-87e3-14ece92209c7",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 9,
+   "occurred_at": "2026-10-06T15:40:44.100064Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "363477ba-dbbe-441a-90bb-a1a970680fbe",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=Revenue;entity=ЛУКОЙЛ"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "de816fdf-5a30-4dd6-896d-f837f0c5e9f6",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 10,
+   "occurred_at": "2026-10-06T15:40:44.108199Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "5366bee6-74a0-4991-a760-b5aabbe25b0a",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=Revenue;entity=ЛУКОЙЛ"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "b938ba86-22c8-4c88-ba63-15f6631c8964",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 11,
+   "occurred_at": "2026-10-06T15:40:44.108294Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "2aff4951-6d48-4246-96a7-30bee5631c42",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "4dcaf1ea7c54ec97b9c2276a0b1f8014ea041709f37f9f50e65dfe67ad30cc92"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "4bfd8eda-c710-4def-b638-2c8e9ef0ed19",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 12,
+   "occurred_at": "2026-10-06T15:40:44.120623Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "69a9dae0-114c-481d-9477-32d5a8e543c5",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "e39fe4a64f9e76aad55bbea47897de86c54bd5eb3fe707b3cc83205f6dc148e0"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "f9c309a6-e573-46f8-9253-3427dca384da",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 13,
+   "occurred_at": "2026-10-06T15:40:44.120722Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "696c3788-06b9-4e21-b483-027ec2a19e36",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "0ad512c47168386c2ff76f73db29ffe572f5ca13d651b07b72345f4d6e2c4c3e"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "db5dfb93-c77f-46cc-acd7-cc7649e89ed6",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 14,
+   "occurred_at": "2026-10-06T15:40:44.129299Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "7a9b096b-d5b5-443c-ac88-e08fc7060b8d",
+    "node_key": {
+     "atom_name": "eph.fetch_external_index",
+     "atom_version": "0528599e5c03",
+     "args_fingerprint": "concept=eph.fetch_external_index;entity=ЛУКОЙЛ"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "planned",
+    "sandbox_profile": "download:example.invalid",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "3961ab46-a2c0-43c1-aa60-c3c52b81db29",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 15,
+   "occurred_at": "2026-10-06T15:40:44.129374Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "f60ab7db-99d6-4ad3-955f-13b7031fb168",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:40:44.110577Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "0fc9c3bc-5883-490a-8e1e-f5e969da798f",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 16,
+   "occurred_at": "2026-10-06T15:40:44.134112Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "f60ab7db-99d6-4ad3-955f-13b7031fb168",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "content:3018a07ee1ae9555e83960ad47197d7d28b0ffe594c421d7fd211a1873deb703"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:40:44.110577Z",
+    "finished_at": "2026-10-06T15:40:44.114052Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "75e1d4a6-a466-4c84-ade8-e0bd29465fff",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 17,
+   "occurred_at": "2026-10-06T15:40:44.140810Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "7a9b096b-d5b5-443c-ac88-e08fc7060b8d",
+    "node_key": {
+     "atom_name": "eph.fetch_external_index",
+     "atom_version": "0528599e5c03",
+     "args_fingerprint": "concept=eph.fetch_external_index;entity=ЛУКОЙЛ"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "running",
+    "sandbox_profile": "download:example.invalid",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:40:44.130241Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "eb9b3111-651e-4630-bc9f-33e8981c88f4",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 18,
+   "occurred_at": "2026-10-06T15:40:44.172470Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "7a9b096b-d5b5-443c-ac88-e08fc7060b8d",
+    "node_key": {
+     "atom_name": "eph.fetch_external_index",
+     "atom_version": "0528599e5c03",
+     "args_fingerprint": "concept=eph.fetch_external_index;entity=ЛУКОЙЛ"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "failed",
+    "sandbox_profile": "download:example.invalid",
+    "attempt": 3,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": "хост 'example.invalid' не резолвится: [Errno -2] Name or service not known",
+    "started_at": "2026-10-06T15:40:44.130241Z",
+    "finished_at": "2026-10-06T15:40:44.162977Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "2d06000d-1c57-4c41-b30a-f1cb3eb5592f",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 19,
+   "occurred_at": "2026-10-06T15:40:44.306520Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "3afaf67e-fe68-4707-8e84-39a18f2c97cd",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:40:44.176059Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "8f6f10d4-bad1-4b34-acb9-63e28b13a46e",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 20,
+   "occurred_at": "2026-10-06T15:40:44.479869Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "3afaf67e-fe68-4707-8e84-39a18f2c97cd",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "e0ac439c-0839-4b25-acdd-a289447932a5"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:40:44.176059Z",
+    "finished_at": "2026-10-06T15:40:44.469702Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "0eb5d985-cda1-404d-b981-e641992aceca",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 21,
+   "occurred_at": "2026-10-06T15:40:44.548730Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "363477ba-dbbe-441a-90bb-a1a970680fbe",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=Revenue;entity=ЛУКОЙЛ"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:40:44.480727Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "01acbc79-df32-407e-9fa3-5ae740979dec",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 22,
+   "occurred_at": "2026-10-06T15:40:51.269791Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "363477ba-dbbe-441a-90bb-a1a970680fbe",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=Revenue;entity=ЛУКОЙЛ"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:40:44.480727Z",
+    "finished_at": "2026-10-06T15:40:51.076627Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "4ed95cc4-b278-41d1-82b0-a4e298411f5c",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 23,
+   "occurred_at": "2026-10-06T15:40:51.440105Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "5366bee6-74a0-4991-a760-b5aabbe25b0a",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=Revenue;entity=ЛУКОЙЛ"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:40:51.277343Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "4e9a684f-0201-41aa-96fb-826017bb75f0",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 24,
+   "occurred_at": "2026-10-06T15:40:51.450341Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "5366bee6-74a0-4991-a760-b5aabbe25b0a",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=Revenue;entity=ЛУКОЙЛ"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:40:51.277343Z",
+    "finished_at": "2026-10-06T15:40:51.439462Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "2063775c-0a83-40ec-89c4-0cf72e4b86d1",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 25,
+   "occurred_at": "2026-10-06T15:40:51.470788Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "2aff4951-6d48-4246-96a7-30bee5631c42",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "4dcaf1ea7c54ec97b9c2276a0b1f8014ea041709f37f9f50e65dfe67ad30cc92"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:40:51.451252Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "1e7e4584-4a9a-40fc-aadd-84498885ec6b",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 26,
+   "occurred_at": "2026-10-06T15:40:51.474173Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "2aff4951-6d48-4246-96a7-30bee5631c42",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "4dcaf1ea7c54ec97b9c2276a0b1f8014ea041709f37f9f50e65dfe67ad30cc92"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:40:51.451252Z",
+    "finished_at": "2026-10-06T15:40:51.465246Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "5383f1a9-a41e-4a81-b57a-ed741f3b914a",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 27,
+   "occurred_at": "2026-10-06T15:40:51.484079Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "69a9dae0-114c-481d-9477-32d5a8e543c5",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "e39fe4a64f9e76aad55bbea47897de86c54bd5eb3fe707b3cc83205f6dc148e0"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:40:51.475775Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "373d5396-648e-4470-8767-0ae027ca3df8",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 28,
+   "occurred_at": "2026-10-06T15:40:51.489864Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "69a9dae0-114c-481d-9477-32d5a8e543c5",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "e39fe4a64f9e76aad55bbea47897de86c54bd5eb3fe707b3cc83205f6dc148e0"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:40:51.475775Z",
+    "finished_at": "2026-10-06T15:40:51.482170Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "99d3a1df-4ad2-4f9c-be1f-f0a3def9e8fd",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 29,
+   "occurred_at": "2026-10-06T15:40:51.505356Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "696c3788-06b9-4e21-b483-027ec2a19e36",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "0ad512c47168386c2ff76f73db29ffe572f5ca13d651b07b72345f4d6e2c4c3e"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:40:51.492258Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "bb3e3b92-7c24-4157-8f51-aac55910db31",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 30,
+   "occurred_at": "2026-10-06T15:40:51.509593Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5dfedd8a239e80e108faf430791307648788ad864b5074442d1ff23066599ba1",
+   "node_run": {
+    "node_run_id": "696c3788-06b9-4e21-b483-027ec2a19e36",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "0ad512c47168386c2ff76f73db29ffe572f5ca13d651b07b72345f4d6e2c4c3e"
+    },
+    "run_id": "3868f8e1-96eb-469a-83fa-a3b1fe724c55",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:40:51.492258Z",
+    "finished_at": "2026-10-06T15:40:51.501954Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "000c54a6-d665-4df2-b82f-fa9561daaff1",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 31,
+   "occurred_at": "2026-10-06T15:40:51.536013Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 2,
+    "status": "done",
+    "action": "execute",
+    "objective": "Извлечь выручку за все периоды отчёта и скачать внешний CSV-индекс",
+    "reason": "Пользователь просит сравнить выручку с внешним индексом. Сначала нужно получить оба источника данных: выручку из отчёта и CSV-файл.",
+    "scenarios": [],
+    "new_atoms": [
+     {
+      "name": "eph.fetch_external_index",
+      "kind": "download",
+      "purpose": "Скачивает публичный CSV-файл по указанному URL. Файл содержит временной ряд внешнего индекса для сравнения с выручкой.",
+      "output_type": "dyn:external_index_csv",
+      "url": "https://example.invalid/aifa-planner-missing.csv"
+     }
+    ],
+    "steps": [
+     {
+      "atom": "read.value",
+      "concept": "Revenue",
+      "period_ref": null
+     },
+     {
+      "atom": "eph.fetch_external_index",
+      "concept": "eph.fetch_external_index",
+      "period_ref": null
+     }
+    ],
+    "outcome": "ход завершён с ошибками",
+    "details": "✓ ingest.document  → DocumentText (1)\n✓ identify.classify  → RunPassport (1)\n∅ locate  → нет результата (0)\n∅ read.value  → нет результата (0)\n∅ norm.unit  → нет результата (0)\n∅ norm.time  → нет результата (0)\n∅ verify.bounds  → нет результата (0)\n✗ eph.fetch_external_index  → нет результата (0): хост 'example.invalid' не резолвится: [Errno -2] Name or service not known"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "bfb177c8-0c9c-4774-95dd-d82f1c2555fc",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 32,
+   "occurred_at": "2026-10-06T15:41:09.754295Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 3,
+    "status": "running",
+    "action": "execute",
+    "objective": "Извлечь выручку за все периоды отчёта",
+    "reason": "Для сравнения с внешним индексом нужны значения выручки",
+    "scenarios": [],
+    "new_atoms": [],
+    "steps": [
+     {
+      "atom": "read.value",
+      "concept": "Выручка",
+      "period_ref": null
+     }
+    ],
+    "outcome": "",
+    "details": ""
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "a4863950-cb00-48f3-a358-a96c0e8c8a67",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 33,
+   "occurred_at": "2026-10-06T15:41:09.864636Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "plan_graph",
+    "graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "80c3d0d96a0cf23d403224372112b7833a57a8bff0a93fe8d09e589c8a7a486a"
+    },
+    "nodes": [
+     {
+      "node_key": {
+       "atom_name": "identify.classify",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "RunPassport"
+      ],
+      "requires": [],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "ingest.document",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "document_text"
+      ],
+      "requires": [],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "locate",
+       "atom_version": "1.0.2",
+       "args_fingerprint": "concept=Выручка;entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "CandidateLocator:Выручка"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ЛУКОЙЛ"
+       },
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ЛУКОЙЛ"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "read.value",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "concept=Выручка;entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "ExtractedMetric:Выручка"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ЛУКОЙЛ"
+       },
+       {
+        "atom_name": "locate",
+        "atom_version": "1.0.2",
+        "args_fingerprint": "concept=Выручка;entity=ЛУКОЙЛ"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.unit",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "32b47e1d02d0c3b62d7acfc51f097c830e3e8354c0fd5c26e34326de9a562311"
+      },
+      "produces": [
+       "Verified:unit"
+      ],
+      "requires": [
+       {
+        "atom_name": "read.value",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "concept=Выручка;entity=ЛУКОЙЛ"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.time",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "a91cdc9251e34cc88bbf555e3c078b61ad796b564bde73b9f0e94636e7edfda8"
+      },
+      "produces": [
+       "Verified:time"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "32b47e1d02d0c3b62d7acfc51f097c830e3e8354c0fd5c26e34326de9a562311"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "80c3d0d96a0cf23d403224372112b7833a57a8bff0a93fe8d09e589c8a7a486a"
+      },
+      "produces": [
+       "Verified:bounds"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "a91cdc9251e34cc88bbf555e3c078b61ad796b564bde73b9f0e94636e7edfda8"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     }
+    ],
+    "scenarios": []
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "55c7b039-3c33-4aa9-97ad-eb5c1b305a2a",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 34,
+   "occurred_at": "2026-10-06T15:41:09.868166Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "0c0ca5f8-a9b0-4089-aaec-516a04d7ef9a",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "e0ac439c-0839-4b25-acdd-a289447932a5"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:41:09.861785Z",
+    "finished_at": "2026-10-06T15:41:09.861785Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "35b90c69-d8af-41c3-8d5c-ff33bbe01def",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 35,
+   "occurred_at": "2026-10-06T15:41:09.872701Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "a52d36da-794e-4723-a996-feb6a97d8bb9",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "content:3018a07ee1ae9555e83960ad47197d7d28b0ffe594c421d7fd211a1873deb703"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:41:09.868987Z",
+    "finished_at": "2026-10-06T15:41:09.868987Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "17c0f1f6-1375-41f8-a530-89fbf852d6c8",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 36,
+   "occurred_at": "2026-10-06T15:41:09.883896Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "8b4c11d9-a37f-40a6-b02a-753755296ea7",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=Выручка;entity=ЛУКОЙЛ"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "1fb2ee7f-08fd-4240-8b7e-aa7f627e9712",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 37,
+   "occurred_at": "2026-10-06T15:41:09.887984Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "ef5ce221-3bcc-4bec-82db-834d7a0e4d8b",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=Выручка;entity=ЛУКОЙЛ"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "aa3b8cdc-8a45-427d-8bf0-253ebfe46653",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 38,
+   "occurred_at": "2026-10-06T15:41:09.890404Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "bfbc7af8-08b5-49cb-89a3-979b74dacf79",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "32b47e1d02d0c3b62d7acfc51f097c830e3e8354c0fd5c26e34326de9a562311"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "a697a386-3f4e-4b72-993e-e72b802d3780",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 39,
+   "occurred_at": "2026-10-06T15:41:09.894755Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "547aa7f1-81c1-4436-b793-780304909336",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "a91cdc9251e34cc88bbf555e3c078b61ad796b564bde73b9f0e94636e7edfda8"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "0ed38f65-7c51-4705-b4c9-75eeb562ea70",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 40,
+   "occurred_at": "2026-10-06T15:41:09.897046Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "c7bc2045-4649-471d-99a7-469091abd9e3",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "80c3d0d96a0cf23d403224372112b7833a57a8bff0a93fe8d09e589c8a7a486a"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "06c6dad4-7b32-4ee6-859e-a0cff8729366",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 41,
+   "occurred_at": "2026-10-06T15:41:09.963049Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "8b4c11d9-a37f-40a6-b02a-753755296ea7",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=Выручка;entity=ЛУКОЙЛ"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:41:09.895471Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "0984c3be-0852-4ec5-8991-426bc06feade",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 42,
+   "occurred_at": "2026-10-06T15:41:24.373688Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "8b4c11d9-a37f-40a6-b02a-753755296ea7",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=Выручка;entity=ЛУКОЙЛ"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "e95d292a-6117-4aaf-9c3e-56422ae1fcfe",
+     "4667c8d6-3830-4ab4-9ea5-8c3044825c12",
+     "7b543866-dc32-4e8f-9c41-2fa8a4f45657"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:41:09.895471Z",
+    "finished_at": "2026-10-06T15:41:24.365690Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "f54a7dff-fa71-45ba-972a-c7db752c98cd",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 43,
+   "occurred_at": "2026-10-06T15:41:24.434250Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "ef5ce221-3bcc-4bec-82db-834d7a0e4d8b",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=Выручка;entity=ЛУКОЙЛ"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:41:24.375138Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "eaf0fd1d-d645-4017-863a-e09031106518",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 44,
+   "occurred_at": "2026-10-06T15:41:29.019752Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "ef5ce221-3bcc-4bec-82db-834d7a0e4d8b",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=Выручка;entity=ЛУКОЙЛ"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "c6c4ba63-11a6-4fb6-b03c-c6dd7768653a",
+     "ec158b89-9dc7-40df-b463-8e99c2a911a3"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:41:24.375138Z",
+    "finished_at": "2026-10-06T15:41:29.013086Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "37d947d5-4d13-43e3-b287-1bc07ea43a1a",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 45,
+   "occurred_at": "2026-10-06T15:41:29.026140Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "bfbc7af8-08b5-49cb-89a3-979b74dacf79",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "32b47e1d02d0c3b62d7acfc51f097c830e3e8354c0fd5c26e34326de9a562311"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:41:29.020651Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "3929e1e6-dde8-4f86-a5d0-7a211697ae3b",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 46,
+   "occurred_at": "2026-10-06T15:41:29.029610Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "bfbc7af8-08b5-49cb-89a3-979b74dacf79",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "32b47e1d02d0c3b62d7acfc51f097c830e3e8354c0fd5c26e34326de9a562311"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "b18d7228-fe9d-4d99-99b4-b1bc0d76cc8c",
+     "c6c4ba63-11a6-4fb6-b03c-c6dd7768653a",
+     "48d474f3-7db1-4460-8876-739972880c49",
+     "ec158b89-9dc7-40df-b463-8e99c2a911a3"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:41:29.020651Z",
+    "finished_at": "2026-10-06T15:41:29.024426Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "5f419174-e643-47c7-9a22-c70490b5e272",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 47,
+   "occurred_at": "2026-10-06T15:41:29.035899Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "547aa7f1-81c1-4436-b793-780304909336",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "a91cdc9251e34cc88bbf555e3c078b61ad796b564bde73b9f0e94636e7edfda8"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:41:29.031119Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "076ec2f9-0426-4b7b-a3d9-db0b95c3e4e7",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 48,
+   "occurred_at": "2026-10-06T15:41:29.038854Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "547aa7f1-81c1-4436-b793-780304909336",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "a91cdc9251e34cc88bbf555e3c078b61ad796b564bde73b9f0e94636e7edfda8"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "3d53b75e-4ee8-4d42-8bc9-1902fc3ebb06",
+     "c6c4ba63-11a6-4fb6-b03c-c6dd7768653a",
+     "b8ecf5bb-5ea0-48fc-b44c-a4bcc23150d4",
+     "ec158b89-9dc7-40df-b463-8e99c2a911a3"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:41:29.031119Z",
+    "finished_at": "2026-10-06T15:41:29.034297Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "0e3dbe70-b319-416c-aba1-6f69c5a15492",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 49,
+   "occurred_at": "2026-10-06T15:41:29.045567Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "c7bc2045-4649-471d-99a7-469091abd9e3",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "80c3d0d96a0cf23d403224372112b7833a57a8bff0a93fe8d09e589c8a7a486a"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:41:29.040484Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "a2ee0616-30bc-40f2-932c-828504408478",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 50,
+   "occurred_at": "2026-10-06T15:41:29.047673Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:479ce291dd7160be6eebfb99b5fa16777f712672185ecf89346f827ede907e26",
+   "node_run": {
+    "node_run_id": "c7bc2045-4649-471d-99a7-469091abd9e3",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "80c3d0d96a0cf23d403224372112b7833a57a8bff0a93fe8d09e589c8a7a486a"
+    },
+    "run_id": "cd388a06-3bb0-4c56-b075-3f08ab281cc9",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "6e2243c8-09ab-4705-8f2f-818a4aa743e2",
+     "c6c4ba63-11a6-4fb6-b03c-c6dd7768653a",
+     "517ab493-866e-4c5a-9a29-a38ed33974b6",
+     "ec158b89-9dc7-40df-b463-8e99c2a911a3"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:41:29.040484Z",
+    "finished_at": "2026-10-06T15:41:29.043594Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "41d5835a-0b07-4b8c-80a4-56d6265d2bbb",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 51,
+   "occurred_at": "2026-10-06T15:41:29.086048Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 3,
+    "status": "done",
+    "action": "execute",
+    "objective": "Извлечь выручку за все периоды отчёта",
+    "reason": "Для сравнения с внешним индексом нужны значения выручки",
+    "scenarios": [],
+    "new_atoms": [],
+    "steps": [
+     {
+      "atom": "read.value",
+      "concept": "Выручка",
+      "period_ref": null
+     }
+    ],
+    "outcome": "✓ 2 новых результатов",
+    "details": "✓ identify.classify  → RunPassport (1)\n✓ ingest.document  → DocumentText (1)\n✓ locate ВЫРУЧКА → CandidateLocator (3)\n✓ read.value Выручка → ExtractedMetric (2); evidence_ids=c6c4ba63-11a6-4fb6-b03c-c6dd7768653a, ec158b89-9dc7-40df-b463-8e99c2a911a3\n✓ norm.unit ВЫРУЧКА → VerificationFinding, ExtractedMetric (4); evidence_ids=b18d7228-fe9d-4d99-99b4-b1bc0d76cc8c, c6c4ba63-11a6-4fb6-b03c-c6dd7768653a, 48d474f3-7db1-4460-8876-739972880c49, ec158b89-9dc7-40df-b463-8e99c2a911a3\n✓ norm.time ВЫРУЧКА → VerificationFinding, ExtractedMetric (4); evidence_ids=3d53b75e-4ee8-4d42-8bc9-1902fc3ebb06, c6c4ba63-11a6-4fb6-b03c-c6dd7768653a, b8ecf5bb-5ea0-48fc-b44c-a4bcc23150d4, ec158b89-9dc7-40df-b463-8e99c2a911a3\n✓ verify.bounds Выручка → VerificationFinding, ExtractedMetric (4); evidence_ids=6e2243c8-09ab-4705-8f2f-818a4aa743e2, c6c4ba63-11a6-4fb6-b03c-c6dd7768653a, 517ab493-866e-4c5a-9a29-a38ed33974b6, ec158b89-9dc7-40df-b463-8e99c2a911a3"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "61f776c4-41c2-4934-b8a0-504bfbac6368",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 52,
+   "occurred_at": "2026-10-06T15:41:42.357494Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 4,
+    "status": "rejected",
+    "action": "rejected",
+    "objective": "",
+    "reason": "",
+    "scenarios": [],
+    "new_atoms": [],
+    "steps": [],
+    "outcome": "",
+    "details": "поле objective пусто"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "32e334d1-0ca3-4e01-bd29-47661edd6590",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 53,
+   "occurred_at": "2026-10-06T15:41:58.624497Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 5,
+    "status": "done",
+    "action": "give_up",
+    "objective": "Завершить задачу честным отказом из-за недоступности внешнего источника.",
+    "reason": "Внешний источник https://example.invalid/aifa-planner-missing.csv недоступен (хост не резолвится). По условию задачи подмена источника или выдумывание значений запрещены. Сравнение выручки с внешним индексом невозможно.",
+    "scenarios": [],
+    "new_atoms": [],
+    "steps": [],
+    "outcome": "",
+    "details": "Выручка ЛУКОЙЛа за доступные периоды извлечена:\n- 6M 2026: 1 453 957,053 млн руб.\n- 6M 2025: 1 398 538,772 млн руб.\n\nОднако сравнение с внешним индексом невозможно: файл по адресу https://example.invalid/aifa-planner-missing.csv недоступен (сервер не резолвится). По вашему указанию другие источники не использовались, значения не выдумывались. Задача завершена честным отказом."
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "aba92a05-c043-470c-a1e6-1fdd6ef826f2",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 54,
+   "occurred_at": "2026-10-06T15:41:58.652117Z",
+   "event_type": "result",
+   "delivery_status": "complete",
+   "result": {
+    "schema_version": "1.0",
+    "output_type": "ExtractedMetric",
+    "status": "supported",
+    "metric_id": "29e32710-a503-451d-b8e3-841c3973f580",
+    "scalar_fact": {
+     "evidence_id": "c6c4ba63-11a6-4fb6-b03c-c6dd7768653a",
+     "produced_by_atom": "read.value",
+     "produced_by_atom_version": "1.0.0",
+     "source_ref": "e95d292a-6117-4aaf-9c3e-56422ae1fcfe",
+     "document_version": "sha256:416723a0e57ab1a96340cab0bda8e828e15020b5342a0bbfddadb439604ecae3",
+     "concept": "ВЫРУЧКА",
+     "period_ref": "6M 2026",
+     "basis": null,
+     "supersedes": null,
+     "created_at": "2026-10-06T15:41:29.012867Z",
+     "value": 1453957.053,
+     "unit": "млн. руб.",
+     "page": 24
+    },
+    "concept": "Выручка",
+    "period_ref": "6M 2026",
+    "definition_origin": "registry"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "1bb2fa3c-adec-4766-b579-b6d607faf326",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 55,
+   "occurred_at": "2026-10-06T15:41:58.652259Z",
+   "event_type": "result",
+   "delivery_status": "complete",
+   "result": {
+    "schema_version": "1.0",
+    "output_type": "ExtractedMetric",
+    "status": "supported",
+    "metric_id": "5633759c-8a19-465d-bfe9-58ed0638bf2d",
+    "scalar_fact": {
+     "evidence_id": "ec158b89-9dc7-40df-b463-8e99c2a911a3",
+     "produced_by_atom": "read.value",
+     "produced_by_atom_version": "1.0.0",
+     "source_ref": "e95d292a-6117-4aaf-9c3e-56422ae1fcfe",
+     "document_version": "sha256:416723a0e57ab1a96340cab0bda8e828e15020b5342a0bbfddadb439604ecae3",
+     "concept": "ВЫРУЧКА",
+     "period_ref": "6M 2025",
+     "basis": null,
+     "supersedes": null,
+     "created_at": "2026-10-06T15:41:29.012893Z",
+     "value": 1398538.772,
+     "unit": "млн. руб.",
+     "page": 24
+    },
+    "concept": "Выручка",
+    "period_ref": "6M 2025",
+    "definition_origin": "registry"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "070a71e4-7570-47f0-ac81-99b8b1b80f7e",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 56,
+   "occurred_at": "2026-10-06T15:41:58.664265Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_output",
+    "name": "financial_pipeline",
+    "ok": true
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "ad682923-e34d-42dd-ba20-1c7e59a6a069",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 57,
+   "occurred_at": "2026-10-06T15:41:58.664394Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "text_delta",
+    "text": "Выручка ЛУКОЙЛа за доступные периоды извлечена:\n- 6M 2026: 1 453 957,053 млн руб.\n- 6M 2025: 1 398 538,772 млн руб.\n\nОднако сравнение с внешним индексом невозможно: файл по адресу https://example.invalid/aifa-planner-missing.csv недоступен (сервер не резолвится). По вашему указанию другие источники не использовались, значения не выдумывались. Задача завершена честным отказом."
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "9c93cb62-6441-4a49-9b91-2817d6524d8f",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 58,
+   "occurred_at": "2026-10-06T15:41:58.664432Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "sources",
+    "sources": [
+     {
+      "filename": "Бухгалтерская отчетность на 30.06.2026.pdf",
+      "company_name": "ЛУКОЙЛ"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "e70845f0-203d-4f6a-aeb3-43a8934c2642",
+   "run_id": "c16502e0-c093-4055-b935-0f45e04d2647",
+   "sequence": 59,
+   "occurred_at": "2026-10-06T15:41:58.664466Z",
+   "event_type": "completed",
+   "status": "succeeded"
+  }
+ ],
+ "session_id": "e15b22f6-ac9c-44fb-8d15-dcfa923bfb94",
+ "started_utc": "2026-10-06T15:41:59Z"
+}

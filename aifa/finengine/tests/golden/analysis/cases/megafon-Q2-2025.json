@@ -1,0 +1,24 @@
+{
+  "case_id": "megafon-Q2-2025:analysis:01",
+  "company": "Megafon",
+  "evidence_ids": [
+    "megafon-Q2-2025:PPE:01"
+  ],
+  "expected_explanation_covers": [
+    "PPE",
+    "30.06.2025",
+    "RUB million",
+    "source evidence"
+  ],
+  "expected_judgment": {
+    "concept": "PPE",
+    "verdict": "reported_as_disclosed"
+  },
+  "goal": "State the disclosed PPE for 30.06.2025 and cite the supplied evidence. Do not add a recommendation.",
+  "rubric": {
+    "evidence_alignment": "required: every number traces to evidence_ids",
+    "factual_accuracy": "required: value, period, and unit match the evidence",
+    "logical_coherence": "required: no claim contradicts the evidence",
+    "no_recommendations": "required"
+  }
+}

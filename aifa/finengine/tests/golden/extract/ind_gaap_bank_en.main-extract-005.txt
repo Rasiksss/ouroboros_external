@@ -1,0 +1,265 @@
+## SYSTEM
+You are a senior financial analyst working with us_gaap_en financial reports. Your task is to find and extract ordinary financial statement metrics, matching source rows strictly against each metric's registry description, aliases and hint. If a row is similar but broader, narrower, or includes extra components, do not use it. Return valid JSON only.
+
+## USER
+## Task
+Extract reported financial metric values from compressed evidence selected in stage 1.
+Company type: bank; reporting standard: us_gaap_en; language: en.
+Extract values for every metric listed in the metric metadata below.
+For each metric block, read the registry fields and evidence, then extract every value of that exact metric for every disclosed period.
+Return raw period headers and raw cell values literally as they appear in the report.
+
+
+## Metric Blocks
+[
+  {
+    "enum": "DEFERRED_TAX_ASSETS",
+    "name_ru": "Отложенные налоговые активы",
+    "name_en": "Deferred tax assets",
+    "description": "Income tax asset arising from deductible temporary differences and carried forward tax items.",
+    "aliases_ru": [
+      "Активы по отложенному налогу на прибыль"
+    ],
+    "aliases_en": [
+      "deferred tax assets",
+      "net deferred tax asset",
+      "deferred tax asset",
+      "Deferred income tax assets"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the tax note or the balance sheet line if separately presented. Do not net with deferred tax liabilities unless the report presents only a net deferred tax asset.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "CHANGES_OCF_ASSETS_LIABILITIES",
+    "name_ru": "Изменения в оборотном капитале",
+    "name_en": "Changes in operating assets and liabilities",
+    "description": "Net cash-flow effect of changes in operating assets and liabilities.",
+    "aliases_ru": [
+      "Изменения в операционных активах и обязательствах"
+    ],
+    "aliases_en": [
+      "changes in operating assets and liabilities",
+      "working capital changes",
+      "adjustments for operating assets and liabilities",
+      "Working capital movements"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the Cash Flow Statement subtotal if explicitly disclosed. If no subtotal is printed, derive only from adjacent cash flow subtotals; do not blindly sum all asset and liability movements across the statement.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "EBT",
+    "name_ru": "Прибыль до налогообложения",
+    "name_en": "Profit before tax",
+    "description": "Profit before income tax for the reporting period.",
+    "aliases_ru": [
+      "Прибыль до налога",
+      "Прибыль до налога на прибыль"
+    ],
+    "aliases_en": [
+      "profit before tax",
+      "profit before taxation",
+      "PBT",
+      "earnings before tax",
+      "Income before income taxes",
+      "Pre-tax income"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the Profit and Loss Account line immediately before tax expense. Preserve losses as negative values.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "SHARE_PREMIUM",
+    "name_ru": "Эмиссионный доход",
+    "name_en": "Share premium",
+    "description": "Premium received over the nominal value of issued shares.",
+    "aliases_ru": [
+      "Добавочный капитал",
+      "Дополнительный оплаченный капитал"
+    ],
+    "aliases_en": [
+      "share premium",
+      "securities premium",
+      "securities premium account",
+      "Additional paid-in capital",
+      "Capital surplus",
+      "APIC"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use Schedule 2 'Reserves and Surplus' and the securities premium / share premium line. Do not include share capital or retained earnings.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "CET1_RATIO_DISCLOSED",
+    "name_ru": "Норматив CET1 (раскрываемый)",
+    "name_en": "Common Equity Tier 1 ratio",
+    "description": "Disclosed Common Equity Tier 1 capital ratio.",
+    "aliases_ru": [
+      "CET1 ratio",
+      "норматив Н 1.0",
+      "норматив Н 20.1"
+    ],
+    "aliases_en": [
+      "CET1 ratio",
+      "Common Equity Tier 1 ratio",
+      "Common Equity Tier 1 capital ratio",
+      "CET1 capital ratio"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the Basel III / capital adequacy disclosure. Unit is percent. Do not use absolute CET1 capital.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "PERPETUAL_BONDS",
+    "name_ru": "Бессрочные облигации",
+    "name_en": "Perpetual bonds / Additional Tier 1 instruments",
+    "description": "Perpetual capital instruments, typically eligible as Additional Tier 1 capital or similar regulatory capital.",
+    "aliases_ru": [
+      "Облигации без срока погашения",
+      "Выпуск бессрочных облигаций",
+      "бессрочный субординированный займ"
+    ],
+    "aliases_en": [
+      "perpetual bonds",
+      "perpetual debt instruments",
+      "Additional Tier 1 bonds",
+      "AT1 bonds",
+      "Basel III Additional Tier 1 instruments",
+      "perpetual non-cumulative preference shares",
+      "Perpetual notes",
+      "Hybrid capital notes"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use capital instruments, borrowings or Basel III capital notes. Do not include ordinary term bonds, Tier 2 bonds, share capital or reserves.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "PROVISIONS_AND_CONTINGENCIES",
+    "name_ru": "Расходы на резервы и условные обязательства",
+    "name_en": "Provisions and contingencies",
+    "description": "Total P&L charge for provisions and contingencies in the statutory banking profit and loss statement.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "provisions and contingencies",
+      "provisions & contingencies",
+      "provision and contingencies",
+      "provisions"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the Profit and Loss Account line 'Provisions and Contingencies'. It usually appears after operating profit and before profit before tax. Do not replace it with IFRS ECL change or a closing allowance balance.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "CASA_RATIO_DISCLOSED",
+    "name_ru": "Раскрытый коэффициент CASA",
+    "name_en": "CASA ratio",
+    "description": "Disclosed ratio of current and savings account deposits to total deposits.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "CASA ratio",
+      "current and savings account ratio",
+      "current account savings account ratio"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the key ratios / management discussion / deposit profile disclosure. Unit is percent. Prefer a directly disclosed ratio; calculate outside extraction only if current/savings and total deposits are reliable.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "LCR_DISCLOSED",
+    "name_ru": "Раскрытый коэффициент покрытия ликвидностью (LCR)",
+    "name_en": "Liquidity coverage ratio",
+    "description": "Disclosed liquidity coverage ratio.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "liquidity coverage ratio",
+      "LCR",
+      "average LCR"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the liquidity coverage / Basel III liquidity disclosure. Unit is percent. Prefer the disclosed average or period-end LCR according to the table label; do not use HQLA or net cash outflows for this enum.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  }
+]
+
+## Rules
+Return period keys in `values` literally as they appear in the visible table header; do not shorten or rephrase them. A table header may have two levels: a duration group such as 'Three Months Ended' on one level and the period-end date on another. Combine the applicable levels into one complete period key. When the same date appears under multiple duration groups, a bare date is invalid because it creates a duplicate JSON key; return the full wording for each group.
+
+Return each value exactly as it appears in the table cell. Do NOT convert units, do NOT normalize thousands separators, do NOT remove commas, spaces or parentheses. If the table says "25,785", return "25,785", not "25785" and not "25.785". If the table says "(4,190)", return "(4,190)"; parentheses are mandatory: "(465)" must stay "(465)", not "465". If a matching metric row uses a blank or dash-like cell as a displayed numeric placeholder, return "0" for that period, but only when that row separately and unambiguously matches the metric. A dash in a broader combined row does not prove that any component is zero. Otherwise use null when the row is absent or the value is not disclosed. Put the table/header unit literally into unit_text, for example "in millions" or "$ in millions". When the value comes from a narrative sentence in a note rather than from a table, take the unit from that same sentence, not from the document header: notes routinely name their own scale ("USD 12.0 billion") inside a report presented in millions, and the document header would shrink the number a thousandfold. Source (report in millions): "committed credit facilities of $12.0 billion" → {"values": {"27.09.2025": "12.0"}, "unit_text": "billion"}, not "in millions".
+
+## Actual values only
+Extract only actual historical/reported values from financial statements and notes for periods that have already ended. Do NOT extract forecasts, plans, budgets, targets, scenarios, sensitivity analysis, guidance, outlook, projections, projected/forecasted values or any other forward-looking amounts, even when the row label looks like a target metric. If a requested metric appears only in a forecast/outlook/guidance table or section, return null / an empty values object for it.
+Do not treat ordinary accounting estimates inside actual financial statements as forecasts: expected credit losses, provisions, deferred taxes and pension assumptions may be valid actual-period disclosures when they are reported in the statements or notes.
+The same applies to columns: a forecast period in the header (2026E, FY26F, "plan") does not belong in values.
+
+- Follow each metric registry entry strictly. A similar-looking row is not enough.
+- Before extracting a value, run a sanity check: the row label and nearby table context must match the metric name/aliases and satisfy the description and hint.
+- Perform a scope check against the registry definition: do not use a narrower component, subcategory or subtotal that is only part of the requested metric; do not use a broader or combined row that contains the requested metric together with other components. Use only the exact requested metric, or an aggregation explicitly permitted by that metric's registry hint.
+- Extract all periods disclosed in the selected evidence: all years, quarters, half-years/YTD periods, rolling or shifted periods, and comparative periods.
+- After you identify a row/table that matches a metric, scan all period columns in that row and all evidence tables/quotes for the same metric. Return every explicitly disclosed period for that metric, not only the current period or first matching table. If quarterly and YTD/half-year rows are both disclosed, return both sets.
+- Do not mix currencies, units, or scales. If a table has multiple column sets, choose one coherent set for the metric. Prefer the report's primary presentation/native currency columns over convenience translation columns when both are shown. Currency/unit/scale may be written in the caption, unit line, or directly near the period column headers; preserve the chosen unit/currency in unit_text and raw headers when present.
+- The registry is the definition, not a keyword list. Accept a row only when its full label, nearby context, description and hint agree; do not broaden a metric from a partial alias or a similar subtotal.
+- Do not calculate values, allocate totals, infer missing periods, or normalize signs/period labels yourself, unless the specific metric registry entry explicitly authorizes that derivation. For an authorized derivation, use only the stated method and operands explicitly present in this evidence.
+- If you are unsure whether the row matches the registry definition, prefer null over a bold guess.
+
+
+## Output Format
+Return exactly one valid JSON object only. No explanations, no markdown wrappers, no comments.
+A JSON object whose keys exactly match the metric metadata list below:
+
+{
+  "DEFERRED_TAX_ASSETS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "CHANGES_OCF_ASSETS_LIABILITIES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "EBT": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "SHARE_PREMIUM": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "CET1_RATIO_DISCLOSED": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "PERPETUAL_BONDS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "PROVISIONS_AND_CONTINGENCIES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "CASA_RATIO_DISCLOSED": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "LCR_DISCLOSED": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null}
+}

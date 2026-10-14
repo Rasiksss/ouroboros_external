@@ -1,0 +1,278 @@
+## SYSTEM
+You are a senior financial analyst working with us_gaap_en financial reports. Your task is to find and extract ordinary financial statement metrics, matching source rows strictly against each metric's registry description, aliases and hint. If a row is similar but broader, narrower, or includes extra components, do not use it. Return valid JSON only.
+
+## USER
+## Task
+Extract reported financial metric values from compressed evidence selected in stage 1.
+Company type: non_financial; reporting standard: us_gaap_en; language: en.
+Extract values for every metric listed in the metric metadata below.
+For each metric block, read the registry fields and evidence, then extract every value of that exact metric for every disclosed period.
+Return raw period headers and raw cell values literally as they appear in the report.
+
+
+## Metric Blocks
+[
+  {
+    "enum": "CASH_EQUIVALENTS",
+    "name_ru": "Денежные средства и их эквиваленты",
+    "name_en": "Cash and cash equivalents",
+    "description": "Касса, расчётные счета и краткосрочные высоколиквидные инвестиции (срок ≤ 3 мес.).",
+    "aliases_ru": [
+      "Денежные средства и эквиваленты денежных средств",
+      "Денежные средства и денежные эквиваленты",
+      "Денежные средства и их эквиваленты на конец периода"
+    ],
+    "aliases_en": [
+      "Cash and equivalents",
+      "Cash and cash equivalents at end of period"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Оборотные активы баланса или последняя строка ОДДС. Возвращай все явно раскрытые даты cash and cash equivalents at end of period, включая сравнительные даты, которых нет в балансе. Не путай с bank deposits/time deposits и marketable securities.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "TOTAL_CURRENT_LIABILITIES",
+    "name_ru": "Итого краткосрочных обязательств",
+    "name_en": "Total current liabilities",
+    "description": "Сумма обязательств с погашением в течение 12 месяцев.",
+    "aliases_ru": [
+      "Итого краткосрочные обязательства",
+      "Текущие обязательства",
+      "Краткосрочные обязательства всего",
+      "Итого текущих обязательств"
+    ],
+    "aliases_en": [
+      "Total current liabilities",
+      "Current liabilities"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Балансовый отчёт, итоговая строка блока 'Краткосрочные обязательства'.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "GOODWILL",
+    "name_ru": "Гудвил",
+    "name_en": "Goodwill",
+    "description": "Превышение цены приобретения дочерней компании над справедливой стоимостью её чистых идентифицируемых активов.",
+    "aliases_ru": [
+      "Деловая репутация"
+    ],
+    "aliases_en": [
+      "Goodwill"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Внеоборотные активы баланса. Подробнее — в Примечании 'Гудвил' / 'Объединение бизнеса'.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "CAPITALIZED_INTEREST",
+    "name_ru": "Капитализированные и уплаченные проценты",
+    "name_en": "Capitalized interest",
+    "description": "Проценты по займам, капитализированные в стоимость квалифицируемых активов.",
+    "aliases_ru": [
+      "Капитализированные проценты",
+      "Капитализированные затраты по займам"
+    ],
+    "aliases_en": [
+      "Capitalized borrowing costs",
+      "Borrowing costs capitalized"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Примечание 'Кредиты и займы' или 'Затраты по займам'. Также может быть в Примечании 'Основные средства'.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "DIVIDENDS_SHAREHOLDERS",
+    "name_ru": "Дивиденды акционерам",
+    "name_en": "Dividends paid to shareholders",
+    "description": "Денежные выплаты дивидендов акционерам материнской компании за период.",
+    "aliases_ru": [
+      "Дивиденды для акционеров"
+    ],
+    "aliases_en": [
+      "Dividends paid to equity holders of the parent"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "ОДДС, раздел 'Финансовая деятельность'. Бери строку выплат дивидендов акционерам и сохраняй знак/скобки как в источнике.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "ASSET_PURCHASES",
+    "name_ru": "Приобретение основных средств",
+    "name_en": "PPE purchases",
+    "description": "Денежные расходы на приобретение основных средств за период.",
+    "aliases_ru": [
+      "Покупка основных фондов",
+      "Приобретение внеоборотных активов"
+    ],
+    "aliases_en": [
+      "Purchases of property",
+      "plant and equipment",
+      "Additions to PP&E",
+      "Purchases of property, plant and equipment",
+      "Additions to properties, plant and equipment"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "ОДДС, раздел 'Инвестиционная деятельность'. Если в отчёте сумма с НМА вместе — используйте COMBINED_ASSET_PURCHASES.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "CHANGES_OCF_ASSETS_LIABILITIES",
+    "name_ru": "Изменения в оборотном капитале",
+    "name_en": "Changes in working capital",
+    "description": "Совокупное изменение оборотного капитала (запасы, дебиторка, кредиторка) за период.",
+    "aliases_ru": [
+      "Изменения в операционных активах и обязательствах"
+    ],
+    "aliases_en": [
+      "Changes in operating assets and liabilities",
+      "Working capital movements"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "ОДДС, средняя часть раздела 'Операционная деятельность' (между корректировками прибыли и налоговыми платежами).",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "TOTAL_ASSOCIATE_INVESTMENTS",
+    "name_ru": "Инвестиции в ассоциированные и совместные предприятия",
+    "name_en": "Associate investments",
+    "description": "Совокупные инвестиции в ассоциированные компании и совместные предприятия.",
+    "aliases_ru": [
+      "Вложения в ассоциированные и совместные предприятия",
+      "Инвестиции в компании по методу долевого участия"
+    ],
+    "aliases_en": [
+      "Investments in associates and joint ventures",
+      "Equity-accounted investments",
+      "Equity method investment",
+      "Investments in associates",
+      "Investments: equity method",
+      "Equity method investments"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Внеоборотные активы баланса: investments in associates/JVs/equity method investments на дату баланса. Не путай с purchases of strategic investments в ОДДС.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "TREASURY_SHARES",
+    "name_ru": "Собственные акции, выкупленные у акционеров",
+    "name_en": "Treasury shares",
+    "description": "Стоимость собственных акций, выкупленных у акционеров.",
+    "aliases_ru": [
+      "Собственные акции"
+    ],
+    "aliases_en": [
+      "Treasury stock",
+      "Own shares repurchased"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Раздел капитала: treasury shares/treasury stock на конец периода. Обычно уменьшает капитал; не путай с buyback cash-flow за период.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "EPS",
+    "name_ru": "Прибыль на одну обыкновенную акцию",
+    "name_en": "Earnings per ordinary share",
+    "description": "Чистая прибыль на одну обыкновенную акцию (валюта на акцию, не в миллионах).",
+    "aliases_ru": [
+      "Прибыль на акцию"
+    ],
+    "aliases_en": [
+      "Earnings per share",
+      "EPS",
+      "Basic EPS",
+      "Basic earnings per share"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "P&L: строка Basic earnings per share после net income. Бери Basic, не Diluted; значение может быть дробным и обычно имеет единицу валюта/share, не millions.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  }
+]
+
+## Rules
+Return period keys in `values` literally as they appear in the visible table header; do not shorten or rephrase them. A table header may have two levels: a duration group such as 'Three Months Ended' on one level and the period-end date on another. Combine the applicable levels into one complete period key. When the same date appears under multiple duration groups, a bare date is invalid because it creates a duplicate JSON key; return the full wording for each group.
+
+Return each value exactly as it appears in the table cell. Do NOT convert units, do NOT normalize thousands separators, do NOT remove commas, spaces or parentheses. If the table says "25,785", return "25,785", not "25785" and not "25.785". If the table says "(4,190)", return "(4,190)"; parentheses are mandatory: "(465)" must stay "(465)", not "465". If a matching metric row uses a blank or dash-like cell as a displayed numeric placeholder, return "0" for that period, but only when that row separately and unambiguously matches the metric. A dash in a broader combined row does not prove that any component is zero. Otherwise use null when the row is absent or the value is not disclosed. Put the table/header unit literally into unit_text, for example "in millions" or "$ in millions". When the value comes from a narrative sentence in a note rather than from a table, take the unit from that same sentence, not from the document header: notes routinely name their own scale ("USD 12.0 billion") inside a report presented in millions, and the document header would shrink the number a thousandfold. Source (report in millions): "committed credit facilities of $12.0 billion" → {"values": {"27.09.2025": "12.0"}, "unit_text": "billion"}, not "in millions".
+
+## Actual values only
+Extract only actual historical/reported values from financial statements and notes for periods that have already ended. Do NOT extract forecasts, plans, budgets, targets, scenarios, sensitivity analysis, guidance, outlook, projections, projected/forecasted values or any other forward-looking amounts, even when the row label looks like a target metric. If a requested metric appears only in a forecast/outlook/guidance table or section, return null / an empty values object for it.
+Do not treat ordinary accounting estimates inside actual financial statements as forecasts: expected credit losses, provisions, deferred taxes and pension assumptions may be valid actual-period disclosures when they are reported in the statements or notes.
+The same applies to columns: a forecast period in the header (2026E, FY26F, "plan") does not belong in values.
+
+- Follow each metric registry entry strictly. A similar-looking row is not enough.
+- Before extracting a value, run a sanity check: the row label and nearby table context must match the metric name/aliases and satisfy the description and hint.
+- Perform a scope check against the registry definition: do not use a narrower component, subcategory or subtotal that is only part of the requested metric; do not use a broader or combined row that contains the requested metric together with other components. Use only the exact requested metric, or an aggregation explicitly permitted by that metric's registry hint.
+- Extract all periods disclosed in the selected evidence: all years, quarters, half-years/YTD periods, rolling or shifted periods, and comparative periods.
+- After you identify a row/table that matches a metric, scan all period columns in that row and all evidence tables/quotes for the same metric. Return every explicitly disclosed period for that metric, not only the current period or first matching table. If quarterly and YTD/half-year rows are both disclosed, return both sets.
+- Do not mix currencies, units, or scales. If a table has multiple column sets, choose one coherent set for the metric. Prefer the report's primary presentation/native currency columns over convenience translation columns when both are shown. Currency/unit/scale may be written in the caption, unit line, or directly near the period column headers; preserve the chosen unit/currency in unit_text and raw headers when present.
+- The registry is the definition, not a keyword list. Accept a row only when its full label, nearby context, description and hint agree; do not broaden a metric from a partial alias or a similar subtotal.
+- Do not calculate values, allocate totals, infer missing periods, or normalize signs/period labels yourself, unless the specific metric registry entry explicitly authorizes that derivation. For an authorized derivation, use only the stated method and operands explicitly present in this evidence.
+- If you are unsure whether the row matches the registry definition, prefer null over a bold guess.
+
+
+## Output Format
+Return exactly one valid JSON object only. No explanations, no markdown wrappers, no comments.
+A JSON object whose keys exactly match the metric metadata list below:
+
+{
+  "CASH_EQUIVALENTS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "TOTAL_CURRENT_LIABILITIES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "GOODWILL": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "CAPITALIZED_INTEREST": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "DIVIDENDS_SHAREHOLDERS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "ASSET_PURCHASES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "CHANGES_OCF_ASSETS_LIABILITIES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "TOTAL_ASSOCIATE_INVESTMENTS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "TREASURY_SHARES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "EPS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null}
+}

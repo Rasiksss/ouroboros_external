@@ -1,0 +1,278 @@
+## SYSTEM
+You are a senior financial analyst working with us_gaap_en financial reports. Your task is to find and extract ordinary financial statement metrics, matching source rows strictly against each metric's registry description, aliases and hint. If a row is similar but broader, narrower, or includes extra components, do not use it. Return valid JSON only.
+
+## USER
+## Task
+Extract reported financial metric values from compressed evidence selected in stage 1.
+Company type: bank; reporting standard: us_gaap_en; language: en.
+Extract values for every metric listed in the metric metadata below.
+For each metric block, read the registry fields and evidence, then extract every value of that exact metric for every disclosed period.
+Return raw period headers and raw cell values literally as they appear in the report.
+
+
+## Metric Blocks
+[
+  {
+    "enum": "DEFERRED_TAX_LIABILITIES",
+    "name_ru": "Отложенные налоговые обязательства",
+    "name_en": "Deferred tax liabilities",
+    "description": "Налоги на прибыль, подлежащие уплате в будущих периодах из-за налогооблагаемых временных разниц.",
+    "aliases_ru": [
+      "Обязательства по отложенному налогу на прибыль"
+    ],
+    "aliases_en": [
+      "Deferred income tax liabilities"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Долгосрочные обязательства баланса. Подробности в Примечании 'Налог на прибыль' / 'Отложенные налоги'.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "INTEREST_RECEIVED",
+    "name_ru": "Полученные проценты",
+    "name_en": "Interest received",
+    "description": "Денежные поступления процентов от размещений и финансовых активов.",
+    "aliases_ru": [
+      "Проценты полученные"
+    ],
+    "aliases_en": [
+      "Interest receipts",
+      "Cash interest received"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "ОДДС, чаще в разделе 'Инвестиционная деятельность' (или 'Операционная').",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "INDIVIDUALS_LOANS",
+    "name_ru": "Розничные кредиты",
+    "name_en": "Total consumer loans and leases",
+    "description": "Кредиты, выданные физическим лицам (ипотека, потребкредиты, автокредиты).",
+    "aliases_ru": [
+      "Кредиты физическим лицам",
+      "Потребительские кредиты"
+    ],
+    "aliases_en": [
+      "Retail loans",
+      "Consumer loans",
+      "Loans to individuals"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Примечание 'Кредиты клиентам' — разбивка по сегментам.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "OPERATING_EXPENSES_BANKS",
+    "name_ru": "Операционные расходы банков",
+    "name_en": "Total non-interest expense",
+    "description": "Совокупные операционные расходы банка (зарплаты, IT, аренда, прочее).",
+    "aliases_ru": [
+      "Непроцентные расходы",
+      "Операционные и административные расходы"
+    ],
+    "aliases_en": [
+      "Total operating expenses",
+      "Non-interest expenses"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "P&L банка, после операционных доходов и резервов.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "OTHER_ASSETS",
+    "name_ru": "Прочие активы",
+    "name_en": "Other assets",
+    "description": "Активы, не отнесённые к стандартным категориям баланса.",
+    "aliases_ru": [
+      "Прочие активы",
+      "Прочие внеоборотные активы",
+      "Иные активы"
+    ],
+    "aliases_en": [
+      "Other assets",
+      "Prepaid expenses and other assets",
+      "Other current assets",
+      "Other long-term assets"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Балансовый отчёт: широкая метрика other assets включает current/prepaid and other assets плюс other non-current assets, если они раскрыты отдельно. Не бери изменение этой строки из ОДДС.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "SHARE_CAPITAL",
+    "name_ru": "Уставной капитал",
+    "name_en": "Share capital",
+    "description": "Номинальная стоимость выпущенных акций.",
+    "aliases_ru": [
+      "Акционерный капитал",
+      "Обыкновенные акции (номинал)"
+    ],
+    "aliases_en": [
+      "Common stock",
+      "Ordinary shares",
+      "Capital stock"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Раздел капитала: share capital/common stock/capital stock на конец периода. Не путай с total equity.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "FUNDS_FROM_CENTRAL_BANK",
+    "name_ru": "Средства, предоставленные ЦБ",
+    "name_en": "Funds provided by the Central Bank",
+    "description": "Кредиты и депозиты, полученные банком от центрального банка.",
+    "aliases_ru": [
+      "Кредиты ЦБ",
+      "Рефинансирование от центрального банка"
+    ],
+    "aliases_en": [
+      "Loans from central bank",
+      "Borrowings from the central bank"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Балансовый отчёт банка, обязательство. Также в Примечании 'Привлечённые средства'.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "NET_OTHER_RESERVES",
+    "name_ru": "Чистое восстановление прочих резервов",
+    "name_en": "Net other reserves",
+    "description": "Чистый эффект от прочих резервов за период (восстановление минус начисление).",
+    "aliases_ru": [
+      "(Создание)/восстановление резерва под судебные иски и прочие обязательства",
+      "Восстановление резерва под кредитные убытки по прочим финансовым активам"
+    ],
+    "aliases_en": [
+      "Net reversal of other provisions",
+      "Net recovery of other provisions"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "ОДДС или P&L. Может быть в составе 'Прочие операционные доходы/расходы' или отдельной строкой.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "SECURITIES_FVOCI",
+    "name_ru": "Ценные бумаги по справедливой стоимости через прочий совокупный доход (FVOCI)",
+    "name_en": "Securities at FVOCI",
+    "description": "Финансовые активы, оцениваемые по справедливой стоимости через ПСД (по IFRS 9).",
+    "aliases_ru": [
+      "Финансовые активы",
+      "оцениваемые по ССПСД",
+      "Ценные бумаги",
+      "оцениваемые по справедливой стоимости через прибыль или убыток"
+    ],
+    "aliases_en": [
+      "Financial assets at FVOCI",
+      "AFS securities"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Балансовый отчёт банка. Категория измерения по IFRS 9.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "CHANGE_IN_EXPECTED_CREDIT_LOSSES",
+    "name_ru": "Изменение резерва по ожидаемым кредитным убыткам",
+    "name_en": "Change in ECL",
+    "description": "Изменение оценочных резервов ECL за период (по всем финансовым активам, не только кредитам).",
+    "aliases_ru": [
+      "Резерв под кредитные убытки по денежжным средствам",
+      "их эквивалентам",
+      "средствам в других банках и кредитам и авансам клиентам"
+    ],
+    "aliases_en": [
+      "Movement in ECL allowance",
+      "Changes in ECL allowance"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "P&L банка или Примечание 'Финансовые активы'. Сумма движений ECL за период. В interim-отчетах с колонками 3M/Q и 6M/YTD возвращай обе группы периодов, не только YTD.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  }
+]
+
+## Rules
+Return period keys in `values` literally as they appear in the visible table header; do not shorten or rephrase them. A table header may have two levels: a duration group such as 'Three Months Ended' on one level and the period-end date on another. Combine the applicable levels into one complete period key. When the same date appears under multiple duration groups, a bare date is invalid because it creates a duplicate JSON key; return the full wording for each group.
+
+Return each value exactly as it appears in the table cell. Do NOT convert units, do NOT normalize thousands separators, do NOT remove commas, spaces or parentheses. If the table says "25,785", return "25,785", not "25785" and not "25.785". If the table says "(4,190)", return "(4,190)"; parentheses are mandatory: "(465)" must stay "(465)", not "465". If a matching metric row uses a blank or dash-like cell as a displayed numeric placeholder, return "0" for that period, but only when that row separately and unambiguously matches the metric. A dash in a broader combined row does not prove that any component is zero. Otherwise use null when the row is absent or the value is not disclosed. Put the table/header unit literally into unit_text, for example "in millions" or "$ in millions". When the value comes from a narrative sentence in a note rather than from a table, take the unit from that same sentence, not from the document header: notes routinely name their own scale ("USD 12.0 billion") inside a report presented in millions, and the document header would shrink the number a thousandfold. Source (report in millions): "committed credit facilities of $12.0 billion" → {"values": {"27.09.2025": "12.0"}, "unit_text": "billion"}, not "in millions".
+
+## Actual values only
+Extract only actual historical/reported values from financial statements and notes for periods that have already ended. Do NOT extract forecasts, plans, budgets, targets, scenarios, sensitivity analysis, guidance, outlook, projections, projected/forecasted values or any other forward-looking amounts, even when the row label looks like a target metric. If a requested metric appears only in a forecast/outlook/guidance table or section, return null / an empty values object for it.
+Do not treat ordinary accounting estimates inside actual financial statements as forecasts: expected credit losses, provisions, deferred taxes and pension assumptions may be valid actual-period disclosures when they are reported in the statements or notes.
+The same applies to columns: a forecast period in the header (2026E, FY26F, "plan") does not belong in values.
+
+- Follow each metric registry entry strictly. A similar-looking row is not enough.
+- Before extracting a value, run a sanity check: the row label and nearby table context must match the metric name/aliases and satisfy the description and hint.
+- Perform a scope check against the registry definition: do not use a narrower component, subcategory or subtotal that is only part of the requested metric; do not use a broader or combined row that contains the requested metric together with other components. Use only the exact requested metric, or an aggregation explicitly permitted by that metric's registry hint.
+- Extract all periods disclosed in the selected evidence: all years, quarters, half-years/YTD periods, rolling or shifted periods, and comparative periods.
+- After you identify a row/table that matches a metric, scan all period columns in that row and all evidence tables/quotes for the same metric. Return every explicitly disclosed period for that metric, not only the current period or first matching table. If quarterly and YTD/half-year rows are both disclosed, return both sets.
+- Do not mix currencies, units, or scales. If a table has multiple column sets, choose one coherent set for the metric. Prefer the report's primary presentation/native currency columns over convenience translation columns when both are shown. Currency/unit/scale may be written in the caption, unit line, or directly near the period column headers; preserve the chosen unit/currency in unit_text and raw headers when present.
+- The registry is the definition, not a keyword list. Accept a row only when its full label, nearby context, description and hint agree; do not broaden a metric from a partial alias or a similar subtotal.
+- Do not calculate values, allocate totals, infer missing periods, or normalize signs/period labels yourself, unless the specific metric registry entry explicitly authorizes that derivation. For an authorized derivation, use only the stated method and operands explicitly present in this evidence.
+- If you are unsure whether the row matches the registry definition, prefer null over a bold guess.
+
+
+## Output Format
+Return exactly one valid JSON object only. No explanations, no markdown wrappers, no comments.
+A JSON object whose keys exactly match the metric metadata list below:
+
+{
+  "DEFERRED_TAX_LIABILITIES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "INTEREST_RECEIVED": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "INDIVIDUALS_LOANS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "OPERATING_EXPENSES_BANKS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "OTHER_ASSETS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "SHARE_CAPITAL": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "FUNDS_FROM_CENTRAL_BANK": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "NET_OTHER_RESERVES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "SECURITIES_FVOCI": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "CHANGE_IN_EXPECTED_CREDIT_LOSSES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null}
+}

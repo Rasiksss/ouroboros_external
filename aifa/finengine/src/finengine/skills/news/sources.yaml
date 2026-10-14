@@ -1,0 +1,697 @@
+# IR Daily News — catalog of feeds.
+#
+# Each entry produces a Connector at startup. New sources go through git
+# review (compliance trail per УЭК-АУА-13).
+#
+# Fields:
+#   id           stable key, used as foreign key in raw_items
+#   display_name human-readable, shown in markdown
+#   type         official | wire | tier1 | wire_tg | aggregator
+#   region       RU | US | EU | CN | global
+#   connector    rss | html | api | telegram | tavily_fallback
+#   url          feed URL or API endpoint (depends on connector)
+#   weight       0.0..1.0 — multiplier in ranking
+#   active       false → exclude from collect step (without deleting)
+
+sources:
+  # ===== Russia — Regulators (highest weight) =====
+  # NB: ЦБ RSS URL'ы БЕЗ trailing slash — иначе 404.
+  - id: cbr_press
+    display_name: ЦБ РФ
+    type: official
+    region: RU
+    connector: rss
+    url: http://www.cbr.ru/rss/RssPress
+    weight: 1.0
+
+  - id: cbr_news
+    display_name: ЦБ РФ — Новости
+    type: official
+    region: RU
+    connector: rss
+    url: http://www.cbr.ru/rss/RssNews
+    weight: 1.0
+
+  - id: cbr_events
+    display_name: ЦБ РФ — Выступления
+    type: official
+    region: RU
+    connector: rss
+    url: http://www.cbr.ru/rss/eventrss
+    weight: 0.95
+
+  # Росстат — лента ЕГО СОБСТВЕННЫХ выпусков (18.08.2026).
+  #
+  # Здесь стоял фид правительства `government.ru/department/456` — раздел
+  # «О Росстате», а не публикации Росстата. Замер 18.08: лента жива (HTTP 200,
+  # 20 записей), но свежайшая запись от 25.06 — поздравление с профессиональным
+  # праздником, публикаций статистики нет НИ ОДНОЙ. Выпуск честно писал «за
+  # 7 дней нет», держа не тот шланг: сам Росстат печатает недельную инфляцию
+  # каждую среду.
+  # `central-news/rss` — она и есть: HTTP 200, 6690 байт, 20 записей,
+  # bozo=False, «Об оценке индекса потребительских цен с N по M» по средам без
+  # пропусков, плюс ИПЦ за месяц, ВВП, ИЦП, промпроизводство.
+  # ⚠️ `announcements/rss` НЕ БРАТЬ, хотя формально исправна: там даты БУДУЩИЕ
+  # (это анонсы выхода), а `rank.py:_freshness` на отрицательной дельте даёт
+  # свежесть 1.0 — ещё не вышедшая статистика вытеснила бы реальные новости.
+  # ⚠️ Сертификат выдан НУЦ Минцифры: без `net/ru_gov_tls.verify_for` сбор
+  # падает в CERTIFICATE_VERIFY_FAILED (подключено в connectors/rss.py).
+  # ⚠️ Ритм недельный: при окне сбора 48 ч записи приезжают в среду вечером и
+  # в четверг, в остальные дни ноль — это не отказ источника.
+  - id: rosstat_gov
+    display_name: Росстат
+    type: official
+    region: RU
+    connector: rss
+    url: https://rosstat.gov.ru/central-news/rss
+    weight: 0.95
+
+  # Минфин РФ — публичного RSS нет, парсим HTML-листинг пресс-центра.
+  # Покрывает бюджетную/налоговую политику, ОФЗ-размещения, заявления
+  # Силуанова (требование заказчика: regulator focus = "предложения по
+  # бюджетной и налоговой политике").
+  - id: minfin_ru
+    display_name: Минфин РФ
+    type: official
+    region: RU
+    connector: html
+    url: https://minfin.gov.ru/ru/press-center/
+    weight: 0.95
+
+  # ===== Russia — Wires =====
+  - id: interfax_business
+    display_name: Интерфакс
+    type: wire
+    region: RU
+    connector: rss
+    url: https://www.interfax.ru/rss.asp
+    weight: 0.85
+
+  - id: finmarket
+    display_name: Финмаркет
+    type: wire
+    region: RU
+    connector: rss
+    url: https://www.finmarket.ru/rss/mainnews.asp
+    weight: 0.8
+
+  # ===== Russia — Tier1 =====
+  - id: rbc
+    display_name: РБК
+    type: tier1
+    region: RU
+    connector: rss
+    url: https://rssexport.rbc.ru/rbcnews/news/30/full.rss
+    weight: 0.75
+
+  - id: forbes_ru
+    display_name: Forbes Russia
+    type: tier1
+    region: RU
+    connector: rss
+    url: https://www.forbes.ru/newrss.xml
+    weight: 0.7
+
+  - id: vedomosti
+    display_name: Ведомости
+    type: tier1
+    region: RU
+    connector: rss
+    # Vedomosti's own RSS now serves 200 items (was paywalled in 2024).
+    url: https://www.vedomosti.ru/rss/news
+    weight: 0.85
+
+  - id: kommersant
+    display_name: Коммерсантъ
+    type: tier1
+    region: RU
+    connector: rss
+    # Главный RU деловой; ~577 элементов в ленте, очень глубокое покрытие.
+    url: https://www.kommersant.ru/rss/news.xml
+    weight: 0.9
+
+  - id: tass_business
+    display_name: ТАСС Бизнес
+    type: wire
+    region: RU
+    connector: rss
+    url: https://tass.ru/rss/v2.xml
+    weight: 0.75
+
+  - id: thebell
+    display_name: The Bell
+    type: tier1
+    region: RU
+    connector: rss
+    # Один из лучших RU-business-блогов; глубокий анализ корп-событий.
+    url: https://thebell.io/feed
+    weight: 0.8
+
+  - id: prime_ru
+    display_name: 1Прайм
+    type: wire
+    region: RU
+    connector: rss
+    url: https://1prime.ru/export/rss2/index.xml
+    weight: 0.7
+
+  # ===== US — Regulators + Macro statistics =====
+  - id: fed
+    display_name: ФРС
+    type: official
+    region: US
+    connector: rss
+    url: https://www.federalreserve.gov/feeds/press_all.xml
+    weight: 1.0
+
+  - id: ustreasury_blog
+    display_name: U.S. Treasury
+    type: official
+    region: US
+    connector: rss
+    # Пресс-релизы Минфина США через GovDelivery (18.08.2026). Адрес подписки
+    # вычитан со страницы home.treasury.gov/news/press-releases, а не подобран.
+    #
+    # Прежний `treasury.gov/connect/blog/feed/feed.xml` стоял выключенным как
+    # «битый XML» — диагноз был неверен: адрес отдаёт HTML-лендинг (мягкий
+    # 404), блога там больше нет, чинить парсер было нечего. Источник простоял
+    # выключенным, а выпуск писал «мониторинг продолжается»: мы не следили и
+    # говорили, что следим.
+    # Замер 18.08: HTTP 200, 232615 байт, 25 записей, bozo=False, свежайшая
+    # сутки назад («Treasury International Capital Data for June»).
+    # ⚠️ Собственные ленты Минфина США брать нельзя, хотя они ВАЛИДНЫ и это
+    # ловушка: home.treasury.gov/rss.xml — FAQ по программе SSBCI, свежайшая
+    # 22.07; ofac.treasury.gov/rss.xml — статические страницы санкционных
+    # программ, свежайшая 01.07.2025. Формально живые, по сути пустые.
+    # ⚠️ id не переименован намеренно: он внешний ключ в raw_items и стоит в
+    # `_REGULATOR_SPEC` (render.py) — смена id обнулила бы архив и блок.
+    url: https://public.govdelivery.com/topics/USTREAS_49/feed.rss
+    weight: 0.95
+
+  - id: sec_press
+    display_name: SEC
+    type: official
+    region: US
+    connector: rss
+    url: https://www.sec.gov/news/pressreleases.rss
+    weight: 0.9
+
+  # BLS — главные релизы макроиндикаторов США (CPI/PPI/Empsit/JOLTS).
+  # ВСЕ их RSS-фиды 2026 начали возвращать 403 на VPS-IP — у BLS
+  # агрессивный bot-detection. Числовые значения этих же релизов всё
+  # равно прилетают через FRED (CPIAUCSL, PPIACO, PAYEMS, JTSJOL),
+  # поэтому отключаем эти источники как новостные — потеряем только
+  # explainer-text, но это не критично для дайджеста.
+  - id: bls_empsit
+    display_name: BLS — Employment Situation (NFP)
+    type: official
+    region: US
+    connector: rss
+    url: https://www.bls.gov/feed/empsit.rss
+    weight: 1.0
+    active: false
+
+  - id: bls_cpi
+    display_name: BLS — CPI
+    type: official
+    region: US
+    connector: rss
+    url: https://www.bls.gov/feed/cpi.rss
+    weight: 1.0
+    active: false   # 403 на VPS-IP, числа идут через FRED — см. разбор у bls_empsit
+
+  - id: bls_ppi
+    display_name: BLS — PPI
+    type: official
+    region: US
+    connector: rss
+    url: https://www.bls.gov/feed/ppi.rss
+    weight: 0.95
+    active: false   # 403 на VPS-IP, числа идут через FRED — см. разбор у bls_empsit
+
+  - id: bls_jolts
+    display_name: BLS — JOLTS
+    type: official
+    region: US
+    connector: rss
+    url: https://www.bls.gov/feed/jolts.rss
+    weight: 0.9
+    active: false   # 403 на VPS-IP, числа идут через FRED — см. разбор у bls_empsit
+
+  # BEA — GDP, Personal Income, PCE (core inflation gauge of the Fed).
+  - id: bea_news
+    display_name: BEA — GDP/PCE
+    type: official
+    region: US
+    connector: rss
+    url: https://apps.bea.gov/rss/rss.xml
+    weight: 1.0
+
+  # EIA — еженедельные запасы нефти (двигают сырьевой рынок).
+  - id: eia_petroleum
+    display_name: EIA — Petroleum
+    type: official
+    region: US
+    connector: rss
+    url: https://www.eia.gov/rss/press_rss.xml
+    weight: 0.9
+
+  # Conference Board — Consumer Confidence Index (ежемесячно).
+  - id: conference_board
+    display_name: Conference Board
+    type: official
+    region: US
+    connector: rss
+    url: https://www.conference-board.org/press/press-releases-rss
+    weight: 0.85
+    active: false   # malformed XML — wait for proper feed or scrape HTML
+
+  # ===== US — Wires =====
+  - id: reuters_business
+    display_name: Reuters
+    type: wire
+    region: global
+    connector: rss
+    # Reuters закрыли официальный RSS в 2020. Обходим через Google News.
+    # ⚠️ Оператор `allinurl:` НЕ РАБОТАЕТ в лентах Google News: стоял здесь и
+    # молча отдавал ноль записей — источник числился живым (HTTP 200, фид
+    # валидный), но пустым. Проверено 17.08.2026: `allinurl:` → 0 записей,
+    # `site:` → 100, свежайшая в тот же час. Тот же `site:` уже работает у
+    # globenewswire и businesswire — надо было просто повторить их образец.
+    url: https://news.google.com/rss/search?q=site%3Areuters.com+when%3A7d&ceid=US%3Aen&hl=en-US&gl=US
+    weight: 0.85
+
+  # ===== US — Tier1 =====
+  - id: cnbc_world
+    display_name: CNBC
+    type: tier1
+    region: global
+    connector: rss
+    url: https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100003114
+    weight: 0.75
+
+  - id: ft_companies
+    display_name: FT
+    type: tier1
+    region: global
+    connector: rss
+    url: https://www.ft.com/rss/companies
+    weight: 0.8
+
+  # ===== US — Corporate press wires =====
+  # PR Newswire / Business Wire / GlobeNewswire carry the actual company
+  # press releases that journalists later rewrite into stories. Hitting
+  # these directly catches M&A / partnerships / product launches 1-3h
+  # before they show up in Reuters/CNBC.
+  - id: pr_newswire
+    display_name: PR Newswire
+    type: wire
+    region: global
+    connector: rss
+    # ⚠️ Прежний адрес (`/rss/news-releases-list.rss`) отдаёт HTTP 404 —
+    # PR Newswire перестроили ленты. Взят их отраслевой фид: 20 свежих
+    # записей против 100 у общего, и все по нашей теме. Общий тянул подряд
+    # всё — от поглощений в кондитерке до розничных акций, а классификатору
+    # это лишний шум при потолке в 60 кандидатов.
+    url: https://www.prnewswire.com/rss/financial-services-latest-news/financial-services-latest-news-list.rss
+    weight: 0.75
+
+  - id: business_wire
+    display_name: Business Wire
+    type: wire
+    region: global
+    connector: rss
+    # BW's own feed (feed.businesswire.com) is CF-fronted and blocks our
+    # prod RU IP + the PL proxy at the TCP layer. Workaround: Google News
+    # site-search RSS — Google indexes BW with ~30-60 min lag from the
+    # original release, which is still 30-90 min ahead of Reuters/CNBC
+    # rewrites. Same trick we use for Vedomosti.
+    url: https://news.google.com/rss/search?q=site%3Abusinesswire.com+when%3A7d&ceid=US%3Aen&hl=en-US&gl=US
+    weight: 0.7
+
+  - id: globenewswire
+    display_name: GlobeNewswire
+    type: wire
+    region: global
+    connector: rss
+    url: https://news.google.com/rss/search?q=site%3Aglobenewswire.com+when%3A7d&ceid=US%3Aen&hl=en-US&gl=US
+    weight: 0.7
+
+  # ===== US/global — Trade press =====
+  - id: techcrunch
+    display_name: TechCrunch
+    type: tier1
+    region: US
+    connector: rss
+    # AI/tech deals, product launches; ловит NVDA/MSFT/Anthropic events.
+    url: https://techcrunch.com/feed/
+    weight: 0.7
+
+  - id: marketwatch
+    display_name: MarketWatch
+    type: tier1
+    region: US
+    connector: rss
+    url: https://feeds.content.dowjones.io/public/rss/RSSMarketsMain
+    weight: 0.75
+
+  - id: seeking_alpha
+    display_name: Seeking Alpha
+    type: wire
+    region: US
+    connector: rss
+    # Earnings analysis, rating changes, analyst takes.
+    url: https://seekingalpha.com/feed.xml
+    weight: 0.65
+
+  # ===== EU — Regulators =====
+  - id: ecb
+    display_name: ЕЦБ
+    type: official
+    region: EU
+    connector: rss
+    url: https://www.ecb.europa.eu/rss/press.html
+    weight: 1.0
+
+  # ===== China — Regulators =====
+  # НБК ОСТАЁТСЯ ВЫКЛЮЧЕННЫМ — и вот что именно проверено 18.08.2026, чтобы
+  # фраза выпуска «источник отключён» опиралась на замер, а не на память.
+  # Машинной ленты у НБК НЕТ вовсе: /rss.xml, /en/rss.xml, /rss/en.xml и
+  # /en/3688110/3688181/rss.xml — все 404; на странице раздела ни одной ссылки
+  # с rss|feed. Сеть ни при чём: pbc.gov.cn отдаёт HTTP 200 с боевого VPS.
+  # Годится только HTML: раздел Announcements (url ниже) — 10 статей, сервер-
+  # рендер, заголовки английские, дата зашита в путь статьи
+  # (/en/.../2026081813512936692/index.html → 18.08.2026), свежайшая — сегодня.
+  # Прежний адрес `pbc.gov.cn/redianzhuanti/index.html` заменён: это китайская
+  # страница «горячих тем», а не лента публикаций.
+  # ⚠️ ПОЧЕМУ НЕЛЬЗЯ ПРОСТО ПОСТАВИТЬ active: true. `connectors/html.py` берёт
+  # разборщик из `_EXTRACTORS` по id источника; под `pboc` его там нет, и
+  # коннектор вернёт [] с warning, не сходив в сеть. Источник числился бы
+  # живым и пустым — тот же класс отказа, что был у reuters. Сторож
+  # tests/test_regulator_sources_point_at_regulators.py держит эту связку.
+  # ⚠️ Разборщик придётся проверять на VPS: с рабочего Mac pbc.gov.cn
+  # недоступен (таймаут, порты 80/443 закрыты на обоих IP).
+  - id: pboc
+    display_name: НБК
+    type: official
+    region: CN
+    connector: html
+    url: http://www.pbc.gov.cn/en/3688110/3688181/index.html
+    weight: 0.9
+    active: false
+
+  # ===== Telegram wires (RU IR community channels) =====
+  # Requires TELEGRAM_API_ID + TELEGRAM_API_HASH env vars + one-time
+  # interactive login (`python -m finengine.skills.news.cli telegram-login`).
+  # Session persists in data/news/telegram.session.
+  - id: tg_cbrstocks
+    display_name: Сигналы РЦБ
+    type: wire_tg
+    region: RU
+    connector: telegram
+    url: https://t.me/cbrstocks
+    weight: 0.7
+
+  - id: tg_markettwits
+    display_name: MarketTwits
+    type: wire_tg
+    region: RU
+    connector: telegram
+    url: https://t.me/markettwits
+    weight: 0.7
+
+  - id: tg_smartlab
+    display_name: Смартлаб Новости
+    type: wire_tg
+    region: RU
+    connector: telegram
+    url: https://t.me/newssmartlab
+    weight: 0.65
+
+  # === Дополнительные RU TG-каналы (корп-фокус) ===
+  # Все скрэпятся через t.me/s/ HTML preview (без MTProto / API). Раз
+  # в день каждый канал отдаёт 10-50 постов; пайплайн их дедуплицирует
+  # с RSS-источниками по url + entity-overlap.
+  - id: tg_bcs_express
+    display_name: БКС Экспресс
+    type: wire_tg
+    region: RU
+    connector: telegram
+    url: https://t.me/bcs_express
+    weight: 0.75
+
+  - id: tg_vtb_invest
+    display_name: ВТБ Мои Инвестиции
+    type: wire_tg
+    region: RU
+    connector: telegram
+    # Official VTB Investments lives in their mobile app, not in TG. The
+    # `@vtbmyinvestments` handle is squatted by "тест 123". Leaving the
+    # row for visibility but disabled until a real channel surfaces.
+    url: https://t.me/vtbmyinvestments
+    weight: 0.7
+    active: false
+
+  - id: tg_gpb_invest
+    display_name: ГПБ Инвестиции
+    type: wire_tg
+    region: RU
+    connector: telegram
+    url: https://t.me/gpb_investments
+    weight: 0.7
+
+  - id: tg_kommersant
+    display_name: Коммерсантъ TG
+    type: wire_tg
+    region: RU
+    connector: telegram
+    url: https://t.me/kommersant
+    weight: 0.75
+
+  - id: tg_rbc
+    display_name: РБК TG
+    type: wire_tg
+    region: RU
+    connector: telegram
+    url: https://t.me/rbc_news
+    weight: 0.75
+
+  - id: tg_vedomosti
+    display_name: Ведомости TG
+    type: wire_tg
+    region: RU
+    connector: telegram
+    url: https://t.me/vedomosti
+    weight: 0.75
+
+  - id: tg_forbes
+    display_name: Forbes Russia TG
+    type: wire_tg
+    region: RU
+    connector: telegram
+    url: https://t.me/forbesrussia
+    weight: 0.7
+
+  - id: tg_tass
+    display_name: ТАСС TG
+    type: wire_tg
+    region: RU
+    connector: telegram
+    url: https://t.me/tass_agency
+    weight: 0.7
+
+  - id: tg_prime
+    display_name: Прайм TG
+    type: wire_tg
+    region: RU
+    connector: telegram
+    # @primeonline / @1prime / @prime_news are all squat handles.
+    # 1Прайм's content is covered by the prime_ru RSS feed above.
+    url: https://t.me/primeonline
+    weight: 0.65
+    active: false
+
+  - id: tg_thebell
+    display_name: The Bell TG
+    type: wire_tg
+    region: RU
+    connector: telegram
+    url: https://t.me/thebell_io
+    weight: 0.75
+
+  # ===== Aggregator fallbacks =====
+  - id: tavily_fallback
+    display_name: Tavily Search
+    type: aggregator
+    region: global
+    connector: tavily_fallback
+    url: tavily://search
+    weight: 0.5
+    active: false   # запускается отдельно с лимитами — не в основном collect-step
+
+# Сущности для rule-based фильтра (matched_entities).
+# Имена компаний нормализуются — связываем алиасы.
+entities:
+  watchlist_ru:
+    # Финансовый сектор
+    - {canonical: "Сбер", aliases: ["Сбер", "Сбербанк", "SBER", "Sber", "Sberbank", "#SBER", "#SBRF"]}
+    - {canonical: "ВТБ", aliases: ["ВТБ", "VTB", "#VTBR"]}
+    - {canonical: "Т-Технологии", aliases: ["Т-Технологии", "TCS", "Тинькофф", "#TCSG"]}
+    - {canonical: "Совкомбанк", aliases: ["Совкомбанк", "Sovcombank", "#SVCB"]}
+    - {canonical: "МТС Банк", aliases: ["МТС Банк", "MTS Bank", "#MBNK"]}
+    # IT / Tech
+    - {canonical: "Ozon", aliases: ["Озон", "Ozon", "#OZON"]}
+    - {canonical: "Yandex", aliases: ["Яндекс", "Yandex", "#YDEX", "#YNDX"]}
+    - {canonical: "VK", aliases: ["ВК", "VK", "#VKCO"]}
+    - {canonical: "Positive Technologies", aliases: ["Positive Technologies", "Позитив", "#POSI"]}
+    # Ретейл
+    - {canonical: "X5 Retail", aliases: ["X5", "Икс 5", "Х5", "#FIVE", "#X5"]}
+    - {canonical: "Magnit", aliases: ["Магнит", "Magnit", "#MGNT"]}
+    - {canonical: "Lenta", aliases: ["Лента", "Lenta", "#LENT", "#LNTA"]}
+    # Telecom
+    - {canonical: "MTS", aliases: ["МТС", "MTS", "#MTSS"]}
+    - {canonical: "Ростелеком", aliases: ["Ростелеком", "Rostelecom", "#RTKM"]}
+    # Нефтегаз — основные игроки рос. рынка (раньше отсутствовали — fix)
+    - {canonical: "Газпром", aliases: ["Газпром", "Gazprom", "#GAZP"]}
+    - {canonical: "Лукойл", aliases: ["Лукойл", "Lukoil", "#LKOH"]}
+    - {canonical: "Роснефть", aliases: ["Роснефть", "Rosneft", "#ROSN"]}
+    - {canonical: "Татнефть", aliases: ["Татнефть", "Tatneft", "#TATN", "#TATNP"]}
+    - {canonical: "Новатэк", aliases: ["Новатэк", "Novatek", "#NVTK"]}
+    - {canonical: "Газпром нефть", aliases: ["Газпром нефть", "Gazprom Neft", "#SIBN"]}
+    - {canonical: "Транснефть", aliases: ["Транснефть", "Transneft", "#TRNF", "#TRNFP"]}
+    - {canonical: "Сургутнефтегаз", aliases: ["Сургутнефтегаз", "#SNGS", "#SNGSP"]}
+    - {canonical: "Башнефть", aliases: ["Башнефть", "#BANE", "#BANEP"]}
+    # Металлургия / горнодобыча (тоже отсутствовали — добавляю основные)
+    - {canonical: "Норникель", aliases: ["Норникель", "Норильский никель", "Nornickel", "#GMKN"]}
+    - {canonical: "Северсталь", aliases: ["Северсталь", "Severstal", "#CHMF"]}
+    - {canonical: "НЛМК", aliases: ["НЛМК", "NLMK", "#NLMK"]}
+    - {canonical: "ММК", aliases: ["ММК", "MMK", "#MAGN"]}
+    - {canonical: "Полюс", aliases: ["Полюс", "Polyus", "#PLZL"]}
+    - {canonical: "Алроса", aliases: ["Алроса", "Alrosa", "#ALRS"]}
+    # Электроэнергетика
+    - {canonical: "Интер РАО", aliases: ["Интер РАО", "InterRAO", "#IRAO"]}
+    - {canonical: "Россети", aliases: ["Россети", "Rosseti", "#FEES"]}
+    - {canonical: "РусГидро", aliases: ["РусГидро", "RusHydro", "#HYDR"]}
+    # Биржи
+    - {canonical: "Мосбиржа", aliases: ["Мосбиржа", "Московская биржа", "MOEX", "#MOEX"]}
+
+  watchlist_world:
+    # US Big Banks
+    - {canonical: "JP Morgan", aliases: ["JPMorgan", "JP Morgan", "JPM", "Дж.П.Морган"]}
+    - {canonical: "Wells Fargo", aliases: ["Wells Fargo", "WFC"]}
+    - {canonical: "Citigroup", aliases: ["Citigroup", "Citi", "Ситигрупп"]}
+    - {canonical: "Goldman Sachs", aliases: ["Goldman Sachs", "Голдман Сакс", "Goldman"]}
+    - {canonical: "Morgan Stanley", aliases: ["Morgan Stanley", "Морган Стэнли"]}
+    - {canonical: "Bank of America", aliases: ["Bank of America", "BofA", "BAC"]}
+    - {canonical: "Raiffeisen", aliases: ["Raiffeisen", "Райффайзен"]}
+    # US Big Tech
+    - {canonical: "Apple", aliases: ["Apple", "Эппл", "AAPL"]}
+    - {canonical: "Microsoft", aliases: ["Microsoft", "Майкрософт", "MSFT"]}
+    - {canonical: "Nvidia", aliases: ["Nvidia", "NVDA", "Нвидиа"]}
+    - {canonical: "Tesla", aliases: ["Tesla", "Тесла", "TSLA"]}
+    - {canonical: "Alphabet", aliases: ["Alphabet", "Google", "Гугл", "GOOGL"]}
+    - {canonical: "Meta", aliases: ["Meta", "Мета", "META"]}
+    - {canonical: "Amazon", aliases: ["Amazon", "Амазон", "AMZN"]}
+    - {canonical: "IBM", aliases: ["IBM", "АйБиЭм"]}
+    - {canonical: "Netflix", aliases: ["Netflix", "Нетфликс", "NFLX"]}
+    - {canonical: "Walt Disney", aliases: ["Walt Disney", "Дисней", "Disney"]}
+    - {canonical: "Walmart", aliases: ["Walmart", "Уолмарт", "WMT"]}
+    - {canonical: "Spotify", aliases: ["Spotify", "Спотифай", "SPOT"]}
+    # US semi / chips
+    - {canonical: "AMD", aliases: ["AMD", "Advanced Micro Devices"]}
+    - {canonical: "Broadcom", aliases: ["Broadcom", "AVGO"]}
+    - {canonical: "Oracle", aliases: ["Oracle", "Оракл", "ORCL"]}
+    - {canonical: "Palantir", aliases: ["Palantir", "Палантир", "PLTR"]}
+    # US fintech
+    - {canonical: "PayPal", aliases: ["PayPal", "PYPL"]}
+    - {canonical: "Block (Square)", aliases: ["Block", "Square", "XYZ"]}
+    - {canonical: "Affirm", aliases: ["Affirm", "AFRM"]}
+    - {canonical: "Klarna", aliases: ["Klarna", "Кларна", "KLAR"]}
+    - {canonical: "PagSeguro", aliases: ["PagSeguro", "PAGS"]}
+    # US mobility
+    - {canonical: "Uber", aliases: ["Uber", "Убер"]}
+    - {canonical: "Lyft", aliases: ["Lyft", "Лифт"]}
+    - {canonical: "DoorDash", aliases: ["DoorDash", "DASH"]}
+    - {canonical: "Instacart", aliases: ["Instacart", "CART", "Maplebear"]}
+    # US AI labs (private but newsworthy)
+    - {canonical: "OpenAI", aliases: ["OpenAI", "ОпенАИ", "GPT", "ChatGPT"]}
+    - {canonical: "Anthropic", aliases: ["Anthropic", "Claude"]}
+    - {canonical: "xAI", aliases: ["xAI", "Grok", "Илон Маск xAI"]}
+    # China
+    - {canonical: "ICBC", aliases: ["ICBC", "Industrial and Commercial Bank of China"]}
+    - {canonical: "Agricultural Bank of China", aliases: ["Agricultural Bank of China", "AgriBank"]}
+    - {canonical: "China Construction Bank", aliases: ["China Construction Bank", "CCB"]}
+    - {canonical: "Bank of China", aliases: ["Bank of China"]}
+    - {canonical: "China Merchants Bank", aliases: ["China Merchants Bank"]}
+    - {canonical: "Tencent", aliases: ["Tencent", "Тенсент", "WeChat"]}
+    - {canonical: "Alibaba", aliases: ["Alibaba", "Алибаба", "BABA"]}
+    - {canonical: "JD.Com", aliases: ["JD.com", "JD"]}
+    - {canonical: "Baidu", aliases: ["Baidu", "Байду", "BIDU"]}
+    - {canonical: "Meituan", aliases: ["Meituan", "Мейтуан"]}
+    - {canonical: "Xiaomi", aliases: ["Xiaomi", "Сяоми"]}
+    - {canonical: "Huawei", aliases: ["Huawei", "Хуавэй"]}
+    - {canonical: "BYD", aliases: ["BYD"]}
+    - {canonical: "PingAn", aliases: ["PingAn", "Ping An", "Пинань"]}
+    - {canonical: "TSMC", aliases: ["TSMC", "Taiwan Semiconductor", "ТСМС"]}
+    - {canonical: "SMIC", aliases: ["SMIC", "Semiconductor Manufacturing"]}
+    - {canonical: "ASML", aliases: ["ASML"]}
+    - {canonical: "Pony AI", aliases: ["Pony AI", "Пони АИ"]}
+    - {canonical: "Weride", aliases: ["Weride", "WeRide"]}
+    - {canonical: "ByteDance", aliases: ["ByteDance", "TikTok", "ТикТок", "Доуинь"]}
+    - {canonical: "MiniMax", aliases: ["MiniMax"]}
+    - {canonical: "Zhipu AI", aliases: ["Zhipu AI", "Zhipu", "GLM"]}
+    - {canonical: "DeepSeek", aliases: ["DeepSeek", "Дипсик"]}
+    - {canonical: "UBTech", aliases: ["UBTech"]}
+    # Asia (Korea / Japan / Other)
+    - {canonical: "Naver", aliases: ["Naver", "Naver Corp"]}
+    - {canonical: "Kakao Corp", aliases: ["Kakao", "Какао"]}
+    - {canonical: "Rakuten", aliases: ["Rakuten", "Ракутен"]}
+    - {canonical: "Kaspi", aliases: ["Kaspi", "Каспи"]}
+    # EU delivery
+    - {canonical: "DeliveryHero", aliases: ["Delivery Hero", "DeliveryHero"]}
+    - {canonical: "Just Eat Takeaway", aliases: ["Just Eat Takeaway", "Just Eat", "JET"]}
+    # Singapore
+    - {canonical: "Sea (+Shopee)", aliases: ["Shopee", "Sea Limited", "Sea Ltd"]}
+    - {canonical: "Grab", aliases: ["Grab", "Грэб"]}
+
+  # Регуляторы — те же что в реестре заказчика + имена ключевых
+  # должностных лиц (Силуанов в title → матчится как Минфин РФ).
+  regulators:
+    - {canonical: "ЦБ РФ", aliases: ["ЦБ РФ", "Банк России", "Центробанк", "CBR", "Набиуллина", "Заботкин", "Юдаева"]}
+    - {canonical: "Минфин РФ", aliases: ["Минфин РФ", "Минфин", "MinFin", "Силуанов"]}
+    - {canonical: "Минэкономразвития", aliases: ["Минэкономразвития", "Решетников"]}
+    - {canonical: "Росстат", aliases: ["Росстат", "Rosstat"]}
+    - {canonical: "ФАС", aliases: ["ФАС", "Антимонопольная служба"]}
+    - {canonical: "ФРС", aliases: ["ФРС", "Fed", "Federal Reserve", "FOMC", "Powell", "Пауэлл"]}
+    - {canonical: "Минфин США", aliases: ["Минфин США", "U.S. Treasury", "OFAC", "Yellen", "Йеллен", "Bessent", "Бессент"]}
+    - {canonical: "ЕЦБ", aliases: ["ЕЦБ", "ECB", "European Central Bank", "Lagarde", "Лагард"]}
+    - {canonical: "Совет ЕС", aliases: ["Совет ЕС", "EU Council", "Council of the EU"]}
+    - {canonical: "НБК", aliases: ["НБК", "PBoC", "People's Bank of China"]}
+    - {canonical: "SEC", aliases: ["SEC", "Securities and Exchange Commission"]}
+
+  # Макротемы — широкие категории. Расширены после анализа Finmarket
+  # (промпроизводство / Силуанов / реструктуризация и т.п. ранее
+  # проваливались мимо фильтра).
+  macro_topics:
+    - {canonical: "inflation", aliases: ["инфляция", "CPI", "inflation", "PCE", "промышленная инфляция", "core inflation"]}
+    - {canonical: "interest_rate", aliases: ["ключевая ставка", "ставка", "rate", "interest rate", "RUONIA", "MIACR"]}
+    - {canonical: "gdp", aliases: ["ВВП", "GDP"]}
+    - {canonical: "unemployment", aliases: ["безработица", "unemployment", "NFP", "non-farm", "занятость"]}
+    - {canonical: "pmi", aliases: ["PMI", "Manufacturing Index", "индекс деловой активности"]}
+    - {canonical: "industrial_production", aliases: ["промпроизводство", "промышленное производство", "industrial production"]}
+    - {canonical: "retail_sales", aliases: ["розничные продажи", "retail sales", "розница"]}
+    - {canonical: "construction", aliases: ["строительство", "construction", "стройка"]}
+    - {canonical: "oil_inventories", aliases: ["EIA", "crude oil inventories", "запасы нефти"]}
+    - {canonical: "oil_price", aliases: ["цена нефти", "Brent", "WTI", "URALS", "ОПЕК", "OPEC"]}
+    - {canonical: "fx_rate", aliases: ["курс рубля", "курс доллара", "курс евро", "exchange rate", "форекс"]}
+    - {canonical: "reserves", aliases: ["международные резервы", "ЗВР", "FX reserves", "золотовалютные"]}
+    - {canonical: "sanctions", aliases: ["санкции", "sanctions", "SDN list", "OFAC list"]}
+    - {canonical: "tax_budget", aliases: ["бюджет", "налог", "budget", "deficit", "профицит", "дефицит", "tax"]}
+    - {canonical: "money_supply", aliases: ["денежная масса", "M2", "money supply", "ликвидность"]}
+    - {canonical: "dividends", aliases: ["дивиденды", "dividend", "отсечка", "ДД"]}
+    - {canonical: "earnings", aliases: ["earnings", "отчётность", "квартальный отчёт", "прибыль", "выручка", "revenue"]}
+    - {canonical: "buyback", aliases: ["buyback", "выкуп акций", "обратный выкуп"]}
+    - {canonical: "ipo", aliases: ["IPO", "первичное размещение", "размещение акций"]}
+    - {canonical: "m_and_a", aliases: ["слияние", "поглощение", "M&A", "сделка", "приобретение"]}
+    - {canonical: "credit", aliases: ["кредитование", "корпоративное кредитование", "ипотека", "mortgage", "credit"]}
+    - {canonical: "investment_flows", aliases: ["инвестиции", "брокерские счета", "ETF", "приток", "отток"]}

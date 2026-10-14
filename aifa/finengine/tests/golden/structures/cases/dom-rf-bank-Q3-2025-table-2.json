@@ -1,0 +1,79 @@
+{
+  "company": "Dom Rf Bank",
+  "page": 7,
+  "rows": [
+    {
+      "concept": "CASH_EQUIVALENTS",
+      "period_ref": "30.09.2025",
+      "quote": "| Денежные средства и их эквиваленты                                                                              | 9     | 267 837                             | 446 268             |",
+      "unit": "RUB million",
+      "value": 267837.0
+    },
+    {
+      "concept": "INTERBANK_DEPOSITS",
+      "period_ref": "30.09.2025",
+      "quote": "| Средства в финансовых учреждениях                                                                               | 10    | 13 709                              | 29 356              |",
+      "unit": "RUB million",
+      "value": 13709.0
+    },
+    {
+      "concept": "SECURITIES_ASSETS",
+      "period_ref": "30.09.2025",
+      "quote": "| Инвестиционные ценные бумаги                                                                                    | 11    | 500 161                             | 545 131             |",
+      "unit": "RUB million",
+      "value": 500161.0
+    },
+    {
+      "concept": "TOTAL_LOANS_TO_CLIENTS",
+      "period_ref": "30.09.2025",
+      "quote": "| Кредиты клиентам                                                                                                | 12    | 2 998 584                           | 2 512 506           |",
+      "unit": "RUB million",
+      "value": 2998584.0
+    },
+    {
+      "concept": "DEFERRED_TAX_ASSETS",
+      "period_ref": "30.09.2025",
+      "quote": "| Отложенные налоговые активы                                                                                     |       | 5 900                               | 5 900               |",
+      "unit": "RUB million",
+      "value": 5900.0
+    },
+    {
+      "concept": "OTHER_ASSETS",
+      "period_ref": "30.09.2025",
+      "quote": "| Прочие активы                                                                                                   | 13    | 26 076                              | 14 358              |",
+      "unit": "RUB million",
+      "value": 26076.0
+    },
+    {
+      "concept": "TOTAL_ASSETS",
+      "period_ref": "30.09.2025",
+      "quote": "| Итого активы                                                                                                    |       | 3 826 568                           | 3 566 151           |",
+      "unit": "RUB million",
+      "value": 3826568.0
+    },
+    {
+      "concept": "INTERBANK_LOANS",
+      "period_ref": "30.09.2025",
+      "quote": "| Средства финансовых учреждений                                                                                  | 14    | 216 867                             | 451 873             |",
+      "unit": "RUB million",
+      "value": 216867.0
+    },
+    {
+      "concept": "CLIENT_DEPOSITS",
+      "period_ref": "30.09.2025",
+      "quote": "| Средства клиентов                                                                                               | 15    | 3 159 985                           | 2 719 561           |",
+      "unit": "RUB million",
+      "value": 3159985.0
+    },
+    {
+      "concept": "DEBT_SECURITIES_ISSUED",
+      "period_ref": "30.09.2025",
+      "quote": "| Облигации выпущенные, кроме субординированных                                                                   | 16    | 438                                 | 5 098               |",
+      "unit": "RUB million",
+      "value": 438.0
+    }
+  ],
+  "source_url": "https://gitverse.ru/nero27/AIFA_RFA",
+  "structure_id": "dom-rf-bank-Q3-2025:table:2",
+  "table_kind": "financial_statement"
+}

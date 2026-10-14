@@ -1,0 +1,606 @@
+[
+  {
+    "session_id": "<uuid-1>",
+    "type": "session_id"
+  },
+  {
+    "text": "Разбираю запрос…",
+    "type": "thinking"
+  },
+  {
+    "args_summary": "Покажи выручку и сделай презентацию",
+    "name": "financial_pipeline",
+    "type": "tool_call"
+  },
+  {
+    "graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+          "atom_name": "ingest.document",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "document_text"
+        ],
+        "requires": [],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+          "atom_name": "identify.classify",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "RunPassport"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+          "atom_name": "locate",
+          "atom_version": "1.0.2"
+        },
+        "produces": [
+          "CandidateLocator:SALES_REVENUE"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+          "atom_name": "read.value",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:SALES_REVENUE"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+            "atom_name": "locate",
+            "atom_version": "1.0.2"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "df6dddf73fa94034a2304215e46bb9de5d0f6f04bc451bbd36efeb3ff5b7d27c",
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:unit"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+            "atom_name": "read.value",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "ea87d5684d53b31624ae5bbe42a817770c70b1bb0e4e5f6f832bbb854e0a58f4",
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:time"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "df6dddf73fa94034a2304215e46bb9de5d0f6f04bc451bbd36efeb3ff5b7d27c",
+            "atom_name": "norm.unit",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "f88d215e81f97c5d95e5bf0369527051dcb377c7f608dd83affe5d5e2de86acf",
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:bounds"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "ea87d5684d53b31624ae5bbe42a817770c70b1bb0e4e5f6f832bbb854e0a58f4",
+            "atom_name": "norm.time",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "1.0.0",
+    "root": {
+      "args_fingerprint": "f88d215e81f97c5d95e5bf0369527051dcb377c7f608dd83affe5d5e2de86acf",
+      "atom_name": "verify.bounds",
+      "atom_version": "1.0.0"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "df6dddf73fa94034a2304215e46bb9de5d0f6f04bc451bbd36efeb3ff5b7d27c",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ea87d5684d53b31624ae5bbe42a817770c70b1bb0e4e5f6f832bbb854e0a58f4",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f88d215e81f97c5d95e5bf0369527051dcb377c7f608dd83affe5d5e2de86acf",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "content:0825070cde0f606db2e18936e07d11cac37fd8a33e078e1deb2da104078ce2dc"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-2>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [
+        "<uuid-3>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-4>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "df6dddf73fa94034a2304215e46bb9de5d0f6f04bc451bbd36efeb3ff5b7d27c",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "df6dddf73fa94034a2304215e46bb9de5d0f6f04bc451bbd36efeb3ff5b7d27c",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-5>",
+        "<uuid-6>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ea87d5684d53b31624ae5bbe42a817770c70b1bb0e4e5f6f832bbb854e0a58f4",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ea87d5684d53b31624ae5bbe42a817770c70b1bb0e4e5f6f832bbb854e0a58f4",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-7>",
+        "<uuid-6>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f88d215e81f97c5d95e5bf0369527051dcb377c7f608dd83affe5d5e2de86acf",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f88d215e81f97c5d95e5bf0369527051dcb377c7f608dd83affe5d5e2de86acf",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-8>",
+        "<uuid-6>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:cce45f988968c2e57948d4e85b5608ee127c770a29aa13fc6ca9442a5ac485a5",
+    "type": "node_run"
+  },
+  {
+    "result": {
+      "concept": "SALES_REVENUE",
+      "definition_origin": "registry",
+      "metric_id": "<uuid-9>",
+      "output_type": "ExtractedMetric",
+      "period_ref": "unknown",
+      "scalar_fact": {
+        "basis": null,
+        "concept": "SALES_REVENUE",
+        "document_version": null,
+        "evidence_id": "<uuid-6>",
+        "page": null,
+        "period_ref": "unknown",
+        "produced_by_atom": "norm.unit",
+        "produced_by_atom_version": "1.0.0",
+        "source_ref": "fake-read-value:SALES_REVENUE",
+        "supersedes": "<uuid-4>",
+        "unit": "млн. руб.",
+        "value": 42085.931000000004
+      },
+      "schema_version": "1.0",
+      "status": "supported"
+    },
+    "status": "complete",
+    "type": "typed_result"
+  },
+  {
+    "name": "financial_pipeline",
+    "ok": true,
+    "type": "tool_output"
+  },
+  {
+    "text": "Готово: проверенные результаты опубликованы в карточках выше.\n\nНе выполнено: сделай презентацию.",
+    "type": "text_delta"
+  },
+  {
+    "type": "done"
+  }
+]

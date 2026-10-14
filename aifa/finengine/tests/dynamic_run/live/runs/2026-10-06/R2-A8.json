@@ -1,0 +1,839 @@
+{
+ "label": "R2-A8",
+ "query": "Извлеки чистую процентную маржу.",
+ "doc_id": "9dba0a66-a5a0-4012-8cd1-235ab8e25fe4",
+ "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+ "elapsed_s": 96.4,
+ "events": [
+  {
+   "schema_version": "1.0",
+   "event_id": "012145ac-9179-4762-8859-65973381002b",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 1,
+   "occurred_at": "2026-10-06T18:13:10.835041Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "session_id",
+    "session_id": "9ef7b239-8091-4a89-822c-329756f13e24"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "e3899a92-f274-4822-bf35-a2b5cf0b3da3",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 2,
+   "occurred_at": "2026-10-06T18:13:10.835095Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "thinking",
+    "text": "Разбираю запрос…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "c3f81034-fe20-4beb-a437-744c889e8769",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 3,
+   "occurred_at": "2026-10-06T18:13:55.908265Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_call",
+    "name": "financial_pipeline",
+    "args_summary": "Извлеки чистую процентную маржу."
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "eda78914-87d0-4ce4-a035-49c3bccf2e55",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 4,
+   "occurred_at": "2026-10-06T18:13:55.908375Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "plan_graph",
+    "graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "planner_version": "1.0.0",
+    "root": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "0a84020704bc41ce5fe119347aa71c71415dffb45716672061f0b646b2838fcf"
+    },
+    "nodes": [
+     {
+      "node_key": {
+       "atom_name": "ingest.document",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "document_text"
+      ],
+      "requires": [],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "identify.classify",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "RunPassport"
+      ],
+      "requires": [
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "locate",
+       "atom_version": "1.0.2",
+       "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "CandidateLocator:Чистая процентная маржа"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       },
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "read.value",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "ExtractedMetric:Чистая процентная маржа"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       },
+       {
+        "atom_name": "locate",
+        "atom_version": "1.0.2",
+        "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.unit",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "ea477eb7261bf3a4ba94f796d9c60694330735085532c779e165e9ae0bc2371f"
+      },
+      "produces": [
+       "Verified:unit"
+      ],
+      "requires": [
+       {
+        "atom_name": "read.value",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.time",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "1850861b00c8241445777b99384f0777027ddb005e09685e7ee6ae852fb4b2d8"
+      },
+      "produces": [
+       "Verified:time"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "ea477eb7261bf3a4ba94f796d9c60694330735085532c779e165e9ae0bc2371f"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "0a84020704bc41ce5fe119347aa71c71415dffb45716672061f0b646b2838fcf"
+      },
+      "produces": [
+       "Verified:bounds"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "1850861b00c8241445777b99384f0777027ddb005e09685e7ee6ae852fb4b2d8"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     }
+    ],
+    "scenarios": []
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "5b0f9784-5cf6-42e1-8901-a922e940369b",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 5,
+   "occurred_at": "2026-10-06T18:13:55.910949Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "acff050f-7604-4739-b7c7-b41107916926",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "dd7ee9e6-4f5d-4317-a203-521ed4b4445b",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 6,
+   "occurred_at": "2026-10-06T18:13:55.912731Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "fb6e9508-011b-451f-8a76-ced2db90fc80",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "48d52649-9164-40fe-95a8-21afd776e809",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 7,
+   "occurred_at": "2026-10-06T18:13:55.915731Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "d7cabdf8-9eb4-4f80-8775-ed023ba373c2",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d4cebea2-1e5a-422f-aac9-fbc25aa08906",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 8,
+   "occurred_at": "2026-10-06T18:13:55.918687Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "5bbd2927-9e06-40b7-bd9a-138dde2b0e4e",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "084b8cfd-856f-4429-8151-91a126777cb3",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 9,
+   "occurred_at": "2026-10-06T18:13:55.921061Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "08ac273e-e7cb-457c-ac7a-bbb61e78002d",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "ea477eb7261bf3a4ba94f796d9c60694330735085532c779e165e9ae0bc2371f"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "35683061-40d9-4ea9-aa65-1cce07a01335",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 10,
+   "occurred_at": "2026-10-06T18:13:55.923664Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "be2e88cb-3474-4164-b543-39d2a5902b19",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "1850861b00c8241445777b99384f0777027ddb005e09685e7ee6ae852fb4b2d8"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "557c2ac4-8889-4f77-920e-81f52c1e68b7",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 11,
+   "occurred_at": "2026-10-06T18:13:55.927242Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "49371cfd-a83e-4ffe-bb70-c9ccbe0d2d31",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "0a84020704bc41ce5fe119347aa71c71415dffb45716672061f0b646b2838fcf"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "4df46b9b-87be-467c-8916-3ace9c106eff",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 12,
+   "occurred_at": "2026-10-06T18:13:55.931737Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "acff050f-7604-4739-b7c7-b41107916926",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:13:55.924741Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "cf18c520-c699-47ae-b3bc-f1619179bec6",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 13,
+   "occurred_at": "2026-10-06T18:13:55.935114Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "acff050f-7604-4739-b7c7-b41107916926",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "content:db7118e32b873b4aff36a9e6dd0a46f697414e6e6e9bd84da356c342e903effa"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:13:55.924741Z",
+    "finished_at": "2026-10-06T18:13:55.927783Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "92c437b9-9a81-4fb8-a208-3d0b9ddee0c2",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 14,
+   "occurred_at": "2026-10-06T18:13:56.074377Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "fb6e9508-011b-451f-8a76-ced2db90fc80",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:13:55.970607Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "6cccaf96-2b05-47e6-b55b-53943cbbba8f",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 15,
+   "occurred_at": "2026-10-06T18:13:56.703362Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "fb6e9508-011b-451f-8a76-ced2db90fc80",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "b402d0d8-0427-4471-a36b-2051af6c64ab"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:13:55.970607Z",
+    "finished_at": "2026-10-06T18:13:56.697492Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "49a7e287-6b1e-4fa9-ae92-9f1c94a4be94",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 16,
+   "occurred_at": "2026-10-06T18:13:56.803769Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "d7cabdf8-9eb4-4f80-8775-ed023ba373c2",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:13:56.705084Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "7434267a-6297-4ccc-85e7-e6ff33654941",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 17,
+   "occurred_at": "2026-10-06T18:14:26.265015Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "d7cabdf8-9eb4-4f80-8775-ed023ba373c2",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:13:56.705084Z",
+    "finished_at": "2026-10-06T18:14:26.257542Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "39b8449f-d752-46be-bd53-4a5d3cb45404",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 18,
+   "occurred_at": "2026-10-06T18:14:26.387046Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "5bbd2927-9e06-40b7-bd9a-138dde2b0e4e",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:14:26.266119Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "60e7af32-f5dd-46ad-802b-70d490e3c955",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 19,
+   "occurred_at": "2026-10-06T18:14:26.419942Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "5bbd2927-9e06-40b7-bd9a-138dde2b0e4e",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:14:26.266119Z",
+    "finished_at": "2026-10-06T18:14:26.412375Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "59cc70d3-ea7d-41c7-a8fe-eed7287aa1d4",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 20,
+   "occurred_at": "2026-10-06T18:14:26.425791Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "08ac273e-e7cb-457c-ac7a-bbb61e78002d",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "ea477eb7261bf3a4ba94f796d9c60694330735085532c779e165e9ae0bc2371f"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:14:26.420806Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "889ab1e2-8273-458b-85aa-f1d885545b6f",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 21,
+   "occurred_at": "2026-10-06T18:14:26.429428Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "08ac273e-e7cb-457c-ac7a-bbb61e78002d",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "ea477eb7261bf3a4ba94f796d9c60694330735085532c779e165e9ae0bc2371f"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:14:26.420806Z",
+    "finished_at": "2026-10-06T18:14:26.423180Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "4d375cd3-310b-463b-8bfb-7c0f955e99e5",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 22,
+   "occurred_at": "2026-10-06T18:14:26.434841Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "be2e88cb-3474-4164-b543-39d2a5902b19",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "1850861b00c8241445777b99384f0777027ddb005e09685e7ee6ae852fb4b2d8"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:14:26.430266Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "b5f345d0-5cea-4d82-abd5-4f6a03cb0cd2",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 23,
+   "occurred_at": "2026-10-06T18:14:26.438582Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "be2e88cb-3474-4164-b543-39d2a5902b19",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "1850861b00c8241445777b99384f0777027ddb005e09685e7ee6ae852fb4b2d8"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:14:26.430266Z",
+    "finished_at": "2026-10-06T18:14:26.432467Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "cf55107a-8ec3-4cf2-b38e-d89fa615862d",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 24,
+   "occurred_at": "2026-10-06T18:14:26.446660Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "49371cfd-a83e-4ffe-bb70-c9ccbe0d2d31",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "0a84020704bc41ce5fe119347aa71c71415dffb45716672061f0b646b2838fcf"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:14:26.439000Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "e82aa98b-4844-4140-9c9d-c4ef52829dbc",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 25,
+   "occurred_at": "2026-10-06T18:14:26.450428Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+   "node_run": {
+    "node_run_id": "49371cfd-a83e-4ffe-bb70-c9ccbe0d2d31",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "0a84020704bc41ce5fe119347aa71c71415dffb45716672061f0b646b2838fcf"
+    },
+    "run_id": "33bbca16-db82-421b-bbe0-b9ffe79cf3ed",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:14:26.439000Z",
+    "finished_at": "2026-10-06T18:14:26.443622Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "2c126456-3695-4b7d-9d74-0ed0a0514b80",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 26,
+   "occurred_at": "2026-10-06T18:14:26.498264Z",
+   "event_type": "error",
+   "error": {
+    "code": "metric_not_found",
+    "message": "Показатель «Чистая процентная маржа» не найден в отчёте. Искал также по: чистая процентная маржа, маржа чистая процентная, NIM, процентная маржа, маржа процентная, чистый процентный спред, маржа чистого процентного дохода, net interest margin, NIM, interest margin, net interest spread.",
+    "retryable": false,
+    "node_key": null,
+    "details": {}
+   },
+   "partial_results": []
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d7ab6d25-2509-4aa7-acd9-32258ddfd0f1",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 27,
+   "occurred_at": "2026-10-06T18:14:26.508004Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_output",
+    "name": "financial_pipeline",
+    "ok": false
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "1157aadd-8c38-442b-b579-08d2a7f8ed92",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 28,
+   "occurred_at": "2026-10-06T18:14:26.508089Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "sources",
+    "sources": [
+     {
+      "filename": "Novatek_FS_12m2021_RUS.pdf",
+      "company_name": "ПрайсвотерхаусКуперс Аудит"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "76f6dbc9-6871-4c88-8e3f-7133800bf230",
+   "run_id": "c97f0278-b7e8-430b-b143-26fe622d4fe9",
+   "sequence": 29,
+   "occurred_at": "2026-10-06T18:14:26.508129Z",
+   "event_type": "completed",
+   "status": "failed"
+  }
+ ],
+ "session_id": "9ef7b239-8091-4a89-822c-329756f13e24",
+ "started_utc": "2026-10-06T18:14:28Z"
+}

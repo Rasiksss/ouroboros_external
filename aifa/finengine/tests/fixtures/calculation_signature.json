@@ -1,0 +1,232 @@
+{
+  "_README": [
+    "ОДНО ПРАВИЛО ПОДПИСИ РАСЧЁТА НА ДВА ОТРИСОВЩИКА (Б5, 20.08.2026).",
+    "",
+    "Подпись расчётной строки печатают два места: клетка «Источник» ролевой",
+    "книги (src/finengine/roles/formatter.py) и подсказка таблицы на экране",
+    "(web/src/components/workspace/panes/extracted-table.tsx). Одного кода на",
+    "обоих не бывает — Python и TypeScript, — и они РАЗОШЛИСЬ: книга печатала",
+    "сырые коды реестра и сырой float (`OPERATING_PROFIT`, `28355.0`), экран",
+    "переводил имена и форматировал число (`Операционная прибыль`, `28 355`).",
+    "Аналитик, сверявший книгу с экраном, видел два разных ответа на один",
+    "вопрос «как это посчитано».",
+    "",
+    "Этот файл — ЕДИНСТВЕННЫЙ источник правды о правиле. Его читают оба",
+    "сторожа: tests/test_calculation_signature_is_one_rule.py (pytest) и",
+    "web/src/components/workspace/panes/calculation-hint.test.ts (vitest).",
+    "Разошёлся любой из отрисовщиков — краснеет его сторож.",
+    "",
+    "Правило: <формула по-русски> · входы за <период>: <вход>; <вход> ·",
+    "не хватило: <имя>, <имя>. Пустые части опускаются. Вход —",
+    "<имя> = <число>, где имя обёрнуто по `transform` (avg → AVG(...),",
+    "abs → abs(...)), а число печатается как toLocaleString('ru-RU'):",
+    "<имя> = <число>, где имя обёрнуто по `transform` (avg → AVG(...), abs → abs(...), sign → -...), а число печатается как toLocaleString('ru-RU'): разряды неразрывным пробелом, дробь запятой, не больше двух знаков."
+  ],
+  "names": {
+    "OPERATING_PROFIT": "Операционная прибыль",
+    "DEPRECIATION_AMORTIZATION": "Амортизация",
+    "NET_INCOME": "Чистая прибыль",
+    "TOTAL_EQUITY": "Капитал",
+    "EBT": "Прибыль до налога",
+    "INTEREST_EXPENSE": "Процентные расходы",
+    "NET_DEBT": "Чистый долг",
+    "CAPEX": "Капитальные затраты",
+    "NET_OPERATING_CASH_FLOW": "Операционный поток"
+  },
+  "cases": [
+    {
+      "name": "формула и её числа — по-русски и с разрядами",
+      "row": {
+        "formula": "OPERATING_PROFIT + DEPRECIATION_AMORTIZATION",
+        "inputs": [
+          {
+            "enum": "OPERATING_PROFIT",
+            "value": 28355.0,
+            "substituted_zero": false,
+            "transform": "",
+            "period": "2025"
+          },
+          {
+            "enum": "DEPRECIATION_AMORTIZATION",
+            "value": 9495.0,
+            "substituted_zero": false,
+            "transform": "",
+            "period": "2025"
+          }
+        ]
+      },
+      "expect": "Операционная прибыль + Амортизация · входы за 2025: Операционная прибыль = 28 355; Амортизация = 9 495"
+    },
+    {
+      "name": "вход, достроенный нулём, назван нулём",
+      "row": {
+        "formula": "OPERATING_PROFIT + DEPRECIATION_AMORTIZATION",
+        "inputs": [
+          {
+            "enum": "OPERATING_PROFIT",
+            "value": 28355.0,
+            "substituted_zero": false,
+            "transform": "",
+            "period": "2025"
+          },
+          {
+            "enum": "DEPRECIATION_AMORTIZATION",
+            "value": 0.0,
+            "substituted_zero": true,
+            "transform": "",
+            "period": "2025"
+          }
+        ]
+      },
+      "expect": "Операционная прибыль + Амортизация · входы за 2025: Операционная прибыль = 28 355; Амортизация = 0 — подставлен ноль"
+    },
+    {
+      "name": "усреднённый вход назван усреднением, а не остатком периода",
+      "row": {
+        "formula": "NET_INCOME / AVG (TOTAL_EQUITY)",
+        "inputs": [
+          {
+            "enum": "NET_INCOME",
+            "value": 1000.0,
+            "substituted_zero": false,
+            "transform": "",
+            "period": "2025"
+          },
+          {
+            "enum": "TOTAL_EQUITY",
+            "value": 5500.0,
+            "substituted_zero": false,
+            "transform": "avg",
+            "period": "2025"
+          }
+        ]
+      },
+      "expect": "Чистая прибыль / AVG (Капитал) · входы за 2025: Чистая прибыль = 1 000; AVG(Капитал) = 5 500"
+    },
+    {
+      "name": "вход со снятым знаком назван модулем — иначе он спорит со строкой извлечения",
+      "row": {
+        "formula": "EBT + INTEREST_EXPENSE",
+        "inputs": [
+          {
+            "enum": "EBT",
+            "value": 100.0,
+            "substituted_zero": false,
+            "transform": "",
+            "period": "9M 2025"
+          },
+          {
+            "enum": "INTEREST_EXPENSE",
+            "value": 20.0,
+            "substituted_zero": false,
+            "transform": "abs",
+            "period": "9M 2025"
+          }
+        ]
+      },
+      "expect": "Прибыль до налога + Процентные расходы · входы за 9M 2025: Прибыль до налога = 100; abs(Процентные расходы) = 20"
+    },
+    {
+      "name": "множитель приведения к году стоит в самой формуле",
+      "row": {
+        "formula": "(NET_INCOME / AVG (TOTAL_EQUITY)) * 12/9",
+        "inputs": [
+          {
+            "enum": "NET_INCOME",
+            "value": 900.0,
+            "substituted_zero": false,
+            "transform": "",
+            "period": "9M 2025"
+          },
+          {
+            "enum": "TOTAL_EQUITY",
+            "value": 5500.0,
+            "substituted_zero": false,
+            "transform": "avg",
+            "period": "9M 2025"
+          }
+        ]
+      },
+      "expect": "(Чистая прибыль / AVG (Капитал)) * 12/9 · входы за 9M 2025: Чистая прибыль = 900; AVG(Капитал) = 5 500"
+    },
+    {
+      "name": "дробное число — запятой и не длиннее двух знаков",
+      "row": {
+        "formula": "NET_DEBT",
+        "inputs": [
+          {
+            "enum": "NET_DEBT",
+            "value": 1000.125,
+            "substituted_zero": false,
+            "transform": "",
+            "period": "2025"
+          }
+        ]
+      },
+      "expect": "Чистый долг · входы за 2025: Чистый долг = 1 000,13"
+    },
+    {
+      "name": "пустая расчётная строка объясняет, чего не хватило",
+      "row": {
+        "formula": "NET_DEBT / OPERATING_PROFIT",
+        "inputs": [],
+        "calc_missing": [
+          "NET_DEBT"
+        ]
+      },
+      "expect": "Чистый долг / Операционная прибыль · не хватило: Чистый долг"
+    },
+    {
+      "name": "прогон без входов подписи не ломает",
+      "row": {
+        "formula": "OPERATING_PROFIT + DEPRECIATION_AMORTIZATION",
+        "inputs": []
+      },
+      "expect": "Операционная прибыль + Амортизация"
+    },
+    {
+      "name": "входы без периода печатаются без ложного «за»",
+      "row": {
+        "formula": "OPERATING_PROFIT + DEPRECIATION_AMORTIZATION",
+        "inputs": [
+          {
+            "enum": "OPERATING_PROFIT",
+            "value": 28355.0,
+            "substituted_zero": false,
+            "transform": ""
+          },
+          {
+            "enum": "DEPRECIATION_AMORTIZATION",
+            "value": 9495.0,
+            "substituted_zero": false,
+            "transform": ""
+          }
+        ]
+      },
+      "expect": "Операционная прибыль + Амортизация · входы: Операционная прибыль = 28 355; Амортизация = 9 495"
+    },
+    {
+      "name": "расчётный отток входит в чужую формулу с обратным знаком, и подпись это называет",
+      "row": {
+        "formula": "NET_OPERATING_CASH_FLOW - CAPEX",
+        "inputs": [
+          {
+            "enum": "NET_OPERATING_CASH_FLOW",
+            "value": 60000.0,
+            "substituted_zero": false,
+            "transform": "",
+            "period": "Q1 2025"
+          },
+          {
+            "enum": "CAPEX",
+            "value": 43591.0,
+            "substituted_zero": false,
+            "transform": "sign",
+            "period": "Q1 2025"
+          }
+        ]
+      },
+      "expect": "Операционный поток - Капитальные затраты · входы за Q1 2025: Операционный поток = 60 000; -Капитальные затраты = 43 591"
+    }
+  ]
+}

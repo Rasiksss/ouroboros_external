@@ -1,0 +1,2687 @@
+[
+  {
+    "session_id": "<uuid-1>",
+    "type": "session_id"
+  },
+  {
+    "text": "Разбираю запрос…",
+    "type": "thinking"
+  },
+  {
+    "args_summary": "Извлеки выручку и себестоимость и оформи в Excel на двух …",
+    "name": "financial_pipeline",
+    "type": "tool_call"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "move": 1,
+    "new_atoms": [],
+    "objective": "Извлечь выручку и себестоимость за все периоды",
+    "outcome": "",
+    "reason": "Сначала нужно получить исходные данные, чтобы затем создать Excel-файл с формулами.",
+    "scenarios": [
+      "Извлеки выручку за все периоды",
+      "Извлеки себестоимость за все периоды"
+    ],
+    "status": "running",
+    "steps": [],
+    "type": "dynamic_move"
+  },
+  {
+    "graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+          "atom_name": "ingest.document",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "document_text"
+        ],
+        "requires": [],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+          "atom_name": "identify.classify",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "RunPassport"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391",
+          "atom_name": "locate",
+          "atom_version": "1.0.2"
+        },
+        "produces": [
+          "CandidateLocator:SALES_REVENUE"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391",
+          "atom_name": "read.value",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:SALES_REVENUE"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391",
+            "atom_name": "locate",
+            "atom_version": "1.0.2"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "f6b837dfccb50a09670b7bed089f5cfcc2644b6fa0d202e9d319d01132dbf5fa",
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:unit"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391",
+            "atom_name": "read.value",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "b2280057d8868c2f50935904c54cb2ef5864478ff4688f18b3e3b88fd155c17b",
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:time"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "f6b837dfccb50a09670b7bed089f5cfcc2644b6fa0d202e9d319d01132dbf5fa",
+            "atom_name": "norm.unit",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "ffd81558cca34029e430fd329488e313bd9f17158f88844d112acb17c9b367a8",
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:bounds"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "b2280057d8868c2f50935904c54cb2ef5864478ff4688f18b3e3b88fd155c17b",
+            "atom_name": "norm.time",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "1.0.0",
+    "root": {
+      "args_fingerprint": "ffd81558cca34029e430fd329488e313bd9f17158f88844d112acb17c9b367a8",
+      "atom_name": "verify.bounds",
+      "atom_version": "1.0.0"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f6b837dfccb50a09670b7bed089f5cfcc2644b6fa0d202e9d319d01132dbf5fa",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "b2280057d8868c2f50935904c54cb2ef5864478ff4688f18b3e3b88fd155c17b",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ffd81558cca34029e430fd329488e313bd9f17158f88844d112acb17c9b367a8",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "content:1c11d5f7b3532bce38ae2c45deff4400eab5a5d3f7810c98b2836cbbd2cf76f2"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-2>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [
+        "<uuid-3>",
+        "<uuid-4>",
+        "<uuid-5>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-6>",
+        "<uuid-7>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f6b837dfccb50a09670b7bed089f5cfcc2644b6fa0d202e9d319d01132dbf5fa",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f6b837dfccb50a09670b7bed089f5cfcc2644b6fa0d202e9d319d01132dbf5fa",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-8>",
+        "<uuid-6>",
+        "<uuid-9>",
+        "<uuid-7>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "b2280057d8868c2f50935904c54cb2ef5864478ff4688f18b3e3b88fd155c17b",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "b2280057d8868c2f50935904c54cb2ef5864478ff4688f18b3e3b88fd155c17b",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-10>",
+        "<uuid-6>",
+        "<uuid-11>",
+        "<uuid-7>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ffd81558cca34029e430fd329488e313bd9f17158f88844d112acb17c9b367a8",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ffd81558cca34029e430fd329488e313bd9f17158f88844d112acb17c9b367a8",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-12>",
+        "<uuid-6>",
+        "<uuid-13>",
+        "<uuid-7>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "type": "node_run"
+  },
+  {
+    "graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+          "atom_name": "identify.classify",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "RunPassport"
+        ],
+        "requires": [],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+          "atom_name": "ingest.document",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "document_text"
+        ],
+        "requires": [],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=COSTS_EXPENSES;entity=ent-09f97cec158f1edc680cf391",
+          "atom_name": "locate",
+          "atom_version": "1.0.2"
+        },
+        "produces": [
+          "CandidateLocator:COSTS_EXPENSES"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=COSTS_EXPENSES;entity=ent-09f97cec158f1edc680cf391",
+          "atom_name": "read.value",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:COSTS_EXPENSES"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "concept=COSTS_EXPENSES;entity=ent-09f97cec158f1edc680cf391",
+            "atom_name": "locate",
+            "atom_version": "1.0.2"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "bec1ef347301db1998a12aba87dcd9bbb570f64a3b8f08cc90c0d4fe7ea84df9",
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:unit"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "concept=COSTS_EXPENSES;entity=ent-09f97cec158f1edc680cf391",
+            "atom_name": "read.value",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "1cccf9a8737df3b97dc07854731a733fbcaefd1e14c89af0e4e5648d6dee682a",
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:time"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "bec1ef347301db1998a12aba87dcd9bbb570f64a3b8f08cc90c0d4fe7ea84df9",
+            "atom_name": "norm.unit",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "61adf05e2ce269b3b30c12eb15c91e5b169bc630c28a9b055694d6ac8b547a65",
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:bounds"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "1cccf9a8737df3b97dc07854731a733fbcaefd1e14c89af0e4e5648d6dee682a",
+            "atom_name": "norm.time",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "1.0.0",
+    "root": {
+      "args_fingerprint": "61adf05e2ce269b3b30c12eb15c91e5b169bc630c28a9b055694d6ac8b547a65",
+      "atom_name": "verify.bounds",
+      "atom_version": "1.0.0"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-2>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "content:1c11d5f7b3532bce38ae2c45deff4400eab5a5d3f7810c98b2836cbbd2cf76f2"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=COSTS_EXPENSES;entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=COSTS_EXPENSES;entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "bec1ef347301db1998a12aba87dcd9bbb570f64a3b8f08cc90c0d4fe7ea84df9",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "1cccf9a8737df3b97dc07854731a733fbcaefd1e14c89af0e4e5648d6dee682a",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "61adf05e2ce269b3b30c12eb15c91e5b169bc630c28a9b055694d6ac8b547a65",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=COSTS_EXPENSES;entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=COSTS_EXPENSES;entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [
+        "<uuid-14>",
+        "<uuid-15>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=COSTS_EXPENSES;entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=COSTS_EXPENSES;entity=ent-09f97cec158f1edc680cf391",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-16>",
+        "<uuid-17>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "bec1ef347301db1998a12aba87dcd9bbb570f64a3b8f08cc90c0d4fe7ea84df9",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "bec1ef347301db1998a12aba87dcd9bbb570f64a3b8f08cc90c0d4fe7ea84df9",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-18>",
+        "<uuid-16>",
+        "<uuid-19>",
+        "<uuid-17>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "1cccf9a8737df3b97dc07854731a733fbcaefd1e14c89af0e4e5648d6dee682a",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "1cccf9a8737df3b97dc07854731a733fbcaefd1e14c89af0e4e5648d6dee682a",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-20>",
+        "<uuid-16>",
+        "<uuid-21>",
+        "<uuid-17>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "61adf05e2ce269b3b30c12eb15c91e5b169bc630c28a9b055694d6ac8b547a65",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "61adf05e2ce269b3b30c12eb15c91e5b169bc630c28a9b055694d6ac8b547a65",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-22>",
+        "<uuid-16>",
+        "<uuid-23>",
+        "<uuid-17>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:b11af17e8ced511e7783f0f8e6857e50f9f31fd09311d50894cfa8371b6b1228",
+    "type": "node_run"
+  },
+  {
+    "action": "execute",
+    "details": "сценарий «Извлеки выручку за все периоды»: ✓ extract_registered_metric: ExtractedMetric\nсценарий «Извлеки себестоимость за все периоды»: ✓ extract_registered_metric: ExtractedMetric",
+    "move": 1,
+    "new_atoms": [],
+    "objective": "Извлечь выручку и себестоимость за все периоды",
+    "outcome": "✓ 4 новых результатов",
+    "reason": "Сначала нужно получить исходные данные, чтобы затем создать Excel-файл с формулами.",
+    "scenarios": [
+      "Извлеки выручку за все периоды",
+      "Извлеки себестоимость за все периоды"
+    ],
+    "status": "done",
+    "steps": [],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "move": 2,
+    "new_atoms": [],
+    "objective": "Создать Excel-файл с исходными значениями и валовой прибылью",
+    "outcome": "",
+    "reason": "Выручка и себестоимость уже извлечены. Теперь нужно создать Excel-файл с двумя листами: первый — исходные значения, второй — валовая прибыль как формула. Для этого создадим атом с кодом, который сгенерирует файл.",
+    "scenarios": [],
+    "status": "running",
+    "steps": [
+      {
+        "atom": "read.value",
+        "concept": "SALES_REVENUE",
+        "period_ref": null
+      },
+      {
+        "atom": "read.value",
+        "concept": "COSTS_EXPENSES",
+        "period_ref": null
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ЛУКОЙЛ",
+          "atom_name": "ingest.document",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "document_text"
+        ],
+        "requires": [],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ЛУКОЙЛ",
+          "atom_name": "identify.classify",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "RunPassport"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ЛУКОЙЛ",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ",
+          "atom_name": "locate",
+          "atom_version": "1.0.2"
+        },
+        "produces": [
+          "CandidateLocator:SALES_REVENUE"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ЛУКОЙЛ",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "entity=ЛУКОЙЛ",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ",
+          "atom_name": "read.value",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:SALES_REVENUE"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ЛУКОЙЛ",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ",
+            "atom_name": "locate",
+            "atom_version": "1.0.2"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "08a9bae71da4f0b2854b6d2a498afd3a99ca6375a0cf42dfa59ea15020419b06",
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:unit"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ",
+            "atom_name": "read.value",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "aa4ae7bd31e241cf751a51f67a37bf9068c6d948539a9b6ced14127066b68f53",
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:time"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "08a9bae71da4f0b2854b6d2a498afd3a99ca6375a0cf42dfa59ea15020419b06",
+            "atom_name": "norm.unit",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c",
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:bounds"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "aa4ae7bd31e241cf751a51f67a37bf9068c6d948539a9b6ced14127066b68f53",
+            "atom_name": "norm.time",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=COSTS_EXPENSES;entity=ЛУКОЙЛ",
+          "atom_name": "locate",
+          "atom_version": "1.0.2"
+        },
+        "produces": [
+          "CandidateLocator:COSTS_EXPENSES"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ЛУКОЙЛ",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "entity=ЛУКОЙЛ",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=COSTS_EXPENSES;entity=ЛУКОЙЛ",
+          "atom_name": "read.value",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:COSTS_EXPENSES"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ЛУКОЙЛ",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "concept=COSTS_EXPENSES;entity=ЛУКОЙЛ",
+            "atom_name": "locate",
+            "atom_version": "1.0.2"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "454483d0620747f902e431581158a6d23435264e8079ad95a629b5bef6f5b572",
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:unit"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "concept=COSTS_EXPENSES;entity=ЛУКОЙЛ",
+            "atom_name": "read.value",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "ec584d2a50014ae02193f0079ef1d9fa9bb15414194e19248f4307a50c5278b0",
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:time"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "454483d0620747f902e431581158a6d23435264e8079ad95a629b5bef6f5b572",
+            "atom_name": "norm.unit",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "7aa9778ac59ebf8c59a28aab6538876a8fc1816ac256fc394b3d5d36d5abdadf",
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:bounds"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "ec584d2a50014ae02193f0079ef1d9fa9bb15414194e19248f4307a50c5278b0",
+            "atom_name": "norm.time",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+      "args_fingerprint": "7aa9778ac59ebf8c59a28aab6538876a8fc1816ac256fc394b3d5d36d5abdadf",
+      "atom_name": "verify.bounds",
+      "atom_version": "1.0.0"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ЛУКОЙЛ",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ЛУКОЙЛ",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "08a9bae71da4f0b2854b6d2a498afd3a99ca6375a0cf42dfa59ea15020419b06",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "aa4ae7bd31e241cf751a51f67a37bf9068c6d948539a9b6ced14127066b68f53",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=COSTS_EXPENSES;entity=ЛУКОЙЛ",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=COSTS_EXPENSES;entity=ЛУКОЙЛ",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "454483d0620747f902e431581158a6d23435264e8079ad95a629b5bef6f5b572",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ec584d2a50014ae02193f0079ef1d9fa9bb15414194e19248f4307a50c5278b0",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "7aa9778ac59ebf8c59a28aab6538876a8fc1816ac256fc394b3d5d36d5abdadf",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ЛУКОЙЛ",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ЛУКОЙЛ",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "content:3018a07ee1ae9555e83960ad47197d7d28b0ffe594c421d7fd211a1873deb703"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ЛУКОЙЛ",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ЛУКОЙЛ",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-24>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=COSTS_EXPENSES;entity=ЛУКОЙЛ",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [
+        "<uuid-25>",
+        "<uuid-26>",
+        "<uuid-27>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=COSTS_EXPENSES;entity=ЛУКОЙЛ",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [
+        "<uuid-28>",
+        "<uuid-29>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=COSTS_EXPENSES;entity=ЛУКОЙЛ",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-30>",
+        "<uuid-31>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=COSTS_EXPENSES;entity=ЛУКОЙЛ",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-32>",
+        "<uuid-33>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "08a9bae71da4f0b2854b6d2a498afd3a99ca6375a0cf42dfa59ea15020419b06",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "08a9bae71da4f0b2854b6d2a498afd3a99ca6375a0cf42dfa59ea15020419b06",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-34>",
+        "<uuid-30>",
+        "<uuid-35>",
+        "<uuid-31>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "454483d0620747f902e431581158a6d23435264e8079ad95a629b5bef6f5b572",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "454483d0620747f902e431581158a6d23435264e8079ad95a629b5bef6f5b572",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-36>",
+        "<uuid-32>",
+        "<uuid-37>",
+        "<uuid-33>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "aa4ae7bd31e241cf751a51f67a37bf9068c6d948539a9b6ced14127066b68f53",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "aa4ae7bd31e241cf751a51f67a37bf9068c6d948539a9b6ced14127066b68f53",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-38>",
+        "<uuid-30>",
+        "<uuid-39>",
+        "<uuid-31>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ec584d2a50014ae02193f0079ef1d9fa9bb15414194e19248f4307a50c5278b0",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ec584d2a50014ae02193f0079ef1d9fa9bb15414194e19248f4307a50c5278b0",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-40>",
+        "<uuid-32>",
+        "<uuid-41>",
+        "<uuid-33>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-42>",
+        "<uuid-30>",
+        "<uuid-43>",
+        "<uuid-31>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "7aa9778ac59ebf8c59a28aab6538876a8fc1816ac256fc394b3d5d36d5abdadf",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "7aa9778ac59ebf8c59a28aab6538876a8fc1816ac256fc394b3d5d36d5abdadf",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-44>",
+        "<uuid-32>",
+        "<uuid-45>",
+        "<uuid-33>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:2d8d0ef5c46c377c07c35a88c348e68b1fa3b84ed60eb5fdc457288e43209060",
+    "type": "node_run"
+  },
+  {
+    "action": "execute",
+    "details": "✓ ingest.document  → DocumentText (1)\n✓ identify.classify  → RunPassport (1)\n✓ locate SALES_REVENUE → CandidateLocator (3)\n✓ read.value SALES_REVENUE → ExtractedMetric (2); evidence_ids=<uuid-30>, <uuid-31>\n✓ norm.unit SALES_REVENUE → VerificationFinding, ExtractedMetric (4); evidence_ids=<uuid-34>, <uuid-30>, <uuid-35>, <uuid-31>\n✓ norm.time SALES_REVENUE → VerificationFinding, ExtractedMetric (4); evidence_ids=<uuid-38>, <uuid-30>, <uuid-39>, <uuid-31>\n✓ verify.bounds SALES_REVENUE → VerificationFinding, ExtractedMetric (4); evidence_ids=<uuid-42>, <uuid-30>, <uuid-43>, <uuid-31>\n✓ locate COSTS_EXPENSES → CandidateLocator (2)\n✓ read.value COSTS_EXPENSES → ExtractedMetric (2); evidence_ids=<uuid-32>, <uuid-33>\n✓ norm.unit COSTS_EXPENSES → VerificationFinding, ExtractedMetric (4); evidence_ids=<uuid-36>, <uuid-32>, <uuid-37>, <uuid-33>\n✓ norm.time COSTS_EXPENSES → VerificationFinding, ExtractedMetric (4); evidence_ids=<uuid-40>, <uuid-32>, <uuid-41>, <uuid-33>\n✓ verify.bounds COSTS_EXPENSES → VerificationFinding, ExtractedMetric (4); evidence_ids=<uuid-44>, <uuid-32>, <uuid-45>, <uuid-33>",
+    "move": 2,
+    "new_atoms": [],
+    "objective": "Создать Excel-файл с исходными значениями и валовой прибылью",
+    "outcome": "✓ 4 новых результатов",
+    "reason": "Выручка и себестоимость уже извлечены. Теперь нужно создать Excel-файл с двумя листами: первый — исходные значения, второй — валовая прибыль как формула. Для этого создадим атом с кодом, который сгенерирует файл.",
+    "scenarios": [],
+    "status": "done",
+    "steps": [
+      {
+        "atom": "read.value",
+        "concept": "SALES_REVENUE",
+        "period_ref": null
+      },
+      {
+        "atom": "read.value",
+        "concept": "COSTS_EXPENSES",
+        "period_ref": null
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "rejected",
+    "details": "new_atoms[0].output_schema невалидна: '...' is not of type 'object'",
+    "move": 3,
+    "new_atoms": [],
+    "objective": "",
+    "outcome": "",
+    "reason": "",
+    "scenarios": [],
+    "status": "rejected",
+    "steps": [],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "rejected",
+    "details": "new_atoms[0].output_schema невалидна: None is not of type 'object'",
+    "move": 4,
+    "new_atoms": [],
+    "objective": "",
+    "outcome": "",
+    "reason": "",
+    "scenarios": [],
+    "status": "rejected",
+    "steps": [],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "move": 5,
+    "new_atoms": [
+      {
+        "kind": "code",
+        "name": "eph.build_excel",
+        "output_type": "dyn:excel_file",
+        "purpose": "Создаёт Excel-файл с двумя листами. Лист 1 'Исходные данные': столбцы A — Показатель, B — 6M 2025, C — 6M 2026; строки: Выручка, Себестоимость. Лист 2 'Валовая прибыль': столбцы A — Показатель, B — 6M 2025, C — 6M 2026; строки: Валовая прибыль. Ячейки B2 и C2 Листа 2 содержат формулы, ссылающиеся на ячейки Листа 1: ='Исходные данные'!B2 - 'Исходные данные'!B3 и ='Исходные данные'!C2 - 'Исходные данные'!C3 соответственно. Входные данные: ExtractedMetric для SALES_REVENUE и COSTS_EXPENSES за периоды 6M 2025 и 6M 2026.",
+        "url": null
+      }
+    ],
+    "objective": "Создать Excel-файл с двумя листами: исходные значения выручки и себестоимости по периодам и валовая прибыль как формула",
+    "outcome": "",
+    "reason": "Пользователь запросил Excel-файл с исходными значениями и расчётом валовой прибыли. Данные выручки и себестоимости уже получены.",
+    "scenarios": [],
+    "status": "running",
+    "steps": [
+      {
+        "atom": "eph.build_excel",
+        "concept": "SALES_REVENUE",
+        "period_ref": null
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "atom": "eph.build_excel",
+    "attempt": 1,
+    "code": "import os\nimport openpyxl\n\ndef run(inputs: dict) -> dict:\n    # Извлекаем ExtractedMetric, игнорируем VerificationFinding\n    metrics = inputs.get(\"ExtractedMetric\", [])\n    if not metrics:\n        raise ValueError(\"Нет входных данных ExtractedMetric\")\n\n    # Собираем значения по концептам и периодам\n    revenue = {}\n    costs = {}\n    for m in metrics:\n        concept = m.get(\"concept\")\n        period = m.get(\"period_ref\")\n        value = m[\"scalar_fact\"][\"value\"]\n        unit = m[\"scalar_fact\"][\"unit\"]\n        if unit != \"млн. руб.\":\n            raise ValueError(f\"Несовместимая единица измерения: {unit}\")\n        if concept == \"SALES_REVENUE\":\n            revenue[period] = value\n        elif concept == \"COSTS_EXPENSES\":\n            costs[period] = value\n        else:\n            continue\n\n    # Проверяем наличие всех нужных периодов\n    required_periods = [\"6M 2025\", \"6M 2026\"]\n    for p in required_periods:\n        if p not in revenue:\n            raise ValueError(f\"Нет данных SALES_REVENUE за период {p}\")\n        if p not in costs:\n            raise ValueError(f\"Нет данных COSTS_EXPENSES за период {p}\")\n\n    # Создаём Excel\n    os.makedirs(\"out\", exist_ok=True)\n    wb = openpyxl.Workbook()\n\n    # Лист 1: Исходные данные\n    ws1 = wb.active\n    ws1.title = \"Исходные данные\"\n    ws1[\"A1\"] = \"Показатель\"\n    ws1[\"B1\"] = \"6M 2025\"\n    ws1[\"C1\"] = \"6M 2026\"\n    ws1[\"A2\"] = \"Выручка\"\n    ws1[\"B2\"] = revenue[\"6M 2025\"]\n    ws1[\"C2\"] = revenue[\"6M 2026\"]\n    ws1[\"A3\"] = \"Себестоимость\"\n    ws1[\"B3\"] = costs[\"6M 2025\"]\n    ws1[\"C3\"] = costs[\"6M 2026\"]\n\n    # Лист 2: Валовая прибыль\n    ws2 = wb.create_sheet(\"Валовая прибыль\")\n    ws2[\"A1\"] = \"Показатель\"\n    ws2[\"B1\"] = \"6M 2025\"\n    ws2[\"C1\"] = \"6M 2026\"\n    ws2[\"A2\"] = \"Валовая прибыль\"\n    ws2[\"B2\"] = \"='Исходные данные'!B2-'Исходные данные'!B3\"\n    ws2[\"C2\"] = \"='Исходные данные'!C2-'Исходные данные'!C3\"\n\n    filename = \"out/Валовая_прибыль.xlsx\"\n    wb.save(filename)\n\n    return {\"file_id\": filename}\n",
+    "error": null,
+    "move": 5,
+    "status": "ok",
+    "type": "author_attempt"
+  },
+  {
+    "graph_hash": "sha256:bd35a9b0865d0a048af57d23274c71f1a800be35bb12db86797f0cd198e7d565",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c",
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:SALES_REVENUE"
+        ],
+        "requires": [],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "7aa9778ac59ebf8c59a28aab6538876a8fc1816ac256fc394b3d5d36d5abdadf",
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:COSTS_EXPENSES"
+        ],
+        "requires": [],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ",
+          "atom_name": "eph.build_excel",
+          "atom_version": "f803f70a82f9"
+        },
+        "produces": [
+          "dyn:excel_file:SALES_REVENUE"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c",
+            "atom_name": "verify.bounds",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "7aa9778ac59ebf8c59a28aab6538876a8fc1816ac256fc394b3d5d36d5abdadf",
+            "atom_name": "verify.bounds",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "sealed_room",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+      "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ",
+      "atom_name": "eph.build_excel",
+      "atom_version": "f803f70a82f9"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-30>",
+        "<uuid-31>",
+        "<uuid-42>",
+        "<uuid-43>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:bd35a9b0865d0a048af57d23274c71f1a800be35bb12db86797f0cd198e7d565",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "7aa9778ac59ebf8c59a28aab6538876a8fc1816ac256fc394b3d5d36d5abdadf",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-32>",
+        "<uuid-33>",
+        "<uuid-44>",
+        "<uuid-45>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:bd35a9b0865d0a048af57d23274c71f1a800be35bb12db86797f0cd198e7d565",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ",
+        "atom_name": "eph.build_excel",
+        "atom_version": "f803f70a82f9"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "sealed_room",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:bd35a9b0865d0a048af57d23274c71f1a800be35bb12db86797f0cd198e7d565",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ",
+        "atom_name": "eph.build_excel",
+        "atom_version": "f803f70a82f9"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "sealed_room",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:bd35a9b0865d0a048af57d23274c71f1a800be35bb12db86797f0cd198e7d565",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ",
+        "atom_name": "eph.build_excel",
+        "atom_version": "f803f70a82f9"
+      },
+      "produced_evidence_ids": [
+        "<uuid-46>",
+        "<uuid-47>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "sealed_room",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:bd35a9b0865d0a048af57d23274c71f1a800be35bb12db86797f0cd198e7d565",
+    "type": "node_run"
+  },
+  {
+    "action": "execute",
+    "details": "✓ verify.bounds SALES_REVENUE → ExtractedMetric, VerificationFinding (4); уже было; evidence_ids=<uuid-30>, <uuid-31>, <uuid-42>, <uuid-43>\n✓ verify.bounds COSTS_EXPENSES → ExtractedMetric, VerificationFinding (4); уже было; evidence_ids=<uuid-32>, <uuid-33>, <uuid-44>, <uuid-45>\n✓ eph.build_excel  → dyn:excel_file, FileArtifact (2); evidence_ids=<uuid-46>; файлы: <uuid-48> (Валовая_прибыль.xlsx: xlsx, 5663 байт; листов 2 (Исходные данные, Валовая прибыль); формул 2)",
+    "move": 5,
+    "new_atoms": [
+      {
+        "kind": "code",
+        "name": "eph.build_excel",
+        "output_type": "dyn:excel_file",
+        "purpose": "Создаёт Excel-файл с двумя листами. Лист 1 'Исходные данные': столбцы A — Показатель, B — 6M 2025, C — 6M 2026; строки: Выручка, Себестоимость. Лист 2 'Валовая прибыль': столбцы A — Показатель, B — 6M 2025, C — 6M 2026; строки: Валовая прибыль. Ячейки B2 и C2 Листа 2 содержат формулы, ссылающиеся на ячейки Листа 1: ='Исходные данные'!B2 - 'Исходные данные'!B3 и ='Исходные данные'!C2 - 'Исходные данные'!C3 соответственно. Входные данные: ExtractedMetric для SALES_REVENUE и COSTS_EXPENSES за периоды 6M 2025 и 6M 2026.",
+        "url": null
+      }
+    ],
+    "objective": "Создать Excel-файл с двумя листами: исходные значения выручки и себестоимости по периодам и валовая прибыль как формула",
+    "outcome": "✓ 2 новых результатов",
+    "reason": "Пользователь запросил Excel-файл с исходными значениями и расчётом валовой прибыли. Данные выручки и себестоимости уже получены.",
+    "scenarios": [],
+    "status": "done",
+    "steps": [
+      {
+        "atom": "eph.build_excel",
+        "concept": "SALES_REVENUE",
+        "period_ref": null
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "move": 6,
+    "new_atoms": [],
+    "objective": "Получить ExtractedMetric для SALES_REVENUE и COSTS_EXPENSES за периоды 6M 2026 и 6M 2025",
+    "outcome": "",
+    "reason": "Эти данные нужны для создания Excel-файла с исходными значениями и валовой прибылью",
+    "scenarios": [],
+    "status": "running",
+    "steps": [
+      {
+        "atom": "read.value",
+        "concept": "SALES_REVENUE",
+        "period_ref": "6M 2026"
+      },
+      {
+        "atom": "read.value",
+        "concept": "SALES_REVENUE",
+        "period_ref": "6M 2025"
+      },
+      {
+        "atom": "read.value",
+        "concept": "COSTS_EXPENSES",
+        "period_ref": "6M 2026"
+      },
+      {
+        "atom": "read.value",
+        "concept": "COSTS_EXPENSES",
+        "period_ref": "6M 2025"
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "graph_hash": "sha256:599e02e062ce269c66328d81a8ec8c6595f54b31328344dc9ada3aeefde4ae0f",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c",
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:SALES_REVENUE"
+        ],
+        "requires": [],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "7aa9778ac59ebf8c59a28aab6538876a8fc1816ac256fc394b3d5d36d5abdadf",
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:COSTS_EXPENSES"
+        ],
+        "requires": [],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+      "args_fingerprint": "7aa9778ac59ebf8c59a28aab6538876a8fc1816ac256fc394b3d5d36d5abdadf",
+      "atom_name": "verify.bounds",
+      "atom_version": "1.0.0"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-30>",
+        "<uuid-31>",
+        "<uuid-42>",
+        "<uuid-43>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:599e02e062ce269c66328d81a8ec8c6595f54b31328344dc9ada3aeefde4ae0f",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "7aa9778ac59ebf8c59a28aab6538876a8fc1816ac256fc394b3d5d36d5abdadf",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-32>",
+        "<uuid-33>",
+        "<uuid-44>",
+        "<uuid-45>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:599e02e062ce269c66328d81a8ec8c6595f54b31328344dc9ada3aeefde4ae0f",
+    "type": "node_run"
+  },
+  {
+    "action": "execute",
+    "details": "✓ verify.bounds SALES_REVENUE → ExtractedMetric, VerificationFinding (4); уже было; evidence_ids=<uuid-30>, <uuid-31>, <uuid-42>, <uuid-43>\n✓ verify.bounds COSTS_EXPENSES → ExtractedMetric, VerificationFinding (4); уже было; evidence_ids=<uuid-32>, <uuid-33>, <uuid-44>, <uuid-45>",
+    "move": 6,
+    "new_atoms": [],
+    "objective": "Получить ExtractedMetric для SALES_REVENUE и COSTS_EXPENSES за периоды 6M 2026 и 6M 2025",
+    "outcome": "новых результатов нет, всё уже было получено",
+    "reason": "Эти данные нужны для создания Excel-файла с исходными значениями и валовой прибылью",
+    "scenarios": [],
+    "status": "done",
+    "steps": [
+      {
+        "atom": "read.value",
+        "concept": "SALES_REVENUE",
+        "period_ref": "6M 2026"
+      },
+      {
+        "atom": "read.value",
+        "concept": "SALES_REVENUE",
+        "period_ref": "6M 2025"
+      },
+      {
+        "atom": "read.value",
+        "concept": "COSTS_EXPENSES",
+        "period_ref": "6M 2026"
+      },
+      {
+        "atom": "read.value",
+        "concept": "COSTS_EXPENSES",
+        "period_ref": "6M 2025"
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "finalize",
+    "details": "Excel-файл готов. На листе «Исходные данные» приведены выручка и себестоимость ЛУКОЙЛа за 6M 2025 и 6M 2026. На листе «Валовая прибыль» — валовая прибыль за те же периоды, рассчитанная формулами как разность соответствующих ячеек первого листа.\n\nВыручка 6M 2026: 1 453 957,053 млн руб.\nВыручка 6M 2025: 1 398 538,772 млн руб.\nСебестоимость 6M 2026: –915 309,165 млн руб.\nСебестоимость 6M 2025: –982 117,980 млн руб.\n\nФайл содержит 2 листа и 2 формулы, как вы и просили.",
+    "move": 7,
+    "new_atoms": [],
+    "objective": "Отдать пользователю готовый Excel-файл с исходными данными и валовой прибылью",
+    "outcome": "",
+    "reason": "Файл успешно создан атомом eph.build_excel, все необходимые данные извлечены и проверены. Задача пользователя выполнена полностью.",
+    "scenarios": [],
+    "status": "done",
+    "steps": [],
+    "type": "dynamic_move"
+  },
+  {
+    "result": {
+      "concept": "SALES_REVENUE",
+      "definition_origin": "registry",
+      "metric_id": "<uuid-49>",
+      "output_type": "ExtractedMetric",
+      "period_ref": "6M 2026",
+      "scalar_fact": {
+        "basis": null,
+        "concept": "SALES_REVENUE",
+        "document_version": "sha256:416723a0e57ab1a96340cab0bda8e828e15020b5342a0bbfddadb439604ecae3",
+        "evidence_id": "<uuid-30>",
+        "page": 24,
+        "period_ref": "6M 2026",
+        "produced_by_atom": "read.value",
+        "produced_by_atom_version": "1.0.0",
+        "source_ref": "<uuid-25>",
+        "supersedes": null,
+        "unit": "млн. руб.",
+        "value": 1453957.053
+      },
+      "schema_version": "1.0",
+      "status": "supported"
+    },
+    "status": "complete",
+    "type": "typed_result"
+  },
+  {
+    "result": {
+      "concept": "SALES_REVENUE",
+      "definition_origin": "registry",
+      "metric_id": "<uuid-50>",
+      "output_type": "ExtractedMetric",
+      "period_ref": "6M 2025",
+      "scalar_fact": {
+        "basis": null,
+        "concept": "SALES_REVENUE",
+        "document_version": "sha256:416723a0e57ab1a96340cab0bda8e828e15020b5342a0bbfddadb439604ecae3",
+        "evidence_id": "<uuid-31>",
+        "page": 24,
+        "period_ref": "6M 2025",
+        "produced_by_atom": "read.value",
+        "produced_by_atom_version": "1.0.0",
+        "source_ref": "<uuid-25>",
+        "supersedes": null,
+        "unit": "млн. руб.",
+        "value": 1398538.772
+      },
+      "schema_version": "1.0",
+      "status": "supported"
+    },
+    "status": "complete",
+    "type": "typed_result"
+  },
+  {
+    "result": {
+      "concept": "COSTS_EXPENSES",
+      "definition_origin": "registry",
+      "metric_id": "<uuid-51>",
+      "output_type": "ExtractedMetric",
+      "period_ref": "6M 2026",
+      "scalar_fact": {
+        "basis": null,
+        "concept": "COSTS_EXPENSES",
+        "document_version": "sha256:416723a0e57ab1a96340cab0bda8e828e15020b5342a0bbfddadb439604ecae3",
+        "evidence_id": "<uuid-32>",
+        "page": 4,
+        "period_ref": "6M 2026",
+        "produced_by_atom": "read.value",
+        "produced_by_atom_version": "1.0.0",
+        "source_ref": "<uuid-28>",
+        "supersedes": null,
+        "unit": "млн. руб.",
+        "value": -915309.165
+      },
+      "schema_version": "1.0",
+      "status": "supported"
+    },
+    "status": "complete",
+    "type": "typed_result"
+  },
+  {
+    "result": {
+      "concept": "COSTS_EXPENSES",
+      "definition_origin": "registry",
+      "metric_id": "<uuid-52>",
+      "output_type": "ExtractedMetric",
+      "period_ref": "6M 2025",
+      "scalar_fact": {
+        "basis": null,
+        "concept": "COSTS_EXPENSES",
+        "document_version": "sha256:416723a0e57ab1a96340cab0bda8e828e15020b5342a0bbfddadb439604ecae3",
+        "evidence_id": "<uuid-33>",
+        "page": 4,
+        "period_ref": "6M 2025",
+        "produced_by_atom": "read.value",
+        "produced_by_atom_version": "1.0.0",
+        "source_ref": "<uuid-28>",
+        "supersedes": null,
+        "unit": "млн. руб.",
+        "value": -982117.98
+      },
+      "schema_version": "1.0",
+      "status": "supported"
+    },
+    "status": "complete",
+    "type": "typed_result"
+  },
+  {
+    "result": {
+      "artifact_id": "<uuid-48>",
+      "content_hash": "232931db0471df57bd71f97a2e7d1c2fc76815f719c9d526f0a5470626afc27a",
+      "file_kind": "xlsx",
+      "filename": "Валовая_прибыль.xlsx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "object_store_location": "users/<owner>/projects/<project>/sources/<file-id>.xlsx",
+      "output_type": "FileArtifact",
+      "schema_version": "1.0",
+      "size_bytes": 5663,
+      "source_result": {
+        "evidence_version": "1.0",
+        "result_hash": "2fe7295dd5ab199eb7fd77e6566b9607877e3e3ebb9c9cd35083b846c493bed1",
+        "result_id": "<uuid-46>",
+        "result_type": "DynamicArtifact",
+        "schema_version": "1.0"
+      },
+      "summary": "xlsx, 5663 байт; листов 2 (Исходные данные, Валовая прибыль); формул 2",
+      "template_id": "eph.build_excel",
+      "template_version": "f803f70a82f9"
+    },
+    "status": "complete",
+    "type": "typed_result"
+  },
+  {
+    "file_id": "<file-id>",
+    "filename": "Валовая_прибыль.xlsx",
+    "kind": "xlsx",
+    "type": "file"
+  },
+  {
+    "name": "financial_pipeline",
+    "ok": true,
+    "type": "tool_output"
+  },
+  {
+    "text": "Excel-файл готов. На листе «Исходные данные» приведены выручка и себестоимость ЛУКОЙЛа за 6M 2025 и 6M 2026. На листе «Валовая прибыль» — валовая прибыль за те же периоды, рассчитанная формулами как разность соответствующих ячеек первого листа.\n\nВыручка 6M 2026: 1 453 957,053 млн руб.\nВыручка 6M 2025: 1 398 538,772 млн руб.\nСебестоимость 6M 2026: –915 309,165 млн руб.\nСебестоимость 6M 2025: –982 117,980 млн руб.\n\nФайл содержит 2 листа и 2 формулы, как вы и просили.",
+    "type": "text_delta"
+  },
+  {
+    "sources": [
+      {
+        "company_name": "ЛУКОЙЛ",
+        "filename": "Бухгалтерская отчетность на 30.06.2026.pdf"
+      }
+    ],
+    "type": "sources"
+  },
+  {
+    "status": "succeeded",
+    "type": "done"
+  }
+]

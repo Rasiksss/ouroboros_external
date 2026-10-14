@@ -1,0 +1,24 @@
+{
+  "case_id": "kone-Q3-2025:analysis:01",
+  "company": "Kone",
+  "evidence_ids": [
+    "kone-Q3-2025:SALES_REVENUE:01"
+  ],
+  "expected_explanation_covers": [
+    "SALES_REVENUE",
+    "Q3 2025",
+    "EUR million",
+    "source evidence"
+  ],
+  "expected_judgment": {
+    "concept": "SALES_REVENUE",
+    "verdict": "reported_as_disclosed"
+  },
+  "goal": "State the disclosed SALES_REVENUE for Q3 2025 and cite the supplied evidence. Do not add a recommendation.",
+  "rubric": {
+    "evidence_alignment": "required: every number traces to evidence_ids",
+    "factual_accuracy": "required: value, period, and unit match the evidence",
+    "logical_coherence": "required: no claim contradicts the evidence",
+    "no_recommendations": "required"
+  }
+}

@@ -1,0 +1,59 @@
+{
+ "label": "A1-r2",
+ "query": "Извлеки выручку и посчитай для неё коэффициент вариации.",
+ "doc_id": "9dba0a66-a5a0-4012-8cd1-235ab8e25fe4",
+ "run_id": "671da77d-b2a6-474a-9758-0d1f71fc2273",
+ "elapsed_s": 41.7,
+ "events": [
+  {
+   "schema_version": "1.0",
+   "event_id": "3e470cab-9029-4570-bbb9-1d60ebbf4e12",
+   "run_id": "671da77d-b2a6-474a-9758-0d1f71fc2273",
+   "sequence": 1,
+   "occurred_at": "2026-10-06T15:15:33.849181Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "session_id",
+    "session_id": "2ee92eb6-51e0-46be-88e6-2ae0a062ce7b"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "dbb98a50-b930-43f7-85d3-3f2366fe61ce",
+   "run_id": "671da77d-b2a6-474a-9758-0d1f71fc2273",
+   "sequence": 2,
+   "occurred_at": "2026-10-06T15:15:33.849231Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "thinking",
+    "text": "Разбираю запрос…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "6eebcf48-465a-4b84-b3f6-2c1fec5504a7",
+   "run_id": "671da77d-b2a6-474a-9758-0d1f71fc2273",
+   "sequence": 3,
+   "occurred_at": "2026-10-06T15:16:07.454362Z",
+   "event_type": "error",
+   "error": {
+    "code": "intent_parse_failed",
+    "message": "не удалось разобрать запрос; повторите его, пожалуйста",
+    "retryable": true,
+    "node_key": null,
+    "details": {}
+   },
+   "partial_results": []
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d3327a86-dff6-4606-a343-b63879dbae07",
+   "run_id": "671da77d-b2a6-474a-9758-0d1f71fc2273",
+   "sequence": 4,
+   "occurred_at": "2026-10-06T15:16:07.454506Z",
+   "event_type": "completed",
+   "status": "failed"
+  }
+ ],
+ "started_utc": "2026-10-06T15:16:08Z"
+}

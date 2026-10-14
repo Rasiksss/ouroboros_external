@@ -1,0 +1,1270 @@
+{
+  "schema_version": "registry-layer/v1",
+  "layer_id": "company.us_gaap.bank",
+  "version": "2026.09.22.1",
+  "kind": "company_type",
+  "priority": 200,
+  "selector": {
+    "standard": "us_gaap",
+    "company_type": "bank"
+  },
+  "metrics": {
+    "extractable": [
+      {
+        "enum": "CASH_AND_CASH_BALANCES_WITH_CB",
+        "fields": {
+          "name_ru": "Обязательные резервы на счетах в центральных банках",
+          "name_en": "Cash and cash balances with central bank",
+          "aliases_ru": [
+            "Обязательные резервы на счетах в ЦБ РФ",
+            "Обязательные резервы на счетах в Центральном банке"
+          ],
+          "aliases_en": [
+            "Mandatory reserves with central bank",
+            "Reserve deposits with central bank"
+          ],
+          "description": "Обязательные резервы и средства банка на счетах в центральных банках.",
+          "hint": "Балансовый отчёт банка, актив. Часто первая строка раздела активов.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "CET1_RATIO_DISCLOSED",
+        "fields": {
+          "name_ru": "Норматив CET1 (раскрываемый)",
+          "name_en": "CET1 ratio (disclosed)",
+          "aliases_ru": [
+            "CET1 ratio",
+            "норматив Н 1.0",
+            "норматив Н 20.1"
+          ],
+          "aliases_en": [
+            "CET1 capital ratio",
+            "Common equity Tier 1 ratio"
+          ],
+          "description": "Раскрываемый банком норматив достаточности базового капитала первого уровня.",
+          "hint": "Примечание 'Достаточность капитала'. Единица — проценты.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "%",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "CHANGE_IN_EXPECTED_CREDIT_LOSSES",
+        "fields": {
+          "name_ru": "Изменение резерва по ожидаемым кредитным убыткам",
+          "name_en": "Change in ECL",
+          "aliases_ru": [
+            "Резерв под кредитные убытки по денежжным средствам",
+            "их эквивалентам",
+            "средствам в других банках и кредитам и авансам клиентам"
+          ],
+          "aliases_en": [
+            "Movement in ECL allowance",
+            "Changes in ECL allowance"
+          ],
+          "description": "Изменение оценочных резервов ECL за период (по всем финансовым активам, не только кредитам).",
+          "hint": "P&L банка или Примечание 'Финансовые активы'. Сумма движений ECL за период. В interim-отчетах с колонками 3M/Q и 6M/YTD возвращай обе группы периодов, не только YTD.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "CLIENT_DEPOSITS",
+        "fields": {
+          "name_ru": "Депозиты клиентов",
+          "name_en": "Total deposits",
+          "aliases_ru": [
+            "Средства клиентов",
+            "Депозиты"
+          ],
+          "aliases_en": [
+            "Due to customers",
+            "Customer deposits"
+          ],
+          "description": "Совокупный объём средств клиентов на счетах и депозитах банка.",
+          "hint": "Балансовый отчёт банка, ключевое обязательство. Детализация в Примечании 'Средства клиентов'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "COMMON_EQUITY_TIER_ONE_CAPITAL",
+        "fields": {
+          "name_ru": "Основной капитал первого уровня",
+          "name_en": "Common equity tier 1 capital",
+          "aliases_ru": [
+            "Капитал первого уровня",
+            "CET1 капитал",
+            "Базовый капитал первого уровня"
+          ],
+          "aliases_en": [
+            "CET1 capital",
+            "Common equity Tier 1 capital ratio"
+          ],
+          "description": "Базовый капитал первого уровня по Базель III.",
+          "hint": "Примечание 'Достаточность капитала' / 'Управление капиталом'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "CORPORATE_DEPOSITS",
+        "fields": {
+          "name_ru": "Средства корпоративных клиентов",
+          "name_en": "Corporate deposits",
+          "aliases_ru": [
+            "Депозиты корпоративных клиентов",
+            "Средства юридических лиц"
+          ],
+          "aliases_en": [
+            "Corporate deposits",
+            "Business deposits",
+            "Deposits from legal entities"
+          ],
+          "description": "Депозиты юридических лиц.",
+          "hint": "Примечание 'Средства клиентов' — разбивка по сегментам.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "CORPORATE_LOANS",
+        "fields": {
+          "name_ru": "Корпоративные кредиты",
+          "name_en": "Total commercial loans and leases",
+          "aliases_ru": [
+            "Кредиты корпоративным клиентам",
+            "Кредиты юридическим лицам"
+          ],
+          "aliases_en": [
+            "Corporate loans",
+            "Commercial loans"
+          ],
+          "description": "Кредиты, выданные юридическим лицам.",
+          "hint": "Примечание 'Кредиты клиентам' — разбивка по сегментам клиентов.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "DEBT_SECURITIES_ISSUED",
+        "fields": {
+          "name_ru": "Выпущенные долговые ценные бумаги",
+          "name_en": "Debt securities issued",
+          "aliases_ru": [
+            "Выпущенные облигации",
+            "Долговые ценные бумаги в обращении"
+          ],
+          "aliases_en": [
+            "Bonds issued",
+            "Notes and bonds issued"
+          ],
+          "description": "Облигации и прочие долговые ценные бумаги, эмитированные банком.",
+          "hint": "Балансовый отчёт банка, обязательство. Детализация в Примечании 'Долговые ценные бумаги'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "EBT",
+        "fields": {
+          "hint": "P&L банка, предпоследняя строка перед налогом на прибыль. Если у банка убыток, в источнике обычно стоят скобки или минус; сохраняй знак/скобки как в источнике."
+        }
+      },
+      {
+        "enum": "FEE_AND_COMMISSION_EXPENSE",
+        "fields": {
+          "name_ru": "Комиссионный расход",
+          "name_en": "Fee and comission expense",
+          "aliases_ru": [
+            "Комиссионные расходы",
+            "Расходы по комиссиям"
+          ],
+          "aliases_en": [
+            "Fee expense",
+            "Commission expense"
+          ],
+          "description": "Расходы по комиссионным операциям (в т.ч. платежи системам, контрагентам).",
+          "hint": "P&L банка, после комиссионных доходов. Бери строку комиссионных расходов и сохраняй знак/скобки как в источнике.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "FEE_AND_COMMISSION_INCOME",
+        "fields": {
+          "name_ru": "Комиссионный доход",
+          "name_en": "Fee and comission income",
+          "aliases_ru": [
+            "Комиссионные доходы",
+            "Доход от комиссий"
+          ],
+          "aliases_en": [
+            "Fee income",
+            "Commission income"
+          ],
+          "description": "Доходы от комиссионных и расчётно-кассовых операций.",
+          "hint": "P&L банка. Детализация в Примечании 'Комиссионные доходы и расходы'.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "FUNDS_FROM_CENTRAL_BANK",
+        "fields": {
+          "name_ru": "Средства, предоставленные ЦБ",
+          "name_en": "Funds provided by the Central Bank",
+          "aliases_ru": [
+            "Кредиты ЦБ",
+            "Рефинансирование от центрального банка"
+          ],
+          "aliases_en": [
+            "Loans from central bank",
+            "Borrowings from the central bank"
+          ],
+          "description": "Кредиты и депозиты, полученные банком от центрального банка.",
+          "hint": "Балансовый отчёт банка, обязательство. Также в Примечании 'Привлечённые средства'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "GOVERNMENTAL_DEPOSITS",
+        "fields": {
+          "name_ru": "Средства государственных органов власти",
+          "name_en": "Governmental deposits",
+          "aliases_ru": [
+            "Депозиты государственных органов",
+            "Средства государственных и муниципальных органов"
+          ],
+          "aliases_en": [
+            "Government deposits",
+            "Deposits from government entities"
+          ],
+          "description": "Депозиты госорганов и муниципальных образований.",
+          "hint": "Примечание 'Средства клиентов' — разбивка по сегментам.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INDIVIDUALS_DEPOSITS",
+        "fields": {
+          "name_ru": "Средства Физических лиц",
+          "name_en": "Consumer deposits",
+          "aliases_ru": [
+            "Депозиты физических лиц",
+            "Вклады физических лиц"
+          ],
+          "aliases_en": [
+            "Retail deposits",
+            "Deposits from individuals"
+          ],
+          "description": "Депозиты и вклады физических лиц.",
+          "hint": "Примечание 'Средства клиентов' — разбивка по сегментам.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INDIVIDUALS_LOANS",
+        "fields": {
+          "name_ru": "Розничные кредиты",
+          "name_en": "Total consumer loans and leases",
+          "aliases_ru": [
+            "Кредиты физическим лицам",
+            "Потребительские кредиты"
+          ],
+          "aliases_en": [
+            "Retail loans",
+            "Consumer loans",
+            "Loans to individuals"
+          ],
+          "description": "Кредиты, выданные физическим лицам (ипотека, потребкредиты, автокредиты).",
+          "hint": "Примечание 'Кредиты клиентам' — разбивка по сегментам.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INTERBANK_DEPOSITS",
+        "fields": {
+          "name_ru": "Средства в банках",
+          "name_en": "Interbank deposits",
+          "aliases_ru": [
+            "Депозиты в банках",
+            "Межбанковские депозиты"
+          ],
+          "aliases_en": [
+            "Due from banks",
+            "Interbank placements",
+            "Deposits with banks"
+          ],
+          "description": "Денежные средства, размещённые в других банках.",
+          "hint": "Балансовый отчёт банка, актив.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INTERBANK_LOANS",
+        "fields": {
+          "name_ru": "Средства банков",
+          "name_en": "Interbank loans",
+          "aliases_ru": [
+            "Депозиты банков",
+            "Межбанковские привлечения"
+          ],
+          "aliases_en": [
+            "Due to banks",
+            "Interbank borrowings",
+            "Deposits from banks"
+          ],
+          "description": "Кредиты, выданные другим банкам.",
+          "hint": "Балансовый отчёт банка. Может быть отдельной строкой от кредитов клиентам.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INTEREST_EXPENSE_ER",
+        "fields": {
+          "name_ru": "Процентные расходы, рассчитываемые по методу эффективной процентной ставки",
+          "name_en": "Interest expense, calculated on the basis of effective interest rate",
+          "aliases_ru": [
+            "Процентные расходы (по методу ЭПС)"
+          ],
+          "aliases_en": [
+            "Interest expense calculated using the effective interest method",
+            "Interest expense (EIR basis)"
+          ],
+          "description": "Процентные расходы, рассчитанные по методу эффективной процентной ставки.",
+          "hint": "P&L банка, после процентных доходов. Бери строку процентных расходов и сохраняй знак/скобки как в источнике.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INTEREST_INCOME_ER",
+        "fields": {
+          "name_ru": "Процентные доходы, рассчитываемые по методу эффективной процентной ставки",
+          "name_en": "Interest income, calculated on the basis of effective interest rate",
+          "aliases_ru": [
+            "Процентные доходы (по методу ЭПС)"
+          ],
+          "aliases_en": [
+            "Interest income calculated using the effective interest method",
+            "Interest income (EIR basis)"
+          ],
+          "description": "Процентные доходы, рассчитанные по методу эффективной процентной ставки.",
+          "hint": "P&L банка, верхняя строка раздела процентных доходов. Детализация в Примечании 'Процентные доходы и расходы'.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "JUNIOR_DEBT",
+        "fields": {
+          "name_ru": "Субординированная задолженность",
+          "name_en": "Junior debt",
+          "aliases_ru": [
+            "Субординированные займы",
+            "Субординированный долг"
+          ],
+          "aliases_en": [
+            "Subordinated debt",
+            "Subordinated loans"
+          ],
+          "description": "Долг, имеющий более низкий приоритет погашения по сравнению с обычным долгом.",
+          "hint": "Балансовый отчёт банка. Часто учитывается в составе Tier 2 капитала.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "LEASE_LIABILITIES_BANKS",
+        "fields": {
+          "name_ru": "Обязательства по аренде",
+          "name_en": "Lease liabilities",
+          "aliases_ru": [
+            "Арендные обязательства"
+          ],
+          "aliases_en": [
+            "Lease liabilities"
+          ],
+          "description": "Обязательства по аренде по IFRS 16 у банка (общая сумма, без разбивки на долго/краткосрочные).",
+          "hint": "Балансовый отчёт банка, обязательство. Также в Примечании 'IFRS 16'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "NET_INTEREST_INCOME",
+        "fields": {
+          "name_ru": "Чистый процентный доход",
+          "name_en": "Net interest income",
+          "aliases_ru": [
+            "Чистый процентный доход",
+            "ЧПД",
+            "Чистый процентный доход после резерва"
+          ],
+          "aliases_en": [
+            "Net interest income",
+            "NII"
+          ],
+          "description": "Процентные доходы минус процентные расходы.",
+          "hint": "P&L банка, ключевая строка после процентных доходов и расходов. В interim-отчетах с колонками 3M/Q и 6M/YTD возвращай обе группы периодов, не только YTD.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "NON_INTEREST_INCOME_BANKS",
+        "fields": {
+          "name_ru": "Непроцентный доход",
+          "name_en": "Non-interest income",
+          "aliases_ru": [
+            "Комиссионные и прочие доходы"
+          ],
+          "aliases_en": [
+            "Non-interest revenue"
+          ],
+          "description": "Совокупные непроцентные доходы (комиссии + торговые + прочие).",
+          "hint": "P&L банка, в части после ЧПД. Если отдельной строкой нет — null.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "OPERATING_EXPENSES_BANKS",
+        "fields": {
+          "name_ru": "Операционные расходы банков",
+          "name_en": "Total non-interest expense",
+          "aliases_ru": [
+            "Непроцентные расходы",
+            "Операционные и административные расходы"
+          ],
+          "aliases_en": [
+            "Total operating expenses",
+            "Non-interest expenses"
+          ],
+          "description": "Совокупные операционные расходы банка (зарплаты, IT, аренда, прочее).",
+          "hint": "P&L банка, после операционных доходов и резервов.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "OPERATING_INCOME_BANKS",
+        "fields": {
+          "name_ru": "Операционный доход банков",
+          "name_en": "Total revenue, net of interest expense",
+          "aliases_ru": [
+            "Операционные доходы",
+            "Чистый операционный доход"
+          ],
+          "aliases_en": [
+            "Operating income",
+            "Net revenue"
+          ],
+          "description": "Совокупные операционные доходы банка (ЧПД + комиссии + прочие, до создания резервов).",
+          "hint": "P&L банка, после ЧПД и непроцентных доходов.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "OTHER_ASSETS",
+        "fields": {
+          "name_ru": "Прочие активы",
+          "name_en": "Other assets",
+          "aliases_ru": [
+            "Прочие активы",
+            "Прочие внеоборотные активы",
+            "Иные активы"
+          ],
+          "aliases_en": [
+            "Other assets",
+            "Prepaid expenses and other assets",
+            "Other current assets",
+            "Other long-term assets"
+          ],
+          "description": "Активы, не отнесённые к стандартным категориям баланса.",
+          "hint": "Балансовый отчёт: широкая метрика other assets включает current/prepaid and other assets плюс other non-current assets, если они раскрыты отдельно. Не бери изменение этой строки из ОДДС.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "OTHER_LIABILITIES",
+        "fields": {
+          "name_ru": "Прочие обязательства",
+          "name_en": "Other liabilities",
+          "aliases_ru": [
+            "Прочие обязательства",
+            "Прочие долгосрочные обязательства",
+            "Прочие краткосрочные обязательства"
+          ],
+          "aliases_en": [
+            "Other liabilities",
+            "Accrued and other liabilities",
+            "Other current liabilities",
+            "Other long-term liabilities"
+          ],
+          "description": "Обязательства, не отнесённые к стандартным категориям баланса.",
+          "hint": "Балансовый отчёт: широкая метрика other liabilities включает accrued/other current liabilities плюс other long-term liabilities, если они раскрыты отдельно. Не бери cash-flow change in accrued liabilities.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "OTHER_OPERATING_INCOME",
+        "fields": {
+          "name_ru": "Прочие Операционные Доходы",
+          "name_en": "Other operating income",
+          "aliases_ru": [
+            "Прочие доходы"
+          ],
+          "aliases_en": [
+            "Other income",
+            "Other revenues"
+          ],
+          "description": "Прочие доходы от операционной деятельности банка.",
+          "hint": "P&L банка, в составе непроцентных доходов.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "REPO_PLEDGED_SECURITIES",
+        "fields": {
+          "name_ru": "Ценные бумаги, заложенные по договорам репо",
+          "name_en": "Securities pledged under repo",
+          "aliases_ru": [
+            "Ценные бумаги",
+            "заложенные по РЕПО",
+            "Переданные в обеспечение ценные бумаги"
+          ],
+          "aliases_en": [
+            "Securities sold under repurchase agreements",
+            "Pledged securities"
+          ],
+          "description": "Ценные бумаги, переданные в залог по сделкам репо.",
+          "hint": "Балансовый отчёт или Примечание 'Финансовые инструменты'. Внебалансовая или балансовая статья в зависимости от учётной политики.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "RISK_WEIGHTED_ASSETS",
+        "fields": {
+          "name_ru": "Активы, взвешенные по риску (RWA)",
+          "name_en": "Risk-weighted assets (RWA)",
+          "aliases_ru": [
+            "RWA"
+          ],
+          "aliases_en": [
+            "Risk-weighted assets",
+            "RWA"
+          ],
+          "description": "Активы, взвешенные по уровню риска для расчёта нормативов достаточности капитала.",
+          "hint": "Примечание 'Достаточность капитала' / 'Управление капиталом'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "TIER1_RATIO_DISCLOSED",
+        "fields": {
+          "name_ru": "Норматив Tier 1 (раскрываемый)",
+          "name_en": "Tier 1 ratio (disclosed)",
+          "aliases_ru": [
+            "Tier 1 ratio",
+            "норматив Н 1.1",
+            "норматив Н 20.2"
+          ],
+          "aliases_en": [
+            "Tier 1 capital ratio"
+          ],
+          "description": "Раскрываемый банком норматив достаточности капитала первого уровня (в процентах).",
+          "hint": "Примечание 'Достаточность капитала'. Единица — проценты.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "%",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "TOTAL_CREDIT_ALLOWANCE",
+        "fields": {
+          "name_ru": "Резервы под обесценение кредитов и авансов клиентам",
+          "name_en": "Provision for credit losses",
+          "aliases_ru": [
+            "Резервы под обесценение кредитов",
+            "ОКУ под обесценение кредитов и авансов клиентам",
+            "Оценочный резерв под кредитные убытки",
+            "Резерв под ожидаемые кредитные убытки по кредитам"
+          ],
+          "aliases_en": [
+            "Credit impairment losses",
+            "Loan loss provisions",
+            "Provision for loan losses",
+            "Allowance for credit losses",
+            "ECL allowance on loans",
+            "Impairment allowance on loans"
+          ],
+          "description": "Расход (за период) на создание/восстановление резервов под кредитные убытки.",
+          "hint": "P&L банка — отдельная строка после процентного дохода. Сохраняй знак/скобки как в источнике.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "TOTAL_INVESTMENT_BANKING_FEES",
+        "fields": {
+          "name_ru": "Доход от инвестиционно-банковского бизнеса",
+          "name_en": "Total investment banking fees",
+          "aliases_ru": [
+            "Доходы инвестиционного банкинга",
+            "Комиссии инвестиционного банка"
+          ],
+          "aliases_en": [
+            "Investment banking revenue",
+            "IB fees"
+          ],
+          "description": "Доходы от инвестиционно-банковской деятельности (M&A, размещения, andewriting).",
+          "hint": "P&L банка с инвестбанковской деятельностью или Примечание 'Сегментный анализ'.",
+          "standard": "US GAAP",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "TOTAL_LOANS_TO_CLIENTS",
+        "fields": {
+          "name_ru": "Кредиты клиентам",
+          "name_en": "Total loans and leases",
+          "aliases_ru": [
+            "Кредиты и авансы клиентам",
+            "Кредитный портфель (валовой)"
+          ],
+          "aliases_en": [
+            "Loans and advances to customers",
+            "Gross loans"
+          ],
+          "description": "Совокупный объём кредитов, выданных клиентам банка (за вычетом резервов ECL).",
+          "hint": "Балансовый отчёт банка, ключевой актив. Детализация в Примечании 'Кредиты клиентам'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      }
+    ],
+    "calculated": [
+      {
+        "enum": "ASSET_YIELD",
+        "fields": {
+          "name_ru": "Доходность процентных активов",
+          "name_en": "",
+          "formula": "INTEREST_INCOME_ER / AVG (INTEREST_EARNING_ASSETS) * 100%",
+          "deps": [
+            "INTEREST_INCOME_ER",
+            "INTEREST_EARNING_ASSETS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": true,
+          "soft_min_value": 0.0,
+          "soft_max_value": 0.6
+        }
+      },
+      {
+        "enum": "CORPORATE_LOANS_TO_DEPOSITS_RATIO",
+        "fields": {
+          "name_ru": "Отношение кредитов к Депозитам (Юр. лица)",
+          "name_en": "",
+          "formula": "CORPORATE_LOANS  / NON_CONSUMER_DEPOSITS * 100",
+          "deps": [
+            "CORPORATE_LOANS",
+            "NON_CONSUMER_DEPOSITS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "COST_OF_RISK_GENERAL",
+        "fields": {
+          "name_ru": "Стоимость риска (CoR)",
+          "name_en": "",
+          "formula": "-CHANGE_IN_EXPECTED_CREDIT_LOSSES / AVG(TOTAL_LOANS_TO_CLIENTS) * 100%",
+          "deps": [
+            "CHANGE_IN_EXPECTED_CREDIT_LOSSES",
+            "TOTAL_LOANS_TO_CLIENTS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": true,
+          "soft_min_value": -0.1,
+          "soft_max_value": 0.25
+        }
+      },
+      {
+        "enum": "COST_TO_ASSETS",
+        "fields": {
+          "name_ru": "Затраты к активам",
+          "name_en": "",
+          "formula": "OPERATING_EXPENSES_BANKS / AVG(TOTAL_ASSETS) * 100%",
+          "deps": [
+            "OPERATING_EXPENSES_BANKS",
+            "TOTAL_ASSETS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": true
+        }
+      },
+      {
+        "enum": "COST_TO_INCOME_RATIO",
+        "fields": {
+          "name_ru": "Отношение расходов к доходам (Cost/Income)",
+          "name_en": "",
+          "formula": "OPERATING_EXPENSES_BANKS / OPERATING_INCOME_BANKS * 100%",
+          "deps": [
+            "OPERATING_INCOME_BANKS",
+            "OPERATING_EXPENSES_BANKS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "soft_min_value": 0.0,
+          "soft_max_value": 1.0
+        }
+      },
+      {
+        "enum": "EXTREMELY_LIQUID_ASSETS",
+        "fields": {
+          "name_ru": "Высоколиквидные активы",
+          "name_en": "",
+          "formula": "CASH_EQUIVALENTS + INTERBANK_DEPOSITS",
+          "deps": [
+            "CASH_EQUIVALENTS",
+            "INTERBANK_DEPOSITS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "FUNDING_COST",
+        "fields": {
+          "name_ru": "Стоимость фондирования",
+          "name_en": "",
+          "formula": "ABS(INTEREST_EXPENSE_ER) / AVG (INTEREST_BEARING_LIABILITIES) * 100%",
+          "deps": [
+            "INTEREST_EXPENSE_ER",
+            "INTEREST_BEARING_LIABILITIES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": true,
+          "soft_min_value": 0.0,
+          "soft_max_value": 0.6
+        }
+      },
+      {
+        "enum": "INTEREST_BEARING_LIABILITIES",
+        "fields": {
+          "name_ru": "Процентные обязательства",
+          "name_en": "",
+          "formula": "CLIENT_DEPOSITS + INTERBANK_LOANS + DEBT_SECURITIES_ISSUED + FUNDS_FROM_CENTRAL_BANK + JUNIOR_DEBT",
+          "deps": [
+            "CLIENT_DEPOSITS",
+            "INTERBANK_LOANS",
+            "DEBT_SECURITIES_ISSUED",
+            "FUNDS_FROM_CENTRAL_BANK",
+            "JUNIOR_DEBT"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "INTEREST_EARNING_ASSETS",
+        "fields": {
+          "name_ru": "Процентные активы",
+          "name_en": "",
+          "formula": "TOTAL_LOANS_TO_CLIENTS + SECURITIES_ASSETS + INTERBANK_DEPOSITS",
+          "deps": [
+            "TOTAL_LOANS_TO_CLIENTS",
+            "SECURITIES_ASSETS",
+            "INTERBANK_DEPOSITS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "LOANS_TO_DEPOSITS",
+        "fields": {
+          "name_ru": "Отношение кредитов к Депозитам",
+          "name_en": "",
+          "formula": "TOTAL_LOANS_TO_CLIENTS / CLIENT_DEPOSITS * 100%",
+          "deps": [
+            "TOTAL_LOANS_TO_CLIENTS",
+            "CLIENT_DEPOSITS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "NET_COMMISSION_INCOME",
+        "fields": {
+          "name_ru": "Чистый комиссионный доход",
+          "name_en": "",
+          "formula": "FEE_AND_COMMISSION_INCOME - FEE_AND_COMMISSION_EXPENSE",
+          "deps": [
+            "FEE_AND_COMMISSION_INCOME",
+            "FEE_AND_COMMISSION_EXPENSE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "NET_INTEREST_MARGIN",
+        "fields": {
+          "name_ru": "Чистая процентная маржа (NIM)",
+          "name_en": "",
+          "formula": "NET_INTEREST_INCOME / AVG (INTEREST_EARNING_ASSETS) * 100%",
+          "deps": [
+            "NET_INTEREST_INCOME",
+            "INTEREST_EARNING_ASSETS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": true,
+          "soft_min_value": -0.05,
+          "soft_max_value": 0.3
+        }
+      },
+      {
+        "enum": "NET_OTHER_ASSETS",
+        "fields": {
+          "name_ru": "Чистые прочие активы",
+          "name_en": "",
+          "formula": "OTHER_ASSETS - TOTAL_CREDIT_ALLOWANCE",
+          "deps": [
+            "OTHER_ASSETS",
+            "TOTAL_CREDIT_ALLOWANCE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "NET_OTHER_LIABILITIES",
+        "fields": {
+          "name_ru": "Чистые прочие обязательства",
+          "name_en": "",
+          "formula": "OTHER_LIABILITIES - JUNIOR_DEBT",
+          "deps": [
+            "OTHER_LIABILITIES",
+            "JUNIOR_DEBT"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "NON_CONSUMER_DEPOSITS",
+        "fields": {
+          "name_ru": "Средства Юридических лиц",
+          "name_en": "",
+          "formula": "CORPORATE_DEPOSITS + GOVERNMENTAL_DEPOSITS",
+          "deps": [
+            "CORPORATE_DEPOSITS",
+            "GOVERNMENTAL_DEPOSITS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "NON_REGULAR_NET_INCOME",
+        "fields": {
+          "name_ru": "Нерегулярная чистая прибыль",
+          "name_en": "",
+          "formula": "NET_INCOME - ORGANIC_NET_INCOME - DEFERRED_TAX_ASSETS",
+          "deps": [
+            "NET_INCOME",
+            "ORGANIC_NET_INCOME",
+            "DEFERRED_TAX_ASSETS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "OPERATING_INCOME_CIR",
+        "fields": {
+          "name_ru": "Операционный доход, рассчитанный через CIR",
+          "name_en": "",
+          "formula": "OPERATING_EXPENSES_BANKS / (COST_TO_INCOME_RATIO / 100)",
+          "deps": [
+            "OPERATING_EXPENSES_BANKS",
+            "COST_TO_INCOME_RATIO"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "money",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "ORGANIC_NET_INCOME",
+        "fields": {
+          "name_ru": "Органическая чистая прибыль",
+          "name_en": "",
+          "formula": "(NET_INTEREST_INCOME + NET_COMMISSION_INCOME - TOTAL_CREDIT_ALLOWANCE - OPERATING_EXPENSES_BANKS) * 0,75",
+          "deps": [
+            "NET_INTEREST_INCOME",
+            "NET_COMMISSION_INCOME",
+            "TOTAL_CREDIT_ALLOWANCE",
+            "OPERATING_EXPENSES_BANKS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "OTHER_OTHER_ASSETS",
+        "fields": {
+          "name_ru": "Прочие нефинансовые активы",
+          "name_en": "",
+          "formula": "NET_OTHER_ASSETS - PPE - INTANGIBLE_ASSETS - TOTAL_ASSOCIATE_INVESTMENTS",
+          "deps": [
+            "NET_OTHER_ASSETS",
+            "PPE",
+            "INTANGIBLE_ASSETS",
+            "TOTAL_ASSOCIATE_INVESTMENTS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "RETAIL_DEPOSIT_SHARE",
+        "fields": {
+          "name_ru": "Доля розничных депозитов",
+          "name_en": "",
+          "formula": "INDIVIDUALS_DEPOSITS / (INDIVIDUALS_DEPOSITS + CORPORATE_DEPOSITS) * 100%",
+          "deps": [
+            "INDIVIDUALS_DEPOSITS",
+            "CORPORATE_DEPOSITS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "RWA_DENSITY",
+        "fields": {
+          "name_ru": "Плотность RWA",
+          "name_en": "",
+          "formula": "RISK_WEIGHTED_ASSETS / TOTAL_ASSETS * 100%",
+          "deps": [
+            "RISK_WEIGHTED_ASSETS",
+            "TOTAL_ASSETS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      }
+    ]
+  }
+}

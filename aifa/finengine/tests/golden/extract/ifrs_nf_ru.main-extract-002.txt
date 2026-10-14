@@ -1,0 +1,271 @@
+## SYSTEM
+You are a senior financial analyst working with us_gaap_en financial reports. Your task is to find and extract ordinary financial statement metrics, matching source rows strictly against each metric's registry description, aliases and hint. If a row is similar but broader, narrower, or includes extra components, do not use it. Return valid JSON only.
+
+## USER
+## Task
+Extract reported financial metric values from compressed evidence selected in stage 1.
+Company type: non_financial; reporting standard: us_gaap_en; language: en.
+Extract values for every metric listed in the metric metadata below.
+For each metric block, read the registry fields and evidence, then extract every value of that exact metric for every disclosed period.
+Return raw period headers and raw cell values literally as they appear in the report.
+
+
+## Metric Blocks
+[
+  {
+    "enum": "LONG_TERM_DEBT",
+    "name_ru": "Долгосрочные кредиты и займы",
+    "name_en": "Long-term debt",
+    "description": "Кредиты и займы со сроком погашения более 12 месяцев.",
+    "aliases_ru": [
+      "Долгосрочные заемные средства",
+      "Долгосрочные займы и кредиты",
+      "Долгосрочное долговое финансирование"
+    ],
+    "aliases_en": [
+      "Long-term borrowings",
+      "Long-term loans and borrowings"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Долгосрочные обязательства баланса. Детализация (валюта, ставка, сроки) в Примечании 'Кредиты и займы' / 'Заёмные средства'.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "ACCOUNTS_PAYABLE",
+    "name_ru": "Кредиторская задолженность",
+    "name_en": "Accounts payable",
+    "description": "Суммы, причитающиеся поставщикам, подрядчикам и прочим кредиторам.",
+    "aliases_ru": [
+      "Торговая и прочая кредиторская задолженность",
+      "Торговая кредиторская задолженность"
+    ],
+    "aliases_en": [
+      "Trade and other payables",
+      "Trade payables"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Краткосрочные обязательства баланса. Детализация в Примечании 'Кредиторская задолженность'.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "TOTAL_EQUITY",
+    "name_ru": "Итого собственный капитал",
+    "name_en": "Total equity",
+    "description": "Совокупная стоимость собственного капитала, включая капитал акционеров и неконтролирующие доли.",
+    "aliases_ru": [
+      "Итого капитал",
+      "Собственный капитал акционеров"
+    ],
+    "aliases_en": [
+      "Total shareholders' equity",
+      "Stockholders' equity"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Балансовый отчёт, итог раздела КАПИТАЛ. Иногда отдельно 'Капитал, приходящийся на акционеров материнской' + 'Неконтролирующие доли'.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [
+        {
+          "table_id": "0",
+          "page": 1,
+          "title": "Consolidated statement of financial position as at 31 December 2024 (RUB million)",
+          "location": "Unknown",
+          "context_before": "Consolidated statement of financial position\nas at 31 December 2024 (RUB million)",
+          "text": "| Metric | 2024 | 2023 |\n| Total assets | 1 000 | 900 |\n| Total equity | 400 | 350 |",
+          "context_after": ""
+        },
+        {
+          "table_id": "1",
+          "page": 2,
+          "title": "Statement of profit or loss for the year ended 31 December 2024",
+          "location": "",
+          "context_before": "Statement of profit or loss for the year ended 31 December 2024",
+          "text": "| Metric | 2024 | 2023 |\n| Revenue | 500 | 450 |\n| Net income | 50 | 40 |",
+          "context_after": ""
+        }
+      ],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "CAPEX",
+    "name_ru": "Капитальные затраты",
+    "name_en": "Capital expenditure",
+    "description": "Совокупные капитальные затраты — приобретение ОС + НМА за вычетом продажи.",
+    "aliases_ru": [
+      "Капитальные вложения"
+    ],
+    "aliases_en": [
+      "Capex",
+      "Capital expenditures",
+      "Payments to acquire property, plant and equipment",
+      "Capital expenditures total"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "ОДДС или MD&A, раздел инвестиционной деятельности / capital expenditures. Если компания раскрывает итоговый CapEx/capital expenditures напрямую, бери раскрытый итог и все его колонки периодов, включая 3M/Q и 6M/YTD. Иначе используй приобретение ОС плюс НМА. Сохраняй знак/скобки как в источнике; не заменяй CapEx одной строкой покупки ОС, если есть отдельный итоговый CapEx или отдельная покупка НМА.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "NET_OPERATING_CASH_FLOW",
+    "name_ru": "Чистый операционный денежный поток",
+    "name_en": "Net operating cash flow",
+    "description": "Итоговый денежный поток от основной операционной деятельности (после уплаты налогов и процентов).",
+    "aliases_ru": [
+      "Чистые денежные средства",
+      "полученные от операционной деятельности",
+      "Чистые денежные потоки от операционной деятельности"
+    ],
+    "aliases_en": [
+      "Net cash from operating activities",
+      "Net cash provided by operating activities"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "ОДДС (Cash Flow Statement), итоговая строка раздела 'Операционная деятельность'.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "FINANCIAL_INCOME",
+    "name_ru": "Финансовые доходы",
+    "name_en": "Financial income",
+    "description": "Процентные и прочие финансовые доходы (от размещения средств, депозитов, ценных бумаг).",
+    "aliases_ru": [
+      "Процентные доходы"
+    ],
+    "aliases_en": [
+      "Interest income",
+      "Finance income"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "P&L, после операционной прибыли. Бери строку finance/financial income и сохраняй значение как в источнике.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "FUTURE_CAPEX_LIABILITIES",
+    "name_ru": "Обязательства будущих периодов по капитальным затратам",
+    "name_en": "Future capital liabilities",
+    "description": "Договорные обязательства по будущим капитальным затратам, ещё не отражённые в балансе.",
+    "aliases_ru": [
+      "Контрактные обязательства по капитальным вложениям"
+    ],
+    "aliases_en": [
+      "Capital commitments",
+      "Committed capital expenditures"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Примечание 'Условные обязательства' / 'Капитальные обязательства' / 'Договорные обязательства'.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "ROU_DEPRECIATION",
+    "name_ru": "Амортизация активов в форме права пользования",
+    "name_en": "Right of Use Assets Depreciation",
+    "description": "Амортизация активов IFRS 16 за период.",
+    "aliases_ru": [
+      "Износ активов в форме права пользования",
+      "Амортизация права пользования активами"
+    ],
+    "aliases_en": [
+      "Depreciation of right-of-use assets",
+      "ROU asset depreciation",
+      "Amortization of operating lease right-of-use assets"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Примечание 'Аренда' / lease note или ОДДС: amortization/depreciation of right-of-use assets. Не путай с общей depreciation and amortization.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "INSURANCE_LIABILITIES",
+    "name_ru": "Обязательства по договорам страхования",
+    "name_en": "Insurance contracts liabilities",
+    "description": "Обязательства страховщика по договорам страхования (резервы убытков, премии).",
+    "aliases_ru": [
+      "Страховые резервы",
+      "Страховые обязательства"
+    ],
+    "aliases_en": [
+      "Insurance liabilities",
+      "Technical reserves"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Балансовый отчёт страховой компании. Только если компания ведёт страховую деятельность.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  }
+]
+
+## Rules
+Return period keys in `values` literally as they appear in the visible table header; do not shorten or rephrase them. A table header may have two levels: a duration group such as 'Three Months Ended' on one level and the period-end date on another. Combine the applicable levels into one complete period key. When the same date appears under multiple duration groups, a bare date is invalid because it creates a duplicate JSON key; return the full wording for each group.
+
+Return each value exactly as it appears in the table cell. Do NOT convert units, do NOT normalize thousands separators, do NOT remove commas, spaces or parentheses. If the table says "25,785", return "25,785", not "25785" and not "25.785". If the table says "(4,190)", return "(4,190)"; parentheses are mandatory: "(465)" must stay "(465)", not "465". If a matching metric row uses a blank or dash-like cell as a displayed numeric placeholder, return "0" for that period, but only when that row separately and unambiguously matches the metric. A dash in a broader combined row does not prove that any component is zero. Otherwise use null when the row is absent or the value is not disclosed. Put the table/header unit literally into unit_text, for example "in millions" or "$ in millions". When the value comes from a narrative sentence in a note rather than from a table, take the unit from that same sentence, not from the document header: notes routinely name their own scale ("USD 12.0 billion") inside a report presented in millions, and the document header would shrink the number a thousandfold. Source (report in millions): "committed credit facilities of $12.0 billion" → {"values": {"27.09.2025": "12.0"}, "unit_text": "billion"}, not "in millions".
+
+## Actual values only
+Extract only actual historical/reported values from financial statements and notes for periods that have already ended. Do NOT extract forecasts, plans, budgets, targets, scenarios, sensitivity analysis, guidance, outlook, projections, projected/forecasted values or any other forward-looking amounts, even when the row label looks like a target metric. If a requested metric appears only in a forecast/outlook/guidance table or section, return null / an empty values object for it.
+Do not treat ordinary accounting estimates inside actual financial statements as forecasts: expected credit losses, provisions, deferred taxes and pension assumptions may be valid actual-period disclosures when they are reported in the statements or notes.
+The same applies to columns: a forecast period in the header (2026E, FY26F, "plan") does not belong in values.
+
+- Follow each metric registry entry strictly. A similar-looking row is not enough.
+- Before extracting a value, run a sanity check: the row label and nearby table context must match the metric name/aliases and satisfy the description and hint.
+- Perform a scope check against the registry definition: do not use a narrower component, subcategory or subtotal that is only part of the requested metric; do not use a broader or combined row that contains the requested metric together with other components. Use only the exact requested metric, or an aggregation explicitly permitted by that metric's registry hint.
+- Extract all periods disclosed in the selected evidence: all years, quarters, half-years/YTD periods, rolling or shifted periods, and comparative periods.
+- After you identify a row/table that matches a metric, scan all period columns in that row and all evidence tables/quotes for the same metric. Return every explicitly disclosed period for that metric, not only the current period or first matching table. If quarterly and YTD/half-year rows are both disclosed, return both sets.
+- Do not mix currencies, units, or scales. If a table has multiple column sets, choose one coherent set for the metric. Prefer the report's primary presentation/native currency columns over convenience translation columns when both are shown. Currency/unit/scale may be written in the caption, unit line, or directly near the period column headers; preserve the chosen unit/currency in unit_text and raw headers when present.
+- The registry is the definition, not a keyword list. Accept a row only when its full label, nearby context, description and hint agree; do not broaden a metric from a partial alias or a similar subtotal.
+- Do not calculate values, allocate totals, infer missing periods, or normalize signs/period labels yourself, unless the specific metric registry entry explicitly authorizes that derivation. For an authorized derivation, use only the stated method and operands explicitly present in this evidence.
+- If you are unsure whether the row matches the registry definition, prefer null over a bold guess.
+
+
+## Output Format
+Return exactly one valid JSON object only. No explanations, no markdown wrappers, no comments.
+A JSON object whose keys exactly match the metric metadata list below:
+
+{
+  "LONG_TERM_DEBT": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "ACCOUNTS_PAYABLE": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "TOTAL_EQUITY": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "CAPEX": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "NET_OPERATING_CASH_FLOW": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "FINANCIAL_INCOME": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "FUTURE_CAPEX_LIABILITIES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "ROU_DEPRECIATION": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "INSURANCE_LIABILITIES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null}
+}

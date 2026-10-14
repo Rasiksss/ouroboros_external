@@ -1,0 +1,125 @@
+[project]
+name = "finengine"
+version = "0.1.0"
+description = "Financial IFRS Analysis Agent"
+requires-python = ">=3.12"
+dependencies = [
+    # S3/MinIO — объектное хранилище (architecture.md 3.1). Импортируется
+    # ЛЕНИВО в store/blobs.py: без S3 образ остаётся рабочим.
+    "boto3>=1.35",
+    # Общий кэш координации (architecture.md 3.2). Импортируется ЛЕНИВО в
+    # store/cache.py: без Redis образ остаётся рабочим.
+    "redis>=5",
+    "anthropic>=0.40.0",
+    "openai>=1.50.0",
+    "gigachat>=0.1.39",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pymupdf>=1.24.0",
+    "pdfplumber>=0.11.0",
+    "pandas>=2.2.0",
+    "numpy>=2.0.0",
+    "python-multipart>=0.0.12",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.6.0",
+    "python-dotenv>=1.0.0",
+    "aiofiles>=24.1.0",
+    "httpx>=0.28.0",
+    # <2 обязателен: в mcp 2.x FastMCP переименован (mcp.server.fastmcp снесён),
+    # и сборка образа 26.08 молча притянула 2.1.1 — import finengine.mcp_server
+    # в живом образе падал. Поймано прогоном тестов на стенде.
+    "mcp>=1.28.0,<2",  # native MCP server (finengine.mcp_server) — exposes tools to an OpenCLAW gateway
+    # Проверка результата временного атома по его output_schema
+    # (skills/spec/ephemeral.py::schema_problem). Раньше шла транзитивно.
+    "jsonschema>=4.0",
+    "tiktoken>=0.8.0",
+    "openpyxl>=3.1.5",
+    # News pipeline: RSS/Atom parsing for the deterministic ETL-based
+    # IR Daily Digest (replaces the agentic Tavily-spam pattern).
+    "feedparser>=6.0.11",
+    "pyyaml>=6.0.2",
+    # Telegram public-channel reader — scrapes t.me/s/<channel> HTML preview.
+    # No auth required. Removed telethon dep (kept blocking new accounts
+    # from creating API apps on my.telegram.org).
+    "beautifulsoup4>=4.12.0",
+    "pytesseract>=0.3.13",
+    "pillow>=10.4.0",
+    "sentry-sdk[fastapi]>=2.18.0",
+    "sqlalchemy>=2.0.0",
+    "aiosqlite>=0.20.0",
+    # Драйвер PostgreSQL для хранилища диалогов (finengine/store/dialogs.py).
+    # psycopg 3, а не psycopg2: он актуален, поддержан SQLAlchemy 2.0
+    # (`postgresql+psycopg://`) и в варианте [binary] ставится колесом — без
+    # libpq-dev и компилятора в образе бэкенда.
+    "psycopg[binary]>=3.2.0",
+    "passlib>=1.7.4",
+    "bcrypt>=4.0,<5.0",  # passlib 1.7.4 not yet compatible with bcrypt 5
+    "python-jose[cryptography]>=3.3.0",
+    # AIFA extraction pipeline: morphological normalization for Russian + n-gram
+    # similarity for table reranking.
+    "pymorphy3>=2.0.0",
+    "nltk>=3.9.0",
+    "fuzzywuzzy>=0.18.0",
+    "python-Levenshtein>=0.25.0",
+    # AIFA baseline upstream uses BeautifulSoup to convert IDP-OCR HTML
+    # tables to clean markdown (mirrors `Репа в репе/.../utils_html.py`).
+    "beautifulsoup4>=4.12.0",
+    # AIFA baseline reranker — Расула's evolute_features_automl.cbm.
+    "catboost>=1.2.0",
+    # Web search for Finengine DEV "Поиск в сети" — Tavily has a 1k/mo free tier.
+    "tavily-python>=0.5.0",
+    # Playwright — headless Chromium for JS-rendered sources (e-disclosure.ru,
+    # Business Wire, GlobeNewswire behind Cloudflare) that plain httpx can't
+    # reach. The Python binding is ~6 MB; the Chromium binary (~170 MB) is
+    # installed separately in Dockerfile.backend.
+    "playwright>=1.49.0",
+    # AIFA reasoner chains — the upstream financier-reasoner used the
+    # `mmar_carl` library from AIRI's maestro-core for StepDescription and
+    # related primitives. We pull it directly from git (the lib is not on
+    # PyPI) so the chains.py file can stay byte-identical with upstream.
+    "mmar-carl @ git+https://github.com/AIRI-Institute/maestro-core.git@main#subdirectory=lib--mmar-carl",
+]
+
+# camelot-py + plotly + streamlit are dev/notebook-only — keep them out of
+# the production backend image to shave install time and ~150 MB.
+[project.optional-dependencies]
+notebook = [
+    "streamlit>=1.40.0",
+    "plotly>=5.24.0",
+    "camelot-py[cv]>=0.11.0",
+]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.8.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/finengine"]
+
+# mmar-carl is pulled directly from git (lib not on PyPI). Hatchling
+# refuses direct URL references in `project.dependencies` unless this
+# is explicitly allowed.
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+# 🔴 НАБОР ПРАВИЛ ЗАФИКСИРОВАН ЯВНО (07.09.2026). Это классический набор ruff по
+# умолчанию, под которым живёт весь код. Без явного `select` набор берётся из
+# версии ruff — а версия у каждого своя (`ruff>=0.8.0`): у разработчиков 0.15
+# (59 правил), в CI встал 0.16.6 (413 правил), и первый же PR, тронувший
+# python, покраснел на ~80 находках в строках, которых не касался (B008 у
+# Depends, S110, RUF100…). Расширять набор — можно и нужно, но осознанно и с
+# уборкой долга, а не сменой версии в чужом окружении.
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

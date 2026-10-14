@@ -1,0 +1,870 @@
+{
+  "schema_version": 1,
+  "label": "t2",
+  "case_id": "p9-t2",
+  "document": {
+    "doc_id": "fbffab30-7dfc-4fad-ad43-ca627f8ea1c4",
+    "owner_id": "1",
+    "filename": "Бухгалтерская отчетность на 30.06.2026.pdf",
+    "sha256": "f5f4ac05ef3eb002244c0525e90adbde37a556793b41571b7232eea968be7d8d",
+    "text_chars": 119826
+  },
+  "query": "Покажи выручку и сделай красивую презентацию.",
+  "intent": [
+    "plan",
+    {
+      "goal_id": "09231fb4-e64a-41da-b4c4-3d81b206f677",
+      "raw_query": "Покажи выручку и сделай красивую презентацию.",
+      "intent_kind": "extract_registered_metric",
+      "targets": [
+        {
+          "target_id": "37c0d79e-305f-46c7-a875-499b22935897",
+          "concept": "SALES_REVENUE",
+          "period_ref": null,
+          "entity_ref": null,
+          "output_kind": "scalar"
+        }
+      ],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {},
+      "unresolved": [
+        "сделай красивую презентацию"
+      ],
+      "ambiguities": [],
+      "correction": null,
+      "goal_ref": "goal-1",
+      "depends_on": [],
+      "additional_goals": []
+    },
+    ""
+  ],
+  "diagnostics": {
+    "intent_kind": "extract_registered_metric"
+  },
+  "model_calls": [
+    {
+      "index": 1,
+      "role": "intent",
+      "system": "Ты — модуль разбора запроса финансового аналитика (intent.parse) и маршрутизатор.\nКАЖДОЕ сообщение пользователя сначала попадает к тебе. Ты решаешь одно из двух: передать запрос\nпланировщику (route=\"plan\") или ответить самому по контексту диалога (route=\"answer\").\nТы НЕ анализируешь отчётность, НЕ извлекаешь числа, НЕ строишь план шагов и НЕ пишешь ответ\nпользователю — ты только определяешь маршрут и структуру намерения.\n\nСОСТАВНОЙ ЗАПРОС. Если пользователь просит результаты РАЗНЫХ intent_kind, основной результат\nверни в полях верхнего уровня, а каждый следующий — отдельным объектом additional_goals. Дай им\nлокальные goal_ref (`goal-1`, `goal-2`, ...). В depends_on перечисляй goal_ref только когда второй\nрезультат действительно использует результат первого; независимые просьбы имеют depends_on=[].\nНе называй атомы и шаги. Например, «извлеки прибыль и посчитай 2+2» — независимые цели, а\n«извлеки прибыль и рассчитай рентабельность по этой прибыли» — расчёт зависит от извлечения.\nКаждый объект additional_goals заполняй ПОЛНОСТЬЮ по той же схеме, что основную цель. Все поля-\nмассивы (`targets`, `analysis_concepts`, `unresolved`, `ambiguities`, `depends_on`) ВСЕГДА должны\nбыть JSON-массивами, хотя бы пустыми `[]`, и НИКОГДА `null`. Для `calculate_ad_hoc_metric`\n`ad_hoc_formula` должна быть заполнена; `null` допустим только если расчёт невозможно выразить\nпроверяемой арифметикой и конкретная причина записана в `unresolved`.\n\nМАРШРУТ (route):\n- \"plan\" — запрос пользователя подходит под ОДИН ИЗ intent_kind из списка ниже: извлечь или посчитать\n  показатель (в том числе которого нет в реестре), полный анализ, форма, структура/таблица раскрытия,\n  вопрос по содержимому документа, сравнение, объяснение изменения, проверка отчёта, план-факт,\n  наблюдение за изменениями. Такой запрос ты ОБЯЗАН вернуть с route=\"plan\" и заполненным intent_kind:\n  он передаётся планировщику, отвечать на него самому нельзя.\n- \"answer\" — запрос НЕ подходит ни под один intent_kind: приветствие, вопрос о твоих возможностях,\n  просьба пояснить или переформулировать уже данный ответ, общий вопрос, для которого не нужны данные\n  из отчёта, поиск новостей/календаря/отчётности в интернете, настройки. Тогда intent_kind=null,\n  targets=[], остальные поля пустые.\n- Сомневаешься между \"plan\" и \"answer\", а запрос касается показателей или данных из документа, —\n  выбирай \"plan\".\nУчитывай блок «Контекст диалога» (документы, роль, последние реплики): короткая реплика вроде\n«а за прошлый год?» или «и по прибыли тоже» — продолжение предыдущего запроса; собери цель целиком.\n\nПЕРИОД. period_ref заполняй ТОЛЬКО периодом, который пользователь назвал в своей реплике (или в\nпредыдущей, если текущая — её продолжение). Не выводи период из имени документа, текущей даты,\nтипичного отчётного цикла или собственных знаний. Если периода нет — верни null: система сама возьмёт\nВСЕ доступные периоды отчёта. Отсутствие периода — НЕ неоднозначность: никогда не добавляй его в\nunresolved/ambiguities и не проси уточнить.\n\nЗакрытые перечисления (используй ТОЛЬКО эти значения, ничего своего):\n- intent_kind — один из:\n  \"extract_registered_metric\" (просят показать/сообщить значение одного или нескольких конкретно\n    названных показателей — \"какой/сколько/покажи/дай\", — и показатель похож на что-то из\n    кандидатов ниже),\n  \"extract_ad_hoc_metric\" (то же самое действие — показать значение, — но названный показатель\n    явно НЕ похож ни на один код из кандидатов ниже и не является стандартной строкой отчётности),\n  \"calculate_registered_metric\" (явно просят ПОСЧИТАТЬ/РАССЧИТАТЬ/ВЫЧИСЛИТЬ показатель, и он похож\n    на что-то из кандидатов ниже),\n  \"calculate_ad_hoc_metric\" (просят посчитать/рассчитать показатель, которого нет среди кандидатов),\n  \"full_analysis\" (запрошен широкий/полный разбор без перечисления конкретных показателей),\n  \"extract_structure\" (запрошена структура/таблица раскрытия — сегменты, сроки погашения долга,\n    состав группы, — а не один числовой показатель),\n  \"document_qa\" (вопрос про содержимое документа — цитату, формулировку, условие договора, — а не\n    про значение показателя),\n  \"compare_metrics\" (явное сравнение конкретных показателей между периодами или компаниями),\n  \"explain_change\" (вопрос \"почему/за счёт чего изменился\" НАЗВАННЫЙ показатель — ищут ПРИЧИНУ\n    изменения ОДНОГО числа, не общую сводку различий),\n  \"validate_report\" (запрошена сверка/проверка непротиворечивости данных внутри отчёта или между\n    несколькими отчётами),\n  \"plan_fact_analysis\" (сравнение фактических показателей с планом/бюджетом),\n  \"monitor_changes\" (вопрос \"что изменилось/что нового у эмитента\" БЕЗ причинного \"почему\" и без\n    одного названного показателя — общая сводка изменений показателей отчёта между отчётными\n    периодами (текущий период против предыдущего) с объяснением, ИЛИ просьба следить за\n    изменениями),\n  \"form\" (запрошена конкретная форма/таблица/layout по роли заказчика),\n  \"custom_analysis\" (просят ЛЮБУЮ обработку данных, которой нет среди видов выше: статистику —\n    корреляцию, регрессию, тренд, волатильность; таблицу, график или расчёт собственной структуры;\n    работу с внешними данными; выгрузку результата АНАЛИЗА в файл (Excel). Извлечение показателей в\n    начале такой просьбы — часть этой же цели: НЕ дроби запрос на extract/form плюс остаток. Верни ОДНУ\n    цель custom_analysis, targets пустые, всю просьбу дословно положи в unresolved.\n    Без АНАЛИЗА (статистики, собственного расчёта, внешних данных) это НЕ custom_analysis: просьба\n    «извлеки/покажи показатели и верни таблицу в excel / выгрузи в файл» — это обычное извлечение\n    (extract_registered_metric либо form), сам файл не делает её анализом; фразу про файл положи в\n    unresolved. Примеры НЕ custom_analysis: «извлеки выручку и верни таблицу в excel»,\n    «покажи EBITDA и выгрузи в Excel». Примеры custom_analysis: «извлеки показатели и посчитай\n    корреляцию, результат верни в excel», «построй регрессию выручки на цене Brent»)\n\nРазграничение \"explain_change\" от \"monitor_changes\" (частая путаница — оба про \"изменения\"):\n  - \"почему выручка упала?\", \"за счёт чего вырос долг?\" → explain_change (назван ОДИН показатель,\n    вопрос \"почему\").\n  - \"что изменилось у эмитента?\", \"что нового в отчёте по сравнению с прошлым?\", \"следи за\n    изменениями по этой компании\" → monitor_changes (показатель НЕ назван, вопрос \"что\", не\n  \"почему\" — общий обзор различий, а не причина одного числа).\n\nСРАВНЕНИЕ С ПРЕОБРАЗОВАНИЕМ ИЛИ ВНЕШНИМ РЯДОМ. Если пользователь просит сравнить названные\nпоказатели после того, как их нужно нормировать или привести к базе 100, верни ОДНУ цель\n`compare_metrics`, а не несколько `calculate_ad_hoc_metric`. Если просят сопоставить показатель\nотчёта с внешним рядом или URL, также сохрани `compare_metrics`: внешнюю часть дословно положи в\n`unresolved`, но не понижай цель до extract_registered_metric только потому, что внешний ряд не\nявляется показателем отчётности.\n\n- role: одно из other, risks, baifp, die, cib, dgr. Если роль выбрана в интерфейсе, верни именно её:\n  UI-роль — источник истины для scope полного анализа и формы. Без UI-роли используй роль только если\n  пользователь явно назвал роль/формат заказчика; иначе null.\n\n«Извлеки все показатели» / «извлеки показатели из отчёта» — это form с role=\"other\",\nа НЕ extract_ad_hoc_metric: пользователь просит общую таблицу зарегистрированных показателей,\nа не один новый показатель с названием «все показатели». Если период не назван, оставь\nperiod_ref=null: канонический runtime сам построит таблицу по всем отчётным периодам документа.\n\nПоказатели (targets[].concept) — ТОЛЬКО коды из списка кандидатов ниже, и только когда\nintent_kind — \"extract_registered_metric\" или \"calculate_registered_metric\". Если пользователь\nназвал показатель, а среди кандидатов нет уверенного совпадения — НЕ придумывай код, вместо\nэтого добавь исходную фразу пользователя в unresolved (дословно, как её сказал пользователь) и\nиспользуй соответствующий \"*_ad_hoc_metric\" — независимо от глагола: для просьбы показать/дать/\nизвлечь значение (\"покажи\", \"дай\", \"какой\", \"сколько\", \"извлеки\") — \"extract_ad_hoc_metric\", для\n\"посчитай/рассчитай\" — \"calculate_ad_hoc_metric\". Вид \"extract_registered_metric\" или\n\"calculate_registered_metric\" с пустыми targets и непустым unresolved — ошибка: показатель без\nкандидата ВСЕГДА получает \"*_ad_hoc_metric\". Если два и более кандидата одинаково подходят и\nневозможно выбрать однозначно — добавь запись в ambiguities с term (что сказал пользователь) и\ncandidates (коды-кандидаты), а этот показатель НЕ добавляй в targets.\n\nШирокая категория во множественном смысле — НЕ неоднозначность одного показателя. Например,\n«извлеки прибыль» / «покажи показатели прибыли» означает выбрать ВСЕ подходящие кандидаты,\nкоторые сами являются видами прибыли (валовая, от продаж, до налогообложения, чистая), и вернуть\nих отдельными targets: дальше детерминированный runtime соберёт один scoped FormOutput. Не включай\nсвязанные, но не являющиеся видами прибыли показатели (например EPS или рентабельность). Если же\nформулировка требует ОДНО значение («какая прибыль?») и несколько видов подходят одинаково — это\nнастоящая ambiguities, её нужно вернуть для уточнения.\n\nДля всех intent_kind, кроме \"extract_registered_metric\" и \"calculate_registered_metric\", список\ntargets ВСЕГДА пустой []: не перечисляй показатели, которые могли бы войти в полный анализ, форму,\nструктуру или другой составной результат — это решает не ты.\n\nПОКАЗАТЕЛЬ ВНЕ РЕЕСТРА — ИЗВЛЕЧЕНИЕ (intent_kind=\"extract_ad_hoc_metric\"). Пользователь НЕ обязан\nописывать показатель. Ты, опираясь на свои знания финансовой отчётности, сам придумываешь его\nописание, по которому система найдёт строку в отчёте, и заполняешь ad_hoc_concept:\n  name_ru, name_en — стандартное название;\n  aliases_ru, aliases_en — 5–10 реальных вариантов формулировки в отчётности (включая типичные\n    сокращения и английские термины);\n  definition — что это за величина (одно-два предложения);\n  hint — где и как искать в отчёте (какая форма или примечание, в каких единицах);\n  value_kind — \"flow\" (за период), \"stock\" (на дату), \"ratio\" (отношение/процент) или \"other\".\n\nРАСЧЁТ.\n- \"calculate_registered_metric\": показатель есть среди кандидатов — заполни targets; формула берётся\n  из реестра, свою не придумывай.\n- \"calculate_ad_hoc_metric\": показателя нет в реестре. Пользователь формулу НЕ обязан называть: если\n  он её не назвал, выдай формулу сам по общепринятой методике (выбранную трактовку укажи в\n  assumptions). Заполни ad_hoc_formula:\n    name_ru, name_en, definition — что считаем; unit — единицы результата (\"%\", \"x\", \"RUB\" ...);\n    expression — арифметика ТОЛЬКО из чисел, круглых скобок и символов через + - * / (никаких\n      функций, степеней, условий);\n    components — ОБЪЕКТ «символ → название показателя на русском»: по одному на КАЖДЫЙ символ выражения\n      (символ — ЗАГЛАВНЫМИ латинскими буквами, цифрами и _). Название пиши в стандартной формулировке\n      отчётности; если такой показатель есть среди кандидатов ниже — ДОСЛОВНО как в списке кандидатов\n      (тогда система сопоставит его с реестром). Описание понятий (синонимы, определение) не нужно —\n      его система запросит отдельно;\n    assumptions — принятые допущения (строка, может быть пустой).\n  Каждый символ выражения обязан иметь компонент и наоборот; компоненты — ЗАПОЛНЕННЫЕ объекты (null и\n  пустые объекты недопустимы). Если формулу нельзя свести к арифметике над показателями отчётности —\n  оставь ad_hoc_formula null и назови причину в unresolved.\n  Для промежуточного коэффициента покрытия / быстрой ликвидности по РСБУ используй устойчивую\n  стандартную трактовку: (Итого оборотных активов - Запасы) / Итого краткосрочных обязательств.\n  Не собирай числитель из торговой дебиторской задолженности: она уже общего итога строки 1230.\n  ПРИМЕР ad_hoc_formula (запрос «посчитай оборачиваемость запасов»). Пример показывает ТОЛЬКО форму:\n  name_en, definition, assumptions и components заполняй под запрос пользователя, не копируй из примера.\n  \"ad_hoc_formula\": {\"name_ru\": \"Оборачиваемость запасов\", \"name_en\": \"Inventory turnover\",\n    \"definition\": \"Сколько раз за период запасы полностью реализуются: выручка, делённая на запасы.\", \"unit\": \"раз\",\n    \"expression\": \"REV / INV\",\n    \"assumptions\": \"Запасы берутся на конец периода.\",\n    \"components\": {\"REV\": \"Выручка\", \"INV\": \"Запасы\"}}\n\nДля intent_kind=\"explain_change\" отдельно заполни analysis_concepts — коды НАЗВАННЫХ\nпользователем показателей ТОЛЬКО из списка кандидатов ниже. Это семантический scope объяснения,\nа не targets скалярного извлечения. Широкая категория во множественном смысле включает все её\nпрямые виды: например «финансовые вложения» включает долгосрочные и краткосрочные финансовые\nвложения, если оба кода есть среди кандидатов. Связанные, но не являющиеся видами категории\nпоказатели не включай. Для остальных intent_kind верни analysis_concepts=[].\n\nЕсли в запросе нет ни компании, ни конкретного показателя, или запрос использует местоимение/дейксис\nбез антецедента (\"она\", \"их\", \"как обычно\") и контекст диалога не помогает — считай неразрешённую\nчасть (компанию или сам показатель) отдельным пунктом ambiguities или unresolved, не додумывай\nзначение. Компанию не спрашивай, если документ прикреплён: он и задаёт компанию.\n\nЕсли запрос вне области сценария (инвестиционный совет, прогноз котировок/курса, ESG-метрика,\nлюбой показатель не из финансовой отчётности) — соответствующая часть просьбы идёт в unresolved\nкак есть, targets для неё не создаётся.\n\nЯВНАЯ ПОПРАВКА ПОЛЬЗОВАТЕЛЯ (Срез 10): если пользователь прямо исправляет ранее названное\nзначение (например «нет, EBITDA была 120», «исправь значение на 5 млн») или отменяет свою\nпредыдущую поправку, НЕ считай это новым независимым фактом. Заполни поле correction.\n- action=\"apply\" для новой поправки, action=\"cancel\" для отмены/возврата к исходному.\n- concept — код из кандидатов, только если однозначно распознан; иначе null.\n- evidence_id — только если пользователь буквально назвал идентификатор доказательства; не выдумывай.\n- value — число для apply, null для cancel.\n- unit/period_ref/basis — только если явно названы пользователем.\n- reason — явно названная причина, иначе пустая строка.\nТочное связывание с существующим evidence делает Case после intent.parse; модель его не угадывает.\n\nВерни СТРОГО JSON вида:\n{\n  \"route\": \"plan\" | \"answer\",\n  \"intent_kind\": \"extract_registered_metric\" | \"extract_ad_hoc_metric\" | \"calculate_registered_metric\"\n    | \"calculate_ad_hoc_metric\" | \"full_analysis\" | \"extract_structure\" | \"document_qa\"\n    | \"custom_analysis\" | \"compare_metrics\" | \"explain_change\" | \"validate_report\" | \"plan_fact_analysis\"\n    | \"monitor_changes\" | \"form\" | null,\n  \"targets\": [{\"concept\": \"ENUM_FROM_CANDIDATES\"}, ...],\n  \"analysis_concepts\": [\"ENUM_FROM_CANDIDATES\", ...],\n  \"ad_hoc_concept\": null | {\"name_ru\": \"...\", \"name_en\": \"...\", \"aliases_ru\": [\"...\"], \"aliases_en\": [\"...\"],\n    \"definition\": \"...\", \"hint\": \"...\", \"value_kind\": \"flow|stock|ratio|other\"},\n  \"ad_hoc_formula\": null | {\"name_ru\": \"...\", \"name_en\": \"...\", \"definition\": \"...\", \"unit\": \"%\",\n    \"expression\": \"A / B * 100\", \"assumptions\": \"\",\n    \"components\": {\"A\": \"название показателя A\", \"B\": \"название показателя B\"}},\n  \"entity_ref\": \"название компании как в запросе, или null\",\n  \"period_ref\": \"период, названный пользователем (например \\\"2024\\\", \\\"Q1 2025\\\"), или null\",\n  \"role\": \"other|risks|baifp|die|cib|dgr, или null\",\n  \"unresolved\": [\"фраза пользователя, которую не удалось сопоставить\", ...],\n  \"ambiguities\": [{\"term\": \"...\", \"candidates\": [\"ENUM1\", \"ENUM2\"], \"reason\": \"...\"}],\n  \"correction\": null | {\"action\": \"apply|cancel\", \"concept\": \"ENUM_FROM_CANDIDATES|null\",\n    \"evidence_id\": \"literal evidence id|null\", \"value\": 123.45, \"unit\": \"RUB|null\",\n    \"period_ref\": \"2024|null\", \"basis\": \"IFRS|null\", \"reason\": \"...\"},\n  \"goal_ref\": \"goal-1\",\n  \"depends_on\": [],\n  \"additional_goals\": [{\"goal_ref\": \"goal-2\", \"depends_on\": [\"goal-1\"],\n    \"intent_kind\": \"...\", \"targets\": [], \"analysis_concepts\": [], \"ad_hoc_concept\": null,\n    \"ad_hoc_formula\": null, \"entity_ref\": null, \"period_ref\": null, \"role\": null,\n    \"unresolved\": [], \"ambiguities\": [], \"correction\": null}]\n}\nНикакого текста вне JSON.\n\nВАЖНО: в этом вызове route ВСЕГДА \"plan\" — ответ «сам» не поддерживается; выбери наиболее подходящий intent_kind.",
+      "prompt": "Запрос пользователя: 'Покажи выручку и сделай красивую презентацию.'\n\n\n## Контекст диалога\nПрикреплённые документы:\n- «fbffab30-7dfc-4fad-ad43-ca627f8ea1c4» (активный — с ним и работай, если запрос не называет другой)\nРоль пользователя, выбранная в интерфейсе: Общая (other). Это источник истины для состава полного анализа и формы; не заменяй её ролью, упомянутой или угаданной из текста. Верни этот же код role.\n\nКандидаты показателей (единственные допустимые коды для targets[].concept):\n- SALES_REVENUE: Выручка\n- INSURANCE_INCOME: Выручка по страховой деятельности\n- CAPEX_TO_REVENUE: Отношение капитальных затрат к выручке",
+      "system_chars": 16331,
+      "prompt_chars": 628,
+      "elapsed_s": 19.122,
+      "response": "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"SALES_REVENUE\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[\"сделай красивую презентацию\"],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[]}",
+      "usage": {
+        "in": 5337,
+        "out": 114,
+        "cached": 0,
+        "model": "deepseek-ai/DeepSeek-V4-Pro"
+      },
+      "cost_usd": 0.012223
+    }
+  ],
+  "room_calls": [],
+  "events": [
+    {
+      "type": "plan_graph",
+      "graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "planner_version": "1.0.0",
+      "root": {
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "ffd81558cca34029e430fd329488e313bd9f17158f88844d112acb17c9b367a8"
+      },
+      "nodes": [
+        {
+          "node_key": {
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+          },
+          "produces": [
+            "document_text"
+          ],
+          "requires": [],
+          "sandbox_profile": "document_read",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+          },
+          "produces": [
+            "RunPassport"
+          ],
+          "requires": [
+            {
+              "atom_name": "ingest.document",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "locate",
+            "atom_version": "1.0.2",
+            "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391"
+          },
+          "produces": [
+            "CandidateLocator:SALES_REVENUE"
+          ],
+          "requires": [
+            {
+              "atom_name": "identify.classify",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+            },
+            {
+              "atom_name": "ingest.document",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+            }
+          ],
+          "sandbox_profile": "document_read",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "read.value",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391"
+          },
+          "produces": [
+            "ExtractedMetric:SALES_REVENUE"
+          ],
+          "requires": [
+            {
+              "atom_name": "identify.classify",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+            },
+            {
+              "atom_name": "locate",
+              "atom_version": "1.0.2",
+              "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391"
+            }
+          ],
+          "sandbox_profile": "document_read",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "norm.unit",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "f6b837dfccb50a09670b7bed089f5cfcc2644b6fa0d202e9d319d01132dbf5fa"
+          },
+          "produces": [
+            "Verified:unit"
+          ],
+          "requires": [
+            {
+              "atom_name": "read.value",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "norm.time",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "b2280057d8868c2f50935904c54cb2ef5864478ff4688f18b3e3b88fd155c17b"
+          },
+          "produces": [
+            "Verified:time"
+          ],
+          "requires": [
+            {
+              "atom_name": "norm.unit",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "f6b837dfccb50a09670b7bed089f5cfcc2644b6fa0d202e9d319d01132dbf5fa"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        },
+        {
+          "node_key": {
+            "atom_name": "verify.bounds",
+            "atom_version": "1.0.0",
+            "args_fingerprint": "ffd81558cca34029e430fd329488e313bd9f17158f88844d112acb17c9b367a8"
+          },
+          "produces": [
+            "Verified:bounds"
+          ],
+          "requires": [
+            {
+              "atom_name": "norm.time",
+              "atom_version": "1.0.0",
+              "args_fingerprint": "b2280057d8868c2f50935904c54cb2ef5864478ff4688f18b3e3b88fd155c17b"
+            }
+          ],
+          "sandbox_profile": "compute_no_network",
+          "status": "pending",
+          "scenario_refs": []
+        }
+      ],
+      "scenarios": []
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "bc7d8467-fdc6-4349-9a9e-e1b1604a39f3",
+        "node_key": {
+          "atom_name": "ingest.document",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "planned",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "054f1a88-5353-45d5-8be3-55d0ae28f4fd",
+        "node_key": {
+          "atom_name": "identify.classify",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "c9058377-84ed-4c8c-98e7-dc083e7b0303",
+        "node_key": {
+          "atom_name": "locate",
+          "atom_version": "1.0.2",
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "planned",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "c3dfbaee-eacf-47f7-a810-74372957247e",
+        "node_key": {
+          "atom_name": "read.value",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "planned",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "bd1b5460-ebfe-4895-be0b-a7f1b1f875eb",
+        "node_key": {
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "f6b837dfccb50a09670b7bed089f5cfcc2644b6fa0d202e9d319d01132dbf5fa"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "ebdfd097-db73-49f4-8b08-e6b210196b7a",
+        "node_key": {
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "b2280057d8868c2f50935904c54cb2ef5864478ff4688f18b3e3b88fd155c17b"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "e2dfbcf6-f02e-45a6-b847-8f2c7e27bf90",
+        "node_key": {
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "ffd81558cca34029e430fd329488e313bd9f17158f88844d112acb17c9b367a8"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "planned",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": null,
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "bc7d8467-fdc6-4349-9a9e-e1b1604a39f3",
+        "node_key": {
+          "atom_name": "ingest.document",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "running",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-02T13:20:13.013593Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "bc7d8467-fdc6-4349-9a9e-e1b1604a39f3",
+        "node_key": {
+          "atom_name": "ingest.document",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "succeeded",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "DocumentText(document_id='ent-09f97cec158f1edc680cf391', documen"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-02T13:20:13.013593Z",
+        "finished_at": "2026-10-02T13:20:13.016290Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "054f1a88-5353-45d5-8be3-55d0ae28f4fd",
+        "node_key": {
+          "atom_name": "identify.classify",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-02T13:20:13.028222Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "054f1a88-5353-45d5-8be3-55d0ae28f4fd",
+        "node_key": {
+          "atom_name": "identify.classify",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "0b19b6ca-c8cf-4d81-8e3a-58968634d83d"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-02T13:20:13.028222Z",
+        "finished_at": "2026-10-02T13:20:13.429714Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "c9058377-84ed-4c8c-98e7-dc083e7b0303",
+        "node_key": {
+          "atom_name": "locate",
+          "atom_version": "1.0.2",
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "running",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-02T13:20:13.436757Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "c9058377-84ed-4c8c-98e7-dc083e7b0303",
+        "node_key": {
+          "atom_name": "locate",
+          "atom_version": "1.0.2",
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "succeeded",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "a0b78a1d-8cdc-4790-852c-508102708c2c",
+          "840c0872-b3ef-4e87-90a5-1dd98e607134",
+          "d689fdd6-7a7c-4219-8589-fc427b3eca06"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-02T13:20:13.436757Z",
+        "finished_at": "2026-10-02T13:20:20.710161Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "c3dfbaee-eacf-47f7-a810-74372957247e",
+        "node_key": {
+          "atom_name": "read.value",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "running",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-02T13:20:20.718719Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "c3dfbaee-eacf-47f7-a810-74372957247e",
+        "node_key": {
+          "atom_name": "read.value",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "succeeded",
+        "sandbox_profile": "document_read",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-02T13:20:20.718719Z",
+        "finished_at": "2026-10-02T13:20:30.475272Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "bd1b5460-ebfe-4895-be0b-a7f1b1f875eb",
+        "node_key": {
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "f6b837dfccb50a09670b7bed089f5cfcc2644b6fa0d202e9d319d01132dbf5fa"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-02T13:20:30.482272Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "bd1b5460-ebfe-4895-be0b-a7f1b1f875eb",
+        "node_key": {
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "f6b837dfccb50a09670b7bed089f5cfcc2644b6fa0d202e9d319d01132dbf5fa"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "7a6715ff-281a-4846-a688-3b40db84669d",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "c17957bc-e887-430f-85f4-801fefe1a262",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-02T13:20:30.482272Z",
+        "finished_at": "2026-10-02T13:20:30.485688Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "ebdfd097-db73-49f4-8b08-e6b210196b7a",
+        "node_key": {
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "b2280057d8868c2f50935904c54cb2ef5864478ff4688f18b3e3b88fd155c17b"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-02T13:20:30.490491Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "ebdfd097-db73-49f4-8b08-e6b210196b7a",
+        "node_key": {
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "b2280057d8868c2f50935904c54cb2ef5864478ff4688f18b3e3b88fd155c17b"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "2df2dab8-1c39-4b73-bdd5-55a18f231c4b",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "ffcd6583-5b23-4192-9477-8ea8a0aff445",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-02T13:20:30.490491Z",
+        "finished_at": "2026-10-02T13:20:30.493395Z"
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "e2dfbcf6-f02e-45a6-b847-8f2c7e27bf90",
+        "node_key": {
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "ffd81558cca34029e430fd329488e313bd9f17158f88844d112acb17c9b367a8"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "running",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-02T13:20:30.497607Z",
+        "finished_at": null
+      }
+    },
+    {
+      "type": "node_run",
+      "plan_graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+      "node_run": {
+        "node_run_id": "e2dfbcf6-f02e-45a6-b847-8f2c7e27bf90",
+        "node_key": {
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0",
+          "args_fingerprint": "ffd81558cca34029e430fd329488e313bd9f17158f88844d112acb17c9b367a8"
+        },
+        "run_id": "497e5b8f-9373-46e6-8481-ab6ce6579347",
+        "status": "succeeded",
+        "sandbox_profile": "compute_no_network",
+        "attempt": 1,
+        "produced_evidence_ids": [
+          "57208bba-f5e9-45bf-92a3-acd2d8009dfd",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr",
+          "feaa8275-9b23-453a-b2a1-56035a2e2a37",
+          "ExtractedMetric(schema_version='1.0', output_type='ExtractedMetr"
+        ],
+        "model_version": null,
+        "prompt_version": null,
+        "error": null,
+        "started_at": "2026-10-02T13:20:30.497607Z",
+        "finished_at": "2026-10-02T13:20:30.500177Z"
+      }
+    },
+    {
+      "type": "typed_result",
+      "status": "complete",
+      "result": {
+        "schema_version": "1.0",
+        "output_type": "ExtractedMetric",
+        "status": "supported",
+        "metric_id": "5f1759d9-ba57-48e5-83d2-8772a2beabf4",
+        "scalar_fact": {
+          "evidence_id": "9f4b9054-ceb6-4bb4-b406-3d1234e41e54",
+          "produced_by_atom": "read.value",
+          "produced_by_atom_version": "1.0.0",
+          "source_ref": "a0b78a1d-8cdc-4790-852c-508102708c2c",
+          "document_version": "sha256:e78b291d495b39a83fec83c2c25e232f75744563b2553b3036e5643727f30780",
+          "concept": "SALES_REVENUE",
+          "period_ref": "6M 2026",
+          "basis": null,
+          "supersedes": null,
+          "created_at": "2026-10-02T13:20:30.475005Z",
+          "value": 1453957.053,
+          "unit": "млн. руб.",
+          "page": 4
+        },
+        "concept": "SALES_REVENUE",
+        "period_ref": "6M 2026",
+        "definition_origin": "registry"
+      }
+    },
+    {
+      "type": "typed_result",
+      "status": "complete",
+      "result": {
+        "schema_version": "1.0",
+        "output_type": "ExtractedMetric",
+        "status": "supported",
+        "metric_id": "d3150adf-3722-4beb-8b1d-e21d0433f4ac",
+        "scalar_fact": {
+          "evidence_id": "a02cf5b0-d586-464b-b937-6088b7c6d1c6",
+          "produced_by_atom": "read.value",
+          "produced_by_atom_version": "1.0.0",
+          "source_ref": "a0b78a1d-8cdc-4790-852c-508102708c2c",
+          "document_version": "sha256:e78b291d495b39a83fec83c2c25e232f75744563b2553b3036e5643727f30780",
+          "concept": "SALES_REVENUE",
+          "period_ref": "6M 2025",
+          "basis": null,
+          "supersedes": null,
+          "created_at": "2026-10-02T13:20:30.475039Z",
+          "value": 1398538.772,
+          "unit": "млн. руб.",
+          "page": 4
+        },
+        "concept": "SALES_REVENUE",
+        "period_ref": "6M 2025",
+        "definition_origin": "registry"
+      }
+    }
+  ],
+  "manifest": {
+    "schema_version": "1.0",
+    "case_id": "p9-t2",
+    "document_id": "fbffab30-7dfc-4fad-ad43-ca627f8ea1c4",
+    "document_version": "sha256:e78b291d495b39a83fec83c2c25e232f75744563b2553b3036e5643727f30780",
+    "goal_type": "extract_registered_metric",
+    "goal_types": [
+      "extract_registered_metric"
+    ],
+    "period_scope": "all_available",
+    "result": {
+      "schema_version": "1.0",
+      "output_type": "ExtractedMetric",
+      "status": "supported",
+      "metric_id": "d3150adf-3722-4beb-8b1d-e21d0433f4ac",
+      "scalar_fact": {
+        "evidence_id": "a02cf5b0-d586-464b-b937-6088b7c6d1c6",
+        "produced_by_atom": "read.value",
+        "produced_by_atom_version": "1.0.0",
+        "source_ref": "a0b78a1d-8cdc-4790-852c-508102708c2c",
+        "document_version": "sha256:e78b291d495b39a83fec83c2c25e232f75744563b2553b3036e5643727f30780",
+        "concept": "SALES_REVENUE",
+        "period_ref": "6M 2025",
+        "basis": null,
+        "supersedes": null,
+        "created_at": "2026-10-02T13:20:30.475039Z",
+        "value": 1398538.772,
+        "unit": "млн. руб.",
+        "page": 4
+      },
+      "concept": "SALES_REVENUE",
+      "period_ref": "6M 2025",
+      "definition_origin": "registry"
+    },
+    "not_performed": [
+      "сделай красивую презентацию"
+    ],
+    "results": [
+      {
+        "schema_version": "1.0",
+        "output_type": "ExtractedMetric",
+        "status": "supported",
+        "metric_id": "5f1759d9-ba57-48e5-83d2-8772a2beabf4",
+        "scalar_fact": {
+          "evidence_id": "9f4b9054-ceb6-4bb4-b406-3d1234e41e54",
+          "produced_by_atom": "read.value",
+          "produced_by_atom_version": "1.0.0",
+          "source_ref": "a0b78a1d-8cdc-4790-852c-508102708c2c",
+          "document_version": "sha256:e78b291d495b39a83fec83c2c25e232f75744563b2553b3036e5643727f30780",
+          "concept": "SALES_REVENUE",
+          "period_ref": "6M 2026",
+          "basis": null,
+          "supersedes": null,
+          "created_at": "2026-10-02T13:20:30.475005Z",
+          "value": 1453957.053,
+          "unit": "млн. руб.",
+          "page": 4
+        },
+        "concept": "SALES_REVENUE",
+        "period_ref": "6M 2026",
+        "definition_origin": "registry"
+      },
+      {
+        "schema_version": "1.0",
+        "output_type": "ExtractedMetric",
+        "status": "supported",
+        "metric_id": "d3150adf-3722-4beb-8b1d-e21d0433f4ac",
+        "scalar_fact": {
+          "evidence_id": "a02cf5b0-d586-464b-b937-6088b7c6d1c6",
+          "produced_by_atom": "read.value",
+          "produced_by_atom_version": "1.0.0",
+          "source_ref": "a0b78a1d-8cdc-4790-852c-508102708c2c",
+          "document_version": "sha256:e78b291d495b39a83fec83c2c25e232f75744563b2553b3036e5643727f30780",
+          "concept": "SALES_REVENUE",
+          "period_ref": "6M 2025",
+          "basis": null,
+          "supersedes": null,
+          "created_at": "2026-10-02T13:20:30.475039Z",
+          "value": 1398538.772,
+          "unit": "млн. руб.",
+          "page": 4
+        },
+        "concept": "SALES_REVENUE",
+        "period_ref": "6M 2025",
+        "definition_origin": "registry"
+      }
+    ]
+  },
+  "summary": {
+    "status": "no_outcome",
+    "moves": 0,
+    "author_attempts": 0,
+    "model_calls": 1,
+    "elapsed_s": 37.971,
+    "usage": {
+      "in": 5337,
+      "out": 114,
+      "cached": 0
+    },
+    "cost_usd": 0.012223
+  }
+}

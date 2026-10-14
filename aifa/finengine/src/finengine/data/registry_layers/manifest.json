@@ -1,0 +1,36 @@
+{
+  "schema_version": "registry-composition-manifest/v1",
+  "precedence_version": "standard-company-industry-language-customer/v1",
+  "priorities": {
+    "standard": 100,
+    "company_type": 200,
+    "industry": 210,
+    "language": 300,
+    "customer": 400
+  },
+  "layers": [
+    "company__ifrs__bank.json",
+    "company__ifrs__non_financial.json",
+    "company__ind_as__non_financial.json",
+    "company__ind_gaap__bank.json",
+    "company__rsbu__bank.json",
+    "company__rsbu__non_financial.json",
+    "company__us_gaap__bank.json",
+    "company__us_gaap__non_financial.json",
+    "language__ifrs_bank_en.json",
+    "language__ifrs_bank_ru.json",
+    "language__ifrs_nf_en.json",
+    "language__ifrs_nf_ru.json",
+    "language__ind_as_nf_en.json",
+    "language__ind_gaap_bank_en.json",
+    "language__rsbu_bank_ru.json",
+    "language__rsbu_nf_ru.json",
+    "language__us_gaap_bank_en.json",
+    "language__us_gaap_nf_en.json",
+    "standard__ifrs.json",
+    "standard__ind_as.json",
+    "standard__ind_gaap.json",
+    "standard__rsbu.json",
+    "standard__us_gaap.json"
+  ]
+}

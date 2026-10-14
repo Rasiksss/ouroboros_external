@@ -1,0 +1,2658 @@
+{
+ "label": "A4-r1",
+ "query": "Извлеки выручку из отчёта и отдельно рассчитай, на сколько процентов изменилась среднегодовая цена нефти Brent в 2021 году по сравнению с 2020, по публичному CSV FRED https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU.",
+ "doc_id": "9dba0a66-a5a0-4012-8cd1-235ab8e25fe4",
+ "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+ "elapsed_s": 58.8,
+ "events": [
+  {
+   "schema_version": "1.0",
+   "event_id": "8d07ae37-7b24-4da4-adb9-d15542bad6b5",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 1,
+   "occurred_at": "2026-10-06T15:35:35.284618Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "session_id",
+    "session_id": "87fc0f48-4ae3-40b6-8392-864e47e58512"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "4c24d21f-856b-443d-a8ff-0364c2b8274c",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 2,
+   "occurred_at": "2026-10-06T15:35:35.284657Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "thinking",
+    "text": "Разбираю запрос…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "5fd11e0b-fd2b-480a-b902-5c76799878cf",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 3,
+   "occurred_at": "2026-10-06T15:35:44.481344Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_call",
+    "name": "financial_pipeline",
+    "args_summary": "Извлеки выручку из отчёта и отдельно рассчитай, на скольк…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "a01b8757-3f4d-402e-825c-3ac19ee83586",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 4,
+   "occurred_at": "2026-10-06T15:35:44.481444Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "plan_graph",
+    "graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+    "planner_version": "1.0.0+compound",
+    "root": {
+     "atom_name": "goal.join",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "scenario_refs=goal-1,goal-2"
+    },
+    "nodes": [
+     {
+      "node_key": {
+       "atom_name": "ingest.document",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "document_text"
+      ],
+      "requires": [],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-1",
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "identify.classify",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "RunPassport"
+      ],
+      "requires": [
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-1",
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "locate",
+       "atom_version": "1.0.2",
+       "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "CandidateLocator:SALES_REVENUE"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       },
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-1"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "read.value",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "ExtractedMetric:SALES_REVENUE"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       },
+       {
+        "atom_name": "locate",
+        "atom_version": "1.0.2",
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-1"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.unit",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "9597ff8ca60cb80998cdbdbd7302162c846f1c6e369aee6e9bac2923d03e0e43"
+      },
+      "produces": [
+       "Verified:unit"
+      ],
+      "requires": [
+       {
+        "atom_name": "read.value",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-1"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.time",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "ae9ea712b3f45e4b58f86319208a6744db83d550859860444931e691b977590c"
+      },
+      "produces": [
+       "Verified:time"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "9597ff8ca60cb80998cdbdbd7302162c846f1c6e369aee6e9bac2923d03e0e43"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-1"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748"
+      },
+      "produces": [
+       "Verified:bounds"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "ae9ea712b3f45e4b58f86319208a6744db83d550859860444931e691b977590c"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-1"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "locate",
+       "atom_version": "1.0.2",
+       "args_fingerprint": "concept=A;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "CandidateLocator:A"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       },
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "read.value",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "concept=A;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "ExtractedMetric:A"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       },
+       {
+        "atom_name": "locate",
+        "atom_version": "1.0.2",
+        "args_fingerprint": "concept=A;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.unit",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "896cb13feb1b2280ae06735a2c1c38c0aa358f8e4404fdd0f84a5865d30f5474"
+      },
+      "produces": [
+       "Verified:unit"
+      ],
+      "requires": [
+       {
+        "atom_name": "read.value",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "concept=A;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.time",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "3e29f8877fe9828218a36f799b09429b1617becb0bd616f2f367c7d2ecb9f399"
+      },
+      "produces": [
+       "Verified:time"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "896cb13feb1b2280ae06735a2c1c38c0aa358f8e4404fdd0f84a5865d30f5474"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "d7873c78b698903fcf432ce2c6a0b1f0b9abae433f7af399c6d0da22031b030c"
+      },
+      "produces": [
+       "Verified:bounds"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "3e29f8877fe9828218a36f799b09429b1617becb0bd616f2f367c7d2ecb9f399"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "locate",
+       "atom_version": "1.0.2",
+       "args_fingerprint": "concept=B;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "CandidateLocator:B"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       },
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "read.value",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "concept=B;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "ExtractedMetric:B"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       },
+       {
+        "atom_name": "locate",
+        "atom_version": "1.0.2",
+        "args_fingerprint": "concept=B;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.unit",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "528a33e51ef78feeecb190cb25f0356318ffb4f201de7f32bd8a1dbfc0c2d774"
+      },
+      "produces": [
+       "Verified:unit"
+      ],
+      "requires": [
+       {
+        "atom_name": "read.value",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "concept=B;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.time",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "3267c4059dc0f97fef4b5ac56197f5197a350ea32010fb34228e83e4fa7d603d"
+      },
+      "produces": [
+       "Verified:time"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "528a33e51ef78feeecb190cb25f0356318ffb4f201de7f32bd8a1dbfc0c2d774"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "504a22575781a6a2de545bc7ebfd3210bc30bd3ad7eb94aa3daab13de23b28dd"
+      },
+      "produces": [
+       "Verified:bounds"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "3267c4059dc0f97fef4b5ac56197f5197a350ea32010fb34228e83e4fa7d603d"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "calc.formula",
+       "atom_version": "2.0.0",
+       "args_fingerprint": "concept=Изменение среднегодовой цены нефти Brent;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "CalculatedMetric:Изменение среднегодовой цены нефти Brent"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       },
+       {
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "d7873c78b698903fcf432ce2c6a0b1f0b9abae433f7af399c6d0da22031b030c"
+       },
+       {
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "504a22575781a6a2de545bc7ebfd3210bc30bd3ad7eb94aa3daab13de23b28dd"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "verify.identity",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "0bf5614577e353f9df6f098f713f747d10644b945beb7a9b443a862f4f7f30a2"
+      },
+      "produces": [
+       "Verified:identity"
+      ],
+      "requires": [
+       {
+        "atom_name": "calc.formula",
+        "atom_version": "2.0.0",
+        "args_fingerprint": "concept=Изменение среднегодовой цены нефти Brent;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "verify.cross",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "94ba61df60228aa5e73e9a1a73dec8a305a36bdb061aa1885ef1dfd739c8998a"
+      },
+      "produces": [
+       "Verified:cross"
+      ],
+      "requires": [
+       {
+        "atom_name": "verify.identity",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "0bf5614577e353f9df6f098f713f747d10644b945beb7a9b443a862f4f7f30a2"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.time",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "a986d1f5463b82dbe3d0b0c3600fee41ec55b9e3e65a7508e54debabe33b73b9"
+      },
+      "produces": [
+       "Verified:time"
+      ],
+      "requires": [
+       {
+        "atom_name": "verify.cross",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "94ba61df60228aa5e73e9a1a73dec8a305a36bdb061aa1885ef1dfd739c8998a"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "c54446f06a3a1e8353210cfde63dfa5a6d6b464908f310b05741de0c862a9152"
+      },
+      "produces": [
+       "Verified:bounds"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "a986d1f5463b82dbe3d0b0c3600fee41ec55b9e3e65a7508e54debabe33b73b9"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "goal.join",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "scenario_refs=goal-1,goal-2"
+      },
+      "produces": [
+       "CompoundResult"
+      ],
+      "requires": [
+       {
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748"
+       },
+       {
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "c54446f06a3a1e8353210cfde63dfa5a6d6b464908f310b05741de0c862a9152"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-1",
+       "goal-2"
+      ]
+     }
+    ],
+    "scenarios": [
+     {
+      "goal_ref": "goal-1",
+      "goal_type": "extract_registered_metric",
+      "root": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748"
+      },
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-2",
+      "goal_type": "calculate_ad_hoc_metric",
+      "root": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "c54446f06a3a1e8353210cfde63dfa5a6d6b464908f310b05741de0c862a9152"
+      },
+      "depends_on": []
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "bdee6d48-0083-48e3-8a9c-73e079837ff9",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 5,
+   "occurred_at": "2026-10-06T15:35:44.492064Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "de0422a9-a0ff-4da4-9a8e-5c3c8f81a2c1",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "e5704dac-b6a1-4980-be55-bb620c97411f",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 6,
+   "occurred_at": "2026-10-06T15:35:44.506804Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "0feabfc0-1815-40b6-b37b-c57e3cd77046",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "14f1528b-48d2-48f5-b6b3-cdf1632fce7d",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 7,
+   "occurred_at": "2026-10-06T15:35:44.506904Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "9c8f93dd-9631-430d-8b30-9b331016f18d",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "27e8d1e6-2016-423d-abc0-f7f02396fb66",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 8,
+   "occurred_at": "2026-10-06T15:35:44.506948Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "40f8a870-b9ce-4009-9c32-ae44e6ee115c",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "721f235b-a2cf-42d9-9847-79384fdbf60a",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 9,
+   "occurred_at": "2026-10-06T15:35:44.528747Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "ef20c6e4-558f-4667-b8e3-12bac4aaba58",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "9597ff8ca60cb80998cdbdbd7302162c846f1c6e369aee6e9bac2923d03e0e43"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "2fc2d2c4-0bf0-419d-a36c-d478858a5852",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 10,
+   "occurred_at": "2026-10-06T15:35:44.528847Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "b6bb4137-776d-405c-8617-ce5d2b7a937f",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "ae9ea712b3f45e4b58f86319208a6744db83d550859860444931e691b977590c"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "490d4f5e-f566-4905-86ec-308fac4299f3",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 11,
+   "occurred_at": "2026-10-06T15:35:44.528889Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "9adb446b-bf2f-478e-86ba-11ea4d4035f1",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "9264f7f4-e07c-480b-8ec3-2c53da4d76ea",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 12,
+   "occurred_at": "2026-10-06T15:35:44.528922Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "21f27a82-abb0-4d66-9951-3cd7debdf695",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=A;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "1c936ca3-79b8-4fba-a40d-b0a32fa2a637",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 13,
+   "occurred_at": "2026-10-06T15:35:44.565520Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "d24f65e0-a06d-433d-b9d9-31e37197f5a5",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=A;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "b3b96ccf-8bf0-4a78-98cb-5355aa19d097",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 14,
+   "occurred_at": "2026-10-06T15:35:44.565583Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "0b74e9e8-cfa0-4de7-bf80-8ab89b09a031",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "896cb13feb1b2280ae06735a2c1c38c0aa358f8e4404fdd0f84a5865d30f5474"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "b13ef948-98b7-4336-a1b5-45efe9ec58a9",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 15,
+   "occurred_at": "2026-10-06T15:35:44.565634Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "6f55adda-147d-4606-a393-af6af47a7474",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "3e29f8877fe9828218a36f799b09429b1617becb0bd616f2f367c7d2ecb9f399"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "906d65ba-63af-40ec-8236-2f5585355af6",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 16,
+   "occurred_at": "2026-10-06T15:35:44.565678Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "77f56523-fce6-4a88-a939-31f77893e77d",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "d7873c78b698903fcf432ce2c6a0b1f0b9abae433f7af399c6d0da22031b030c"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "b7255a2d-027f-4fdf-97a5-b25b48c985f3",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 17,
+   "occurred_at": "2026-10-06T15:35:44.565717Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "0ae4991a-0b80-4ece-97a5-da9b265e5719",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=B;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "2cb41d6f-c91a-4807-821c-d7e5b6033915",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 18,
+   "occurred_at": "2026-10-06T15:35:44.565747Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "8ca5289a-e971-48ba-8e1f-dadbe44fa2b1",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=B;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d0ccca0a-c05d-446e-becf-4ded3066ecc7",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 19,
+   "occurred_at": "2026-10-06T15:35:44.597118Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "631ffc0d-b516-48c8-affe-9f3021eb4cb2",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "528a33e51ef78feeecb190cb25f0356318ffb4f201de7f32bd8a1dbfc0c2d774"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "a053cc6f-e7de-4ce4-b033-84e61741a420",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 20,
+   "occurred_at": "2026-10-06T15:35:44.597278Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "07f94467-9866-4bdf-a876-76eef7ec779a",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "3267c4059dc0f97fef4b5ac56197f5197a350ea32010fb34228e83e4fa7d603d"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "c525576a-9f4b-49c4-b515-aeca8a3d63ba",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 21,
+   "occurred_at": "2026-10-06T15:35:44.597341Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "fdc84f0c-54b0-458e-bf4d-f801aea482bb",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "504a22575781a6a2de545bc7ebfd3210bc30bd3ad7eb94aa3daab13de23b28dd"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "9aad53f5-b7f6-4f12-9a40-1c81f3722ba7",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 22,
+   "occurred_at": "2026-10-06T15:35:44.597373Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "67f5bb17-b47a-49ba-bb44-7eec60abc101",
+    "node_key": {
+     "atom_name": "calc.formula",
+     "atom_version": "2.0.0",
+     "args_fingerprint": "concept=Изменение среднегодовой цены нефти Brent;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "596568b4-5998-4417-84ba-26b6cdb55127",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 23,
+   "occurred_at": "2026-10-06T15:35:44.597405Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "ad99eb7a-df48-4a0a-be9d-32d07b154194",
+    "node_key": {
+     "atom_name": "verify.identity",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "0bf5614577e353f9df6f098f713f747d10644b945beb7a9b443a862f4f7f30a2"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "0fac3c71-12fc-49ca-aeae-4a91fc6041f4",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 24,
+   "occurred_at": "2026-10-06T15:35:44.597432Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "ad3c2789-5cdc-41c6-9511-ceedee0a5169",
+    "node_key": {
+     "atom_name": "verify.cross",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "94ba61df60228aa5e73e9a1a73dec8a305a36bdb061aa1885ef1dfd739c8998a"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "e6e16450-ca89-4f2a-979a-197e5ef304d9",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 25,
+   "occurred_at": "2026-10-06T15:35:44.597457Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "12e6faa6-1c1d-4d5c-af68-d9465a3569bb",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "a986d1f5463b82dbe3d0b0c3600fee41ec55b9e3e65a7508e54debabe33b73b9"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "ffa01a1a-d452-4420-b29b-ef20d9dcb13e",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 26,
+   "occurred_at": "2026-10-06T15:35:44.597497Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "c0104976-e5c4-49b2-8bbf-32d41e1db866",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "c54446f06a3a1e8353210cfde63dfa5a6d6b464908f310b05741de0c862a9152"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "081b76f7-8ba2-4c59-9070-c9fd0cae7a0a",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 27,
+   "occurred_at": "2026-10-06T15:35:44.597523Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "0e1d17ed-dffb-4b14-8550-a8e48920abf5",
+    "node_key": {
+     "atom_name": "goal.join",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "scenario_refs=goal-1,goal-2"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "a011bcd2-ac4b-4694-8ee9-c2c781818c8d",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 28,
+   "occurred_at": "2026-10-06T15:35:44.597547Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "de0422a9-a0ff-4da4-9a8e-5c3c8f81a2c1",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:35:44.557913Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "e5a97f4a-d34c-45c7-9c4e-32892158c7fc",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 29,
+   "occurred_at": "2026-10-06T15:35:44.601006Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "de0422a9-a0ff-4da4-9a8e-5c3c8f81a2c1",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "content:db7118e32b873b4aff36a9e6dd0a46f697414e6e6e9bd84da356c342e903effa"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:35:44.557913Z",
+    "finished_at": "2026-10-06T15:35:44.562389Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "ce0ccf08-4005-4940-84b3-03afb3857ad1",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 30,
+   "occurred_at": "2026-10-06T15:35:44.940017Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "0feabfc0-1815-40b6-b37b-c57e3cd77046",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:35:44.613579Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "3c4d84ea-f0ae-4e23-9d9d-029533021015",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 31,
+   "occurred_at": "2026-10-06T15:35:46.129826Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "0feabfc0-1815-40b6-b37b-c57e3cd77046",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "cb2ff62a-d6ea-40df-bd1d-c6a094ff6e23"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:35:44.613579Z",
+    "finished_at": "2026-10-06T15:35:46.117062Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "02b10da9-0795-406a-a697-b056e7943a34",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 32,
+   "occurred_at": "2026-10-06T15:35:46.255944Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "9c8f93dd-9631-430d-8b30-9b331016f18d",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:35:46.131497Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "4e5cc262-cde5-4af9-b95e-3c5f76f1c4dd",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 33,
+   "occurred_at": "2026-10-06T15:35:46.461636Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "21f27a82-abb0-4d66-9951-3cd7debdf695",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=A;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:35:46.131497Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "14354024-6ae3-41ae-a4ba-751d666a17aa",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 34,
+   "occurred_at": "2026-10-06T15:35:46.476935Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "0ae4991a-0b80-4ece-97a5-da9b265e5719",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=B;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:35:46.131497Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "e7b61ce5-d3a0-41da-abd2-ea3a53bfcedb",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 35,
+   "occurred_at": "2026-10-06T15:36:14.820625Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "9c8f93dd-9631-430d-8b30-9b331016f18d",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "1c0d54c0-448c-418b-94a1-08828f99872c",
+     "e0565240-c7c7-468b-8d79-d24b00ca337e",
+     "44da83e5-207b-480b-b268-50c2b7eb60e7",
+     "554d1339-a706-44e0-90d4-762bb0a8de0c",
+     "6be52e7e-5fc2-4137-b97a-b6b531558f0e",
+     "de2421fb-248d-4a9b-bf39-2ade7b2027a0",
+     "6463e89a-18f0-4185-b8aa-085aa8ea997c",
+     "57b4474f-b3f9-44d1-963c-91b1ee954b8b",
+     "66415fa1-5f8f-4e19-8fc9-b13d3879cf56",
+     "8a4d0bf7-b866-4337-8606-74a90049d39c",
+     "26723659-4f30-4656-a55f-85a15138d011",
+     "27f3ee82-7a4b-4813-a30d-7e18f3b2eb3e",
+     "2e8f9580-c8a9-44ad-b20f-f7590ae2c830",
+     "d1c9cafb-19af-43b2-9055-922068bd5a24",
+     "6dfc2bc6-bd9d-4c92-b0eb-261dc98fc3fa",
+     "d4870314-699b-4b18-8579-9f83b6e7cd00",
+     "ce4ce7ba-3893-4089-a44b-4c36d5b285b6",
+     "18b41f15-4f10-41ca-a00e-b48744b217c3"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:35:46.131497Z",
+    "finished_at": "2026-10-06T15:36:14.805691Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "f65fa7e2-85fb-41c2-b9e3-fa540452c353",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 36,
+   "occurred_at": "2026-10-06T15:36:14.876286Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "21f27a82-abb0-4d66-9951-3cd7debdf695",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=A;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:35:46.131497Z",
+    "finished_at": "2026-10-06T15:36:14.805691Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "4d86c876-d0d8-4cd8-892c-e4ac07099bab",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 37,
+   "occurred_at": "2026-10-06T15:36:14.881842Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "0ae4991a-0b80-4ece-97a5-da9b265e5719",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=B;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:35:46.131497Z",
+    "finished_at": "2026-10-06T15:36:14.805691Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "2c15044e-bd01-4754-a32e-75025be69f43",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 38,
+   "occurred_at": "2026-10-06T15:36:14.939761Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "40f8a870-b9ce-4009-9c32-ae44e6ee115c",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:14.893508Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "1605d1e0-0307-4a85-9853-0ee3a7ef8276",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 39,
+   "occurred_at": "2026-10-06T15:36:15.186294Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "d24f65e0-a06d-433d-b9d9-31e37197f5a5",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=A;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:14.893508Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "e750d933-05ce-451f-a38c-f11334ead7e7",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 40,
+   "occurred_at": "2026-10-06T15:36:15.252490Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "8ca5289a-e971-48ba-8e1f-dadbe44fa2b1",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=B;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:14.893508Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "ee45ed50-a4a5-4a86-91df-47deaed5f233",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 41,
+   "occurred_at": "2026-10-06T15:36:17.459671Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "40f8a870-b9ce-4009-9c32-ae44e6ee115c",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "111632f5-ec18-499e-8e58-a9fc36fe6be3",
+     "8c816287-eaad-4b10-825e-0c42b98a2b9e"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:14.893508Z",
+    "finished_at": "2026-10-06T15:36:17.453485Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "b61eda05-a2d6-4ff4-9164-57aeccef074f",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 42,
+   "occurred_at": "2026-10-06T15:36:17.462516Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "d24f65e0-a06d-433d-b9d9-31e37197f5a5",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=A;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:14.893508Z",
+    "finished_at": "2026-10-06T15:36:17.453485Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "7250c5b2-fca1-48b2-8536-002c3524e869",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 43,
+   "occurred_at": "2026-10-06T15:36:17.466056Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "8ca5289a-e971-48ba-8e1f-dadbe44fa2b1",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=B;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:14.893508Z",
+    "finished_at": "2026-10-06T15:36:17.453485Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "b8062c95-79c8-4be9-99c2-b19a1e0d0282",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 44,
+   "occurred_at": "2026-10-06T15:36:17.480979Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "ef20c6e4-558f-4667-b8e3-12bac4aaba58",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "9597ff8ca60cb80998cdbdbd7302162c846f1c6e369aee6e9bac2923d03e0e43"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.472754Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "20898a01-3d13-4067-81ce-837f3fa46e72",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 45,
+   "occurred_at": "2026-10-06T15:36:17.483907Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "631ffc0d-b516-48c8-affe-9f3021eb4cb2",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "528a33e51ef78feeecb190cb25f0356318ffb4f201de7f32bd8a1dbfc0c2d774"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.473647Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "738a9d1c-6d9f-4fe6-a20a-8293be963c86",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 46,
+   "occurred_at": "2026-10-06T15:36:17.487028Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "0b74e9e8-cfa0-4de7-bf80-8ab89b09a031",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "896cb13feb1b2280ae06735a2c1c38c0aa358f8e4404fdd0f84a5865d30f5474"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.473028Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "23a5110a-0585-4298-8cea-8efa1f0995e1",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 47,
+   "occurred_at": "2026-10-06T15:36:17.489565Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "ef20c6e4-558f-4667-b8e3-12bac4aaba58",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "9597ff8ca60cb80998cdbdbd7302162c846f1c6e369aee6e9bac2923d03e0e43"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "d48db146-b038-4127-a12f-4134ef9953c8",
+     "111632f5-ec18-499e-8e58-a9fc36fe6be3",
+     "f2e9ced0-339a-461d-a985-8a1ff64c713a",
+     "8c816287-eaad-4b10-825e-0c42b98a2b9e"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.472754Z",
+    "finished_at": "2026-10-06T15:36:17.477903Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "762d71cb-647f-4e4e-8504-55167dd9dc65",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 48,
+   "occurred_at": "2026-10-06T15:36:17.492348Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "631ffc0d-b516-48c8-affe-9f3021eb4cb2",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "528a33e51ef78feeecb190cb25f0356318ffb4f201de7f32bd8a1dbfc0c2d774"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.473647Z",
+    "finished_at": "2026-10-06T15:36:17.481634Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "17feb420-e178-46c3-998c-5318ea1bea72",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 49,
+   "occurred_at": "2026-10-06T15:36:17.495763Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "0b74e9e8-cfa0-4de7-bf80-8ab89b09a031",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "896cb13feb1b2280ae06735a2c1c38c0aa358f8e4404fdd0f84a5865d30f5474"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.473028Z",
+    "finished_at": "2026-10-06T15:36:17.484623Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "03e9331a-50e5-42de-83ad-18b5d0e5dc82",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 50,
+   "occurred_at": "2026-10-06T15:36:17.507146Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "b6bb4137-776d-405c-8617-ce5d2b7a937f",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "ae9ea712b3f45e4b58f86319208a6744db83d550859860444931e691b977590c"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.500191Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "cff1199f-2740-4b3e-a679-0c7c67a5be27",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 51,
+   "occurred_at": "2026-10-06T15:36:17.512895Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "07f94467-9866-4bdf-a876-76eef7ec779a",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "3267c4059dc0f97fef4b5ac56197f5197a350ea32010fb34228e83e4fa7d603d"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.501053Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "36a30ef3-6aa5-4c8d-83dd-6322bc4bcde7",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 52,
+   "occurred_at": "2026-10-06T15:36:17.515692Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "6f55adda-147d-4606-a393-af6af47a7474",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "3e29f8877fe9828218a36f799b09429b1617becb0bd616f2f367c7d2ecb9f399"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.500518Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "64b4b4a0-6e18-4155-8509-fbab35aed467",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 53,
+   "occurred_at": "2026-10-06T15:36:17.518642Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "b6bb4137-776d-405c-8617-ce5d2b7a937f",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "ae9ea712b3f45e4b58f86319208a6744db83d550859860444931e691b977590c"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "3c956eda-2106-4b1b-b07c-6e4d9c3d1d58",
+     "111632f5-ec18-499e-8e58-a9fc36fe6be3",
+     "91fd94f8-828e-4d7c-9a8f-23fae82666c3",
+     "8c816287-eaad-4b10-825e-0c42b98a2b9e"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.500191Z",
+    "finished_at": "2026-10-06T15:36:17.504830Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "c16738ce-675e-4984-b72a-7d6d0d109bf9",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 54,
+   "occurred_at": "2026-10-06T15:36:17.522141Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "6f55adda-147d-4606-a393-af6af47a7474",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "3e29f8877fe9828218a36f799b09429b1617becb0bd616f2f367c7d2ecb9f399"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.500518Z",
+    "finished_at": "2026-10-06T15:36:17.511012Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "1df388de-abb0-45ff-89cf-0f2bce8485bc",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 55,
+   "occurred_at": "2026-10-06T15:36:17.524561Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "07f94467-9866-4bdf-a876-76eef7ec779a",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "3267c4059dc0f97fef4b5ac56197f5197a350ea32010fb34228e83e4fa7d603d"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.501053Z",
+    "finished_at": "2026-10-06T15:36:17.508521Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "9286a050-c7b4-427e-92e7-65a8fb153e27",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 56,
+   "occurred_at": "2026-10-06T15:36:17.534871Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "fdc84f0c-54b0-458e-bf4d-f801aea482bb",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "504a22575781a6a2de545bc7ebfd3210bc30bd3ad7eb94aa3daab13de23b28dd"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.526706Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d93e297e-d2a6-4927-b161-5f90e8d34ccc",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 57,
+   "occurred_at": "2026-10-06T15:36:17.539461Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "77f56523-fce6-4a88-a939-31f77893e77d",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "d7873c78b698903fcf432ce2c6a0b1f0b9abae433f7af399c6d0da22031b030c"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.526531Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "628d9239-f2cd-45db-9319-27d7b4551665",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 58,
+   "occurred_at": "2026-10-06T15:36:17.541538Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "9adb446b-bf2f-478e-86ba-11ea4d4035f1",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.526279Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "e239bdde-b219-4c1d-abf8-47f0a812f899",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 59,
+   "occurred_at": "2026-10-06T15:36:17.543830Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "fdc84f0c-54b0-458e-bf4d-f801aea482bb",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "504a22575781a6a2de545bc7ebfd3210bc30bd3ad7eb94aa3daab13de23b28dd"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.526706Z",
+    "finished_at": "2026-10-06T15:36:17.530331Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "9d3e9cc8-b08c-4a99-beac-051c8cd13055",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 60,
+   "occurred_at": "2026-10-06T15:36:17.547697Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "77f56523-fce6-4a88-a939-31f77893e77d",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "d7873c78b698903fcf432ce2c6a0b1f0b9abae433f7af399c6d0da22031b030c"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.526531Z",
+    "finished_at": "2026-10-06T15:36:17.534011Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "683ce530-9078-479b-8854-e871b776504d",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 61,
+   "occurred_at": "2026-10-06T15:36:17.551045Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "9adb446b-bf2f-478e-86ba-11ea4d4035f1",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "623abd66-21f2-4b46-951b-12a4e2bcd7d6",
+     "111632f5-ec18-499e-8e58-a9fc36fe6be3",
+     "d8c1114c-c9b0-40f8-b0b2-5d794aaaf857",
+     "8c816287-eaad-4b10-825e-0c42b98a2b9e"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.526279Z",
+    "finished_at": "2026-10-06T15:36:17.537713Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "1172acce-5dfd-4bf1-a9e4-bbb38a3c38b5",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 62,
+   "occurred_at": "2026-10-06T15:36:17.563054Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "67f5bb17-b47a-49ba-bb44-7eec60abc101",
+    "node_key": {
+     "atom_name": "calc.formula",
+     "atom_version": "2.0.0",
+     "args_fingerprint": "concept=Изменение среднегодовой цены нефти Brent;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.554027Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "b629a5b9-bc0e-4d8c-9dc2-fac446503957",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 63,
+   "occurred_at": "2026-10-06T15:36:17.573148Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "67f5bb17-b47a-49ba-bb44-7eec60abc101",
+    "node_key": {
+     "atom_name": "calc.formula",
+     "atom_version": "2.0.0",
+     "args_fingerprint": "concept=Изменение среднегодовой цены нефти Brent;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.554027Z",
+    "finished_at": "2026-10-06T15:36:17.568017Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "bbac0d91-0567-4da2-8989-36c73b9c57f4",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 64,
+   "occurred_at": "2026-10-06T15:36:17.578037Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "ad99eb7a-df48-4a0a-be9d-32d07b154194",
+    "node_key": {
+     "atom_name": "verify.identity",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "0bf5614577e353f9df6f098f713f747d10644b945beb7a9b443a862f4f7f30a2"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.573877Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "4d1e0a83-761e-4a05-9463-a33a38a123b1",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 65,
+   "occurred_at": "2026-10-06T15:36:17.580516Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "ad99eb7a-df48-4a0a-be9d-32d07b154194",
+    "node_key": {
+     "atom_name": "verify.identity",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "0bf5614577e353f9df6f098f713f747d10644b945beb7a9b443a862f4f7f30a2"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.573877Z",
+    "finished_at": "2026-10-06T15:36:17.576083Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "adc6151a-2e62-4407-8aec-c5ffaaf9606d",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 66,
+   "occurred_at": "2026-10-06T15:36:17.585671Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "ad3c2789-5cdc-41c6-9511-ceedee0a5169",
+    "node_key": {
+     "atom_name": "verify.cross",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "94ba61df60228aa5e73e9a1a73dec8a305a36bdb061aa1885ef1dfd739c8998a"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.581232Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d9ac381a-1d58-4105-bc27-3adc922ecd66",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 67,
+   "occurred_at": "2026-10-06T15:36:17.588287Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "ad3c2789-5cdc-41c6-9511-ceedee0a5169",
+    "node_key": {
+     "atom_name": "verify.cross",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "94ba61df60228aa5e73e9a1a73dec8a305a36bdb061aa1885ef1dfd739c8998a"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.581232Z",
+    "finished_at": "2026-10-06T15:36:17.583583Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "7e28b4ac-b09b-4863-bdd6-e4f0e1df54a9",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 68,
+   "occurred_at": "2026-10-06T15:36:17.593377Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "12e6faa6-1c1d-4d5c-af68-d9465a3569bb",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "a986d1f5463b82dbe3d0b0c3600fee41ec55b9e3e65a7508e54debabe33b73b9"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.588943Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "43d7a3d4-e619-47a1-9d1f-888ab0ae8306",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 69,
+   "occurred_at": "2026-10-06T15:36:17.596383Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "12e6faa6-1c1d-4d5c-af68-d9465a3569bb",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "a986d1f5463b82dbe3d0b0c3600fee41ec55b9e3e65a7508e54debabe33b73b9"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.588943Z",
+    "finished_at": "2026-10-06T15:36:17.591124Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "aa88d574-86e6-4963-96f6-f641247b1615",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 70,
+   "occurred_at": "2026-10-06T15:36:17.602799Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "c0104976-e5c4-49b2-8bbf-32d41e1db866",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "c54446f06a3a1e8353210cfde63dfa5a6d6b464908f310b05741de0c862a9152"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.597010Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "48f9d476-fca3-434f-a5b7-651ddab19bc7",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 71,
+   "occurred_at": "2026-10-06T15:36:17.605218Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "c0104976-e5c4-49b2-8bbf-32d41e1db866",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "c54446f06a3a1e8353210cfde63dfa5a6d6b464908f310b05741de0c862a9152"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.597010Z",
+    "finished_at": "2026-10-06T15:36:17.600413Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "64726165-ccd1-4993-a9f9-6ecde565e3de",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 72,
+   "occurred_at": "2026-10-06T15:36:17.610804Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "0e1d17ed-dffb-4b14-8550-a8e48920abf5",
+    "node_key": {
+     "atom_name": "goal.join",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "scenario_refs=goal-1,goal-2"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.606458Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "ebb308f0-a863-4e9b-9dc2-c1f72bea6530",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 73,
+   "occurred_at": "2026-10-06T15:36:17.613652Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:bd8928b37ff943c2429ae852f7d81cfc0a2a1d9ea554a1773ade6cd079f8c1f2",
+   "node_run": {
+    "node_run_id": "0e1d17ed-dffb-4b14-8550-a8e48920abf5",
+    "node_key": {
+     "atom_name": "goal.join",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "scenario_refs=goal-1,goal-2"
+    },
+    "run_id": "de905fec-3a7d-4d71-8566-bff787c9c310",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:36:17.606458Z",
+    "finished_at": "2026-10-06T15:36:17.608607Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "aa819e3b-8d74-46f9-9938-b6888befcbfb",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 74,
+   "occurred_at": "2026-10-06T15:36:17.696740Z",
+   "event_type": "result",
+   "delivery_status": "complete",
+   "result": {
+    "schema_version": "1.0",
+    "output_type": "ExtractedMetric",
+    "status": "supported",
+    "metric_id": "4abcf056-36bd-433f-9579-4cca850113d9",
+    "scalar_fact": {
+     "evidence_id": "111632f5-ec18-499e-8e58-a9fc36fe6be3",
+     "produced_by_atom": "read.value",
+     "produced_by_atom_version": "1.0.0",
+     "source_ref": "1c0d54c0-448c-418b-94a1-08828f99872c",
+     "document_version": "sha256:0072d8b39d75e492d339026c977f23d0515f651f6fdec1ba3abf990dfc6b5ba0",
+     "concept": "SALES_REVENUE",
+     "period_ref": "FY 2021",
+     "basis": null,
+     "supersedes": null,
+     "created_at": "2026-10-06T15:36:17.453178Z",
+     "value": 1135206.0,
+     "unit": "млн. руб.",
+     "page": null
+    },
+    "concept": "SALES_REVENUE",
+    "period_ref": "FY 2021",
+    "definition_origin": "registry"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "61f4608c-f7cf-4f77-80e6-c79a903d28c1",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 75,
+   "occurred_at": "2026-10-06T15:36:17.696950Z",
+   "event_type": "result",
+   "delivery_status": "complete",
+   "result": {
+    "schema_version": "1.0",
+    "output_type": "ExtractedMetric",
+    "status": "supported",
+    "metric_id": "469712e9-e0b2-4a28-828e-40b3ea30b9bc",
+    "scalar_fact": {
+     "evidence_id": "8c816287-eaad-4b10-825e-0c42b98a2b9e",
+     "produced_by_atom": "read.value",
+     "produced_by_atom_version": "1.0.0",
+     "source_ref": "1c0d54c0-448c-418b-94a1-08828f99872c",
+     "document_version": "sha256:0072d8b39d75e492d339026c977f23d0515f651f6fdec1ba3abf990dfc6b5ba0",
+     "concept": "SALES_REVENUE",
+     "period_ref": "FY 2020",
+     "basis": null,
+     "supersedes": null,
+     "created_at": "2026-10-06T15:36:17.453202Z",
+     "value": 699750.0,
+     "unit": "млн. руб.",
+     "page": null
+    },
+    "concept": "SALES_REVENUE",
+    "period_ref": "FY 2020",
+    "definition_origin": "registry"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "b905db58-e7bf-4b80-b63b-605952989bea",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 76,
+   "occurred_at": "2026-10-06T15:36:17.709786Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_output",
+    "name": "financial_pipeline",
+    "ok": true
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "1178aebf-9e0f-48bc-a146-561108df69dd",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 77,
+   "occurred_at": "2026-10-06T15:36:17.709885Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "text_delta",
+    "text": "Готово: проверенные результаты опубликованы в карточках выше."
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "1010fbd2-bd12-4e93-8059-61097c40b50e",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 78,
+   "occurred_at": "2026-10-06T15:36:17.709921Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "sources",
+    "sources": [
+     {
+      "filename": "Novatek_FS_12m2021_RUS.pdf",
+      "company_name": "ПрайсвотерхаусКуперс Аудит"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "4475cdfc-174b-4815-b37b-fcd724612c07",
+   "run_id": "39ffd117-2273-41e0-a371-614dfc8d7653",
+   "sequence": 79,
+   "occurred_at": "2026-10-06T15:36:17.709953Z",
+   "event_type": "completed",
+   "status": "succeeded"
+  }
+ ],
+ "started_utc": "2026-10-06T15:36:18Z"
+}

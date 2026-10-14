@@ -1,0 +1,447 @@
+{
+  "schema_version": "registry-layer/v1",
+  "layer_id": "language.ifrs_bank_en",
+  "version": "2026.09.22.1",
+  "kind": "language",
+  "priority": 300,
+  "selector": {
+    "standard": "ifrs",
+    "company_type": "bank",
+    "language": "en"
+  },
+  "metrics": {
+    "extractable": [
+      {
+        "enum": "CET1_RATIO_DISCLOSED",
+        "fields": {
+          "aliases_ru": [
+            "CET1 ratio",
+            "норматив Н 1.0",
+            "норматив Н 20.1"
+          ],
+          "hint": "Примечание 'Достаточность капитала'. Единица — проценты."
+        }
+      },
+      {
+        "enum": "CHANGE_IN_EXPECTED_CREDIT_LOSSES",
+        "fields": {
+          "aliases_ru": [
+            "Резерв под кредитные убытки по денежжным средствам",
+            "их эквивалентам",
+            "средствам в других банках и кредитам и авансам клиентам"
+          ],
+          "hint": "P&L банка или Примечание 'Финансовые активы'. Сумма движений ECL за период. В interim-отчетах с колонками 3M/Q и 6M/YTD возвращай обе группы периодов, не только YTD."
+        }
+      },
+      {
+        "enum": "CORPORATE_DEPOSITS",
+        "fields": {
+          "hint": "Примечание 'Средства клиентов' — разбивка по сегментам."
+        }
+      },
+      {
+        "enum": "DEBT_SECURITIES_ISSUED",
+        "fields": {
+          "aliases_ru": [
+            "Выпущенные облигации",
+            "Долговые ценные бумаги в обращении"
+          ],
+          "hint": "Балансовый отчёт банка, обязательство. Детализация в Примечании 'Долговые ценные бумаги'."
+        }
+      },
+      {
+        "enum": "ECL_ALLOWANCE_STAGE1",
+        "fields": {
+          "hint": "Примечание 'Кредиты клиентам' / 'Резервы под обесценение'."
+        }
+      },
+      {
+        "enum": "ECL_ALLOWANCE_STAGE2",
+        "fields": {
+          "hint": "Примечание 'Кредиты клиентам' / 'Резервы под обесценение'."
+        }
+      },
+      {
+        "enum": "ECL_ALLOWANCE_STAGE3",
+        "fields": {
+          "hint": "Примечание 'Кредиты клиентам' / 'Резервы под обесценение'."
+        }
+      },
+      {
+        "enum": "EPS",
+        "fields": {
+          "aliases_ru": [
+            "Прибыль на акцию"
+          ],
+          "hint": "P&L: строка Basic earnings per share после net income. Бери Basic, не Diluted; значение может быть дробным и обычно имеет единицу валюта/share, не millions."
+        }
+      },
+      {
+        "enum": "EQUITY_SHAREHOLDERS",
+        "fields": {
+          "aliases_ru": [],
+          "aliases_en": [
+            "Equity attributable to equity holders of the parent",
+            "Total shareholders' equity attributable to the parent",
+            "Equity attributable to owners of the Company"
+          ]
+        }
+      },
+      {
+        "enum": "FEE_AND_COMMISSION_EXPENSE",
+        "fields": {
+          "hint": "P&L банка, после комиссионных доходов. Бери строку комиссионных расходов и сохраняй знак/скобки как в источнике."
+        }
+      },
+      {
+        "enum": "FUNDS_FROM_CENTRAL_BANK",
+        "fields": {
+          "aliases_ru": [
+            "Кредиты ЦБ",
+            "Рефинансирование от центрального банка"
+          ],
+          "hint": "Балансовый отчёт банка, обязательство. Также в Примечании 'Привлечённые средства'."
+        }
+      },
+      {
+        "enum": "INDIVIDUALS_DEPOSITS",
+        "fields": {
+          "hint": "Примечание 'Средства клиентов' — разбивка по сегментам."
+        }
+      },
+      {
+        "enum": "INTANGIBLE_ASSETS",
+        "fields": {
+          "hint": "Внеоборотные активы баланса (отдельная строка после гудвила). Детализация в Примечании 'Нематериальные активы'."
+        }
+      },
+      {
+        "enum": "INTEREST_EXPENSE_ER",
+        "fields": {
+          "hint": "P&L банка, после процентных доходов. Бери строку процентных расходов и сохраняй знак/скобки как в источнике."
+        }
+      },
+      {
+        "enum": "INTEREST_PAID",
+        "fields": {
+          "hint": "ОДДС, раздел 'Финансовая деятельность' (или иногда 'Операционная' по выбору учётной политики)."
+        }
+      },
+      {
+        "enum": "LEASE_LIABILITIES_BANKS",
+        "fields": {
+          "hint": "Балансовый отчёт банка, обязательство. Также в Примечании 'IFRS 16'."
+        }
+      },
+      {
+        "enum": "LOANS_STAGE1_GROSS",
+        "fields": {
+          "hint": "Примечание 'Кредиты клиентам' — таблица распределения кредитов по стадиям ECL."
+        }
+      },
+      {
+        "enum": "LOANS_STAGE2_GROSS",
+        "fields": {
+          "hint": "Примечание 'Кредиты клиентам' — таблица распределения по стадиям."
+        }
+      },
+      {
+        "enum": "LOANS_STAGE3_GROSS",
+        "fields": {
+          "hint": "Примечание 'Кредиты клиентам' — таблица распределения по стадиям."
+        }
+      },
+      {
+        "enum": "MODIFIED_AUDITORS_OPINION",
+        "fields": {
+          "hint": "Аудиторское заключение независимого аудитора (обычно в начале отчёта). Если 'Мнение не модифицировано' — значение = 0 (нет). Если есть оговорка / отказ / отрицательное мнение — 1 (да)."
+        }
+      },
+      {
+        "enum": "NET_INCOME_SHAREHOLDERS",
+        "fields": {
+          "aliases_ru": [],
+          "aliases_en": [
+            "Profit attributable to equity holders of the parent",
+            "Net income attributable to shareholders of the parent",
+            "Profit for the year attributable to owners of the Company",
+            "Net income attributable to controlling interest"
+          ]
+        }
+      },
+      {
+        "enum": "NET_INTEREST_INCOME",
+        "fields": {
+          "aliases_ru": [
+            "Чистый процентный доход",
+            "ЧПД",
+            "Чистый процентный доход после резерва"
+          ],
+          "hint": "P&L банка, ключевая строка после процентных доходов и расходов. В interim-отчетах с колонками 3M/Q и 6M/YTD возвращай обе группы периодов, не только YTD."
+        }
+      },
+      {
+        "enum": "NET_OTHER_RESERVES",
+        "fields": {
+          "hint": "ОДДС или P&L. Может быть в составе 'Прочие операционные доходы/расходы' или отдельной строкой."
+        }
+      },
+      {
+        "enum": "NON_INTEREST_INCOME_BANKS",
+        "fields": {
+          "aliases_ru": [
+            "Комиссионные и прочие доходы"
+          ],
+          "hint": "P&L банка, в части после ЧПД. Если отдельной строкой нет — null."
+        }
+      },
+      {
+        "enum": "OPERATING_EXPENSES_BANKS",
+        "fields": {
+          "hint": "P&L банка, после операционных доходов и резервов."
+        }
+      },
+      {
+        "enum": "OTHER_OPERATING_INCOME",
+        "fields": {
+          "hint": "P&L банка, в составе непроцентных доходов."
+        }
+      },
+      {
+        "enum": "PERPETUAL_BONDS",
+        "fields": {
+          "hint": "Раздел КАПИТАЛ баланса (если эмитент учитывает их как капитал) или Долгосрочные обязательства."
+        }
+      },
+      {
+        "enum": "PPE",
+        "fields": {
+          "hint": "Внеоборотные активы баланса. Также детализация в Примечании 'Основные средства'."
+        }
+      },
+      {
+        "enum": "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+        "fields": {
+          "hint": "ОДДС, раздел 'Финансовая деятельность'. Не путать с INTEREST_PAID_LEASE_LIABILITIES."
+        }
+      },
+      {
+        "enum": "REPO_PLEDGED_SECURITIES",
+        "fields": {
+          "hint": "Балансовый отчёт или Примечание 'Финансовые инструменты'. Внебалансовая или балансовая статья в зависимости от учётной политики."
+        }
+      },
+      {
+        "enum": "RIGHT_OF_USE_ASSETS",
+        "fields": {
+          "hint": "Внеоборотные активы баланса (отдельная строка). Детализация в Примечании 'Аренда' / 'IFRS 16'."
+        }
+      },
+      {
+        "enum": "RISK_WEIGHTED_ASSETS",
+        "fields": {
+          "hint": "Примечание 'Достаточность капитала' / 'Управление капиталом'."
+        }
+      },
+      {
+        "enum": "SECURITIES_AMORTISED_COST",
+        "fields": {
+          "hint": "Балансовый отчёт банка. Категория измерения по IFRS 9."
+        }
+      },
+      {
+        "enum": "SECURITIES_ASSETS",
+        "fields": {
+          "hint": "Балансовый отчёт или примечание к инвестициям: ценные бумаги / marketable securities / short-term investments на дату баланса. Не путай с cash equivalents и bank deposits/time deposits."
+        }
+      },
+      {
+        "enum": "SECURITIES_FVOCI",
+        "fields": {
+          "aliases_ru": [
+            "Финансовые активы",
+            "оцениваемые по ССПСД",
+            "Ценные бумаги",
+            "оцениваемые по справедливой стоимости через прибыль или убыток"
+          ],
+          "hint": "Балансовый отчёт банка. Категория измерения по IFRS 9."
+        }
+      },
+      {
+        "enum": "SECURITIES_FVPL",
+        "fields": {
+          "aliases_ru": [
+            "Финансовые активы",
+            "оцениваемые по ССЧПУ",
+            "Ценные бумаги",
+            "оцениваемые по справедливой стоимости через прибыль или убыток"
+          ],
+          "hint": "Балансовый отчёт банка. Категория измерения по IFRS 9."
+        }
+      },
+      {
+        "enum": "SECURITIES_LIABILITIES",
+        "fields": {
+          "aliases_ru": [
+            "Финансовые обязательства",
+            "Выпущенные долговые инструменты"
+          ],
+          "description": "Облигации и прочие долговые ценные бумаги, выпущенные компанией.",
+          "hint": "Балансовый отчёт. Детализация в Примечании 'Долговые ценные бумаги' / 'Облигационный заём'."
+        }
+      },
+      {
+        "enum": "SHARE_PREMIUM",
+        "fields": {
+          "hint": "Раздел капитала: share premium/additional paid-in capital на конец периода."
+        }
+      },
+      {
+        "enum": "TIER1_RATIO_DISCLOSED",
+        "fields": {
+          "aliases_ru": [
+            "Tier 1 ratio",
+            "норматив Н 1.1",
+            "норматив Н 20.2"
+          ],
+          "hint": "Примечание 'Достаточность капитала'. Единица — проценты."
+        }
+      },
+      {
+        "enum": "TOTAL_CREDIT_ALLOWANCE",
+        "fields": {
+          "aliases_en": [
+            "Credit impairment losses",
+            "Loan loss provisions",
+            "Provision for loan losses",
+            "Allowance for credit losses",
+            "ECL allowance on loans",
+            "Impairment allowance on loans"
+          ],
+          "description": "Расход (за период) на создание/восстановление резервов под кредитные убытки.",
+          "hint": "P&L банка — отдельная строка после процентного дохода. Сохраняй знак/скобки как в источнике.",
+          "period_type": "duration"
+        }
+      }
+    ],
+    "calculated": []
+  },
+  "orders": {
+    "extractable": [
+      "MODIFIED_AUDITORS_OPINION",
+      "CASH_EQUIVALENTS",
+      "PERPETUAL_BONDS",
+      "TOTAL_ASSETS",
+      "PPE",
+      "DEFERRED_TAX_ASSETS",
+      "DEFERRED_TAX_LIABILITIES",
+      "INTANGIBLE_ASSETS",
+      "GOODWILL",
+      "TOTAL_EQUITY",
+      "RIGHT_OF_USE_ASSETS",
+      "NET_INCOME",
+      "INTEREST_PAID",
+      "INTEREST_RECEIVED",
+      "DIVIDENDS",
+      "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+      "CHANGES_OCF_ASSETS_LIABILITIES",
+      "TOTAL_LOANS_TO_CLIENTS",
+      "CORPORATE_LOANS",
+      "INDIVIDUALS_LOANS",
+      "CLIENT_DEPOSITS",
+      "COMMON_EQUITY_TIER_ONE_CAPITAL",
+      "NET_INTEREST_INCOME",
+      "NON_INTEREST_INCOME_BANKS",
+      "TOTAL_INVESTMENT_BANKING_FEES",
+      "OPERATING_INCOME_BANKS",
+      "TOTAL_CREDIT_ALLOWANCE",
+      "OPERATING_EXPENSES_BANKS",
+      "NET_COMMISSION_INCOME",
+      "OTHER_OPERATING_INCOME",
+      "INCOME_TAX",
+      "EBT",
+      "INTERBANK_DEPOSITS",
+      "INTERBANK_LOANS",
+      "SECURITIES_ASSETS",
+      "OTHER_ASSETS",
+      "TOTAL_ASSOCIATE_INVESTMENTS",
+      "INDIVIDUALS_DEPOSITS",
+      "CORPORATE_DEPOSITS",
+      "GOVERNMENTAL_DEPOSITS",
+      "SECURITIES_LIABILITIES",
+      "JUNIOR_DEBT",
+      "OTHER_LIABILITIES",
+      "SHARE_CAPITAL",
+      "SHARE_PREMIUM",
+      "TREASURY_SHARES",
+      "RETAINED_EARNINGS",
+      "NON_CONTROL_INTEREST",
+      "DERIVATIVE_LIABILITIES",
+      "INSURANCE_LIABILITIES",
+      "CASH_AND_CASH_BALANCES_WITH_CB",
+      "FUNDS_FROM_CENTRAL_BANK",
+      "INTEREST_INCOME_ER",
+      "INTEREST_EXPENSE_ER",
+      "FEE_AND_COMMISSION_INCOME",
+      "FEE_AND_COMMISSION_EXPENSE",
+      "CURRENCY_METALS_INCOME",
+      "INSURANCE_INCOME",
+      "INSURANCE_EXPENSE",
+      "NET_OTHER_RESERVES",
+      "LOANS_STAGE1_GROSS",
+      "LOANS_STAGE2_GROSS",
+      "LOANS_STAGE3_GROSS",
+      "ECL_ALLOWANCE_STAGE1",
+      "ECL_ALLOWANCE_STAGE2",
+      "ECL_ALLOWANCE_STAGE3",
+      "SECURITIES_FVPL",
+      "SECURITIES_FVOCI",
+      "SECURITIES_AMORTISED_COST",
+      "REPO_PLEDGED_SECURITIES",
+      "RISK_WEIGHTED_ASSETS",
+      "CET1_RATIO_DISCLOSED",
+      "TIER1_RATIO_DISCLOSED",
+      "EPS",
+      "DIVIDENDS_RECEIVED",
+      "CHANGE_IN_EXPECTED_CREDIT_LOSSES",
+      "DEBT_SECURITIES_ISSUED",
+      "LEASE_LIABILITIES_BANKS",
+      "NET_INCOME_SHAREHOLDERS",
+      "EQUITY_SHAREHOLDERS"
+    ],
+    "calculated": [
+      "DIVIDENDS",
+      "NET_INTEREST_PAID",
+      "ROE",
+      "TAX_EXPENDITURE",
+      "ORGANIC_NET_INCOME",
+      "NON_REGULAR_NET_INCOME",
+      "OPERATING_INCOME_CIR",
+      "EXTREMELY_LIQUID_ASSETS",
+      "NET_OTHER_ASSETS",
+      "OTHER_OTHER_ASSETS",
+      "NON_CONSUMER_DEPOSITS",
+      "TOTAL_LIABILITIES",
+      "NET_OTHER_LIABILITIES",
+      "CORPORATE_LOANS_TO_DEPOSITS_RATIO",
+      "LOANS_TO_DEPOSITS",
+      "DIVIDEND_PAYOUT_RATIO",
+      "NET_INSURANCE_INCOME",
+      "COST_TO_INCOME_RATIO",
+      "COST_OF_RISK_GENERAL",
+      "INTEREST_EARNING_ASSETS",
+      "INTEREST_BEARING_LIABILITIES",
+      "NET_INTEREST_MARGIN",
+      "COST_TO_ASSETS",
+      "STAGE3_RATIO",
+      "STAGE3_COVERAGE",
+      "RETAIL_DEPOSIT_SHARE",
+      "RWA_DENSITY",
+      "NET_COMMISSION_INCOME",
+      "ROA",
+      "ASSET_YIELD",
+      "FUNDING_COST",
+      "ROE_SHAREHOLDERS"
+    ]
+  }
+}

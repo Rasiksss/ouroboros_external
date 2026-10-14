@@ -1,0 +1,1189 @@
+[
+  {
+    "id": "intent-001",
+    "query": "Какая выручка у Северстали за 1 квартал 2025 года?",
+    "language": "ru",
+    "expected_category": "extract_registered_metric",
+    "notes": "один показатель, одна компания, один период",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "SALES_REVENUE"
+    ]
+  },
+  {
+    "id": "intent-002",
+    "query": "Сколько составил чистый процентный доход Сбербанка за 2024 год?",
+    "language": "ru",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "NET_INTEREST_INCOME"
+    ]
+  },
+  {
+    "id": "intent-003",
+    "query": "What was Apple's gross margin in Q3 FY2024?",
+    "language": "en",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "GROSS_MARGIN"
+    ]
+  },
+  {
+    "id": "intent-004",
+    "query": "Покажи размер чистого долга НЛМК на конец 2023 года.",
+    "language": "ru",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "NET_DEBT"
+    ]
+  },
+  {
+    "id": "intent-005",
+    "query": "What is JPMorgan's CET1 ratio as of Q4 2024?",
+    "language": "en",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "CET1_RATIO_DISCLOSED"
+    ]
+  },
+  {
+    "id": "intent-006",
+    "query": "Какая себестоимость продаж у Магнита за первое полугодие 2024?",
+    "language": "ru",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "COSTS_EXPENSES"
+    ]
+  },
+  {
+    "id": "intent-007",
+    "query": "Сколько денежных средств и эквивалентов было у Яндекса на 31.12.2024?",
+    "language": "ru",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "CASH_EQUIVALENTS"
+    ]
+  },
+  {
+    "id": "intent-008",
+    "query": "What is Tesla's total debt as of the latest 10-Q?",
+    "language": "en",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "TOTAL_DEBT"
+    ]
+  },
+  {
+    "id": "intent-009",
+    "query": "Какой объём кредитного портфеля у ВТБ на 30.06.2025?",
+    "language": "ru",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "TOTAL_LOANS_TO_CLIENTS"
+    ]
+  },
+  {
+    "id": "intent-010",
+    "query": "Дай показатель Tier 1 capital банка HDFC за последний отчётный период.",
+    "language": "ru",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar"
+  },
+  {
+    "id": "intent-011",
+    "query": "Какая рентабельность по EBITDA у Полюса за 2024 год?",
+    "language": "ru",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "EBITDA_MARGIN"
+    ]
+  },
+  {
+    "id": "intent-012",
+    "query": "What were Reliance Industries' inventories at year end FY2024?",
+    "language": "en",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "INVENTORIES"
+    ]
+  },
+  {
+    "id": "intent-013",
+    "query": "Сумма дивидендов, выплаченных акционерам Роснефти в 2024 году?",
+    "language": "ru",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "DIVIDENDS_SHAREHOLDERS"
+    ]
+  },
+  {
+    "id": "intent-014",
+    "query": "What is Bank of America's net interest margin for FY2024?",
+    "language": "en",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "NET_INTEREST_MARGIN"
+    ]
+  },
+  {
+    "id": "intent-015",
+    "query": "Какой размер резерва под ожидаемые кредитные убытки у Альфа-Банка на конец 2024?",
+    "language": "ru",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "TOTAL_CREDIT_ALLOWANCE"
+    ]
+  },
+  {
+    "id": "intent-016",
+    "query": "Дай гудвил на балансе Detsky Mir по последней отчётности МСФО.",
+    "language": "ru",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "GOODWILL"
+    ]
+  },
+  {
+    "id": "intent-017",
+    "query": "What is Unilever's revenue from contracts with customers for FY2023?",
+    "language": "en",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "SALES_REVENUE"
+    ]
+  },
+  {
+    "id": "intent-018",
+    "query": "Покажи величину основных средств Газпрома на 31.12.2023.",
+    "language": "ru",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "PPE"
+    ]
+  },
+  {
+    "id": "intent-019",
+    "query": "Каков коэффициент текущей ликвидности у Сургутнефтегаза за 2024 год?",
+    "language": "ru",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "CURRENT_RATIO"
+    ]
+  },
+  {
+    "id": "intent-020",
+    "query": "What is the risk-weighted assets figure for Citigroup as of Q2 2025?",
+    "language": "en",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "RISK_WEIGHTED_ASSETS"
+    ]
+  },
+  {
+    "id": "intent-021",
+    "query": "Сделай полный финансовый анализ отчётности Северстали за 2024 год.",
+    "language": "ru",
+    "expected_category": "full_analysis",
+    "notes": "широкий разбор нескольких показателей и периодов",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-022",
+    "query": "Проанализируй динамику ликвидности и долговой нагрузки НЛМК за последние три года.",
+    "language": "ru",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-023",
+    "query": "Give me a full breakdown of JPMorgan's profitability, capital adequacy and asset quality for FY2024.",
+    "language": "en",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-024",
+    "query": "Разбери финансовое состояние Магнита: выручка, маржинальность, оборотный капитал, долг.",
+    "language": "ru",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-025",
+    "query": "Проведи комплексный анализ отчётности Сбербанка за 2023-2024: капитал, резервы, процентная маржа.",
+    "language": "ru",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-026",
+    "query": "Analyze Reliance Industries' overall financial health based on its latest annual report.",
+    "language": "en",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-027",
+    "query": "Дай развёрнутую картину по Роснефти: выручка, EBITDA, чистый долг, CAPEX, дивиденды.",
+    "language": "ru",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-028",
+    "query": "Оцени финансовое положение Полюса целиком, со всеми ключевыми коэффициентами.",
+    "language": "ru",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-029",
+    "query": "Provide a comprehensive analysis of Tesla's liquidity, leverage and operating performance.",
+    "language": "en",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-030",
+    "query": "Проанализируй ВТБ по всем ключевым банковским метрикам за последний год.",
+    "language": "ru",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-031",
+    "query": "Сделай полный анализ отчётности Яндекса, включая сегменты и структуру выручки.",
+    "language": "ru",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-032",
+    "query": "Give a full picture of Bank of America's balance sheet, income statement and capital ratios for FY2024.",
+    "language": "en",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-033",
+    "query": "Разбери отчётность Детского мира целиком: рентабельность, оборачиваемость, долговая нагрузка.",
+    "language": "ru",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-034",
+    "query": "Проведи полный разбор годового отчёта Сургутнефтегаза за 2024 год.",
+    "language": "ru",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-035",
+    "query": "Analyze HDFC Bank's overall performance across profitability, asset quality and capital.",
+    "language": "en",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-036",
+    "query": "Полный финансовый разбор Газпрома: выручка, EBITDA, долг, CAPEX, дивидендная политика.",
+    "language": "ru",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-037",
+    "query": "Give me a deep dive into Citigroup's Q2 2025 results across every major metric.",
+    "language": "en",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-038",
+    "query": "Проанализируй финансовое состояние Альфа-Банка со всеми основными коэффициентами за 2024.",
+    "language": "ru",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-039",
+    "query": "Сделай комплексный обзор отчётности Unilever за FY2023 с ключевыми выводами.",
+    "language": "ru",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-040",
+    "query": "Разбери отчётность Полюса полностью: от выручки до чистого долга и денежного потока.",
+    "language": "ru",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-041",
+    "query": "Заполни форму ДГР по последней отчётности Северстали за 2024 год.",
+    "language": "ru",
+    "expected_category": "form",
+    "notes": "запрошен конкретный тип формы вывода",
+    "expected_output_kind": "form",
+    "expected_role": "dgr"
+  },
+  {
+    "id": "intent-042",
+    "query": "Сформируй CIB-таблицу по банку ВТБ за 2024 год.",
+    "language": "ru",
+    "expected_category": "form",
+    "expected_output_kind": "form",
+    "expected_role": "cib"
+  },
+  {
+    "id": "intent-043",
+    "query": "Собери BAIFP по отчётности Сбербанка за 1 квартал 2025.",
+    "language": "ru",
+    "expected_category": "form",
+    "expected_output_kind": "form",
+    "expected_role": "baifp"
+  },
+  {
+    "id": "intent-044",
+    "query": "Нужна форма DIE по НЛМК за 2023 год.",
+    "language": "ru",
+    "expected_category": "form",
+    "expected_output_kind": "form",
+    "expected_role": "die"
+  },
+  {
+    "id": "intent-045",
+    "query": "Сформируй таблицу рисков (risks layout) по Магниту за 2024.",
+    "language": "ru",
+    "expected_category": "form",
+    "expected_output_kind": "form",
+    "expected_role": "risks"
+  },
+  {
+    "id": "intent-046",
+    "query": "Заполни стандартную форму отчёта по ролям 'other' для Яндекса за 2024 год.",
+    "language": "ru",
+    "expected_category": "form",
+    "expected_output_kind": "form",
+    "expected_role": "other"
+  },
+  {
+    "id": "intent-047",
+    "query": "Fill in the DGR layout for Rosneft's FY2024 annual report.",
+    "language": "en",
+    "expected_category": "form",
+    "expected_output_kind": "form",
+    "expected_role": "dgr"
+  },
+  {
+    "id": "intent-048",
+    "query": "Собери форму CIB по Полюсу, включая пустые строки, если данных нет.",
+    "language": "ru",
+    "expected_category": "form",
+    "expected_output_kind": "form",
+    "expected_role": "cib"
+  },
+  {
+    "id": "intent-049",
+    "query": "Нужна ДГР-форма по Детскому миру за 2023 год в виде таблицы.",
+    "language": "ru",
+    "expected_category": "form",
+    "expected_output_kind": "form",
+    "expected_role": "dgr"
+  },
+  {
+    "id": "intent-050",
+    "query": "Populate the BAIFP form for HDFC Bank's latest annual filing.",
+    "language": "en",
+    "expected_category": "form",
+    "expected_output_kind": "form",
+    "expected_role": "baifp"
+  },
+  {
+    "id": "intent-051",
+    "query": "Сделай форму risks по Сургутнефтегазу за 2024 год.",
+    "language": "ru",
+    "expected_category": "form",
+    "expected_output_kind": "form",
+    "expected_role": "risks"
+  },
+  {
+    "id": "intent-052",
+    "query": "Заполни форму DIE по Роснефти, сохранив недоступные строки как пустые.",
+    "language": "ru",
+    "expected_category": "form",
+    "expected_output_kind": "form",
+    "expected_role": "die"
+  },
+  {
+    "id": "intent-053",
+    "query": "Собери CIB-таблицу по Citigroup за Q4 2024.",
+    "language": "ru",
+    "expected_category": "form",
+    "expected_output_kind": "form",
+    "expected_role": "cib"
+  },
+  {
+    "id": "intent-054",
+    "query": "Заполни ДГР для Альфа-Банка за первое полугодие 2025.",
+    "language": "ru",
+    "expected_category": "form",
+    "expected_output_kind": "form",
+    "expected_role": "dgr"
+  },
+  {
+    "id": "intent-055",
+    "query": "Сформируй форму по роли other для отчётности Unilever FY2023.",
+    "language": "ru",
+    "expected_category": "form",
+    "expected_output_kind": "form",
+    "expected_role": "other"
+  },
+  {
+    "id": "intent-056",
+    "query": "Дай показатель.",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "нет ни концепта, ни компании, ни периода"
+  },
+  {
+    "id": "intent-057",
+    "query": "Какая у них выручка?",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "местоимение без антецедента — неизвестно, о какой компании речь"
+  },
+  {
+    "id": "intent-058",
+    "query": "Покажи прибыль за прошлый год.",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "нет компании; неясно, какая именно прибыль (валовая/операционная/чистая)"
+  },
+  {
+    "id": "intent-059",
+    "query": "What was the margin last quarter?",
+    "language": "en",
+    "expected_category": "ambiguous",
+    "notes": "no company, and 'margin' is not a single concept"
+  },
+  {
+    "id": "intent-060",
+    "query": "Сравни их показатели.",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "неизвестно, кого сравнивать и по каким метрикам"
+  },
+  {
+    "id": "intent-061",
+    "query": "Дай цифры по банку за квартал.",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "какой банк, какой квартал, какие цифры — не указано"
+  },
+  {
+    "id": "intent-062",
+    "query": "Как обстоят дела с долгом?",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "нет субъекта и периода"
+  },
+  {
+    "id": "intent-063",
+    "query": "Покажи отчёт за этот год.",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "нет компании; 'этот год' без привязки к дате запроса неоднозначен"
+  },
+  {
+    "id": "intent-064",
+    "query": "Что там с капиталом?",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "разговорная форма без субъекта и точного концепта (капитал акционеров? регуляторный капитал?)"
+  },
+  {
+    "id": "intent-065",
+    "query": "Compare the two companies' profitability.",
+    "language": "en",
+    "expected_category": "ambiguous",
+    "notes": "'the two companies' not resolved to any entities in context"
+  },
+  {
+    "id": "intent-066",
+    "query": "Сделай анализ, как обычно.",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "нет ни компании, ни периода, ни объёма анализа"
+  },
+  {
+    "id": "intent-067",
+    "query": "Какой у неё показатель ROE?",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "местоимение 'она' не привязано к компании из предыдущего контекста"
+  },
+  {
+    "id": "intent-068",
+    "query": "Дай значение за 3 квартал.",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "нет ни компании, ни концепта — только период"
+  },
+  {
+    "id": "intent-069",
+    "query": "Покажи изменение по сравнению с прошлым разом.",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "нет опорного показателя и нет 'прошлого раза' в сессии"
+  },
+  {
+    "id": "intent-070",
+    "query": "What's the number for the bank?",
+    "language": "en",
+    "expected_category": "ambiguous",
+    "notes": "no specific bank named, no specific metric named"
+  },
+  {
+    "id": "intent-071",
+    "query": "Какой у Северстали коэффициент EBITDA-мультипликатора роста устойчивости бренда?",
+    "language": "ru",
+    "expected_category": "unknown_concept",
+    "notes": "выдуманный показатель, не существующий в реестре методик"
+  },
+  {
+    "id": "intent-072",
+    "query": "Спрогнозируй курс акций Сбербанка на следующий квартал.",
+    "language": "ru",
+    "expected_category": "unknown_concept",
+    "notes": "инвестиционный прогноз — вне границ сценария (нерушимое решение №6)"
+  },
+  {
+    "id": "intent-073",
+    "query": "Стоит ли покупать акции Газпрома сейчас?",
+    "language": "ru",
+    "expected_category": "unknown_concept",
+    "notes": "инвестиционная рекомендация — запрещённый тип результата"
+  },
+  {
+    "id": "intent-074",
+    "query": "What is Apple's 'customer happiness index' according to its 10-K?",
+    "language": "en",
+    "expected_category": "unknown_concept",
+    "notes": "показатель, не раскрываемый в финансовой отчётности"
+  },
+  {
+    "id": "intent-075",
+    "query": "Какая температура была в главном офисе НЛМК в день публикации отчёта?",
+    "language": "ru",
+    "expected_category": "unknown_concept",
+    "notes": "вне области финансового анализа вообще"
+  },
+  {
+    "id": "intent-076",
+    "query": "Посчитай индекс социальной ответственности Магнита за 2024 год.",
+    "language": "ru",
+    "expected_category": "unknown_concept",
+    "notes": "показатель не входит в текущую методику/реестр"
+  },
+  {
+    "id": "intent-077",
+    "query": "What is Tesla's 'meme stock volatility coefficient'?",
+    "language": "en",
+    "expected_category": "unknown_concept",
+    "notes": "не существующий финансовый термин"
+  },
+  {
+    "id": "intent-078",
+    "query": "Дай прогноз курса рубля на основе отчётности Роснефти.",
+    "language": "ru",
+    "expected_category": "unknown_concept",
+    "notes": "макропрогноз, не следует из документа и не входит в объём сценария"
+  },
+  {
+    "id": "intent-079",
+    "query": "Какой у банка ВТБ 'индекс клиентской любви' за 2024 год?",
+    "language": "ru",
+    "expected_category": "unknown_concept"
+  },
+  {
+    "id": "intent-080",
+    "query": "Should I invest in Reliance Industries based on this report?",
+    "language": "en",
+    "expected_category": "unknown_concept",
+    "notes": "прямой запрос инвестиционного совета"
+  },
+  {
+    "id": "intent-081",
+    "query": "Посчитай углеродный след Полюса по данным финансового отчёта.",
+    "language": "ru",
+    "expected_category": "unknown_concept",
+    "notes": "ESG-метрика, не извлекаемая из финансовой отчётности этим сценарием"
+  },
+  {
+    "id": "intent-082",
+    "query": "What is Citigroup's 'employee happiness ratio' for FY2024?",
+    "language": "en",
+    "expected_category": "unknown_concept"
+  },
+  {
+    "id": "intent-083",
+    "query": "Дай коэффициент лунного влияния на выручку Детского мира.",
+    "language": "ru",
+    "expected_category": "unknown_concept",
+    "notes": "абсурдный концепт для проверки безопасного отказа"
+  },
+  {
+    "id": "intent-084",
+    "query": "Порекомендуй, продавать или держать облигации Северстали.",
+    "language": "ru",
+    "expected_category": "unknown_concept",
+    "notes": "инвестиционная рекомендация по долговым инструментам"
+  },
+  {
+    "id": "intent-085",
+    "query": "What will HDFC Bank's stock price be in six months?",
+    "language": "en",
+    "expected_category": "unknown_concept",
+    "notes": "прогноз котировок — запрещён"
+  },
+  {
+    "id": "intent-086",
+    "query": "Покажи ключевые показатели ПАО Ромашка за 4 квартал 2025 года.",
+    "language": "ru",
+    "expected_category": "extract_registered_metric",
+    "notes": "гипотетическая компания без реального отчёта — тест на отсутствие документа, не неоднозначность формулировки",
+    "expected_output_kind": "scalar"
+  },
+  {
+    "id": "intent-087",
+    "query": "Сравни рентабельность Сбербанка и ВТБ за 2024 год по чистой прибыли.",
+    "language": "ru",
+    "expected_category": "compare_metrics",
+    "notes": "сравнение двух явно названных компаний по явно названному показателю — не неоднозначность и не полный разбор, отдельный goal_type COMPARE_METRICS (26-prilozhenie-ad-hoc-i-goalir-katalog.md)",
+    "expected_output_kind": "assessment"
+  },
+  {
+    "id": "intent-088",
+    "query": "What is the quick ratio for Severstal as of 31 December 2024?",
+    "language": "en",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": [
+      "QUICK_RATIO"
+    ]
+  },
+  {
+    "id": "intent-089",
+    "query": "Собери форму ДГР по Северстали, но за период, для которого отчёт ещё не опубликован.",
+    "language": "ru",
+    "expected_category": "form",
+    "notes": "форма запрошена корректно; недостижимость данных — ответственность планировщика, не intent-слоя",
+    "expected_output_kind": "form",
+    "expected_role": "dgr"
+  },
+  {
+    "id": "intent-090",
+    "query": "Give me Bank of America's provision for credit losses and non-performing loans ratio for FY2024.",
+    "language": "en",
+    "expected_category": "extract_registered_metric",
+    "notes": "два конкретных показателя одной компании за один период — всё ещё точечный запрос, не полный анализ",
+    "expected_output_kind": "scalar"
+  },
+  {
+    "id": "intent-091",
+    "query": "Сделай вообще всё по Газпрому.",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "неограниченный объём без периода и без списка показателей"
+  },
+  {
+    "id": "intent-092",
+    "query": "Насколько компания хорошая?",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "субъективная оценка без компании и без определения 'хорошая'"
+  },
+  {
+    "id": "intent-093",
+    "query": "What is the company's performance?",
+    "language": "en",
+    "expected_category": "ambiguous",
+    "notes": "'the company' unresolved, 'performance' not a single metric"
+  },
+  {
+    "id": "intent-094",
+    "query": "Разбери отчёт, который я вчера присылал.",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "ссылка на документ вне текущей сессии/контекста"
+  },
+  {
+    "id": "intent-095",
+    "query": "Дай мультипликатор счастья инвестора для Яндекса.",
+    "language": "ru",
+    "expected_category": "unknown_concept"
+  },
+  {
+    "id": "intent-096",
+    "query": "What is Unilever's 'brand karma score' for FY2023?",
+    "language": "en",
+    "expected_category": "unknown_concept"
+  },
+  {
+    "id": "intent-097",
+    "query": "Заполни форму по роли, которую я обычно использую.",
+    "language": "ru",
+    "expected_category": "ambiguous",
+    "notes": "ссылка на неявную предпочтительную роль без указания какую именно"
+  },
+  {
+    "id": "intent-098",
+    "query": "Собери таблицу DIE и CIB одновременно по Полюсу за 2024.",
+    "language": "ru",
+    "expected_category": "form",
+    "notes": "запрошены две конкретные формы явно — не неоднозначность",
+    "expected_output_kind": "form"
+  },
+  {
+    "id": "intent-099",
+    "query": "Какая доля неработающих кредитов (NPL) у Альфа-Банка на 30.09.2024?",
+    "language": "ru",
+    "expected_category": "extract_registered_metric",
+    "expected_output_kind": "scalar"
+  },
+  {
+    "id": "intent-100",
+    "query": "Дай развёрнутый разбор ликвидности, рентабельности и структуры капитала Сургутнефтегаза за три последних года.",
+    "language": "ru",
+    "expected_category": "full_analysis",
+    "expected_output_kind": "bundle"
+  },
+  {
+    "id": "intent-101",
+    "query": "Какой процент акций у мажоритарного акционера НЛМК?",
+    "language": "ru",
+    "expected_category": "unknown_concept",
+    "notes": "структура собственности не является финансовым показателем из отчётности в рамках этого сценария"
+  },
+  {
+    "id": "intent-102",
+    "query": "Насколько вырастет выручка Магнита в следующем году?",
+    "language": "ru",
+    "expected_category": "unknown_concept",
+    "notes": "прогноз будущих показателей вне границ сценария (только факты из отчётности)"
+  },
+  {
+    "id": "intent-103",
+    "query": "Покажи сумму государственных субсидий, полученных Северсталью в 2024 году.",
+    "language": "ru",
+    "expected_category": "extract_ad_hoc_metric",
+    "notes": "легитимная строка отчётности, но не среди стандартных зарегистрированных концептов",
+    "expected_output_kind": "scalar"
+  },
+  {
+    "id": "intent-104",
+    "query": "Сколько составили капитализированные расходы на НИОКР у Яндекса за 2024 год?",
+    "language": "ru",
+    "expected_category": "extract_ad_hoc_metric",
+    "expected_output_kind": "scalar"
+  },
+  {
+    "id": "intent-105",
+    "query": "What was the amount of insurance recovery Tesla received in FY2024?",
+    "language": "en",
+    "expected_category": "extract_ad_hoc_metric",
+    "expected_output_kind": "scalar"
+  },
+  {
+    "id": "intent-106",
+    "query": "Дай сумму курсовых разниц, отражённых в прочем совокупном доходе Магнита за 2024 год.",
+    "language": "ru",
+    "expected_category": "extract_ad_hoc_metric",
+    "expected_output_kind": "scalar"
+  },
+  {
+    "id": "intent-107",
+    "query": "What was the carrying amount of Rosneft's capitalized exploration costs at year-end 2024?",
+    "language": "en",
+    "expected_category": "extract_ad_hoc_metric",
+    "expected_output_kind": "scalar"
+  },
+  {
+    "id": "intent-108",
+    "query": "Рассчитай коэффициент покрытия процентов НЛМК за 2024 год.",
+    "language": "ru",
+    "expected_category": "calculate_registered_metric",
+    "notes": "явный глагол 'рассчитай' + показатель уже есть в реестре как формула",
+    "expected_output_kind": "scalar",
+    "expected_concepts": ["INTEREST_COVERAGE_RATIO"]
+  },
+  {
+    "id": "intent-109",
+    "query": "Посчитай маржу по чистой прибыли Магнита за 2024 год.",
+    "language": "ru",
+    "expected_category": "calculate_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": ["NET_INCOME_MARGIN"]
+  },
+  {
+    "id": "intent-110",
+    "query": "Calculate Tesla's debt-to-equity ratio as of the end of FY2024.",
+    "language": "en",
+    "expected_category": "calculate_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": ["DEBT_TO_EQUITY_RATIO"]
+  },
+  {
+    "id": "intent-111",
+    "query": "Посчитай коэффициент быстрой ликвидности Северстали на конец 2024 года.",
+    "language": "ru",
+    "expected_category": "calculate_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": ["QUICK_RATIO"]
+  },
+  {
+    "id": "intent-112",
+    "query": "Compute Unilever's EBIT margin for FY2023.",
+    "language": "en",
+    "expected_category": "calculate_registered_metric",
+    "expected_output_kind": "scalar",
+    "expected_concepts": ["EBIT_MARGIN"]
+  },
+  {
+    "id": "intent-113",
+    "query": "Посчитай эффективную налоговую ставку Роснефти за 2024 год.",
+    "language": "ru",
+    "expected_category": "calculate_ad_hoc_metric",
+    "notes": "классический пример из карточки formula.infer (26-...md) — выводима из уже резолвимых концептов, но сама формула не зарегистрирована",
+    "expected_output_kind": "scalar"
+  },
+  {
+    "id": "intent-114",
+    "query": "Рассчитай затраты на одного сотрудника у Магнита за 2024 год.",
+    "language": "ru",
+    "expected_category": "calculate_ad_hoc_metric",
+    "expected_output_kind": "scalar"
+  },
+  {
+    "id": "intent-115",
+    "query": "Calculate Tesla's revenue per employee for FY2024.",
+    "language": "en",
+    "expected_category": "calculate_ad_hoc_metric",
+    "expected_output_kind": "scalar"
+  },
+  {
+    "id": "intent-116",
+    "query": "Посчитай долю коммерческих расходов в выручке Северстали за 2024 год.",
+    "language": "ru",
+    "expected_category": "calculate_ad_hoc_metric",
+    "expected_output_kind": "scalar"
+  },
+  {
+    "id": "intent-117",
+    "query": "Calculate Bank of America's provision expense as a percentage of average loans for FY2024.",
+    "language": "en",
+    "expected_category": "calculate_ad_hoc_metric",
+    "expected_output_kind": "scalar"
+  },
+  {
+    "id": "intent-118",
+    "query": "Покажи структуру выручки по операционным сегментам Северстали за 2024 год.",
+    "language": "ru",
+    "expected_category": "extract_structure",
+    "notes": "таблица/раскрытие, а не один числовой показатель",
+    "expected_output_kind": "structure"
+  },
+  {
+    "id": "intent-119",
+    "query": "Дай таблицу сроков погашения долга Роснефти по годам.",
+    "language": "ru",
+    "expected_category": "extract_structure",
+    "expected_output_kind": "structure"
+  },
+  {
+    "id": "intent-120",
+    "query": "Покажи состав консолидированной группы Магнита с долями участия.",
+    "language": "ru",
+    "expected_category": "extract_structure",
+    "expected_output_kind": "structure"
+  },
+  {
+    "id": "intent-121",
+    "query": "Give me the maturity profile of Tesla's debt by year.",
+    "language": "en",
+    "expected_category": "extract_structure",
+    "expected_output_kind": "structure"
+  },
+  {
+    "id": "intent-122",
+    "query": "Show the revenue breakdown by geographic segment for Unilever in FY2023.",
+    "language": "en",
+    "expected_category": "extract_structure",
+    "expected_output_kind": "structure"
+  },
+  {
+    "id": "intent-123",
+    "query": "Что сказано в отчёте Северстали про условия конвертируемых облигаций?",
+    "language": "ru",
+    "expected_category": "document_qa",
+    "notes": "вопрос про содержимое документа (цитата/условие), не про число показателя",
+    "expected_output_kind": "quote"
+  },
+  {
+    "id": "intent-124",
+    "query": "Процитируй пункт учётной политики про признание выручки у Магнита.",
+    "language": "ru",
+    "expected_category": "document_qa",
+    "expected_output_kind": "quote"
+  },
+  {
+    "id": "intent-125",
+    "query": "Какие условия у кредитной линии Роснефти согласно примечаниям к отчётности?",
+    "language": "ru",
+    "expected_category": "document_qa",
+    "expected_output_kind": "quote"
+  },
+  {
+    "id": "intent-126",
+    "query": "What does Tesla's 10-K say about its warranty obligations?",
+    "language": "en",
+    "expected_category": "document_qa",
+    "expected_output_kind": "quote"
+  },
+  {
+    "id": "intent-127",
+    "query": "Does Citigroup's report mention any pending litigation against the bank?",
+    "language": "en",
+    "expected_category": "document_qa",
+    "expected_output_kind": "quote"
+  },
+  {
+    "id": "intent-128",
+    "query": "Сравни рентабельность по EBITDA Северстали за 2023 и 2024 год.",
+    "language": "ru",
+    "expected_category": "compare_metrics",
+    "notes": "сравнение одного показателя одной компании между двумя периодами",
+    "expected_output_kind": "assessment"
+  },
+  {
+    "id": "intent-129",
+    "query": "Compare Apple's gross margin between Q3 FY2023 and Q3 FY2024.",
+    "language": "en",
+    "expected_category": "compare_metrics",
+    "expected_output_kind": "assessment"
+  },
+  {
+    "id": "intent-130",
+    "query": "Сравни чистый долг НЛМК на конец 2023 и конец 2024 года.",
+    "language": "ru",
+    "expected_category": "compare_metrics",
+    "expected_output_kind": "assessment"
+  },
+  {
+    "id": "intent-131",
+    "query": "Compare Citigroup's CET1 ratio between the two most recently reported quarters.",
+    "language": "en",
+    "expected_category": "compare_metrics",
+    "expected_output_kind": "assessment"
+  },
+  {
+    "id": "intent-132",
+    "query": "Почему выручка Северстали выросла в 2024 году по сравнению с 2023?",
+    "language": "ru",
+    "expected_category": "explain_change",
+    "notes": "вопрос вида 'почему изменился показатель', не просто его значение",
+    "expected_output_kind": "explanation"
+  },
+  {
+    "id": "intent-133",
+    "query": "За счёт чего снизилась рентабельность по EBITDA у Магнита?",
+    "language": "ru",
+    "expected_category": "explain_change",
+    "expected_output_kind": "explanation"
+  },
+  {
+    "id": "intent-134",
+    "query": "Why did Tesla's gross margin decline in the latest quarter?",
+    "language": "en",
+    "expected_category": "explain_change",
+    "expected_output_kind": "explanation"
+  },
+  {
+    "id": "intent-135",
+    "query": "Чем объясняется рост чистого долга НЛМК за год?",
+    "language": "ru",
+    "expected_category": "explain_change",
+    "expected_output_kind": "explanation"
+  },
+  {
+    "id": "intent-136",
+    "query": "What drove the increase in Bank of America's net interest margin?",
+    "language": "en",
+    "expected_category": "explain_change",
+    "expected_output_kind": "explanation"
+  },
+  {
+    "id": "intent-137",
+    "query": "Сверь данные баланса и отчёта о движении денежных средств Северстали на непротиворечивость.",
+    "language": "ru",
+    "expected_category": "validate_report",
+    "notes": "сверка/проверка непротиворечивости данных внутри отчёта, а не извлечение показателя",
+    "expected_output_kind": "verification"
+  },
+  {
+    "id": "intent-138",
+    "query": "Проверь, совпадает ли сумма сегментной выручки с итоговой выручкой в отчёте Яндекса.",
+    "language": "ru",
+    "expected_category": "validate_report",
+    "expected_output_kind": "verification"
+  },
+  {
+    "id": "intent-139",
+    "query": "Verify that Tesla's reported total assets reconcile between the balance sheet and the notes.",
+    "language": "en",
+    "expected_category": "validate_report",
+    "expected_output_kind": "verification"
+  },
+  {
+    "id": "intent-140",
+    "query": "Проверь отчётность Роснефти на внутренние противоречия между примечаниями и основными формами.",
+    "language": "ru",
+    "expected_category": "validate_report",
+    "expected_output_kind": "verification"
+  },
+  {
+    "id": "intent-141",
+    "query": "Check whether Citigroup's disclosed risk-weighted assets are consistent across the capital adequacy note and the main tables.",
+    "language": "en",
+    "expected_category": "validate_report",
+    "expected_output_kind": "verification"
+  },
+  {
+    "id": "intent-142",
+    "query": "Сравни фактическую выручку Северстали за 2024 год с плановыми показателями.",
+    "language": "ru",
+    "expected_category": "plan_fact_analysis",
+    "notes": "сравнение факта с планом/бюджетом пользователя, не с прошлым периодом того же отчёта",
+    "expected_output_kind": "assessment"
+  },
+  {
+    "id": "intent-143",
+    "query": "Покажи отклонение фактических расходов Магнита от бюджета за 2024 год.",
+    "language": "ru",
+    "expected_category": "plan_fact_analysis",
+    "expected_output_kind": "assessment"
+  },
+  {
+    "id": "intent-144",
+    "query": "Compare Tesla's actual operating margin against its guidance for the quarter.",
+    "language": "en",
+    "expected_category": "plan_fact_analysis",
+    "expected_output_kind": "assessment"
+  },
+  {
+    "id": "intent-145",
+    "query": "Насколько фактическая чистая прибыль Роснефти отличается от плана на 2024 год?",
+    "language": "ru",
+    "expected_category": "plan_fact_analysis",
+    "expected_output_kind": "assessment"
+  },
+  {
+    "id": "intent-146",
+    "query": "How did Bank of America's actual net interest income compare to its internal forecast for FY2024?",
+    "language": "en",
+    "expected_category": "plan_fact_analysis",
+    "expected_output_kind": "assessment"
+  },
+  {
+    "id": "intent-147",
+    "query": "Сообщи мне, если чистый долг Северстали изменится после следующей отчётности.",
+    "language": "ru",
+    "expected_category": "monitor_changes",
+    "expected_output_kind": "watch",
+    "notes": "R4/13-й GoalType (retrofit v9) — распознаётся, producer для корня графа ещё не реализован"
+  },
+  {
+    "id": "intent-148",
+    "query": "Watch Apple's gross margin and let me know if it drops next quarter.",
+    "language": "en",
+    "expected_category": "monitor_changes",
+    "expected_output_kind": "watch"
+  },
+  {
+    "id": "intent-149",
+    "query": "Следи за выручкой Магнита — предупреди, если появится новый годовой отчёт.",
+    "language": "ru",
+    "expected_category": "monitor_changes",
+    "expected_output_kind": "watch"
+  },
+  {
+    "id": "intent-150",
+    "query": "Notify me whenever Sberbank publishes a new IFRS report so I can re-check the capital adequacy ratio.",
+    "language": "en",
+    "expected_category": "monitor_changes",
+    "expected_output_kind": "watch"
+  },
+  {
+    "id": "intent-151",
+    "query": "Поставь на отслеживание коэффициент текущей ликвидности НЛМК на ближайшие кварталы.",
+    "language": "ru",
+    "expected_category": "monitor_changes",
+    "expected_output_kind": "watch"
+  },
+  {
+    "id": "intent-152",
+    "query": "Alert me if Rosneft's net debt to EBITDA ratio crosses 2.0x in a future filing.",
+    "language": "en",
+    "expected_category": "monitor_changes",
+    "expected_output_kind": "watch"
+  },
+  {
+    "id": "intent-153",
+    "query": "Хочу получать уведомление о каждом изменении дивидендных выплат Газпрома.",
+    "language": "ru",
+    "expected_category": "monitor_changes",
+    "expected_output_kind": "watch"
+  },
+  {
+    "id": "intent-154",
+    "query": "Keep an eye on KBC Group's CET1 ratio and flag any drop below the regulatory minimum.",
+    "language": "en",
+    "expected_category": "monitor_changes",
+    "expected_output_kind": "watch"
+  },
+  {
+    "id": "intent-155",
+    "query": "Отслеживай публикацию новой отчётности Novatek и сообщи, когда она появится.",
+    "language": "ru",
+    "expected_category": "monitor_changes",
+    "expected_output_kind": "watch"
+  },
+  {
+    "id": "intent-156",
+    "query": "Set up a recurring check on Severstal's EBITDA margin every time a new quarterly report is filed.",
+    "language": "en",
+    "expected_category": "monitor_changes",
+    "expected_output_kind": "watch"
+  }
+]

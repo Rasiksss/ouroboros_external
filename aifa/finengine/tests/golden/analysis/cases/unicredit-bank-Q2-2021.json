@@ -1,0 +1,24 @@
+{
+  "case_id": "unicredit-bank-Q2-2021:analysis:01",
+  "company": "Unicredit Bank",
+  "evidence_ids": [
+    "unicredit-bank-Q2-2021:CASH_EQUIVALENTS:01"
+  ],
+  "expected_explanation_covers": [
+    "CASH_EQUIVALENTS",
+    "30.06.2021",
+    "RUB thousand",
+    "source evidence"
+  ],
+  "expected_judgment": {
+    "concept": "CASH_EQUIVALENTS",
+    "verdict": "reported_as_disclosed"
+  },
+  "goal": "State the disclosed CASH_EQUIVALENTS for 30.06.2021 and cite the supplied evidence. Do not add a recommendation.",
+  "rubric": {
+    "evidence_alignment": "required: every number traces to evidence_ids",
+    "factual_accuracy": "required: value, period, and unit match the evidence",
+    "logical_coherence": "required: no claim contradicts the evidence",
+    "no_recommendations": "required"
+  }
+}

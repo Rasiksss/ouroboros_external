@@ -1,0 +1,65 @@
+{
+  "company": "Cherkizovo",
+  "page": 11,
+  "rows": [
+    {
+      "concept": "LONG_TERM_DEBT",
+      "period_ref": "31.12.2021",
+      "quote": "| Долгосрочные кредиты и займы                            | 26         | 41 264               | 41 856                               |",
+      "unit": "RUB million",
+      "value": 41264.0
+    },
+    {
+      "concept": "LONG_TERM_DEBT",
+      "period_ref": "31.12.2020",
+      "quote": "| Долгосрочные кредиты и займы                            | 26         | 41 264               | 41 856                               |",
+      "unit": "RUB million",
+      "value": 41856.0
+    },
+    {
+      "concept": "LONG_TERM_LEASE_LIABILITIES",
+      "period_ref": "31.12.2021",
+      "quote": "| Долгосрочные арендные обязательства                     | 27         | 2 810                | 1 630                                |",
+      "unit": "RUB million",
+      "value": 2810.0
+    },
+    {
+      "concept": "LONG_TERM_LEASE_LIABILITIES",
+      "period_ref": "31.12.2020",
+      "quote": "| Долгосрочные арендные обязательства                     | 27         | 2 810                | 1 630                                |",
+      "unit": "RUB million",
+      "value": 1630.0
+    },
+    {
+      "concept": "SHORT_TERM_BORROWINGS",
+      "period_ref": "31.12.2021",
+      "quote": "| Краткосрочные кредиты и займы                           | 26         | 42 755               | 27 173                               |",
+      "unit": "RUB million",
+      "value": 42755.0
+    },
+    {
+      "concept": "SHORT_TERM_BORROWINGS",
+      "period_ref": "31.12.2020",
+      "quote": "| Краткосрочные кредиты и займы                           | 26         | 42 755               | 27 173                               |",
+      "unit": "RUB million",
+      "value": 27173.0
+    },
+    {
+      "concept": "SHORT_TERM_LEASE_LIABILITIES",
+      "period_ref": "31.12.2021",
+      "quote": "| Краткосрочные арендные обязательства                    | 27         | 912                  | 691                                  |",
+      "unit": "RUB million",
+      "value": 912.0
+    },
+    {
+      "concept": "SHORT_TERM_LEASE_LIABILITIES",
+      "period_ref": "31.12.2020",
+      "quote": "| Краткосрочные арендные обязательства                    | 27         | 912                  | 691                                  |",
+      "unit": "RUB million",
+      "value": 691.0
+    }
+  ],
+  "source_url": "https://gitverse.ru/nero27/AIFA_RFA",
+  "structure_id": "cherkizovo-2021:table:3",
+  "table_kind": "financial_statement"
+}

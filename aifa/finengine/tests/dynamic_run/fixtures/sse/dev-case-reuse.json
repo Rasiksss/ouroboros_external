@@ -1,0 +1,140 @@
+[
+  {
+    "session_id": "<uuid-1>",
+    "type": "session_id"
+  },
+  {
+    "text": "Разбираю запрос…",
+    "type": "thinking"
+  },
+  {
+    "args_summary": "Покажи только уже извлечённую выручку SALES_REVENUE за 6M…",
+    "name": "financial_pipeline",
+    "type": "tool_call"
+  },
+  {
+    "graph_hash": "sha256:2774b2211d1fc9450d6b149b0128673ec67c73dfc24df398c76e017f8efc077a",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "aa4ae7bd31e241cf751a51f67a37bf9068c6d948539a9b6ced14127066b68f53",
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:SALES_REVENUE"
+        ],
+        "requires": [],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "1.0.0",
+    "root": {
+      "args_fingerprint": "aa4ae7bd31e241cf751a51f67a37bf9068c6d948539a9b6ced14127066b68f53",
+      "atom_name": "norm.time",
+      "atom_version": "1.0.0"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "aa4ae7bd31e241cf751a51f67a37bf9068c6d948539a9b6ced14127066b68f53",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-2>",
+        "<uuid-3>",
+        "<uuid-4>",
+        "<uuid-5>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:2774b2211d1fc9450d6b149b0128673ec67c73dfc24df398c76e017f8efc077a",
+    "type": "node_run"
+  },
+  {
+    "result": {
+      "concept": "SALES_REVENUE",
+      "definition_origin": "registry",
+      "metric_id": "<uuid-6>",
+      "output_type": "ExtractedMetric",
+      "period_ref": "6M 2026",
+      "scalar_fact": {
+        "basis": null,
+        "concept": "SALES_REVENUE",
+        "document_version": "sha256:4e631492e1b5017b94ea00e7d5ad7c75b08b63c4227c5aeb37b861bf465fd1bd",
+        "evidence_id": "<uuid-2>",
+        "page": 24,
+        "period_ref": "6M 2026",
+        "produced_by_atom": "read.value",
+        "produced_by_atom_version": "1.0.0",
+        "source_ref": "<uuid-7>",
+        "supersedes": null,
+        "unit": "млн. руб.",
+        "value": 1453957.053
+      },
+      "schema_version": "1.0",
+      "status": "supported"
+    },
+    "status": "complete",
+    "type": "typed_result"
+  },
+  {
+    "result": {
+      "concept": "SALES_REVENUE",
+      "definition_origin": "registry",
+      "metric_id": "<uuid-8>",
+      "output_type": "ExtractedMetric",
+      "period_ref": "6M 2025",
+      "scalar_fact": {
+        "basis": null,
+        "concept": "SALES_REVENUE",
+        "document_version": "sha256:4e631492e1b5017b94ea00e7d5ad7c75b08b63c4227c5aeb37b861bf465fd1bd",
+        "evidence_id": "<uuid-3>",
+        "page": 24,
+        "period_ref": "6M 2025",
+        "produced_by_atom": "read.value",
+        "produced_by_atom_version": "1.0.0",
+        "source_ref": "<uuid-7>",
+        "supersedes": null,
+        "unit": "млн. руб.",
+        "value": 1398538.772
+      },
+      "schema_version": "1.0",
+      "status": "supported"
+    },
+    "status": "complete",
+    "type": "typed_result"
+  },
+  {
+    "name": "financial_pipeline",
+    "ok": true,
+    "type": "tool_output"
+  },
+  {
+    "text": "Готово: проверенные результаты опубликованы в карточках выше.",
+    "type": "text_delta"
+  },
+  {
+    "sources": [
+      {
+        "company_name": "ЛУКОЙЛ",
+        "filename": "Бухгалтерская отчетность на 30.06.2026.pdf"
+      }
+    ],
+    "type": "sources"
+  },
+  {
+    "type": "done"
+  }
+]

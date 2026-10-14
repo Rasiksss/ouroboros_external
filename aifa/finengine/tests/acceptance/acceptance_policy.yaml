@@ -1,0 +1,75 @@
+# Пороги приёмки — версионированный файл, на который ссылается
+# `03-metodologiya-cikla-sreza.md` (C0.1): «Если команда хочет изменить
+# порог, это делается ДО реализации соответствующего среза... изменение
+# порога после получения неудобного результата теста не допускается без
+# отдельного архитектурного решения».
+#
+# Этот файл не существовал физически ни после одного из Срезов 1–6a — цифры
+# ниже переносят уже утверждённые текстом пороги из `01-nerushimye-
+# resheniya.md`/карточек атомов/`03-metodologiya-cikla-sreza.md` в
+# единственное машинно-читаемое место, не вводят новых чисел. Каждая запись
+# указывает источник формулировки.
+#
+# Статус на конец Среза 6b: пороги golden_sets/model_quality НЕ подтверждены
+# реальным прогоном — `tests/golden/analysis/` не содержит ни одного кейса
+# (см. отчёт по Среду 6b). Файл фиксирует ЦЕЛЕВОЙ порог, который нужно будет
+# пройти, когда появятся кейсы и рубрика реально запустится, а не заявляет,
+# что порог уже пройден.
+
+version: "1.0.0"
+
+golden_sets_minimum:
+  # C0.1, 03-metodologiya-cikla-sreza.md
+  intent_queries: 100
+  classification_reports: 50
+  extraction_reports: 30
+  extraction_confirmed_facts: 300
+  structures_tables: 20
+  analysis_cases: 30
+  security_cases: 1  # текст не даёт числа; факт: 20 реальных кейсов уже есть
+
+numeric_invariants:
+  # Безусловные — должны выполняться в 100% тестов, независимо от среднего
+  # качества (16b, «Критерий готовности связки анализа», п.1 и п.7).
+  formula_numeric_tolerance: 1.0e-9  # calc.formula, 16a
+  cross_check_rounding_tolerance: 0.01  # verify.cross DEFAULT_CROSS_TOLERANCE, verify.grounding ROUNDING_TOLERANCE, 16a
+  every_number_traces_to_evidence_id_rate: 1.0  # 16b п.1
+  grounding_blocks_fabricated_number_rate: 1.0  # verify.grounding DoD, 16a/16b
+
+model_quality_thresholds:
+  # «Не менее 90% кейсов/суждений/объяснений — не ниже 4 из 5» повторяется
+  # дословно в assess.judgment, explain.internal и в общем критерии готовности
+  # связки анализа (16b). Единое число, не три отдельных совпадения.
+  min_score_out_of_5: 4
+  min_pass_rate: 0.90
+  applies_to:
+    - assess.judgment
+    - explain.internal
+    - tests/golden/analysis (общий критерий связки анализа, п.7)
+
+negative_checks_required:
+  # 16b, «Обязательные проверки» + отрицательный набор на рекомендации
+  - origin_of_every_number_test
+  - ocr_vs_evidence_conflict_test
+  - banking_capital_case
+  - segments_or_group_case
+  - external_context_wrong_jurisdiction_case
+  - rubric_model_evaluation
+  - no_recommendations_negative_set
+
+status_as_of_srez_6b:
+  golden_sets_present:
+    intent_queries: true          # 156 запросов
+    classification_reports: true  # 50 кейсов
+    extraction_reports: false     # 0 — данные не собраны
+    structures_tables: false      # 0 — данные не собраны
+    analysis_cases: false         # 0 — только схема в README
+    security_cases: true          # 20 кейсов
+  model_quality_measured: false   # рубрика/LLM-judge механизм не построен и не запускался
+  note: >
+    Веха M1/B16 (сквозной прогон ≥30 кейсов) в Срезе 6b сознательно не
+    выполнялась по решению владельца — источника реальных отчётов для 30
+    кейсов на момент сессии нет (см. отчёт по Срезу 6b). Numeric/evidence
+    инварианты выше проверены на уровне атомов и одного сквозного
+    интеграционного теста (`tests/integration/test_graph_analysis_narrative.py`),
+    не на 30 реальных кейсах.

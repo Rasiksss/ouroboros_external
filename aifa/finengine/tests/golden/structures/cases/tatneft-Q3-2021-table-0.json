@@ -1,0 +1,79 @@
+{
+  "company": "Tatneft",
+  "page": 5,
+  "rows": [
+    {
+      "concept": "CASH_EQUIVALENTS",
+      "period_ref": "30.09.2021",
+      "quote": "| Денежные средства и их эквиваленты                                                                                                                           | 4     | 45 410              | 40 105             |",
+      "unit": "RUB million",
+      "value": 45410.0
+    },
+    {
+      "concept": "CASH_EQUIVALENTS",
+      "period_ref": "31.12.2020",
+      "quote": "| Денежные средства и их эквиваленты                                                                                                                           | 4     | 45 410              | 40 105             |",
+      "unit": "RUB million",
+      "value": 40105.0
+    },
+    {
+      "concept": "ACCOUNTS_RECEIVABLE",
+      "period_ref": "30.09.2021",
+      "quote": "| Краткосрочная дебиторская задолженность, нетто                                                                                                               | 5     | 92 255              | 83 734             |",
+      "unit": "RUB million",
+      "value": 92255.0
+    },
+    {
+      "concept": "ACCOUNTS_RECEIVABLE",
+      "period_ref": "31.12.2020",
+      "quote": "| Краткосрочная дебиторская задолженность, нетто                                                                                                               | 5     | 92 255              | 83 734             |",
+      "unit": "RUB million",
+      "value": 83734.0
+    },
+    {
+      "concept": "INVENTORIES",
+      "period_ref": "30.09.2021",
+      "quote": "| Товарно-материальные запасы                                                                                                                                  | 8     | 73 467              | 44 988             |",
+      "unit": "RUB million",
+      "value": 73467.0
+    },
+    {
+      "concept": "INVENTORIES",
+      "period_ref": "31.12.2020",
+      "quote": "| Товарно-материальные запасы                                                                                                                                  | 8     | 73 467              | 44 988             |",
+      "unit": "RUB million",
+      "value": 44988.0
+    },
+    {
+      "concept": "TOTAL_CURRENT_ASSETS",
+      "period_ref": "30.09.2021",
+      "quote": "| Итого краткосрочные активы                                                                                                                                   |       | 403 494             | 258 995            |",
+      "unit": "RUB million",
+      "value": 403494.0
+    },
+    {
+      "concept": "TOTAL_CURRENT_ASSETS",
+      "period_ref": "31.12.2020",
+      "quote": "| Итого краткосрочные активы                                                                                                                                   |       | 403 494             | 258 995            |",
+      "unit": "RUB million",
+      "value": 258995.0
+    },
+    {
+      "concept": "TOTAL_ASSETS",
+      "period_ref": "30.09.2021",
+      "quote": "| Итого активы                                                                                                                                                 |       | 1 446 777           | 1 263 441          |",
+      "unit": "RUB million",
+      "value": 1446777.0
+    },
+    {
+      "concept": "TOTAL_ASSETS",
+      "period_ref": "31.12.2020",
+      "quote": "| Итого активы                                                                                                                                                 |       | 1 446 777           | 1 263 441          |",
+      "unit": "RUB million",
+      "value": 1263441.0
+    }
+  ],
+  "source_url": "https://gitverse.ru/nero27/AIFA_RFA",
+  "structure_id": "tatneft-Q3-2021:table:0",
+  "table_kind": "financial_statement"
+}

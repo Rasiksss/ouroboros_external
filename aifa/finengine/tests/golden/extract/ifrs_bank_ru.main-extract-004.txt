@@ -1,0 +1,279 @@
+## SYSTEM
+You are a senior financial analyst working with us_gaap_en financial reports. Your task is to find and extract ordinary financial statement metrics, matching source rows strictly against each metric's registry description, aliases and hint. If a row is similar but broader, narrower, or includes extra components, do not use it. Return valid JSON only.
+
+## USER
+## Task
+Extract reported financial metric values from compressed evidence selected in stage 1.
+Company type: bank; reporting standard: us_gaap_en; language: en.
+Extract values for every metric listed in the metric metadata below.
+For each metric block, read the registry fields and evidence, then extract every value of that exact metric for every disclosed period.
+Return raw period headers and raw cell values literally as they appear in the report.
+
+
+## Metric Blocks
+[
+  {
+    "enum": "PERPETUAL_BONDS",
+    "name_ru": "Бессрочные облигации",
+    "name_en": "Perpetual bonds",
+    "description": "Облигации без даты погашения, классифицируемые как часть собственного капитала.",
+    "aliases_ru": [
+      "Облигации без срока погашения",
+      "Выпуск бессрочных облигаций",
+      "бессрочный субординированный займ"
+    ],
+    "aliases_en": [
+      "Perpetual notes",
+      "Hybrid capital notes"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Только бессрочные/перпетуальные облигации или AT1-инструменты без срока погашения, раскрытые в капитале или субординированном долге. Не используй обычные выпущенные долговые бумаги, срочный субординированный долг, уставный капитал, эмиссионный доход или нераспределённую прибыль. Если отдельной строки perpetual/бессрочных инструментов нет - null.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "GOODWILL",
+    "name_ru": "Гудвил",
+    "name_en": "Goodwill",
+    "description": "Превышение цены приобретения дочерней компании над справедливой стоимостью её чистых идентифицируемых активов.",
+    "aliases_ru": [
+      "Деловая репутация"
+    ],
+    "aliases_en": [
+      "Goodwill"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Внеоборотные активы баланса. Подробнее — в Примечании 'Гудвил' / 'Объединение бизнеса'.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "CHANGES_OCF_ASSETS_LIABILITIES",
+    "name_ru": "Изменения в оборотном капитале",
+    "name_en": "Changes in working capital",
+    "description": "Совокупное изменение оборотного капитала (запасы, дебиторка, кредиторка) за период.",
+    "aliases_ru": [
+      "Изменения в операционных активах и обязательствах"
+    ],
+    "aliases_en": [
+      "Changes in operating assets and liabilities",
+      "Working capital movements"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "ОДДС, средняя часть раздела 'Операционная деятельность' (между корректировками прибыли и налоговыми платежами).",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "TOTAL_INVESTMENT_BANKING_FEES",
+    "name_ru": "Доход от инвестиционно-банковского бизнеса",
+    "name_en": "Total investment banking fees",
+    "description": "Доходы от инвестиционно-банковской деятельности (M&A, размещения, andewriting).",
+    "aliases_ru": [
+      "Доходы инвестиционного банкинга",
+      "Комиссии инвестиционного банка"
+    ],
+    "aliases_en": [
+      "Investment banking revenue",
+      "IB fees"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "P&L банка с инвестбанковской деятельностью или Примечание 'Сегментный анализ'.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "INTERBANK_DEPOSITS",
+    "name_ru": "Средства в банках",
+    "name_en": "Interbank deposits",
+    "description": "Денежные средства, размещённые в других банках.",
+    "aliases_ru": [
+      "Депозиты в банках",
+      "Межбанковские депозиты"
+    ],
+    "aliases_en": [
+      "Due from banks",
+      "Interbank placements",
+      "Deposits with banks"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Балансовый отчёт банка, актив.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "SECURITIES_LIABILITIES",
+    "name_ru": "Финансовые инструменты (Обязательства)",
+    "name_en": "Securities",
+    "description": "Финансовые обязательства банка по справедливой стоимости через прибыль или убыток / торговые финансовые обязательства.",
+    "aliases_ru": [
+      "Финансовые обязательства, оцениваемые по справедливой стоимости через прибыль или убыток",
+      "Финансовые обязательства по справедливой стоимости через прибыль или убыток",
+      "Торговые финансовые обязательства",
+      "Обязательства по ценным бумагам",
+      "Финансовые обязательства",
+      "Выпущенные долговые инструменты"
+    ],
+    "aliases_en": [
+      "Financial instruments",
+      "Financial liabilities",
+      "Debt instruments issued"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Балансовый отчёт или примечание по финансовым инструментам. Не используй выпущенные облигации, векселя, депозитные сертификаты или иные долговые бумаги банка — это отдельная метрика DEBT_SECURITIES_ISSUED.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "DERIVATIVE_LIABILITIES",
+    "name_ru": "Производные финансовые обязательства",
+    "name_en": "Derivatives",
+    "description": "Обязательства по производным финансовым инструментам, оцениваемые по справедливой стоимости.",
+    "aliases_ru": [
+      "Производные финансовые инструменты (обязательства)",
+      "Деривативы (обязательства)"
+    ],
+    "aliases_en": [
+      "Derivative financial instruments",
+      "Derivative liabilities"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Балансовый отчёт. Также в Примечании 'Финансовые инструменты' / 'Управление рисками'.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "CURRENCY_METALS_INCOME",
+    "name_ru": "Чистый доход от операций с иностранными валютами и драгоценными металлами",
+    "name_en": "Net income from operations with foreign currency and precious metals",
+    "description": "Чистый результат по операциям с иностранной валютой и драгоценными металлами.",
+    "aliases_ru": [
+      "Чистый доход от операций с иностранной валютой"
+    ],
+    "aliases_en": [
+      "Net foreign exchange income",
+      "Net FX income"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "P&L банка, в составе непроцентных доходов.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "ECL_ALLOWANCE_STAGE2",
+    "name_ru": "Резерв под обесценение кредитов Этап 2",
+    "name_en": "ECL allowance Stage 2",
+    "description": "Резерв под ожидаемые кредитные убытки за весь срок жизни (стадия 2).",
+    "aliases_ru": [
+      "Оценочный резерв под ожидаемые кредитные убытки Этап 2",
+      "ОКУ Этап 2",
+      "Оценочный резерв под кредитные убытки по кредитам",
+      "предоставленным клиентам Этап 2"
+    ],
+    "aliases_en": [
+      "Stage 2 ECL allowance"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Примечание 'Кредиты клиентам' / 'Резервы под обесценение', таблица ОКУ по этапам. СКЛАДЫВАЙ колонку Этап 2 ПО ВСЕМ кредитным портфелям (юридические лица, ипотека, прочие розничные): сводной таблицы по банку в отчёте обычно нет, и её отсутствие — не повод вернуть пусто. Бери allowance/ОКУ на конец периода, не gross carrying amount. Сохраняй знак и скобки из источника. Слагаемые назови в source_text.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "TIER1_RATIO_DISCLOSED",
+    "name_ru": "Норматив Tier 1 (раскрываемый)",
+    "name_en": "Tier 1 ratio (disclosed)",
+    "description": "Раскрываемый банком норматив достаточности капитала первого уровня (в процентах).",
+    "aliases_ru": [
+      "Tier 1 ratio",
+      "норматив Н 1.2",
+      "Н1.2",
+      "норматив Н 20.2",
+      "норматив Н 1.1"
+    ],
+    "aliases_en": [
+      "Tier 1 capital ratio"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Примечание 'Достаточность капитала'. Для российских банков Tier 1 = норматив основного капитала H1.2 / Н1.2 (или консолидированный Н20.2). Не используй H1.1/Н1.1 — это CET1. Единица — проценты.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  }
+]
+
+## Rules
+Return period keys in `values` literally as they appear in the visible table header; do not shorten or rephrase them. A table header may have two levels: a duration group such as 'Three Months Ended' on one level and the period-end date on another. Combine the applicable levels into one complete period key. When the same date appears under multiple duration groups, a bare date is invalid because it creates a duplicate JSON key; return the full wording for each group.
+
+Return each value exactly as it appears in the table cell. Do NOT convert units, do NOT normalize thousands separators, do NOT remove commas, spaces or parentheses. If the table says "25,785", return "25,785", not "25785" and not "25.785". If the table says "(4,190)", return "(4,190)"; parentheses are mandatory: "(465)" must stay "(465)", not "465". If a matching metric row uses a blank or dash-like cell as a displayed numeric placeholder, return "0" for that period, but only when that row separately and unambiguously matches the metric. A dash in a broader combined row does not prove that any component is zero. Otherwise use null when the row is absent or the value is not disclosed. Put the table/header unit literally into unit_text, for example "in millions" or "$ in millions". When the value comes from a narrative sentence in a note rather than from a table, take the unit from that same sentence, not from the document header: notes routinely name their own scale ("USD 12.0 billion") inside a report presented in millions, and the document header would shrink the number a thousandfold. Source (report in millions): "committed credit facilities of $12.0 billion" → {"values": {"27.09.2025": "12.0"}, "unit_text": "billion"}, not "in millions".
+
+## Actual values only
+Extract only actual historical/reported values from financial statements and notes for periods that have already ended. Do NOT extract forecasts, plans, budgets, targets, scenarios, sensitivity analysis, guidance, outlook, projections, projected/forecasted values or any other forward-looking amounts, even when the row label looks like a target metric. If a requested metric appears only in a forecast/outlook/guidance table or section, return null / an empty values object for it.
+Do not treat ordinary accounting estimates inside actual financial statements as forecasts: expected credit losses, provisions, deferred taxes and pension assumptions may be valid actual-period disclosures when they are reported in the statements or notes.
+The same applies to columns: a forecast period in the header (2026E, FY26F, "plan") does not belong in values.
+
+- Follow each metric registry entry strictly. A similar-looking row is not enough.
+- Before extracting a value, run a sanity check: the row label and nearby table context must match the metric name/aliases and satisfy the description and hint.
+- Perform a scope check against the registry definition: do not use a narrower component, subcategory or subtotal that is only part of the requested metric; do not use a broader or combined row that contains the requested metric together with other components. Use only the exact requested metric, or an aggregation explicitly permitted by that metric's registry hint.
+- Extract all periods disclosed in the selected evidence: all years, quarters, half-years/YTD periods, rolling or shifted periods, and comparative periods.
+- After you identify a row/table that matches a metric, scan all period columns in that row and all evidence tables/quotes for the same metric. Return every explicitly disclosed period for that metric, not only the current period or first matching table. If quarterly and YTD/half-year rows are both disclosed, return both sets.
+- Do not mix currencies, units, or scales. If a table has multiple column sets, choose one coherent set for the metric. Prefer the report's primary presentation/native currency columns over convenience translation columns when both are shown. Currency/unit/scale may be written in the caption, unit line, or directly near the period column headers; preserve the chosen unit/currency in unit_text and raw headers when present.
+- The registry is the definition, not a keyword list. Accept a row only when its full label, nearby context, description and hint agree; do not broaden a metric from a partial alias or a similar subtotal.
+- Do not calculate values, allocate totals, infer missing periods, or normalize signs/period labels yourself, unless the specific metric registry entry explicitly authorizes that derivation. For an authorized derivation, use only the stated method and operands explicitly present in this evidence.
+- If you are unsure whether the row matches the registry definition, prefer null over a bold guess.
+
+
+## Output Format
+Return exactly one valid JSON object only. No explanations, no markdown wrappers, no comments.
+A JSON object whose keys exactly match the metric metadata list below:
+
+{
+  "PERPETUAL_BONDS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "GOODWILL": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "CHANGES_OCF_ASSETS_LIABILITIES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "TOTAL_INVESTMENT_BANKING_FEES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "INTERBANK_DEPOSITS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "SECURITIES_LIABILITIES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "DERIVATIVE_LIABILITIES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "CURRENCY_METALS_INCOME": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "ECL_ALLOWANCE_STAGE2": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "TIER1_RATIO_DISCLOSED": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null}
+}

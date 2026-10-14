@@ -1,0 +1,178 @@
+[
+  {
+    "session_id": "<uuid-1>",
+    "type": "session_id"
+  },
+  {
+    "text": "Разбираю запрос…",
+    "type": "thinking"
+  },
+  {
+    "args_summary": "Проверь внешний CSV",
+    "name": "financial_pipeline",
+    "type": "tool_call"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "goals": [],
+    "move": 1,
+    "new_atoms": [
+      {
+        "kind": "download",
+        "name": "eph.external_csv",
+        "output_type": "dyn:external_csv",
+        "purpose": "недоступный внешний CSV",
+        "url": "https://data.example.org/unavailable.csv"
+      }
+    ],
+    "objective": "получить данные",
+    "outcome": "",
+    "reason": "они нужны для ответа",
+    "scenarios": [],
+    "status": "running",
+    "steps": [
+      {
+        "atom": "eph.external_csv",
+        "concept": null,
+        "period_ref": null
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "graph_hash": "sha256:1fd72876728334c51cdd84eb8bd2f3bd99e1b2289ee927deea3539907bae550d",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+          "atom_name": "eph.external_csv",
+          "atom_version": "0909054e1baf"
+        },
+        "produces": [
+          "dyn:external_csv"
+        ],
+        "requires": [],
+        "sandbox_profile": "download:data.example.org",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+      "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+      "atom_name": "eph.external_csv",
+      "atom_version": "0909054e1baf"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "eph.external_csv",
+        "atom_version": "0909054e1baf"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "download:data.example.org",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:1fd72876728334c51cdd84eb8bd2f3bd99e1b2289ee927deea3539907bae550d",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "eph.external_csv",
+        "atom_version": "0909054e1baf"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "download:data.example.org",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:1fd72876728334c51cdd84eb8bd2f3bd99e1b2289ee927deea3539907bae550d",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 3,
+      "error": "https://data.example.org/unavailable.csv: HTTP 503",
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "eph.external_csv",
+        "atom_version": "0909054e1baf"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "download:data.example.org",
+      "status": "failed"
+    },
+    "plan_graph_hash": "sha256:1fd72876728334c51cdd84eb8bd2f3bd99e1b2289ee927deea3539907bae550d",
+    "type": "node_run"
+  },
+  {
+    "action": "execute",
+    "details": "✗ eph.external_csv  → нет результата (0): https://data.example.org/unavailable.csv: HTTP 503",
+    "goals": [],
+    "move": 1,
+    "new_atoms": [
+      {
+        "kind": "download",
+        "name": "eph.external_csv",
+        "output_type": "dyn:external_csv",
+        "purpose": "недоступный внешний CSV",
+        "url": "https://data.example.org/unavailable.csv"
+      }
+    ],
+    "objective": "получить данные",
+    "outcome": "ход завершён с ошибками",
+    "reason": "они нужны для ответа",
+    "scenarios": [],
+    "status": "done",
+    "steps": [
+      {
+        "atom": "eph.external_csv",
+        "concept": null,
+        "period_ref": null
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "give_up",
+    "details": "Внешний источник сейчас недоступен, поэтому получить данные не удалось.",
+    "goals": [],
+    "move": 2,
+    "new_atoms": [],
+    "objective": "остановиться",
+    "outcome": "",
+    "reason": "Внешний источник сейчас недоступен, поэтому получить данные не удалось.",
+    "scenarios": [],
+    "status": "done",
+    "steps": [],
+    "type": "dynamic_move"
+  },
+  {
+    "name": "financial_pipeline",
+    "ok": true,
+    "type": "tool_output"
+  },
+  {
+    "text": "Внешний источник сейчас недоступен, поэтому получить данные не удалось.",
+    "type": "text_delta"
+  },
+  {
+    "type": "done"
+  }
+]

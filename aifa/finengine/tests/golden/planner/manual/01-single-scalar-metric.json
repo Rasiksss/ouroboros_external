@@ -1,0 +1,27 @@
+{
+  "scenario_id": "planner-01-single-scalar-metric",
+  "description": "Точечный запрос: 'выручка Северстали за 1кв2025' — линейная цепочка из двух узлов.",
+  "target": {"target_id": "t-1", "concept": "SALES_REVENUE", "period_ref": "p-2025-q1", "entity_ref": "severstal", "output_kind": "scalar"},
+  "plan_graph": {
+    "plan_id": "plan-01",
+    "root": {"atom_name": "extract.scalar", "atom_version": "1.0.0", "args_fingerprint": "concept=SALES_REVENUE;period=p-2025-q1;entity=severstal"},
+    "nodes": [
+      {
+        "node_key": {"atom_name": "ingest.document", "atom_version": "1.0.0", "args_fingerprint": "entity=severstal;period=p-2025-q1"},
+        "requires": [],
+        "produces": ["document_text"],
+        "sandbox_profile": "document_read"
+      },
+      {
+        "node_key": {"atom_name": "extract.scalar", "atom_version": "1.0.0", "args_fingerprint": "concept=SALES_REVENUE;period=p-2025-q1;entity=severstal"},
+        "requires": [
+          {"atom_name": "ingest.document", "atom_version": "1.0.0", "args_fingerprint": "entity=severstal;period=p-2025-q1"}
+        ],
+        "produces": ["SALES_REVENUE"],
+        "sandbox_profile": "compute_no_network"
+      }
+    ],
+    "graph_hash": "sha256:manual-fixture-01"
+  },
+  "expected_feasibility": {"feasible": true, "unreachable_targets": [], "reason": null}
+}

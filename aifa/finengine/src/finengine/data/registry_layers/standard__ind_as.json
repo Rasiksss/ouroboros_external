@@ -1,0 +1,3385 @@
+{
+  "schema_version": "registry-layer/v1",
+  "layer_id": "standard.ind_as",
+  "version": "2026.09.22.1",
+  "kind": "standard",
+  "priority": 100,
+  "selector": {
+    "standard": "ind_as"
+  },
+  "metrics": {
+    "extractable": [
+      {
+        "enum": "ACCOUNTS_PAYABLE",
+        "fields": {
+          "name_ru": "Кредиторская задолженность",
+          "name_en": "Accounts payable",
+          "aliases_ru": [
+            "Торговая и прочая кредиторская задолженность",
+            "Торговая кредиторская задолженность"
+          ],
+          "aliases_en": [
+            "Accounts payable",
+            "trade payables",
+            "trade and other payables",
+            "payables to suppliers",
+            "creditors"
+          ],
+          "description": "Amounts payable to suppliers and other trade creditors, normally presented as trade payables.",
+          "hint": "Use the Balance Sheet line trade payables or accounts payable. In Schedule III, check the trade payables note. Do not include borrowings, provisions or other financial liabilities unless the line is a combined trade and other payables total.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "ACCOUNTS_RECEIVABLE",
+        "fields": {
+          "name_ru": "Дебиторская задолженность",
+          "name_en": "Accounts receivable",
+          "aliases_ru": [
+            "Торговая и прочая дебиторская задолженность",
+            "Торговая дебиторская задолженность"
+          ],
+          "aliases_en": [
+            "Accounts receivable",
+            "trade receivables",
+            "trade and other receivables",
+            "receivables from customers",
+            "receivables net",
+            "Trade accounts receivable",
+            "Trade accounts receivable, net",
+            "Accounts receivable, net"
+          ],
+          "description": "Amounts receivable from customers for goods or services, normally net of loss allowance.",
+          "hint": "Use the Balance Sheet line trade receivables or accounts receivable, net. In Schedule III, check the trade receivables note. Exclude advances, prepaid expenses and tax receivables if separately disclosed.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "ADJUSTMENTS_OPERATING_CASH_FLOWS",
+        "fields": {
+          "name_ru": "Корректировки",
+          "name_en": "Operating cash flow adjustments",
+          "aliases_ru": [
+            "Поправки (для неденежных статей)"
+          ],
+          "aliases_en": [
+            "Operating cash flow adjustments",
+            "adjustments for non-cash items",
+            "adjustments to reconcile profit to cash flows",
+            "non-cash adjustments"
+          ],
+          "description": "Subtotal or sum of non-cash and other adjustments in the indirect operating cash flow reconciliation before working capital movements.",
+          "hint": "Use the indirect Cash Flow Statement. Extract the subtotal of adjustments before working capital movements if printed; otherwise sum only the adjustment block. Exclude working capital movements, tax, interest and investing/financing cash flows.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "ASSET_PURCHASES",
+        "fields": {
+          "name_ru": "Приобретение основных средств",
+          "name_en": "PPE purchases",
+          "aliases_ru": [
+            "Покупка основных фондов",
+            "Приобретение внеоборотных активов"
+          ],
+          "aliases_en": [
+            "PPE purchases",
+            "purchase of property plant and equipment",
+            "payments for property plant and equipment",
+            "capital expenditure on tangible assets",
+            "Purchases of property, plant and equipment",
+            "Additions to properties, plant and equipment",
+            "Additions to PP&E"
+          ],
+          "description": "Cash outflow for purchase of property, plant and equipment.",
+          "hint": "Use the Cash Flow Statement investing section. Extract purchases/payments for property, plant and equipment. If PPE and intangibles are combined in one line, leave this metric null and use COMBINED_ASSET_PURCHASES.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "ASSET_SALES_PROCEEDS",
+        "fields": {
+          "name_ru": "Поступления от продажи основных средств и нематериальных активов",
+          "name_en": "Proceeds from disposal of PPE and Intangible assets",
+          "aliases_ru": [
+            "Поступления от реализации основных средств",
+            "Поступления от выбытия основных средств и нематериальных активов"
+          ],
+          "aliases_en": [
+            "Proceeds from disposal of PPE and Intangible assets",
+            "proceeds from sale of property plant and equipment",
+            "proceeds from disposal of PPE",
+            "proceeds from disposal of fixed assets",
+            "proceeds from sale of intangible assets",
+            "Proceeds from sale of PP&E",
+            "Proceeds from divestitures, net",
+            "Proceeds from dispositions"
+          ],
+          "description": "Cash proceeds from disposal of property, plant and equipment and intangible assets.",
+          "hint": "Use the Cash Flow Statement investing section. Extract proceeds from disposal of PPE and intangible assets. Include both if separately disclosed and the metric is intended as a combined total.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "ASSOCIATE_INCOMES",
+        "fields": {
+          "name_ru": "Поступления от выбытия компаний Группы",
+          "name_en": "Proceeds from disposal of group companies",
+          "aliases_ru": [
+            "Выбытие компаний Группы",
+            "Выбытие дочерних предприятий за вычетом денежных средств",
+            "Доходы от ассоциированных компаний",
+            "Доля в прибыли ассоциированных компаний"
+          ],
+          "aliases_en": [
+            "Proceeds from disposal of group companies",
+            "proceeds from disposal of subsidiaries",
+            "proceeds from disposal of associates",
+            "sale of investments in subsidiaries or associates",
+            "Disposal of subsidiaries and associates",
+            "Equity income in investee",
+            "Equity income from investees",
+            "Share of profit of associates"
+          ],
+          "description": "Cash proceeds from disposal of subsidiaries, associates, joint ventures or other group companies.",
+          "hint": "Use the Cash Flow Statement investing section. Extract cash proceeds from disposal of subsidiaries, associates, joint ventures or group companies. Do not use equity-accounted profit or the carrying amount of investments.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "ASSOCIATE_INVESTMENTS",
+        "fields": {
+          "name_ru": "Вложения в ассоциированные организации (общества) и совместные предприятия",
+          "name_en": "Associate investments",
+          "aliases_ru": [
+            "Инвестиции в ассоциированные организации и совместные предприятия",
+            "Вложения в объекты инвестиций по методу долевого участия"
+          ],
+          "aliases_en": [
+            "Associate investments",
+            "investments in associates",
+            "investments in joint ventures",
+            "equity-accounted investees",
+            "investments accounted for using the equity method",
+            "Investments in associates and joint ventures",
+            "Equity-accounted investments"
+          ],
+          "description": "Carrying amount of investments in associates or joint ventures.",
+          "hint": "Use the Balance Sheet non-current investments note. Extract investments in associates or joint ventures carried under the equity method. Do not use share of profit or dividends received.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "BANK_DEPOSITS",
+        "fields": {
+          "name_ru": "Банковские депозиты",
+          "name_en": "Bank deposits",
+          "aliases_ru": [
+            "Депозиты",
+            "Срочные банковские депозиты",
+            "Краткосрочные депозиты",
+            "Краткосрочные финансовые вложения депозиты"
+          ],
+          "aliases_en": [
+            "Bank deposits",
+            "term deposits with banks",
+            "fixed deposits with banks",
+            "short-term bank deposits",
+            "deposits with banks",
+            "Time deposits",
+            "Short-term deposits"
+          ],
+          "description": "Term or fixed deposits placed with banks that are not classified as cash equivalents.",
+          "hint": "Use notes to cash, bank balances or current financial assets. Take bank deposits or fixed deposits not classified as cash equivalents. Do not include ordinary cash and bank balances already included in CASH_EQUIVALENTS.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "CAPEX",
+        "fields": {
+          "name_ru": "Капитальные затраты",
+          "name_en": "Capital expenditure",
+          "aliases_ru": [
+            "Капитальные вложения"
+          ],
+          "aliases_en": [
+            "Capital expenditure",
+            "capital expenditures",
+            "capex",
+            "payments for property plant and equipment",
+            "purchase of property plant and equipment and intangible assets",
+            "Payments to acquire property, plant and equipment",
+            "Capital expenditures total"
+          ],
+          "description": "Capital expenditure for property, plant and equipment and intangible assets, as disclosed or derived from investing cash flows.",
+          "hint": "Use the Cash Flow Statement or MD&A. Prefer a disclosed capital expenditure total if present; otherwise combine purchases of PPE and intangible assets, net of disposal proceeds only if the metric definition/source presents net capex.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "CAPITALIZED_INTEREST",
+        "fields": {
+          "name_ru": "Капитализированные и уплаченные проценты",
+          "name_en": "Capitalized interest",
+          "aliases_ru": [
+            "Капитализированные проценты",
+            "Капитализированные затраты по займам"
+          ],
+          "aliases_en": [
+            "Capitalized interest",
+            "capitalised interest",
+            "borrowing costs capitalised",
+            "borrowing costs capitalized",
+            "Capitalized borrowing costs"
+          ],
+          "description": "Borrowing costs capitalised into qualifying assets during the period.",
+          "hint": "Use borrowings, finance costs or PPE/CWIP notes. Extract borrowing costs capitalised during the period. Do not use cash interest paid or total finance costs.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "CASH_EQUIVALENTS",
+        "fields": {
+          "name_ru": "Денежные средства и их эквиваленты",
+          "name_en": "Cash and cash equivalents",
+          "aliases_ru": [
+            "Денежные средства и эквиваленты денежных средств",
+            "Денежные средства и денежные эквиваленты",
+            "Денежные средства и их эквиваленты на конец периода"
+          ],
+          "aliases_en": [
+            "Cash and cash equivalents",
+            "cash equivalents",
+            "cash and bank balances",
+            "cash and cash equivalents at end of period",
+            "closing cash and cash equivalents",
+            "Cash and equivalents"
+          ],
+          "description": "Cash on hand, bank balances and short-term highly liquid investments classified as cash and cash equivalents.",
+          "hint": "Use the Balance Sheet or the closing cash and cash equivalents line in the Cash Flow Statement. Return explicitly disclosed closing dates, including comparative dates. Do not include term deposits or securities unless classified as cash equivalents.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "CHANGES_OCF_ASSETS_LIABILITIES",
+        "fields": {
+          "name_ru": "Изменения в оборотном капитале",
+          "name_en": "Changes in working capital",
+          "aliases_ru": [
+            "Изменения в операционных активах и обязательствах"
+          ],
+          "aliases_en": [
+            "Changes in working capital",
+            "changes in operating assets and liabilities",
+            "working capital movements",
+            "movement in working capital"
+          ],
+          "description": "Subtotal or sum of changes in working capital or operating assets and liabilities in operating cash flow.",
+          "hint": "Use the indirect Cash Flow Statement. Extract the subtotal of working capital changes if printed; otherwise sum only working capital movement lines. Exclude non-cash adjustments, interest, tax and investing/financing cash flows.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "COMBINED_ASSET_PURCHASES",
+        "fields": {
+          "name_ru": "Приобретение основных средств и нематериальных активов",
+          "name_en": "Fixed asset and intangible asset purchases",
+          "aliases_ru": [
+            "Приобретение основных средств и внеоборотных активов"
+          ],
+          "aliases_en": [
+            "Fixed asset and intangible asset purchases",
+            "purchase of property plant and equipment and intangible assets",
+            "payments for fixed assets",
+            "purchase of fixed assets",
+            "capital expenditure on tangible and intangible assets",
+            "Purchase of PP&E and intangible assets",
+            "Capital expenditures"
+          ],
+          "description": "Combined cash outflow for purchase of property, plant and equipment and intangible assets where not split.",
+          "hint": "Use only when the Cash Flow Statement presents one combined line for purchase of PPE and intangible/fixed assets. Do not duplicate separate PPE and intangible purchase lines.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "COMMITTED_CREDIT_FACILITIES",
+        "fields": {
+          "name_ru": "Неиспользованные кредитные линии",
+          "name_en": "Committed credit facilities",
+          "aliases_ru": [
+            "Доступные кредитные линии (лимиты)",
+            "Неиспользованные долгосрочные кредитные линии",
+            "Действующие кредитные соглашения с банками"
+          ],
+          "aliases_en": [
+            "Committed credit facilities",
+            "undrawn borrowing facilities",
+            "unused credit lines",
+            "available credit facilities",
+            "revolving credit facility available",
+            "Undrawn committed facilities",
+            "Available credit lines"
+          ],
+          "description": "Committed but undrawn borrowing facilities available to the entity.",
+          "hint": "Use liquidity risk, borrowings or capital management notes. Extract undrawn committed facilities or available credit lines, preserving unit and scale exactly as disclosed in narrative text.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "COSTS_EXPENSES",
+        "fields": {
+          "name_ru": "Себестоимость",
+          "name_en": "Costs and expenses",
+          "aliases_ru": [
+            "Себестоимость реализации",
+            "Себестоимость продаж",
+            "Себестоимость реализованной продукции"
+          ],
+          "aliases_en": [
+            "Costs and expenses",
+            "cost of materials consumed",
+            "cost of goods sold",
+            "cost of sales",
+            "cost of services",
+            "purchase of stock-in-trade",
+            "changes in inventories of finished goods work-in-progress and stock-in-trade",
+            "Cost of revenue",
+            "Cost of products"
+          ],
+          "description": "Direct costs of goods or services sold, or the closest cost-of-sales subtotal disclosed by the entity.",
+          "hint": "Use the Statement of Profit and Loss and cost notes. Prefer cost of sales/cost of revenue if disclosed. For Schedule III presentation, use direct cost lines such as cost of materials consumed, purchases of stock-in-trade and changes in inventories only when they form the cost-of-sales block.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "DEFERRED_TAX_ASSETS",
+        "fields": {
+          "name_ru": "Отложенные налоговые активы",
+          "name_en": "Deferred tax assets",
+          "aliases_ru": [
+            "Активы по отложенному налогу на прибыль"
+          ],
+          "aliases_en": [
+            "Deferred tax assets",
+            "deferred tax asset",
+            "DTA",
+            "Deferred income tax assets"
+          ],
+          "description": "Deferred tax assets arising from deductible temporary differences, tax losses or tax credits.",
+          "hint": "Use the Balance Sheet or tax note. Extract deferred tax assets. Do not net against deferred tax liabilities unless the statement presents only a net balance.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "DEFERRED_TAX_LIABILITIES",
+        "fields": {
+          "name_ru": "Отложенные налоговые обязательства",
+          "name_en": "Deferred tax liabilities",
+          "aliases_ru": [
+            "Обязательства по отложенному налогу на прибыль"
+          ],
+          "aliases_en": [
+            "Deferred tax liabilities",
+            "deferred tax liability",
+            "DTL",
+            "Deferred income tax liabilities"
+          ],
+          "description": "Deferred tax liabilities arising from taxable temporary differences.",
+          "hint": "Use the Balance Sheet or tax note. Extract deferred tax liabilities. Do not net against deferred tax assets unless the statement presents only a net balance.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "DEPRECIATION_AMORTIZATION",
+        "fields": {
+          "name_ru": "Амортизация материальных и нематериальных активов",
+          "name_en": "Depreciation and amortization",
+          "aliases_ru": [
+            "Амортизация основных средств и нематериальных активов",
+            "Износ и амортизация основных средств и нематериальных активов"
+          ],
+          "aliases_en": [
+            "Depreciation and amortization",
+            "depreciation and amortisation",
+            "depreciation expense",
+            "amortisation expense",
+            "amortization expense",
+            "D&A",
+            "DD&A",
+            "Depreciation",
+            "depletion and amortization",
+            "Amortization of acquisition-related intangibles"
+          ],
+          "description": "Depreciation and amortisation expense for property, plant and equipment and intangible assets during the period.",
+          "hint": "Use the Statement of Profit and Loss, cash flow adjustments, or notes. Include depreciation and amortisation. Do not include impairment losses unless the source combines them in the same printed line.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "DERIVATIVE_LIABILITIES",
+        "fields": {
+          "name_ru": "Производные финансовые обязательства",
+          "name_en": "Derivatives",
+          "aliases_ru": [
+            "Производные финансовые инструменты (обязательства)",
+            "Деривативы (обязательства)"
+          ],
+          "aliases_en": [
+            "Derivatives",
+            "derivative financial liabilities",
+            "derivative liabilities",
+            "financial derivatives liabilities",
+            "Derivative financial instruments"
+          ],
+          "description": "Fair value of derivative financial liabilities.",
+          "hint": "Use the Balance Sheet or financial instruments note. Extract derivative financial liabilities measured at fair value. Do not net against derivative assets unless only a net liability is presented.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "DIVIDENDS",
+        "fields": {
+          "name_ru": "Дивиденды",
+          "name_en": "Dividends",
+          "aliases_ru": [
+            "Дивиденды уплаченные",
+            "Дивиденды выплаченные"
+          ],
+          "aliases_en": [
+            "Dividends",
+            "dividends paid",
+            "cash dividends paid",
+            "total dividends paid",
+            "dividend outflow"
+          ],
+          "description": "Total cash dividends paid by the group during the period.",
+          "hint": "Use the Cash Flow Statement. Extract total cash dividends paid. If dividends to owners and NCI are separately disclosed, sum only those dividend cash outflow lines.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+        "fields": {
+          "name_ru": "Дивиденды, выплаченные держателям неконтролирующих долей",
+          "name_en": "Dividends paid to non-controlling interests",
+          "aliases_ru": [
+            "Дивиденды",
+            "выплаченные неконтролирующим акционерам",
+            "уплаченные акционерам с неконтролирующими долями участия"
+          ],
+          "aliases_en": [
+            "Dividends paid to non-controlling interests",
+            "dividends paid to NCI",
+            "dividends paid to minority interests",
+            "Dividends to non-controlling shareholders"
+          ],
+          "description": "Cash dividends paid to holders of non-controlling interests.",
+          "hint": "Use the Cash Flow Statement financing section. Extract dividends paid to non-controlling interests separately from parent shareholder dividends.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "DIVIDENDS_RECEIVED",
+        "fields": {
+          "name_ru": "Дивиденды полученные",
+          "name_en": "Dividends received",
+          "aliases_ru": [
+            "Полученные дивиденды"
+          ],
+          "aliases_en": [
+            "Dividends received",
+            "dividend income received",
+            "cash dividends received"
+          ],
+          "description": "Cash dividends received from associates, joint ventures or other investments.",
+          "hint": "Use the Cash Flow Statement investing section. Extract cash dividends received from investments, associates or joint ventures. Do not use dividend income accrued in P&L.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "DIVIDENDS_SHAREHOLDERS",
+        "fields": {
+          "name_ru": "Дивиденды акционерам",
+          "name_en": "Dividends paid to shareholders",
+          "aliases_ru": [
+            "Дивиденды для акционеров"
+          ],
+          "aliases_en": [
+            "Dividends paid to shareholders",
+            "dividend paid to owners",
+            "equity dividend paid",
+            "dividends to owners of the parent",
+            "Dividends paid to equity holders of the parent"
+          ],
+          "description": "Cash dividends paid to shareholders of the parent company.",
+          "hint": "Use the Cash Flow Statement financing section or statement of changes in equity. Extract dividends paid to owners/shareholders of the parent. Preserve cash outflow sign.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "DOUBTFUL_ACCOUNTS_ALLOWANCE",
+        "fields": {
+          "name_ru": "Резерв под ожидаемые кредитные убытки (дебиторская задолженность)",
+          "name_en": "Allowance for doubtful accounts",
+          "aliases_ru": [
+            "Оценочный резерв под ожидаемые кредитные убытки"
+          ],
+          "aliases_en": [
+            "Allowance for doubtful accounts",
+            "allowance for doubtful debts",
+            "loss allowance on trade receivables",
+            "expected credit loss allowance on receivables",
+            "ECL allowance",
+            "Allowance for expected credit losses",
+            "Provision for credit losses"
+          ],
+          "description": "Loss allowance or allowance for doubtful accounts related to trade receivables.",
+          "hint": "Use the trade receivables or financial instruments note. Extract loss allowance/ECL allowance for trade receivables or doubtful debts. Do not use bad debt expense unless the metric requested is a flow.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "EBITDA",
+        "fields": {
+          "name_ru": "Прибыль до вычета процентов, налогов, износа и амортизации",
+          "name_en": "EBITDA",
+          "aliases_ru": [
+            "EBITDA скорректированная",
+            "EBITDAC",
+            "EBITDA по сегменту"
+          ],
+          "aliases_en": [
+            "EBITDA",
+            "adjusted EBITDA",
+            "OIBDA",
+            "earnings before interest tax depreciation and amortisation",
+            "Segment EBITDA",
+            "EBITDA total"
+          ],
+          "description": "Earnings before interest, tax, depreciation and amortisation, when explicitly disclosed.",
+          "hint": "Use segment reporting, MD&A, key metrics or reconciliations. Extract only explicitly disclosed EBITDA/OIBDA. Do not calculate from operating profit and D&A unless this metric is being handled as calculated.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "EBT",
+        "fields": {
+          "name_ru": "Прибыль до налогообложения",
+          "name_en": "EBT",
+          "aliases_ru": [
+            "Прибыль до налога",
+            "Прибыль до налога на прибыль"
+          ],
+          "aliases_en": [
+            "EBT",
+            "profit before tax",
+            "PBT",
+            "earnings before tax",
+            "profit before income tax",
+            "Income before income taxes",
+            "Pre-tax income"
+          ],
+          "description": "Profit or loss before tax.",
+          "hint": "Use the Statement of Profit and Loss. Take profit before tax/PBT immediately before tax expense. Losses should remain negative.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "EPS",
+        "fields": {
+          "name_ru": "Прибыль на одну обыкновенную акцию",
+          "name_en": "Earnings per ordinary share",
+          "aliases_ru": [
+            "Прибыль на акцию"
+          ],
+          "aliases_en": [
+            "Earnings per ordinary share",
+            "basic earnings per share",
+            "earnings per share",
+            "EPS",
+            "basic EPS"
+          ],
+          "description": "Basic earnings per ordinary share for the period.",
+          "hint": "Use the Statement of Profit and Loss. Extract basic earnings per share, not diluted EPS. Unit is currency per share, not the general table scale.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "EQUITY_SHAREHOLDERS",
+        "fields": {
+          "name_ru": "Капитал, приходящийся на акционеров материнской компании",
+          "name_en": "Equity attributable to owners of the parent",
+          "aliases_ru": [],
+          "aliases_en": [
+            "Equity attributable to equity holders of the parent",
+            "Total shareholders' equity attributable to the parent",
+            "Equity attributable to owners of the Company"
+          ],
+          "description": "Собственный капитал за вычетом неконтролирующих долей — часть капитала, принадлежащая акционерам материнской компании.",
+          "hint": "Баланс, раздел КАПИТАЛ: «Итого капитал, приходящийся на акционеров материнской компании» — строка ДО «Неконтролирующие доли». НЕ путать с итогом капитала (тот включает неконтролирующие доли). Нет отдельной строки — значит неконтролирующих долей нет, бери итог капитала.",
+          "standard": "Любой",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "FINANCIAL_EXPENSES",
+        "fields": {
+          "name_ru": "Финансовые расходы",
+          "name_en": "Financial expenses",
+          "aliases_ru": [
+            "Расходы на обслуживание заемных средств",
+            "Процентные расходы"
+          ],
+          "aliases_en": [
+            "Financial expenses",
+            "finance costs",
+            "interest expense",
+            "borrowing costs",
+            "interest and finance charges"
+          ],
+          "description": "Finance costs such as interest expense and other borrowing costs.",
+          "hint": "Use the Statement of Profit and Loss. Extract finance costs/finance expenses. Preserve source sign conventions for expense lines.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "FINANCIAL_INCOME",
+        "fields": {
+          "name_ru": "Финансовые доходы",
+          "name_en": "Financial income",
+          "aliases_ru": [
+            "Процентные доходы"
+          ],
+          "aliases_en": [
+            "Financial income",
+            "finance income",
+            "interest income",
+            "other finance income"
+          ],
+          "description": "Finance income such as interest income and other financial income.",
+          "hint": "Use the Statement of Profit and Loss. Extract finance income, normally after operating profit. Do not use cash interest received if a P&L finance income line exists.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "FUTURE_CAPEX_LIABILITIES",
+        "fields": {
+          "name_ru": "Обязательства будущих периодов по капитальным затратам",
+          "name_en": "Future capital liabilities",
+          "aliases_ru": [
+            "Контрактные обязательства по капитальным вложениям"
+          ],
+          "aliases_en": [
+            "Future capital liabilities",
+            "capital commitments",
+            "future capital commitments",
+            "commitments for capital expenditure",
+            "contractual commitments for capital expenditure",
+            "Committed capital expenditures"
+          ],
+          "description": "Contracted capital expenditure commitments not yet recognised as liabilities.",
+          "hint": "Use commitments notes. Extract capital commitments or contractual commitments for capital expenditure not provided for. Do not include routine purchase commitments unless they are capital in nature.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "GOODWILL",
+        "fields": {
+          "name_ru": "Гудвил",
+          "name_en": "Goodwill",
+          "aliases_ru": [
+            "Деловая репутация"
+          ],
+          "aliases_en": [
+            "Goodwill",
+            "goodwill on consolidation"
+          ],
+          "description": "Goodwill recognised on acquisition of subsidiaries or businesses.",
+          "hint": "Use the Balance Sheet or business combinations/goodwill note. Extract goodwill carrying amount only, not total intangible assets.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "GROSS_PROFIT",
+        "fields": {
+          "name_ru": "Валовая прибыль",
+          "name_en": "Gross profit",
+          "aliases_ru": [
+            "Валовая прибыль",
+            "Валовая маржа"
+          ],
+          "aliases_en": [
+            "Gross profit",
+            "gross margin",
+            "gross profit before operating expenses",
+            "Subtotal after cost of sales"
+          ],
+          "description": "Revenue less cost of sales or equivalent direct costs.",
+          "hint": "Use the Statement of Profit and Loss. Take explicit gross profit or an obvious subtotal after cost of sales and before operating expenses. Do not derive from revenue and operating profit if cost of sales is not disclosed.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "GUARANTEES",
+        "fields": {
+          "name_ru": "Гарантии, поручительства",
+          "name_en": "Guarantees",
+          "aliases_ru": [
+            "Гарантии",
+            "Поручительства",
+            "Выданные гарантии и обязательства по предоставлению кредитов"
+          ],
+          "aliases_en": [
+            "Guarantees",
+            "corporate guarantees",
+            "financial guarantees",
+            "guarantees issued",
+            "Bank guarantees",
+            "Contingent liabilities"
+          ],
+          "description": "Guarantees, financial guarantees or similar off-balance sheet commitments issued by the entity.",
+          "hint": "Use commitments and contingent liabilities notes. Extract guarantees or financial guarantees issued. Do not include general legal claims unless included in the guarantees line.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INCOME_TAX",
+        "fields": {
+          "name_ru": "Расход по текущему налогу на прибыль",
+          "name_en": "Income tax expense",
+          "aliases_ru": [
+            "Текущий налог на прибыль"
+          ],
+          "aliases_en": [
+            "Income tax expense",
+            "current tax expense",
+            "current income tax",
+            "tax expense current portion",
+            "Tax expense",
+            "Provision for income taxes",
+            "Income tax provision (benefit)"
+          ],
+          "description": "Current income tax expense for the period, excluding deferred tax unless explicitly presented together as current tax.",
+          "hint": "Use the Statement of Profit and Loss or tax note. Extract current tax expense. Do not replace it with total tax expense if current and deferred tax are separately available.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INSURANCE_EXPENSE",
+        "fields": {
+          "name_ru": "Расходы по страховой деятельности",
+          "name_en": "Insurance service expense",
+          "aliases_ru": [
+            "Страховые выплаты",
+            "Расходы по страховым случаям"
+          ],
+          "aliases_en": [
+            "Insurance service expense",
+            "insurance claims expense",
+            "insurance contract expense",
+            "Insurance claims and expenses",
+            "Claims and benefits paid"
+          ],
+          "description": "Insurance service expense or claims expense, only for entities with insurance operations.",
+          "hint": "Use only if the entity has insurance operations. Extract insurance service expense or claims expense. Otherwise return null.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INSURANCE_INCOME",
+        "fields": {
+          "name_ru": "Выручка по страховой деятельности",
+          "name_en": "Insurance service income",
+          "aliases_ru": [
+            "Страховая премия",
+            "Заработанные страховые премии"
+          ],
+          "aliases_en": [
+            "Insurance service income",
+            "insurance revenue",
+            "insurance premium income",
+            "earned premium income",
+            "Net earned premiums"
+          ],
+          "description": "Insurance revenue or insurance service income, only for entities with insurance operations.",
+          "hint": "Use only if the entity has insurance operations. Extract insurance revenue/service income. Otherwise return null.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INSURANCE_LIABILITIES",
+        "fields": {
+          "name_ru": "Обязательства по договорам страхования",
+          "name_en": "Insurance contracts liabilities",
+          "aliases_ru": [
+            "Страховые резервы",
+            "Страховые обязательства"
+          ],
+          "aliases_en": [
+            "Insurance contracts liabilities",
+            "insurance contract liabilities",
+            "insurance liabilities",
+            "insurance reserves",
+            "Technical reserves"
+          ],
+          "description": "Insurance contract liabilities, only for entities with insurance operations.",
+          "hint": "Use only if the entity has insurance operations. Extract insurance contract liabilities. Otherwise return null.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INTANGIBLE_ASSETS",
+        "fields": {
+          "name_ru": "Нематериальные активы",
+          "name_en": "Intangible assets",
+          "aliases_ru": [
+            "Нематериальные активы",
+            "НМА",
+            "Прочие нематериальные активы",
+            "Нематериальные активы за вычетом гудвила"
+          ],
+          "aliases_en": [
+            "Intangible assets",
+            "intangibles",
+            "other intangible assets",
+            "intangible assets excluding goodwill"
+          ],
+          "description": "Identifiable non-monetary assets without physical substance, excluding goodwill if presented separately.",
+          "hint": "Use the Balance Sheet or intangible assets note. Exclude goodwill if separately disclosed and exclude right-of-use assets.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INTANGIBLE_ASSET_PURCHASES",
+        "fields": {
+          "name_ru": "Приобретение нематериальных активов",
+          "name_en": "Intangible asset purchases",
+          "aliases_ru": [
+            "Приобретение лицензий"
+          ],
+          "aliases_en": [
+            "Intangible asset purchases",
+            "purchase of intangible assets",
+            "payments for intangible assets",
+            "software purchases",
+            "intangible asset additions",
+            "Purchases of intangible assets",
+            "Acquisition of intangible assets"
+          ],
+          "description": "Cash outflow for purchase of intangible assets.",
+          "hint": "Use the Cash Flow Statement investing section. Extract purchases/payments for intangible assets. If intangibles are combined with PPE in one line, leave this metric null and use COMBINED_ASSET_PURCHASES.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INTEREST_PAID",
+        "fields": {
+          "name_ru": "Уплаченные проценты",
+          "name_en": "Interest paid",
+          "aliases_ru": [
+            "Проценты уплаченные",
+            "Проценты по кредитам уплаченные"
+          ],
+          "aliases_en": [
+            "Interest paid",
+            "finance costs paid",
+            "interest paid in cash",
+            "Interest payments",
+            "Cash interest paid"
+          ],
+          "description": "Cash paid for interest during the period.",
+          "hint": "Use the Cash Flow Statement. Extract cash interest paid. Do not use finance costs from the Statement of Profit and Loss unless the cash flow amount is unavailable and the source clearly equates them.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INTEREST_PAID_LEASE_LIABILITIES",
+        "fields": {
+          "name_ru": "Уплаченные проценты по лизингу",
+          "name_en": "Interest paid on lease liabilities",
+          "aliases_ru": [
+            "Проценты уплаченные по лизингу",
+            "Процентные расходы по обязательствам по аренде"
+          ],
+          "aliases_en": [
+            "Interest paid on lease liabilities",
+            "interest on lease liabilities",
+            "finance cost on lease liabilities",
+            "interest element of lease payments",
+            "Interest expense on lease liabilities",
+            "Cash paid for lease interest"
+          ],
+          "description": "Cash interest or finance cost component of lease payments.",
+          "hint": "Use the Cash Flow Statement or lease note. Extract interest paid on lease liabilities or finance cost on lease liabilities. Do not include principal repayment.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INTEREST_RECEIVED",
+        "fields": {
+          "name_ru": "Полученные проценты",
+          "name_en": "Interest received",
+          "aliases_ru": [
+            "Проценты полученные"
+          ],
+          "aliases_en": [
+            "Interest received",
+            "interest income received",
+            "interest received in cash",
+            "Interest receipts",
+            "Cash interest received"
+          ],
+          "description": "Cash received as interest during the period.",
+          "hint": "Use the Cash Flow Statement. Extract cash interest received. Do not use finance income unless the cash flow amount is unavailable and the source clearly equates them.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INVENTORIES",
+        "fields": {
+          "name_ru": "Запасы",
+          "name_en": "Inventories",
+          "aliases_ru": [
+            "Товарно-материальные запасы",
+            "ТМЗ"
+          ],
+          "aliases_en": [
+            "Inventories",
+            "inventory",
+            "stock-in-trade",
+            "raw materials",
+            "work-in-progress",
+            "finished goods",
+            "Stocks"
+          ],
+          "description": "Raw materials, work-in-progress, finished goods, traded goods and other inventories held for sale or production.",
+          "hint": "Use the Balance Sheet current assets line inventories and the inventories note. Include raw materials, WIP, finished goods, traded goods and stores/spares if part of the inventory total.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "LONG_TERM_DEBT",
+        "fields": {
+          "name_ru": "Долгосрочные кредиты и займы",
+          "name_en": "Long-term debt",
+          "aliases_ru": [
+            "Долгосрочные заемные средства",
+            "Долгосрочные займы и кредиты"
+          ],
+          "aliases_en": [
+            "Long-term debt",
+            "non-current borrowings",
+            "long-term borrowings",
+            "borrowings non-current",
+            "non-current debt",
+            "Long-term loans and borrowings"
+          ],
+          "description": "Borrowings and debt obligations due after more than twelve months.",
+          "hint": "Use the Balance Sheet, non-current liabilities, and notes to borrowings. Prefer non-current borrowings or long-term debt. Do not include current borrowings or lease liabilities if they are separately disclosed.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "LONG_TERM_LEASE_LIABILITIES",
+        "fields": {
+          "name_ru": "Долгосрочные обязательства по аренде",
+          "name_en": "Long-term lease liabilities",
+          "aliases_ru": [
+            "Обязательства по аренде",
+            "долгосрочная часть",
+            "Долгосрочная часть обязательств по аренде"
+          ],
+          "aliases_en": [
+            "Long-term lease liabilities",
+            "non-current lease liabilities",
+            "lease liabilities non-current",
+            "non-current portion of lease liabilities",
+            "Long-term portion of lease liabilities"
+          ],
+          "description": "Lease liabilities due after more than twelve months under Ind AS 116.",
+          "hint": "Use the Balance Sheet or lease note. Take only the non-current lease liability balance. Do not use right-of-use assets or lease payment cash flows.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "MODIFIED_AUDITORS_OPINION",
+        "fields": {
+          "name_ru": "Наличие модифицированного мнения аудитора",
+          "name_en": "Modified auditor's opinion",
+          "aliases_ru": [
+            "Модифицированное мнение аудитора",
+            "Аудиторское заключение с оговоркой",
+            "Отказ от выражения мнения"
+          ],
+          "aliases_en": [
+            "Modified auditor's opinion",
+            "modified auditor opinion",
+            "modified audit opinion",
+            "qualified opinion",
+            "adverse opinion",
+            "disclaimer of opinion",
+            "independent auditor report"
+          ],
+          "description": "Text flag indicating whether the independent auditor issued a modified opinion for the current reporting period.",
+          "hint": "Use the Independent Auditor’s Report. Return 0 for an unmodified opinion and 1 for a qualified, adverse or disclaimer opinion. Do not create comparative periods unless a separate auditor’s opinion is disclosed for them.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "NET_INCOME",
+        "fields": {
+          "name_ru": "Чистая прибыль",
+          "name_en": "Net income",
+          "aliases_ru": [
+            "Чистая прибыль/(убыток)",
+            "Прибыль за период/год/квартал",
+            "Чистая прибыль собственников"
+          ],
+          "aliases_en": [
+            "Net income",
+            "profit for the year",
+            "profit for the period",
+            "net profit",
+            "profit after tax",
+            "PAT",
+            "Net earnings"
+          ],
+          "description": "Profit or loss for the period after tax before attribution to owners and non-controlling interests.",
+          "hint": "Use the Statement of Profit and Loss. Take profit for the period/year after tax before attribution to owners and non-controlling interests. Losses should remain negative.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "NET_INCOME_SHAREHOLDERS",
+        "fields": {
+          "name_ru": "Прибыль, приходящаяся на акционеров материнской компании",
+          "name_en": "Profit attributable to owners of the parent",
+          "aliases_ru": [],
+          "aliases_en": [
+            "Profit attributable to equity holders of the parent",
+            "Net income attributable to shareholders of the parent",
+            "Profit for the year attributable to owners of the Company",
+            "Net income attributable to controlling interest"
+          ],
+          "description": "Часть чистой прибыли за период, приходящаяся на акционеров материнской компании, БЕЗ неконтролирующих долей.",
+          "hint": "ОПУ, блок распределения прибыли в самом низу: «Прибыль, приходящаяся на: акционеров материнской компании / неконтролирующие доли» — бери ПЕРВУЮ строку. Если распределения нет (у группы нет дочерних с неконтролирующей долей), прибыль совпадает с чистой прибылью — бери её.",
+          "standard": "Любой",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "NET_OPERATING_CASH_FLOW",
+        "fields": {
+          "name_ru": "Чистый операционный денежный поток",
+          "name_en": "Net operating cash flow",
+          "aliases_ru": [
+            "Чистые денежные средства",
+            "полученные от операционной деятельности",
+            "Чистые денежные потоки от операционной деятельности"
+          ],
+          "aliases_en": [
+            "Net operating cash flow",
+            "net cash generated from operating activities",
+            "net cash from operating activities",
+            "cash flow from operating activities",
+            "Net cash provided by operating activities"
+          ],
+          "description": "Net cash generated from or used in operating activities.",
+          "hint": "Use the Cash Flow Statement subtotal for net cash generated from or used in operating activities. Do not calculate if a subtotal is printed.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "NET_OTHER_RESERVES",
+        "fields": {
+          "name_ru": "Чистое восстановление прочих резервов",
+          "name_en": "Net other provisions and reserves",
+          "aliases_ru": [
+            "(Создание)/восстановление резерва под судебные иски и прочие обязательства",
+            "Восстановление резерва под кредитные убытки по прочим финансовым активам"
+          ],
+          "aliases_en": [
+            "Net other provisions and reserves",
+            "net provision reversals",
+            "net other provisions",
+            "provision for litigation and other obligations",
+            "other provisions net",
+            "Net reversal of other provisions",
+            "Net recovery of other provisions"
+          ],
+          "description": "Net creation or reversal of other provisions or reserves, excluding tax and financial asset impairment unless explicitly included.",
+          "hint": "Use provisions or contingencies notes and P&L if a net provision creation/reversal line is disclosed. Exclude tax, ECL on receivables and finance costs unless explicitly included in the same printed line.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "NON_CONTROL_INTEREST",
+        "fields": {
+          "name_ru": "Неконтрольные доли участия",
+          "name_en": "Non-controlling interests",
+          "aliases_ru": [
+            "Неконтролирующие доли",
+            "Доля меньшинства"
+          ],
+          "aliases_en": [
+            "Non-controlling interests",
+            "NCI",
+            "minority interests",
+            "Minority interest"
+          ],
+          "description": "Equity in subsidiaries not attributable to owners of the parent.",
+          "hint": "Use the Balance Sheet equity section. Extract non-controlling interests, which may be positive or negative.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "OPERATING_EXPENSES",
+        "fields": {
+          "name_ru": "Операционные расходы",
+          "name_en": "Operating expenses",
+          "aliases_ru": [
+            "Коммерческие",
+            "общехозяйственные и административные расходы",
+            "Коммерческие и административные расходы"
+          ],
+          "aliases_en": [
+            "Operating expenses",
+            "employee benefits expense",
+            "other expenses",
+            "selling and distribution expenses",
+            "administrative expenses",
+            "total operating expenses",
+            "Selling, general and administrative expenses",
+            "Selling, general and administrative",
+            "SG&A",
+            "General and administrative expense",
+            "Marketing, general and administrative",
+            "G&A"
+          ],
+          "description": "Operating expenses other than cost of sales, such as employee benefits, selling, administrative and other operating expenses.",
+          "hint": "Use the Statement of Profit and Loss. If no single operating expenses line exists, sum relevant operating expense lines between gross profit and operating profit. Exclude finance costs, tax and cost of sales.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "OPERATING_PROFIT",
+        "fields": {
+          "name_ru": "Операционная прибыль",
+          "name_en": "Operating profit",
+          "aliases_ru": [
+            "Прибыль от операционной деятельности",
+            "Прибыль от продаж",
+            "Прибыль от основной деятельности"
+          ],
+          "aliases_en": [
+            "Operating profit",
+            "profit from operations",
+            "earnings before finance costs and tax",
+            "EBIT",
+            "profit before finance costs and tax",
+            "Operating income",
+            "Income from operations"
+          ],
+          "description": "Profit from operations before finance income, finance costs and tax.",
+          "hint": "Use the Statement of Profit and Loss or segment/MD&A tables. Take profit from operations or EBIT before finance income, finance costs and tax. Do not substitute profit before tax.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "PERPETUAL_BONDS",
+        "fields": {
+          "name_ru": "Бессрочные облигации",
+          "name_en": "Perpetual bonds",
+          "aliases_ru": [
+            "Облигации без срока погашения",
+            "Выпуск бессрочных облигаций",
+            "бессрочный субординированный займ"
+          ],
+          "aliases_en": [
+            "Perpetual bonds",
+            "perpetual debt instruments",
+            "perpetual securities",
+            "perpetual subordinated bonds",
+            "Perpetual notes",
+            "Hybrid capital notes"
+          ],
+          "description": "Perpetual bonds or similar perpetual instruments disclosed in equity or borrowings depending on classification.",
+          "hint": "Use equity or borrowings notes. Extract only explicitly perpetual bonds or similar perpetual instruments. Do not use ordinary bonds or redeemable debentures.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "PPE",
+        "fields": {
+          "name_ru": "Основные средства",
+          "name_en": "Property, plant and equipment",
+          "aliases_ru": [
+            "Основные средства",
+            "ОС",
+            "Основные средства и оборудование",
+            "Здания, сооружения и оборудование"
+          ],
+          "aliases_en": [
+            "Property, plant and equipment",
+            "property plant and equipment",
+            "PPE",
+            "tangible assets",
+            "plant and equipment",
+            "PP&E",
+            "Fixed assets",
+            "Property and equipment"
+          ],
+          "description": "Carrying amount of property, plant and equipment excluding right-of-use assets if separately disclosed.",
+          "hint": "Use the Balance Sheet or property, plant and equipment note. Take carrying amount/net block. Exclude right-of-use assets, intangible assets and goodwill if separately disclosed.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+        "fields": {
+          "name_ru": "Погашение обязательств по аренде",
+          "name_en": "Repayment of principal portion of lease liabilities",
+          "aliases_ru": [
+            "Погашение основного долга по аренде",
+            "Выплаты основной суммы долга по аренде"
+          ],
+          "aliases_en": [
+            "Repayment of principal portion of lease liabilities",
+            "payment of lease liabilities",
+            "principal elements of lease payments",
+            "repayment of lease liabilities",
+            "Principal payments on lease liabilities"
+          ],
+          "description": "Principal portion of lease payments classified as financing cash flows.",
+          "hint": "Use the Cash Flow Statement financing section or lease note. Extract principal portion of lease payments only. Do not include lease interest paid.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "RETAINED_EARNINGS",
+        "fields": {
+          "name_ru": "Нераспределенная прибыль",
+          "name_en": "Retained Earnings",
+          "aliases_ru": [
+            "Нераспределенная прибыль (непокрытый убыток)",
+            "Накопленная прибыль"
+          ],
+          "aliases_en": [
+            "Retained Earnings",
+            "surplus in statement of profit and loss",
+            "accumulated profits",
+            "accumulated deficit",
+            "Accumulated retained earnings",
+            "Retained earnings balance"
+          ],
+          "description": "Accumulated retained earnings, surplus or deficit at the reporting date.",
+          "hint": "Use the equity section or statement of changes in equity. Extract retained earnings/surplus/accumulated deficit at the reporting date. Do not use profit for the period.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "RIGHT_OF_USE_ASSETS",
+        "fields": {
+          "name_ru": "Активы в форме права пользования",
+          "name_en": "Right-of-use assets",
+          "aliases_ru": [
+            "Право пользования активами",
+            "Активы с правом пользования"
+          ],
+          "aliases_en": [
+            "Right-of-use assets",
+            "ROU assets",
+            "right of use assets",
+            "assets under leases"
+          ],
+          "description": "Carrying amount of assets representing the right to use leased underlying assets under Ind AS 116.",
+          "hint": "Use the Balance Sheet or lease note under Ind AS 116. Extract right-of-use assets only. Do not use lease liabilities or ordinary PPE unless ROU assets are embedded and no separate split is provided.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "ROU_DEPRECIATION",
+        "fields": {
+          "name_ru": "Амортизация активов в форме права пользования",
+          "name_en": "Right-of-use asset depreciation",
+          "aliases_ru": [
+            "Износ активов в форме права пользования",
+            "Амортизация права пользования активами"
+          ],
+          "aliases_en": [
+            "Right-of-use asset depreciation",
+            "depreciation of right-of-use assets",
+            "amortisation of right-of-use assets",
+            "ROU depreciation",
+            "depreciation on leased assets",
+            "ROU asset depreciation",
+            "Amortization of operating lease right-of-use assets"
+          ],
+          "description": "Depreciation charge on right-of-use assets for the period.",
+          "hint": "Use the lease note or depreciation note. Extract depreciation or amortisation of right-of-use assets only. Do not use total depreciation and amortisation.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SALES_REVENUE",
+        "fields": {
+          "name_ru": "Выручка",
+          "name_en": "Sales revenue",
+          "aliases_ru": [
+            "Выручка от реализации",
+            "Выручка от реализации продукции"
+          ],
+          "aliases_en": [
+            "Sales revenue",
+            "revenue from operations",
+            "revenue",
+            "revenue from sale of products",
+            "revenue from services",
+            "income from operations",
+            "Net revenue",
+            "Net sales"
+          ],
+          "description": "Revenue from ordinary activities, normally presented as revenue from operations for Indian companies.",
+          "hint": "Use the Statement of Profit and Loss. In India, prefer the Schedule III label revenue from operations. For segment revenue, prefer revenue from external customers and exclude inter-segment revenue if separately disclosed.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SECURITIES_ASSETS",
+        "fields": {
+          "name_ru": "Финансовые инструменты (Актив)",
+          "name_en": "Investment securities and other financial assets",
+          "aliases_ru": [
+            "Финансовые активы",
+            "Инвестиционные ценные бумаги"
+          ],
+          "aliases_en": [
+            "Investment securities and other financial assets",
+            "investment securities",
+            "financial assets investments",
+            "marketable securities",
+            "current investments",
+            "non-current investments",
+            "Financial instruments",
+            "Short-term investments",
+            "Available-for-sale securities"
+          ],
+          "description": "Debt or equity investments and securities held as financial assets.",
+          "hint": "Use the Balance Sheet and financial assets/investments notes. Extract securities or investment financial assets. Do not include cash equivalents, bank deposits or investments in associates if separately classified.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SECURITIES_LIABILITIES",
+        "fields": {
+          "name_ru": "Финансовые инструменты (Обязательства)",
+          "name_en": "Financial instrument liabilities",
+          "aliases_ru": [
+            "Финансовые обязательства",
+            "Выпущенные долговые инструменты"
+          ],
+          "aliases_en": [
+            "Financial instrument liabilities",
+            "financial liabilities at fair value through profit or loss",
+            "derivative or trading financial liabilities",
+            "securities liabilities",
+            "Financial instruments",
+            "Financial liabilities",
+            "Debt instruments issued"
+          ],
+          "description": "Financial liabilities classified as trading, fair value through profit or loss, derivative or similar instrument liabilities.",
+          "hint": "Use the Balance Sheet and financial instruments notes. Extract trading/FVTPL/derivative financial liabilities where separately disclosed. Do not use ordinary borrowings or issued debt unless explicitly classified as securities liabilities.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SHARES_BUYBACK",
+        "fields": {
+          "name_ru": "Выкуп собственных акций",
+          "name_en": "Shares buyback",
+          "aliases_ru": [
+            "Приобретение собственных акций компании",
+            "Приобретение акций компании"
+          ],
+          "aliases_en": [
+            "Shares buyback",
+            "share buyback",
+            "buyback of shares",
+            "purchase of own shares",
+            "repurchase of shares",
+            "Share repurchase",
+            "Repurchase of common shares"
+          ],
+          "description": "Cash outflow for repurchase or buyback of the entity’s own shares.",
+          "hint": "Use the Cash Flow Statement financing section or equity note. Extract cash outflow for buyback/repurchase of shares. Do not use the treasury share balance.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SHARE_CAPITAL",
+        "fields": {
+          "name_ru": "Уставной капитал",
+          "name_en": "Share capital",
+          "aliases_ru": [
+            "Акционерный капитал",
+            "Обыкновенные акции (номинал)"
+          ],
+          "aliases_en": [
+            "Share capital",
+            "equity share capital",
+            "paid-up share capital",
+            "issued subscribed and paid-up share capital",
+            "Common stock",
+            "Ordinary shares",
+            "Capital stock"
+          ],
+          "description": "Nominal value of issued and paid-up share capital.",
+          "hint": "Use the Balance Sheet or equity note. Extract issued/subscribed/paid-up share capital at the reporting date. Do not use total equity.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SHARE_PREMIUM",
+        "fields": {
+          "name_ru": "Эмиссионный доход",
+          "name_en": "Share premium",
+          "aliases_ru": [
+            "Добавочный капитал",
+            "Дополнительный оплаченный капитал"
+          ],
+          "aliases_en": [
+            "Share premium",
+            "securities premium",
+            "additional paid-in capital",
+            "securities premium account",
+            "Capital surplus",
+            "APIC"
+          ],
+          "description": "Securities premium or share premium reserve.",
+          "hint": "Use the equity note or statement of changes in equity. Extract securities premium/share premium. Do not use share capital or retained earnings.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SHORT_TERM_BORROWINGS",
+        "fields": {
+          "name_ru": "Краткосрочные кредиты и займы",
+          "name_en": "Short-term borrowings and current portion of long-term debt",
+          "aliases_ru": [
+            "Краткосрочные заемные средства",
+            "Краткосрочные кредиты",
+            "займы и текущая часть долгосрочной задолженности",
+            "Краткосрочное долговое финансирование"
+          ],
+          "aliases_en": [
+            "Short-term borrowings and current portion of long-term debt",
+            "short-term borrowings",
+            "current borrowings",
+            "current maturities of long-term debt",
+            "current portion of long-term borrowings",
+            "short-term debt",
+            "Short-term loans and borrowings",
+            "Current portion of long-term debt"
+          ],
+          "description": "Borrowings due within twelve months, including current maturities of long-term borrowings where presented together.",
+          "hint": "Use the Balance Sheet, current liabilities, and notes to borrowings. Include current maturities if the line is presented as current borrowings or current portion of borrowings. Exclude current lease liabilities if separately disclosed.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SHORT_TERM_LEASE_LIABILITIES",
+        "fields": {
+          "name_ru": "Краткосрочные обязательства по аренде",
+          "name_en": "Short-term lease liabilities",
+          "aliases_ru": [
+            "Краткосрочная часть обязательств по аренде",
+            "Текущая часть обязательств по аренде"
+          ],
+          "aliases_en": [
+            "Short-term lease liabilities",
+            "current lease liabilities",
+            "current portion of lease liabilities",
+            "lease liabilities current"
+          ],
+          "description": "Current portion of lease liabilities due within twelve months under Ind AS 116.",
+          "hint": "Use the Balance Sheet or lease note. Take only the current portion of lease liabilities. Do not use right-of-use assets or total lease liabilities unless current/non-current split is unavailable.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SUBSIDIARY_ACQUISITIONS",
+        "fields": {
+          "name_ru": "Приобретение дочерних организаций (обществ) за вычетом (минусом) денежных средств и за вычетом (минусом) полученных денежных средств",
+          "name_en": "Subsidiary and business acquisitions",
+          "aliases_ru": [
+            "Приобретение дочернего предприятия",
+            "Приобретение бизнеса за вычетом полученных денежных средств"
+          ],
+          "aliases_en": [
+            "Subsidiary and business acquisitions",
+            "acquisition of subsidiaries",
+            "acquisition of business",
+            "purchase of subsidiaries net of cash acquired",
+            "business combinations cash outflow",
+            "Acquisition of subsidiaries net of cash",
+            "Business combinations",
+            "Acquisition of businesses"
+          ],
+          "description": "Cash outflow for acquisition of subsidiaries or businesses, normally net of cash acquired.",
+          "hint": "Use the Cash Flow Statement investing section. Take acquisition of subsidiaries/businesses net of cash acquired. Do not include purchases of associates unless the line explicitly combines business acquisitions.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "TOTAL_ASSETS",
+        "fields": {
+          "name_ru": "Итого активы",
+          "name_en": "Total assets",
+          "aliases_ru": [
+            "ИТОГО АКТИВЫ",
+            "Итого по активам",
+            "Активы всего",
+            "Всего активов",
+            "Итого активов"
+          ],
+          "aliases_en": [
+            "Total assets",
+            "assets total",
+            "total asset base",
+            "Sum of assets"
+          ],
+          "description": "Total carrying amount of all assets at the reporting date.",
+          "hint": "Use the Balance Sheet final total assets line. It should equal total equity and liabilities.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "TOTAL_ASSOCIATE_INVESTMENTS",
+        "fields": {
+          "name_ru": "Инвестиции в ассоциированные и совместные предприятия",
+          "name_en": "Associate investments",
+          "aliases_ru": [
+            "Вложения в ассоциированные и совместные предприятия",
+            "Инвестиции в компании по методу долевого участия"
+          ],
+          "aliases_en": [
+            "Associate investments",
+            "investments in associates and joint ventures",
+            "associate and joint venture investments",
+            "equity method investments",
+            "investments accounted for using the equity method",
+            "Equity-accounted investments",
+            "Equity method investment",
+            "Investments in associates",
+            "Investments: equity method"
+          ],
+          "description": "Total investments in associates and joint ventures accounted for using the equity method.",
+          "hint": "Use the Balance Sheet or investments note. Extract total investments in associates and joint ventures. Do not use purchases in cash flow or share of profit in P&L.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "TOTAL_CURRENT_ASSETS",
+        "fields": {
+          "name_ru": "Итого оборотных активов",
+          "name_en": "Total current assets",
+          "aliases_ru": [
+            "Итого оборотные активы",
+            "Оборотные активы всего",
+            "Текущие активы",
+            "Краткосрочные активы"
+          ],
+          "aliases_en": [
+            "Total current assets",
+            "current assets total",
+            "subtotal current assets",
+            "Current assets"
+          ],
+          "description": "Total assets expected to be realised, sold or consumed within the operating cycle or within twelve months.",
+          "hint": "Use the Balance Sheet subtotal for total current assets under Schedule III Division II. Do not calculate from components if a subtotal is printed.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "TOTAL_CURRENT_LIABILITIES",
+        "fields": {
+          "name_ru": "Итого краткосрочных обязательств",
+          "name_en": "Total current liabilities",
+          "aliases_ru": [
+            "Итого краткосрочные обязательства",
+            "Текущие обязательства",
+            "Краткосрочные обязательства всего",
+            "Итого текущих обязательств"
+          ],
+          "aliases_en": [
+            "Total current liabilities",
+            "current liabilities total",
+            "subtotal current liabilities",
+            "Current liabilities"
+          ],
+          "description": "Total obligations expected to be settled within the operating cycle or within twelve months.",
+          "hint": "Use the Balance Sheet subtotal for total current liabilities under Schedule III Division II. Do not calculate from components if a subtotal is printed.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "TOTAL_EQUITY",
+        "fields": {
+          "name_ru": "Итого собственный капитал",
+          "name_en": "Total equity",
+          "aliases_ru": [
+            "Итого капитал",
+            "Собственный капитал акционеров"
+          ],
+          "aliases_en": [
+            "Total equity",
+            "equity total",
+            "total shareholders equity",
+            "total equity attributable to owners and non-controlling interests",
+            "Total shareholders' equity",
+            "Stockholders' equity"
+          ],
+          "description": "Total equity attributable to owners and non-controlling interests.",
+          "hint": "Use the Balance Sheet total equity line. Include equity attributable to owners and non-controlling interests where consolidated statements are used.",
+          "standard": "Ind AS (IFRS-convergent) / Schedule III Division II",
+          "value_basis": null,
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      }
+    ],
+    "calculated": [
+      {
+        "enum": "ACCOUNTS_PAYABLE_TURNOVER",
+        "fields": {
+          "name_ru": "Оборачиваемость кредиторской задолженности",
+          "name_en": "Accounts payable turnover days",
+          "formula": "DAYS_IN_PERIOD / (COSTS_EXPENSES / AVG (ACCOUNTS_PAYABLE))",
+          "deps": [
+            "COSTS_EXPENSES",
+            "ACCOUNTS_PAYABLE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "days",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "ACCOUNTS_RECEIVABLE_TURNOVER",
+        "fields": {
+          "name_ru": "Оборачиваемость дебиторской задолженности",
+          "name_en": "Accounts receivable turnover days",
+          "formula": "DAYS_IN_PERIOD / (SALES_REVENUE / AVG (ACCOUNTS_RECEIVABLE))",
+          "deps": [
+            "SALES_REVENUE",
+            "ACCOUNTS_RECEIVABLE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "days",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "ADJ_OCF_TO_INTEREST_PAID",
+        "fields": {
+          "name_ru": "Отношение скорректированного  операционного денежного потока у процентам уплаченным",
+          "name_en": "Adjusted operating cash flow to interest paid",
+          "formula": "(FREE_CASH_FLOW_DEBT + CAPEX + INTEREST_PAID)/ INTEREST_PAID",
+          "deps": [
+            "FREE_CASH_FLOW_DEBT",
+            "CAPEX",
+            "INTEREST_PAID"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "ASSETS_TO_EQUITY_RATIO",
+        "fields": {
+          "name_ru": "Финансовый рычаг",
+          "name_en": "Assets to equity ratio",
+          "formula": "TOTAL_ASSETS / TOTAL_EQUITY",
+          "deps": [
+            "TOTAL_ASSETS",
+            "TOTAL_EQUITY"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "ASSET_TURNOVER",
+        "fields": {
+          "name_ru": "Оборачиваемость активов",
+          "name_en": "Asset turnover",
+          "formula": "SALES_REVENUE / AVG (TOTAL_ASSETS)",
+          "deps": [
+            "SALES_REVENUE",
+            "TOTAL_ASSETS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "CAPEX",
+        "fields": {
+          "name_ru": "Капитальные затраты",
+          "name_en": "Capital expenditure",
+          "formula": "ASSET_PURCHASES + INTANGIBLE_ASSET_PURCHASES - ASSET_SALES_PROCEEDS",
+          "deps": [
+            "ASSET_PURCHASES",
+            "INTANGIBLE_ASSET_PURCHASES",
+            "ASSET_SALES_PROCEEDS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "CAPEX_TO_REVENUE",
+        "fields": {
+          "name_ru": "Отношение капитальных затрат к выручке",
+          "name_en": "Capex to revenue ratio",
+          "formula": "CAPEX / SALES_REVENUE * 100%",
+          "deps": [
+            "CAPEX",
+            "SALES_REVENUE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "CASH_CONVERSION_CYCLE",
+        "fields": {
+          "name_ru": "Финансовый (денежный) цикл",
+          "name_en": "Cash conversion cycle",
+          "formula": "ACCOUNTS_RECEIVABLE_TURNOVER + INVENTORIES_TURNOVER - ACCOUNTS_PAYABLE_TURNOVER",
+          "deps": [
+            "ACCOUNTS_RECEIVABLE_TURNOVER",
+            "INVENTORIES_TURNOVER",
+            "ACCOUNTS_PAYABLE_TURNOVER"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "days",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "CASH_TO_SHORT_TERM_DEBT",
+        "fields": {
+          "name_ru": "Отношение денежных средств и эквивалентов к краткосрочному долгу",
+          "name_en": "Cash to short-term debt ratio",
+          "formula": "TOTAL_CASH_EQUIVALENTS / (SHORT_TERM_BORROWINGS + SHORT_TERM_LEASE_LIABILITIES) * 100%",
+          "deps": [
+            "TOTAL_CASH_EQUIVALENTS",
+            "SHORT_TERM_BORROWINGS",
+            "SHORT_TERM_LEASE_LIABILITIES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "COMBINED_ASSET_PURCHASES",
+        "fields": {
+          "name_ru": "Приобретение основных средств и нематериальных активов",
+          "name_en": "Fixed asset and intangible asset purchases",
+          "formula": "ASSET_PURCHASES + INTANGIBLE_ASSET_PURCHASES",
+          "deps": [
+            "ASSET_PURCHASES",
+            "INTANGIBLE_ASSET_PURCHASES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "CURRENT_RATIO",
+        "fields": {
+          "name_ru": "Коэффициент текущей ликвидности",
+          "name_en": "Current ratio",
+          "formula": "TOTAL_CURRENT_ASSETS / TOTAL_CURRENT_LIABILITIES",
+          "deps": [
+            "TOTAL_CURRENT_ASSETS",
+            "TOTAL_CURRENT_LIABILITIES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "DEBT_TO_EQUITY_RATIO",
+        "fields": {
+          "name_ru": "Коэффициент левериджа",
+          "name_en": "Debt to equity ratio",
+          "formula": "TOTAL_DEBT / TOTAL_EQUITY",
+          "deps": [
+            "TOTAL_DEBT",
+            "TOTAL_EQUITY"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "DIVIDENDS",
+        "fields": {
+          "name_ru": "Дивиденды",
+          "name_en": "Dividends",
+          "formula": "DIVIDENDS_SHAREHOLDERS + DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+          "deps": [
+            "DIVIDENDS_SHAREHOLDERS",
+            "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "DIVIDEND_PAYOUT_RATIO",
+        "fields": {
+          "name_ru": "Коэффициент выплаты дивидендов",
+          "name_en": "Dividend payout ratio",
+          "formula": "DIVIDENDS / NET_INCOME * 100%",
+          "deps": [
+            "DIVIDENDS",
+            "NET_INCOME"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "EBITDA",
+        "fields": {
+          "name_ru": "Прибыль до вычета процентов, налогов, износа и амортизации",
+          "name_en": "EBITDA",
+          "formula": "OPERATING_PROFIT + DEPRECIATION_AMORTIZATION",
+          "deps": [
+            "OPERATING_PROFIT",
+            "DEPRECIATION_AMORTIZATION"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "EBITDA_MARGIN",
+        "fields": {
+          "name_ru": "Рентабельность по EBITDA",
+          "name_en": "EBITDA margin",
+          "formula": "EBITDA / SALES_REVENUE * 100%",
+          "deps": [
+            "EBITDA",
+            "SALES_REVENUE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "EBITDA_TO_INTEREST_PAID",
+        "fields": {
+          "name_ru": "Отношение EBITDA к уплаченным процентам",
+          "name_en": "EBITDA to interest paid",
+          "formula": "EBITDA / INTEREST_PAID",
+          "deps": [
+            "EBITDA",
+            "INTEREST_PAID"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "EBIT_MARGIN",
+        "fields": {
+          "name_ru": "Рентабельность по EBIT",
+          "name_en": "EBIT margin",
+          "formula": "OPERATING_PROFIT / SALES_REVENUE * 100%",
+          "deps": [
+            "OPERATING_PROFIT",
+            "SALES_REVENUE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "FCF_TO_INTEREST_PAID",
+        "fields": {
+          "name_ru": "Отношение свободного денежного потока у процентам уплаченным",
+          "name_en": "Free cash flow to interest paid",
+          "formula": "FREE_CASH_FLOW / INTEREST_PAID",
+          "deps": [
+            "FREE_CASH_FLOW",
+            "INTEREST_PAID"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "FCF_TO_INTEREST_PAID_CIB",
+        "fields": {
+          "name_ru": "Отношение свободного денежного потока к процентам уплаченным (CIB)",
+          "name_en": "Free cash flow generation to interest paid",
+          "formula": "FREE_CASH_FLOW_GEN / INTEREST_PAID",
+          "deps": [
+            "FREE_CASH_FLOW_GEN",
+            "INTEREST_PAID"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "FIXED_ASSET_TURNOVER",
+        "fields": {
+          "name_ru": "Оборачиваемость основных средств",
+          "name_en": "Fixed asset turnover",
+          "formula": "SALES_REVENUE / AVG (RIGHT_OF_USE_ASSETS + PPE)",
+          "deps": [
+            "SALES_REVENUE",
+            "RIGHT_OF_USE_ASSETS",
+            "PPE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "FREE_CASH_FLOW",
+        "fields": {
+          "name_ru": "Свободный денежный поток",
+          "name_en": "Free cash flow",
+          "formula": "NET_OPERATING_CASH_FLOW - CAPEX",
+          "deps": [
+            "NET_OPERATING_CASH_FLOW",
+            "CAPEX"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "FREE_CASH_FLOW_DEBT",
+        "fields": {
+          "name_ru": "Свободный денежный поток (для кредиторов)",
+          "name_en": "Free cash flow available for debt service",
+          "formula": "FREE_CASH_FLOW_GEN - INVESTMENTS - DIVIDENDS_SHAREHOLDERS - PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+          "deps": [
+            "FREE_CASH_FLOW_GEN",
+            "INVESTMENTS",
+            "DIVIDENDS_SHAREHOLDERS",
+            "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "FREE_CASH_FLOW_FIRM",
+        "fields": {
+          "name_ru": "Свободный денежный поток (для кредиторов)",
+          "name_en": "Free cash flow to firm",
+          "formula": "FREE_CASH_FLOW - INVESTMENTS - DIVIDENDS",
+          "deps": [
+            "FREE_CASH_FLOW",
+            "INVESTMENTS",
+            "DIVIDENDS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "FREE_CASH_FLOW_GEN",
+        "fields": {
+          "name_ru": "Свободный денежный поток",
+          "name_en": "Free cash flow generation",
+          "formula": "EBITDA + CHANGES_OCF_ASSETS_LIABILITIES - TAX_EXPENDITURE - CAPEX - NET_INTEREST_PAID - DIVIDENDS + DIVIDENDS_RECEIVED",
+          "deps": [
+            "EBITDA",
+            "CHANGES_OCF_ASSETS_LIABILITIES",
+            "TAX_EXPENDITURE",
+            "CAPEX",
+            "NET_INTEREST_PAID",
+            "DIVIDENDS",
+            "DIVIDENDS_RECEIVED"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "GROSS_MARGIN",
+        "fields": {
+          "name_ru": "Рентабельность по валовой прибыли",
+          "name_en": "Gross margin",
+          "formula": "GROSS_PROFIT / SALES_REVENUE * 100%",
+          "deps": [
+            "GROSS_PROFIT",
+            "SALES_REVENUE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "GROSS_PROFIT",
+        "fields": {
+          "name_ru": "Валовая прибыль",
+          "name_en": "Gross profit",
+          "formula": "SALES_REVENUE - COSTS_EXPENSES",
+          "deps": [
+            "SALES_REVENUE",
+            "COSTS_EXPENSES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "INTEREST_COVERAGE_RATIO",
+        "fields": {
+          "name_ru": "Коэффициент покрытия процентов",
+          "name_en": "Interest coverage ratio",
+          "formula": "EBITDA / NET_INTEREST_PAID",
+          "deps": [
+            "EBITDA",
+            "ABS",
+            "NET_INTEREST_PAID"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "INVENTORIES_TURNOVER",
+        "fields": {
+          "name_ru": "Оборачиваемость запасов",
+          "name_en": "Inventory turnover days",
+          "formula": "DAYS_IN_PERIOD / (COSTS_EXPENSES / AVG (INVENTORIES))",
+          "deps": [
+            "COSTS_EXPENSES",
+            "INVENTORIES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "days",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "INVESTMENTS",
+        "fields": {
+          "name_ru": "Инвестиции",
+          "name_en": "Investments",
+          "formula": "SUBSIDIARY_ACQUISITIONS + ASSOCIATE_INVESTMENTS - ASSOCIATE_INCOMES",
+          "deps": [
+            "SUBSIDIARY_ACQUISITIONS",
+            "ASSOCIATE_INVESTMENTS",
+            "ASSOCIATE_INCOMES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "NET_DEBT",
+        "fields": {
+          "name_ru": "Чистый долг",
+          "name_en": "Net debt",
+          "formula": "TOTAL_DEBT - CASH_EQUIVALENTS - BANK_DEPOSITS",
+          "deps": [
+            "TOTAL_DEBT",
+            "CASH_EQUIVALENTS",
+            "BANK_DEPOSITS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "NET_DEBT_IAS_17",
+        "fields": {
+          "name_ru": "Чистый долг в соответствии с IAS 17",
+          "name_en": "Net debt excluding lease liabilities",
+          "formula": "TOTAL_DEBT - CASH_EQUIVALENTS",
+          "deps": [
+            "TOTAL_DEBT",
+            "CASH_EQUIVALENTS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "NET_INCOME_MARGIN",
+        "fields": {
+          "name_ru": "Рентабельность по чистой прибыли",
+          "name_en": "Net income margin",
+          "formula": "NET_INCOME / SALES_REVENUE * 100%",
+          "deps": [
+            "NET_INCOME",
+            "SALES_REVENUE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "NET_INSURANCE_INCOME",
+        "fields": {
+          "name_ru": "Чистый страховой доход",
+          "name_en": "Net insurance income",
+          "formula": "INSURANCE_INCOME - INSURANCE_EXPENSE",
+          "deps": [
+            "INSURANCE_INCOME",
+            "INSURANCE_EXPENSE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "NET_INTEREST_PAID",
+        "fields": {
+          "name_ru": "Чистые уплаченные проценты",
+          "name_en": "Net interest paid",
+          "formula": "INTEREST_PAID - INTEREST_RECEIVED",
+          "deps": [
+            "INTEREST_PAID",
+            "INTEREST_RECEIVED"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "OCF_TO_EBITDA",
+        "fields": {
+          "name_ru": "Конверсия EBITDA в операционный поток",
+          "name_en": "",
+          "formula": "NET_OPERATING_CASH_FLOW / EBITDA * 100%",
+          "deps": [
+            "NET_OPERATING_CASH_FLOW",
+            "EBITDA"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "QUICK_RATIO",
+        "fields": {
+          "name_ru": "Коэффициент быстрой ликвидности",
+          "name_en": "",
+          "formula": "(TOTAL_CURRENT_ASSETS - INVENTORIES) / TOTAL_CURRENT_LIABILITIES",
+          "deps": [
+            "TOTAL_CURRENT_ASSETS",
+            "INVENTORIES",
+            "TOTAL_CURRENT_LIABILITIES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "RATIO_NET_DEBT_EBITDA",
+        "fields": {
+          "name_ru": "Чистый долг / Прибыль до вычета процентов, налогов, износа и амортизации",
+          "name_en": "Net debt to EBITDA ratio",
+          "formula": "NET_DEBT / ANNUAL(EBITDA)",
+          "deps": [
+            "NET_DEBT",
+            "EBITDA"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "RATIO_TOTAL_DEBT_EBITDA",
+        "fields": {
+          "name_ru": "Отношение общего долга к EBITDA",
+          "name_en": "Total debt to EBITDA ratio",
+          "formula": "TOTAL_DEBT / ANNUAL(EBITDA)",
+          "deps": [
+            "TOTAL_DEBT",
+            "EBITDA"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "RATIO_TOTAL_DEBT_NOCF",
+        "fields": {
+          "name_ru": "Отношение долга к чистому денежному потоку от операционной деятельности",
+          "name_en": "Total debt to operating cash flow ratio",
+          "formula": "TOTAL_DEBT / ANNUAL(NET_OPERATING_CASH_FLOW)",
+          "deps": [
+            "TOTAL_DEBT",
+            "NET_OPERATING_CASH_FLOW"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "ROA",
+        "fields": {
+          "name_ru": "Рентабельность активов",
+          "name_en": "Return on assets",
+          "formula": "NET_INCOME / AVG (TOTAL_ASSETS) * 100%",
+          "deps": [
+            "NET_INCOME",
+            "TOTAL_ASSETS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": true,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": -0.35,
+          "soft_max_value": 0.35
+        }
+      },
+      {
+        "enum": "ROE",
+        "fields": {
+          "name_ru": "Рентабельность собственного капитала",
+          "name_en": "Return on equity",
+          "formula": "NET_INCOME / AVG (TOTAL_EQUITY) * 100%",
+          "deps": [
+            "NET_INCOME",
+            "TOTAL_EQUITY"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": true,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": -1.0,
+          "soft_max_value": 1.0
+        }
+      },
+      {
+        "enum": "ROE_SHAREHOLDERS",
+        "fields": {
+          "name_ru": "Рентабельность капитала акционеров (ROE акционеров)",
+          "name_en": "",
+          "formula": "NET_INCOME_SHAREHOLDERS / AVG (EQUITY_SHAREHOLDERS) * 100%",
+          "deps": [
+            "NET_INCOME_SHAREHOLDERS",
+            "EQUITY_SHAREHOLDERS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": true,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "SHORT_TERM_PORTION_OF_DEBT",
+        "fields": {
+          "name_ru": "Краткосрочная часть долга",
+          "name_en": "Short-term portion of debt",
+          "formula": "(SHORT_TERM_BORROWINGS + SHORT_TERM_LEASE_LIABILITIES) / TOTAL_DEBT * 100%",
+          "deps": [
+            "SHORT_TERM_BORROWINGS",
+            "SHORT_TERM_LEASE_LIABILITIES",
+            "TOTAL_DEBT"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "TAX_EXPENDITURE",
+        "fields": {
+          "name_ru": "Общий расход по налогу",
+          "name_en": "Total tax expense",
+          "formula": "EBT - NET_INCOME",
+          "deps": [
+            "EBT",
+            "NET_INCOME"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "TOTAL_CASH_EQUIVALENTS",
+        "fields": {
+          "name_ru": "Денежные средства и краткосрочные депозиты",
+          "name_en": "Cash and bank deposits",
+          "formula": "CASH_EQUIVALENTS + BANK_DEPOSITS",
+          "deps": [
+            "CASH_EQUIVALENTS",
+            "BANK_DEPOSITS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "TOTAL_DEBT",
+        "fields": {
+          "name_ru": "Общий долг",
+          "name_en": "Total debt",
+          "formula": "LONG_TERM_DEBT + LONG_TERM_LEASE_LIABILITIES + SHORT_TERM_BORROWINGS + SHORT_TERM_LEASE_LIABILITIES",
+          "deps": [
+            "LONG_TERM_DEBT",
+            "LONG_TERM_LEASE_LIABILITIES",
+            "SHORT_TERM_BORROWINGS",
+            "SHORT_TERM_LEASE_LIABILITIES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "TOTAL_DEBT_IAS_17",
+        "fields": {
+          "name_ru": "Общий долг в соответствии с IAS 17",
+          "name_en": "Total debt excluding lease liabilities",
+          "formula": "LONG_TERM_DEBT + SHORT_TERM_BORROWINGS",
+          "deps": [
+            "LONG_TERM_DEBT",
+            "SHORT_TERM_BORROWINGS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "TOTAL_LIABILITIES",
+        "fields": {
+          "name_ru": "Итого обязательства",
+          "name_en": "Total liabilities",
+          "formula": "TOTAL_ASSETS - TOTAL_EQUITY",
+          "deps": [
+            "TOTAL_ASSETS",
+            "TOTAL_EQUITY"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      },
+      {
+        "enum": "WORKING_CAPITAL",
+        "fields": {
+          "name_ru": "Оборотный капитал",
+          "name_en": "",
+          "formula": "TOTAL_CURRENT_ASSETS - TOTAL_CURRENT_LIABILITIES",
+          "deps": [
+            "TOTAL_CURRENT_ASSETS",
+            "TOTAL_CURRENT_LIABILITIES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false,
+          "min_value": null,
+          "max_value": null,
+          "soft_min_value": null,
+          "soft_max_value": null
+        }
+      }
+    ]
+  }
+}

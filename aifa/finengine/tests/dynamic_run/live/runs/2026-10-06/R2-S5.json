@@ -1,0 +1,375 @@
+{
+ "label": "R2-S5",
+ "query": "Покажи только уже извлечённую выручку SALES_REVENUE за 6M 2026 и 6M 2025 без новых вычислений и без поиска новых данных.",
+ "doc_id": "a3c81e32-43b4-4c29-8e59-4ef643b83785",
+ "run_id": "d9578b8c-0b26-4c70-b2d9-44efe8891d85",
+ "elapsed_s": 29.5,
+ "events": [
+  {
+   "schema_version": "1.0",
+   "event_id": "12c33719-99ca-49b6-8ac7-a58b963cec00",
+   "run_id": "d9578b8c-0b26-4c70-b2d9-44efe8891d85",
+   "sequence": 1,
+   "occurred_at": "2026-10-06T18:19:29.707552Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "session_id",
+    "session_id": "a233cdda-cfbc-4654-9162-3d48584430d7"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "f9b69aca-5a23-4cf1-9d71-9ba623687b47",
+   "run_id": "d9578b8c-0b26-4c70-b2d9-44efe8891d85",
+   "sequence": 2,
+   "occurred_at": "2026-10-06T18:19:29.707610Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "thinking",
+    "text": "Разбираю запрос…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "ddc82457-79a9-4ae4-aa16-0b3d59573c6c",
+   "run_id": "d9578b8c-0b26-4c70-b2d9-44efe8891d85",
+   "sequence": 3,
+   "occurred_at": "2026-10-06T18:19:48.641102Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_call",
+    "name": "financial_pipeline",
+    "args_summary": "Покажи только уже извлечённую выручку SALES_REVENUE за 6M…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "53fcca0e-0168-4749-8942-dfa94c8d74b3",
+   "run_id": "d9578b8c-0b26-4c70-b2d9-44efe8891d85",
+   "sequence": 4,
+   "occurred_at": "2026-10-06T18:19:48.641230Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "plan_graph",
+    "graph_hash": "sha256:5e509ed2f3ef0f91030ad70452f9a311aa46d1df6d8366bd3778395a286e74de",
+    "planner_version": "1.0.0+compound",
+    "root": {
+     "atom_name": "goal.join",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "scenario_refs=goal-1,goal-2"
+    },
+    "nodes": [
+     {
+      "node_key": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "d8718782e35310b0fb729ee80f376bb0ddeee1e302a22019ecfe5831da46506c"
+      },
+      "produces": [
+       "ExtractedMetric:SALES_REVENUE"
+      ],
+      "requires": [],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-1"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "1c4d10edc6fa29caad7a8b5ab4ae394fefad30c98063d128c680e2b6316309a7"
+      },
+      "produces": [
+       "ExtractedMetric:SALES_REVENUE"
+      ],
+      "requires": [],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-2"
+      ]
+     },
+     {
+      "node_key": {
+       "atom_name": "goal.join",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "scenario_refs=goal-1,goal-2"
+      },
+      "produces": [
+       "CompoundResult"
+      ],
+      "requires": [
+       {
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "d8718782e35310b0fb729ee80f376bb0ddeee1e302a22019ecfe5831da46506c"
+       },
+       {
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "1c4d10edc6fa29caad7a8b5ab4ae394fefad30c98063d128c680e2b6316309a7"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": [
+       "goal-1",
+       "goal-2"
+      ]
+     }
+    ],
+    "scenarios": [
+     {
+      "goal_ref": "goal-1",
+      "goal_type": "extract_registered_metric",
+      "root": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "d8718782e35310b0fb729ee80f376bb0ddeee1e302a22019ecfe5831da46506c"
+      },
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-2",
+      "goal_type": "extract_registered_metric",
+      "root": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "1c4d10edc6fa29caad7a8b5ab4ae394fefad30c98063d128c680e2b6316309a7"
+      },
+      "depends_on": []
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "cdce83eb-8cd0-4924-a95d-6c045f18a4ff",
+   "run_id": "d9578b8c-0b26-4c70-b2d9-44efe8891d85",
+   "sequence": 5,
+   "occurred_at": "2026-10-06T18:19:48.643699Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5e509ed2f3ef0f91030ad70452f9a311aa46d1df6d8366bd3778395a286e74de",
+   "node_run": {
+    "node_run_id": "f9c3a92e-5273-46a2-9212-b39573868a97",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "d8718782e35310b0fb729ee80f376bb0ddeee1e302a22019ecfe5831da46506c"
+    },
+    "run_id": "cefb4cb7-5bb7-4191-a6f5-ab91b85f71e4",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "cebaf7f7-5889-4e51-8566-021ee8fbe1f8",
+     "00944204-aefe-49aa-8e62-18488261834c"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:19:48.637870Z",
+    "finished_at": "2026-10-06T18:19:48.637870Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "5c7032ec-e6d9-46ba-acc4-04ef58c8a49b",
+   "run_id": "d9578b8c-0b26-4c70-b2d9-44efe8891d85",
+   "sequence": 6,
+   "occurred_at": "2026-10-06T18:19:48.648507Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5e509ed2f3ef0f91030ad70452f9a311aa46d1df6d8366bd3778395a286e74de",
+   "node_run": {
+    "node_run_id": "e6915d64-5ee1-4060-af2b-2b16dd2568ce",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "1c4d10edc6fa29caad7a8b5ab4ae394fefad30c98063d128c680e2b6316309a7"
+    },
+    "run_id": "cefb4cb7-5bb7-4191-a6f5-ab91b85f71e4",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "d992eb4b-850a-41a0-8618-773b3244850a",
+     "e9ff3b0c-ccd3-43a7-b3ed-cf23c67d62a5"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:19:48.644289Z",
+    "finished_at": "2026-10-06T18:19:48.644289Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "b4f70a6a-c0e3-4a25-a050-06b54014c835",
+   "run_id": "d9578b8c-0b26-4c70-b2d9-44efe8891d85",
+   "sequence": 7,
+   "occurred_at": "2026-10-06T18:19:48.654022Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5e509ed2f3ef0f91030ad70452f9a311aa46d1df6d8366bd3778395a286e74de",
+   "node_run": {
+    "node_run_id": "5d5fb254-90de-457e-96e9-67123eca91ad",
+    "node_key": {
+     "atom_name": "goal.join",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "scenario_refs=goal-1,goal-2"
+    },
+    "run_id": "cefb4cb7-5bb7-4191-a6f5-ab91b85f71e4",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "70174ded-3ebc-4e78-bf39-47fadfe2589c",
+   "run_id": "d9578b8c-0b26-4c70-b2d9-44efe8891d85",
+   "sequence": 8,
+   "occurred_at": "2026-10-06T18:19:48.656590Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5e509ed2f3ef0f91030ad70452f9a311aa46d1df6d8366bd3778395a286e74de",
+   "node_run": {
+    "node_run_id": "5d5fb254-90de-457e-96e9-67123eca91ad",
+    "node_key": {
+     "atom_name": "goal.join",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "scenario_refs=goal-1,goal-2"
+    },
+    "run_id": "cefb4cb7-5bb7-4191-a6f5-ab91b85f71e4",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:19:48.651402Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "a965c983-dbc7-4122-a209-ed69f109267d",
+   "run_id": "d9578b8c-0b26-4c70-b2d9-44efe8891d85",
+   "sequence": 9,
+   "occurred_at": "2026-10-06T18:19:48.658782Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:5e509ed2f3ef0f91030ad70452f9a311aa46d1df6d8366bd3778395a286e74de",
+   "node_run": {
+    "node_run_id": "5d5fb254-90de-457e-96e9-67123eca91ad",
+    "node_key": {
+     "atom_name": "goal.join",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "scenario_refs=goal-1,goal-2"
+    },
+    "run_id": "cefb4cb7-5bb7-4191-a6f5-ab91b85f71e4",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:19:48.651402Z",
+    "finished_at": "2026-10-06T18:19:48.654699Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "1fbcd82e-839c-4505-bd3c-68e4d912f13e",
+   "run_id": "d9578b8c-0b26-4c70-b2d9-44efe8891d85",
+   "sequence": 10,
+   "occurred_at": "2026-10-06T18:19:48.668328Z",
+   "event_type": "result",
+   "delivery_status": "complete",
+   "result": {
+    "schema_version": "1.0",
+    "output_type": "ExtractedMetric",
+    "status": "supported",
+    "metric_id": "5c485df3-d564-404a-9763-d75696878976",
+    "scalar_fact": {
+     "evidence_id": "cebaf7f7-5889-4e51-8566-021ee8fbe1f8",
+     "produced_by_atom": "read.value",
+     "produced_by_atom_version": "1.0.0",
+     "source_ref": "b0e3f24e-5920-4787-bd8c-3112f8af9be4",
+     "document_version": "sha256:416723a0e57ab1a96340cab0bda8e828e15020b5342a0bbfddadb439604ecae3",
+     "concept": "SALES_REVENUE",
+     "period_ref": "6M 2026",
+     "basis": null,
+     "supersedes": null,
+     "created_at": "2026-10-06T18:14:09.938328Z",
+     "value": 1453957.053,
+     "unit": "млн. руб.",
+     "page": 24
+    },
+    "concept": "SALES_REVENUE",
+    "period_ref": "6M 2026",
+    "definition_origin": "registry"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "25a1ce04-0993-4969-8411-a70d11bea23d",
+   "run_id": "d9578b8c-0b26-4c70-b2d9-44efe8891d85",
+   "sequence": 11,
+   "occurred_at": "2026-10-06T18:19:48.681063Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_output",
+    "name": "financial_pipeline",
+    "ok": true
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "7ab8bbaf-ec8d-4bca-8392-4de944bb5060",
+   "run_id": "d9578b8c-0b26-4c70-b2d9-44efe8891d85",
+   "sequence": 12,
+   "occurred_at": "2026-10-06T18:19:48.681186Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "text_delta",
+    "text": "Готово: проверенные результаты опубликованы в карточках выше."
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "52840f53-3d46-440a-b7d6-fbcfdd8995de",
+   "run_id": "d9578b8c-0b26-4c70-b2d9-44efe8891d85",
+   "sequence": 13,
+   "occurred_at": "2026-10-06T18:19:48.681230Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "sources",
+    "sources": [
+     {
+      "filename": "Бухгалтерская отчетность на 30.06.2026.pdf",
+      "company_name": "ЛУКОЙЛ"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "0a6c1b13-e7fd-42b0-ba5a-36fdd9ed7d78",
+   "run_id": "d9578b8c-0b26-4c70-b2d9-44efe8891d85",
+   "sequence": 14,
+   "occurred_at": "2026-10-06T18:19:48.681277Z",
+   "event_type": "completed",
+   "status": "succeeded"
+  }
+ ],
+ "session_id": "a233cdda-cfbc-4654-9162-3d48584430d7",
+ "started_utc": "2026-10-06T18:19:50Z"
+}

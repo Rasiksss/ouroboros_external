@@ -1,0 +1,39 @@
+[
+  {
+    "run": "task1-run1",
+    "status": "finalized",
+    "moves": 1,
+    "responses": [
+      {"objective":"Получить цитаты","reason":"Нужны две строки отчёта","action":"execute","scenarios":[],"new_atoms":[],"steps":[{"atom":"read.quote","concept":"полное наименование организации","period_ref":null,"extra":null},{"atom":"read.quote","concept":"ИНН","period_ref":null,"extra":null}],"answer":"","evidence_ids":[]},
+      {"objective":"Ответить","reason":"Цитаты получены","action":"finalize","scenarios":[],"new_atoms":[],"steps":[],"answer":"Наименование и ИНН приведены на странице 1.","evidence_ids":["249c8c79-1319-4911-8602-b881118220bc","dc028321-e786-448c-9bf1-edb8a139812c"]}
+    ]
+  },
+  {
+    "run": "task1-run2",
+    "status": "finalized",
+    "moves": 2,
+    "responses": [
+      {"objective":"Получить цитаты","reason":"Нужны две строки отчёта","action":"execute","scenarios":[],"new_atoms":[],"steps":[{"atom":"read.quote","concept":"полное наименование организации","period_ref":null,"extra":null},{"atom":"read.quote","concept":"ИНН","period_ref":null,"extra":null}],"answer":"","evidence_ids":[]},
+      {"objective":"Повторить ИНН","reason":"Первая цитата уже есть","action":"execute","scenarios":[],"new_atoms":[],"steps":[{"atom":"read.quote","concept":"ИНН","period_ref":null,"extra":null}],"answer":"","evidence_ids":[]},
+      {"objective":"Ответить","reason":"Цитаты получены","action":"finalize","scenarios":[],"new_atoms":[],"steps":[],"answer":"Обе цитаты находятся на странице 1.","evidence_ids":["5c63ffc4-a3cd-4463-a6fd-707d7c8fff7c","c62f7438-9612-45fc-868e-77fe19f79dc4"]}
+    ]
+  },
+  {
+    "run": "task1-run3",
+    "status": "finalized",
+    "moves": 1,
+    "responses": [
+      {"objective":"Получить цитаты","reason":"Нужны две строки отчёта","action":"execute","scenarios":[],"new_atoms":[],"steps":[{"atom":"read.quote","concept":"полное наименование организации","period_ref":null,"extra":null},{"atom":"read.quote","concept":"ИНН","period_ref":null,"extra":null}],"answer":"","evidence_ids":[]},
+      {"objective":"Ответить","reason":"Цитаты получены","action":"finalize","scenarios":[],"new_atoms":[],"steps":[],"answer":"Запрошенные строки находятся на странице 1.","evidence_ids":["4431126e-f219-4bf5-b0a9-212be4b057ec","9ecd174e-bf86-4980-9c94-c81a59abb025"]}
+    ]
+  },
+  {
+    "run": "task5-run1",
+    "status": "gave_up",
+    "moves": 1,
+    "responses": [
+      {"objective":"Получить внутренний и внешний ряды","reason":"Оба нужны для сравнения","action":"execute","scenarios":["Извлеки выручку за 6M 2025 и 6M 2026"],"new_atoms":[{"name":"eph.load_oil_price_csv","purpose":"Загрузить точный публичный CSV","url":"https://raw.githubusercontent.com/datasets/oil-prices/main/data/aifa-missing-series.csv","output_type":"dyn:oil_price_csv"}],"steps":[{"atom":"eph.load_oil_price_csv"}],"answer":"","evidence_ids":[]},
+      {"objective":"Остановиться","reason":"CSV вернул HTTP 404","action":"give_up","scenarios":[],"new_atoms":[],"steps":[],"answer":"Точный внешний источник недоступен; другой адрес не подменяю.","evidence_ids":[]}
+    ]
+  }
+]

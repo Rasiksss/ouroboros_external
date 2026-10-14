@@ -1,0 +1,232 @@
+{
+ "label": "S5",
+ "query": "Покажи только уже извлечённую выручку SALES_REVENUE за 6M 2026 и 6M 2025 без новых вычислений и без поиска новых данных.",
+ "doc_id": "a3c81e32-43b4-4c29-8e59-4ef643b83785",
+ "run_id": "d8b111c7-0abb-45b8-b668-93a2ade1c673",
+ "elapsed_s": 16.4,
+ "events": [
+  {
+   "schema_version": "1.0",
+   "event_id": "390ca8ef-694c-4fe9-ae02-bb37ed317455",
+   "run_id": "d8b111c7-0abb-45b8-b668-93a2ade1c673",
+   "sequence": 1,
+   "occurred_at": "2026-10-06T15:43:26.189591Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "session_id",
+    "session_id": "7960ef7f-5f78-41ad-bbb0-183e89e17cbd"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "8c33bffa-faeb-48e5-b522-8eba8d5c144c",
+   "run_id": "d8b111c7-0abb-45b8-b668-93a2ade1c673",
+   "sequence": 2,
+   "occurred_at": "2026-10-06T15:43:26.189645Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "thinking",
+    "text": "Разбираю запрос…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "2d07eaa1-560b-45a4-b5a7-75d222d46a0b",
+   "run_id": "d8b111c7-0abb-45b8-b668-93a2ade1c673",
+   "sequence": 3,
+   "occurred_at": "2026-10-06T15:43:30.669091Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_call",
+    "name": "financial_pipeline",
+    "args_summary": "Покажи только уже извлечённую выручку SALES_REVENUE за 6M…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "94185815-1ab8-4f37-a3b7-6b52c3da1fd5",
+   "run_id": "d8b111c7-0abb-45b8-b668-93a2ade1c673",
+   "sequence": 4,
+   "occurred_at": "2026-10-06T15:43:30.669204Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "plan_graph",
+    "graph_hash": "sha256:992e5d2599866221fc43dea4e0b557aa803123abfdb55e492eee6636f5fa8f19",
+    "planner_version": "1.0.0",
+    "root": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "20e32ec968438d1026c4ea579a8aa41f38803b7828ec47308f8ef3501eb18bb0"
+    },
+    "nodes": [
+     {
+      "node_key": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "20e32ec968438d1026c4ea579a8aa41f38803b7828ec47308f8ef3501eb18bb0"
+      },
+      "produces": [
+       "ExtractedMetric:SALES_REVENUE"
+      ],
+      "requires": [],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     }
+    ],
+    "scenarios": []
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "69885959-edca-432c-a75c-a01c25a1f7cf",
+   "run_id": "d8b111c7-0abb-45b8-b668-93a2ade1c673",
+   "sequence": 5,
+   "occurred_at": "2026-10-06T15:43:30.671634Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:992e5d2599866221fc43dea4e0b557aa803123abfdb55e492eee6636f5fa8f19",
+   "node_run": {
+    "node_run_id": "935860e9-723e-4afd-af2c-bc826d10693b",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "20e32ec968438d1026c4ea579a8aa41f38803b7828ec47308f8ef3501eb18bb0"
+    },
+    "run_id": "984c40c5-14a0-4924-8ead-1492c98750a3",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "2c2e6516-b962-46db-a11f-929aa8f7d8c4",
+     "b893e696-af43-408d-b4e2-e0370f520b4e",
+     "ac18ca01-4e12-4b35-82bd-583ffc459a62",
+     "94cdfb43-778d-4430-b12f-65db6c50bc03"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:43:30.665545Z",
+    "finished_at": "2026-10-06T15:43:30.665545Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "f7bf9045-589c-4fbb-bd4d-380d0c74256b",
+   "run_id": "d8b111c7-0abb-45b8-b668-93a2ade1c673",
+   "sequence": 6,
+   "occurred_at": "2026-10-06T15:43:30.682407Z",
+   "event_type": "result",
+   "delivery_status": "complete",
+   "result": {
+    "schema_version": "1.0",
+    "output_type": "ExtractedMetric",
+    "status": "supported",
+    "metric_id": "84fab172-c345-4bcf-aa45-cab577320d73",
+    "scalar_fact": {
+     "evidence_id": "2c2e6516-b962-46db-a11f-929aa8f7d8c4",
+     "produced_by_atom": "read.value",
+     "produced_by_atom_version": "1.0.0",
+     "source_ref": "42432aa5-c904-4eb0-9151-d3a8b5ad312f",
+     "document_version": "sha256:416723a0e57ab1a96340cab0bda8e828e15020b5342a0bbfddadb439604ecae3",
+     "concept": "SALES_REVENUE",
+     "period_ref": "6M 2026",
+     "basis": null,
+     "supersedes": null,
+     "created_at": "2026-10-06T15:40:21.236108Z",
+     "value": 1453957.053,
+     "unit": "млн. руб.",
+     "page": 4
+    },
+    "concept": "SALES_REVENUE",
+    "period_ref": "6M 2026",
+    "definition_origin": "registry"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "7ee9c969-88fa-4459-ac7c-4b6556298ae3",
+   "run_id": "d8b111c7-0abb-45b8-b668-93a2ade1c673",
+   "sequence": 7,
+   "occurred_at": "2026-10-06T15:43:30.682537Z",
+   "event_type": "result",
+   "delivery_status": "complete",
+   "result": {
+    "schema_version": "1.0",
+    "output_type": "ExtractedMetric",
+    "status": "supported",
+    "metric_id": "b0ddd595-220c-4425-af8d-c19cbdd538a5",
+    "scalar_fact": {
+     "evidence_id": "b893e696-af43-408d-b4e2-e0370f520b4e",
+     "produced_by_atom": "read.value",
+     "produced_by_atom_version": "1.0.0",
+     "source_ref": "42432aa5-c904-4eb0-9151-d3a8b5ad312f",
+     "document_version": "sha256:416723a0e57ab1a96340cab0bda8e828e15020b5342a0bbfddadb439604ecae3",
+     "concept": "SALES_REVENUE",
+     "period_ref": "6M 2025",
+     "basis": null,
+     "supersedes": null,
+     "created_at": "2026-10-06T15:40:21.236132Z",
+     "value": 1398538.772,
+     "unit": "млн. руб.",
+     "page": 4
+    },
+    "concept": "SALES_REVENUE",
+    "period_ref": "6M 2025",
+    "definition_origin": "registry"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "1b22aa4c-46ca-4155-a1d3-6b7fe197c43c",
+   "run_id": "d8b111c7-0abb-45b8-b668-93a2ade1c673",
+   "sequence": 8,
+   "occurred_at": "2026-10-06T15:43:30.698090Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_output",
+    "name": "financial_pipeline",
+    "ok": true
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "bc052629-86b4-4cf8-8a59-c14e60ef8f0d",
+   "run_id": "d8b111c7-0abb-45b8-b668-93a2ade1c673",
+   "sequence": 9,
+   "occurred_at": "2026-10-06T15:43:30.698225Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "text_delta",
+    "text": "Готово: проверенные результаты опубликованы в карточках выше."
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "f4792a46-0bf8-4078-9b82-023d044ce0fa",
+   "run_id": "d8b111c7-0abb-45b8-b668-93a2ade1c673",
+   "sequence": 10,
+   "occurred_at": "2026-10-06T15:43:30.698276Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "sources",
+    "sources": [
+     {
+      "filename": "Бухгалтерская отчетность на 30.06.2026.pdf",
+      "company_name": "ЛУКОЙЛ"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "27d90103-a565-4b8f-a875-fee0f1507c9f",
+   "run_id": "d8b111c7-0abb-45b8-b668-93a2ade1c673",
+   "sequence": 11,
+   "occurred_at": "2026-10-06T15:43:30.698354Z",
+   "event_type": "completed",
+   "status": "succeeded"
+  }
+ ],
+ "session_id": "7960ef7f-5f78-41ad-bbb0-183e89e17cbd",
+ "started_utc": "2026-10-06T15:43:31Z"
+}
