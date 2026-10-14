@@ -1,0 +1,89 @@
+# Local / laptop image — dependencies from PyPI during build (no Nexus CA secret).
+# Base image: same uv image as CI (already in registry.genai.int).
+# CI and registry publish: use Dockerfile with --secret id=nexus_ca,src=...
+#
+#   docker build -f Dockerfile.local --platform linux/amd64 -t ouroboros-headless .
+#
+# Optional: match CI lockfile (requires corporate CA on the host):
+#   docker build -f Dockerfile.local --platform linux/amd64 \
+#     --build-arg USE_FROZEN_LOCK=1 \
+#     --secret id=nexus_ca,src=/path/to/nexus-ca.crt \
+#     -t ouroboros-headless .
+
+FROM registry.genai.int/ci/uv:python3.12-bookworm-slim AS builder
+
+WORKDIR /app
+
+ARG USE_FROZEN_LOCK=0
+ARG INSTALL_PLAYWRIGHT_BROWSER=1
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_INDEX_URL=https://pypi.org/simple \
+    PLAYWRIGHT_BROWSERS_PATH=0
+
+COPY pyproject.toml ./
+COPY uv.lock ./
+
+RUN --mount=type=secret,id=nexus_ca \
+    set -eux; \
+    if [ -f /run/secrets/nexus_ca ]; then \
+        cp /run/secrets/nexus_ca /usr/local/share/ca-certificates/nexus-ca.crt; \
+        update-ca-certificates; \
+    fi; \
+    if [ "$USE_FROZEN_LOCK" = "1" ] && [ -f /run/secrets/nexus_ca ]; then \
+        uv sync --frozen --no-dev --no-install-project; \
+    else \
+        rm -f uv.lock && \
+        uv sync --no-dev --no-install-project --default-index https://pypi.org/simple; \
+    fi
+
+RUN if [ "$INSTALL_PLAYWRIGHT_BROWSER" = "1" ]; then \
+        /app/.venv/bin/python -m playwright install chromium; \
+    fi
+
+FROM registry.genai.int/ci/uv:python3.12-bookworm-slim
+ARG INSTALL_PLAYWRIGHT_BROWSER=1
+
+ENV APP_HOME=/app \
+    OUROBOROS_ENV=development \
+    OUROBOROS_SERVER_HOST=0.0.0.0 \
+    OUROBOROS_SERVER_PORT=8080 \
+    OUROBOROS_DATA_DIR=/data \
+    PLAYWRIGHT_BROWSERS_PATH=0 \
+    PATH="/app/.venv/bin:$PATH" \
+    PYTHONPATH="/app:/app/.venv/lib/python3.12/site-packages"
+
+COPY --from=builder /app/.venv /app/.venv
+
+RUN if [ "$INSTALL_PLAYWRIGHT_BROWSER" = "1" ]; then \
+        /app/.venv/bin/python -m playwright install-deps chromium; \
+    fi
+
+WORKDIR ${APP_HOME}
+
+COPY server.py ./
+COPY alembic.ini ./
+COPY config_registry ./config_registry
+COPY background_memory ./background_memory
+COPY infra ./infra
+COPY multiuser_config ./multiuser_config
+COPY new_core ./new_core
+COPY ouroboros ./ouroboros
+# The MCP and A2A server lists, imported at start by `server.py` and by the agent tier.
+# A namespace package with no `__init__.py`, so it is in neither the wheel's package list
+# nor the check that walks it — an image without it fails at import, not at connect.
+COPY security_config ./security_config
+COPY supervisor ./supervisor
+COPY transport ./transport
+COPY skills ./skills
+COPY prompts ./prompts
+
+RUN groupadd -r ouroboros && useradd -r -g ouroboros -u 10001 ouroboros && \
+    mkdir -p /data /var/log/app && \
+    chown -R ouroboros:ouroboros /data /var/log/app ${APP_HOME}
+
+USER ouroboros
+
+EXPOSE 8080 18800
+
+ENTRYPOINT ["python", "-m", "ouroboros.app", "--host", "0.0.0.0", "--port", "8080"]

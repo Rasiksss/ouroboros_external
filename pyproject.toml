@@ -1,0 +1,211 @@
+[build-system]
+requires = ["setuptools>=80.0.0", "wheel>=0.46.2", "jaraco.context>=6.1.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ouroboros"
+version = "1.0.0"
+description = "Headless personal agent runtime"
+license = {text = "MIT"}
+requires-python = ">=3.12"
+
+dependencies = [
+    "a2a-sdk[http-server]==1.0.3",
+    "mcp==2.1.1",
+    "requests==2.34.2",
+    "httpx==0.28.1",
+    # Declared although `mcp` already pulls it: `ouroboros/mcp/transports.py` builds
+    # `httpx2.AsyncClient`, `Timeout`, `Auth` and `Request` itself, and production code may not
+    # import a package this file does not name — an undeclared transitive floor is a rename away
+    # from breaking `open_transport` with nothing here to pin or explain it.
+    "httpx2>=2.5,<3",
+    # Direct import in aef_tracing; match the deployment AEF-compatible version in requirements.txt.
+    "opentelemetry-api==1.43.0",
+    "openai>=1.0",
+    "playwright==1.63.0",
+    "playwright-stealth==2.0.3",
+    "starlette==1.2.0",
+    "python-multipart==0.0.32",
+    "uvicorn[standard]==0.53.0",
+    # The Kafka double and the explicit client options reproduce 2.3.x: a minor upgrade reruns
+    # `tests/infra/test_kafka_double.py` against a real broker before this pin moves.
+    "kafka-python>=2.3,<2.4",
+    "aiokafka>=0.12,<0.13",
+    # The broker behind the transport seam. The client floor is 6.0, where `Retry` began
+    # covering connection and timeout errors by default: on 5.x it applies only to the types
+    # named in `retry_on_error`, so the read-retry half of the gateway's policy would silently
+    # not exist. Minimum *server* version is Redis 7.0 — XAUTOCLAIM needs 6.2, and both the
+    # per-group `lag` and `entries-added` (which the drop report reads) need 7.0.
+    "redis==8.0.0",
+    "PyYAML>=6.0",
+    # Python 3.10 needs typing_extensions.NotRequired for gateway contracts.
+    "typing_extensions>=4.5.0",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "psycopg[binary]>=3",
+    "boto3>=1.34",
+    "aiobotocore>=3.9.1,<4",
+    "cryptography>=42.0",
+    "pypdf>=5.0,<7",
+    "openpyxl>=3.1,<4",
+    "python-docx>=1.1,<2",
+    "python-pptx>=1.0,<2",
+    "pre-commit>=4.6.1",
+    "urllib3>=2.6.3",
+    "pymupdf==1.27.2.3",
+    "fastapi>=0.141.1",
+]
+
+[project.scripts]
+ouroboros = "ouroboros.app.cli:main"
+ouroboros-server = "ouroboros.app.__main__:main"
+ouroboros-browser-transport = "multiuser_config.transport.browser.__main__:main"
+ouroboros-supervisor = "multiuser_config.supervisor.__main__:main"
+
+[tool.uv]
+native-tls = true
+
+[[tool.uv.index]]
+name = "nexus"
+url = "https://nexus.genai.int/repository/pypi-proxy/simple"
+default = true
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+    "pytest-xdist>=3.6",
+    "pytest-dotenv>=0.5.2",
+    "ruff>=0.4",
+    "mypy>=1.8",
+    "types-PyYAML==6.0.12.20260518",
+    "types-aiobotocore[s3]>=3.9.1,<4",
+    "moto[s3]>=5.0",
+    # The local double the gateway conformance suite runs against, so the Redis backend is
+    # exercised by the default gate rather than only by the integration run.
+    "fakeredis>=2.30",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests_headless", "tests", "skills"]
+python_files = ["test_*.py"]
+xfail_strict = true
+python_functions = ["test_*"]
+pythonpath = ["."]
+env_files = [".env_tests"]
+# Default local pytest excludes token-burning integration/browser suites.
+addopts = "-q --tb=short -m 'not integration and not browser'"
+markers = [
+    "integration: requires real provider/database services and credentials; excluded from default runs, opt in via `pytest -m integration`",
+    "browser: requires Playwright and a browser binary; excluded from routine runs unless explicitly selected",
+]
+
+[tool.setuptools]
+py-modules = ["server"]
+
+[tool.setuptools.packages.find]
+include = ["background_memory*", "config_registry*", "infra*", "multiuser_config*", "new_core*", "ouroboros*", "security_config*", "supervisor*", "transport*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+# Pyflakes + pycodestyle + isort + bugbear + pyupgrade (PEP 585/604) + Ruff extras.
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "SIM",
+    "C4",
+    "PIE",
+    "RUF",
+    "ASYNC",
+    "ISC",
+]
+ignore = [
+    "E501",   # line length (review / formatter)
+    "E402",   # intentional lazy imports (server, agent, workers)
+    "B008",   # Depends() / default callable args (Starlette)
+    "B904",   # raise-from in broad except handlers
+    "SIM105", # contextlib.suppress vs try/except/pass in cleanup
+    "SIM108", # ternary vs if/else readability
+]
+fixable = ["ALL"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "SIM102",
+    "SIM114",
+    "SIM117",
+    "E741",
+    "B017",
+    "RUF001",
+    "RUF002",
+    "RUF003",
+    "RUF012",
+    "RUF043",
+]
+"tests_headless/**/*.py" = ["SIM102"]
+"skills/*/tests/*.py" = [
+    "SIM102",
+    "SIM114",
+    "SIM117",
+    "E741",
+    "B017",
+    "RUF001",
+    "RUF002",
+    "RUF012",
+    "RUF043",
+]
+"ouroboros/platform_layer.py" = ["SIM115"]
+"ouroboros/llm/client.py" = ["RUF012"]
+"ouroboros/skills/loader.py" = ["SIM102"]
+"ouroboros/agent/context.py" = ["RUF001"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["background_memory", "config_registry", "infra", "ouroboros", "supervisor"]
+combine-as-imports = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.12"
+files = ["server.py", "background_memory", "config_registry", "infra", "multiuser_config", "new_core", "ouroboros", "supervisor", "transport"]
+check_untyped_defs = true
+ignore_missing_imports = false
+warn_unused_configs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+strict_equality = true
+show_error_codes = true
+pretty = true
+
+# Optional / headless-removed modules: no stubs or not in this tree.
+[[tool.mypy.overrides]]
+module = [
+    "aiokafka.*",
+    "kafka.*",
+    "dialog_bot_sdk.*",
+    "a2a.*",
+    "aef_pyframework.*",
+    "openai",
+    "openai.*",
+    "grpc",
+    "grpc.*",
+    "boto3.*",
+    "botocore.*",
+    "docx.*",
+    "openpyxl.*",
+    "pptx.*",
+    "pypdf.*",
+    "ouroboros.tools.commit_gate",
+]
+ignore_missing_imports = true

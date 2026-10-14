@@ -1,0 +1,4 @@
+interface:
+  display_name: "Описание фичи из Git"
+  short_description: "Описывает изменения текущей ветки из Git"
+  default_prompt: "Используй $feature-description для описания текущей ветки относительно develop."

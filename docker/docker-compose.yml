@@ -1,0 +1,147 @@
+# One Ouroboros headless agent + A2A Inspector chat UI.
+#
+# Prerequisites (local laptop — PyPI, no Nexus CA):
+#   docker build -f Dockerfile.local --platform linux/amd64 -t ouroboros-headless .
+# CI / registry: docker build --secret id=nexus_ca,src=/path/to/ca.crt ...
+#   # Create .env and set GIGACHAT_B2BANK_*, CLOUDRU_FOUNDATION_MODELS_API_KEY,
+#   # and/or SELFHOSTED_LLM_BASE_URL (plain OUROBOROS_MODEL_* IDs, no provider:: prefix),
+#   # plus a stable OUROBOROS_CREDENTIALS_ENCRYPTION_KEY (openssl rand -base64 64 | tr -d '\n'): the server refuses
+#   # to start without one
+#
+# The stand carries its own PostgreSQL and its own S3: those are the only runtime database
+# and the only object storage the runtime has, and a process configured with neither refuses
+# to start. See docs/SETTINGS.md §3.
+#
+# Usage:
+#   docker compose --env-file .env -f docker/docker-compose.yml up -d
+#   ./scripts/a2a_smoke.sh
+#
+# Health: http://localhost:8080/live
+# A2A:    http://localhost:18800
+# Chat UI (A2A Inspector): http://localhost:8088
+#   In Inspector, connect to http://agent:18800 (Docker DNS), not localhost:18800.
+#   Click Connect before sending chat — otherwise "Client not initialized".
+
+name: ouroboros
+
+services:
+  agent:
+    image: ouroboros-headless
+    hostname: agent
+    env_file:
+      - ../.env
+    ports:
+      # Bound to the loopback address explicitly: the short "18800:18800" form publishes
+      # on 0.0.0.0, which would put an unauthenticated endpoint on every interface of the
+      # host. See docs/SETTINGS.md §6.1.
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:18800:18800"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      createbucket:
+        condition: service_completed_successfully
+    environment:
+      OUROBOROS_DATA_DIR: /data
+      OUROBOROS_RUNTIME_DB_URL: postgresql+psycopg://ouroboros:ouroboros@postgres:5432/ouroboros
+      OUROBOROS_S3_BUCKET: ouroboros
+      OUROBOROS_S3_ENDPOINT: http://minio:9000
+      OUROBOROS_S3_REGION: us-east-1
+      OUROBOROS_S3_ACCESS_KEY: ouroboros
+      OUROBOROS_S3_SECRET_KEY: ouroboros-secret
+      OUROBOROS_CREDENTIALS_ENCRYPTION_KEY: ${OUROBOROS_CREDENTIALS_ENCRYPTION_KEY:?set OUROBOROS_CREDENTIALS_ENCRYPTION_KEY in .env to 64 bytes of base64}
+      # The A2A endpoint authenticates nobody: anyone who can reach port 18800 can
+      # queue work here, which is only acceptable because this compose file publishes
+      # it to the local machine. See docs/SETTINGS.md §6.1.
+      A2A_ENABLED: "true"
+      A2A_HOST: "0.0.0.0"
+      A2A_PORT: "18800"
+      A2A_AGENT_NAME: agent
+      A2A_PUBLIC_URL: http://agent:18800
+      SELFHOSTED_LLM_BASE_URL: ${SELFHOSTED_LLM_BASE_URL}
+      SELFHOSTED_LLM_API_KEY: ${SELFHOSTED_LLM_API_KEY}
+      OUROBOROS_LLM_HTTP_READ_TIMEOUT_SEC: ${OUROBOROS_LLM_HTTP_READ_TIMEOUT_SEC:-300}
+      OUROBOROS_BACKGROUND_LLM_HTTP_READ_TIMEOUT_SEC: ${OUROBOROS_BACKGROUND_LLM_HTTP_READ_TIMEOUT_SEC:-300}
+      OUROBOROS_MODEL: ${OUROBOROS_MODEL:-zai-org-glm-51-fp8-sglang}
+      OUROBOROS_MODEL_LIGHT: ${OUROBOROS_MODEL_LIGHT:-zai-org-glm-51-fp8-sglang}
+      OUROBOROS_MODEL_FALLBACK: ${OUROBOROS_MODEL_FALLBACK:-zai-org-glm-51-fp8-sglang}
+    volumes:
+      - agent-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/ready', timeout=5)",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 120s
+    networks:
+      - ouroboros-a2a
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ouroboros
+      POSTGRES_USER: ouroboros
+      POSTGRES_PASSWORD: ouroboros
+    volumes:
+      - agent-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ouroboros -d ouroboros"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    networks:
+      - ouroboros-a2a
+
+  minio:
+    image: minio/minio:latest
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: ouroboros
+      MINIO_ROOT_PASSWORD: ouroboros-secret
+    volumes:
+      - agent-objects:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    networks:
+      - ouroboros-a2a
+
+  # One shot: the runtime never creates the bucket, it refuses without one.
+  createbucket:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint:
+      - sh
+      - -c
+      - mc alias set stand http://minio:9000 ouroboros ouroboros-secret && mc mb --ignore-existing stand/ouroboros
+    networks:
+      - ouroboros-a2a
+
+  inspector:
+    image: a2a-inspector:latest
+    ports:
+      - "127.0.0.1:8088:8080"
+    depends_on:
+      agent:
+        condition: service_healthy
+    networks:
+      - ouroboros-a2a
+
+networks:
+  ouroboros-a2a:
+    driver: bridge
+
+volumes:
+  agent-data:
+  agent-db:
+  agent-objects:

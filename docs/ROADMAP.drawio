@@ -1,0 +1,207 @@
+<mxfile host="Electron">
+  <diagram name="Страница-1" id="WzY1DMGgJiDiOBqazd8o">
+    <mxGraphModel dx="958" dy="744" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-1" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;RoadMap Гига Агента&lt;/h1&gt;&lt;p&gt;Дерево содержит ключевые точки развития продукта с привязкой к уже существующих историй. На схеме не учтены истории по развитию базового набора инструментов и скилов&lt;/p&gt;" vertex="1">
+          <mxGeometry height="100" width="450" x="10" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-8" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jCnjvG8E_IOKK9DLNETW-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Аудит текущей ситемы" vertex="1">
+          <mxGeometry height="50" width="260" x="40" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-3" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="В ближайшее время необходимо провести аудит системы с целью выявления узких мест и архитектурных откланений" vertex="1">
+          <mxGeometry height="30" width="250" x="400" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-10" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jCnjvG8E_IOKK9DLNETW-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-12" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="jCnjvG8E_IOKK9DLNETW-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-34" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="jCnjvG8E_IOKK9DLNETW-33">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Добавление возможности создавать агента в системе" vertex="1">
+          <mxGeometry height="50" width="260" x="40" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-6" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Должен быть реализован API позволяющей команде создать своего агента. Мы на данном этапе сделали мультиюзера (нескольких пользователей обслуживает один агент), но нам необходимо прийти также в мультиагентность (один пользователь может пользоваться несколькими агентами)" vertex="1">
+          <mxGeometry height="90" width="390" x="350" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-14" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jCnjvG8E_IOKK9DLNETW-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Вернуть подержку сберчата и a2a как транпорта&amp;nbsp;" vertex="1">
+          <mxGeometry height="50" width="260" x="40" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-15" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jCnjvG8E_IOKK9DLNETW-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Обновить версию MCP" vertex="1">
+          <mxGeometry height="50" width="260" x="350" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-18" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jCnjvG8E_IOKK9DLNETW-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-20" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="jCnjvG8E_IOKK9DLNETW-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-22" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="jCnjvG8E_IOKK9DLNETW-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-13" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Реализация настроек для мультиюзера" vertex="1">
+          <mxGeometry height="50" width="260" x="40" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-16" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Должен быть реализован универсальный API позволяющий менять настройки для пользователя и/или агента. Связана с конфигуратором для Ориона&amp;nbsp;&lt;b&gt;ORIONMVP-603&lt;/b&gt;&amp;nbsp;. При первом прочтении истории сложилось впечатление, что мы должны дать API, а интеграция с конкретной АС - задача Ориона" vertex="1">
+          <mxGeometry height="70" width="350" x="350" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-27" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jCnjvG8E_IOKK9DLNETW-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-39" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="jCnjvG8E_IOKK9DLNETW-38">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="880" />
+              <mxPoint x="670" y="880" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-17" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Кастомный набор MCP для пользователся и/или агента" vertex="1">
+          <mxGeometry height="50" width="260" x="40" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-30" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jCnjvG8E_IOKK9DLNETW-26">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="450" y="820" />
+              <mxPoint x="170" y="820" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-19" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Кастомный набор агентов для интеграции по A2A для пользователся и/или агента" vertex="1">
+          <mxGeometry height="50" width="260" x="320" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-24" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jCnjvG8E_IOKK9DLNETW-23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-21" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Кастомный набор скилов для пользователся и/или агента" vertex="1">
+          <mxGeometry height="50" width="260" x="620" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-29" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jCnjvG8E_IOKK9DLNETW-26">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="750" y="820" />
+              <mxPoint x="170" y="820" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-23" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Добавить возможность добавления различных провайдеров скилов" vertex="1">
+          <mxGeometry height="50" width="260" x="620" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-25" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Необходимая фича + часть истории &lt;b&gt;CRSIGMA-29347 &lt;/b&gt;по общебанковским навыкам" vertex="1">
+          <mxGeometry height="50" width="280" x="910" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-42" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="jCnjvG8E_IOKK9DLNETW-37">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-46" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="jCnjvG8E_IOKK9DLNETW-43">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="1110" />
+              <mxPoint x="680" y="1110" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-48" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="jCnjvG8E_IOKK9DLNETW-47">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="1110" />
+              <mxPoint x="1160" y="1110" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-26" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Добавление дочерних агентов" vertex="1">
+          <mxGeometry height="50" width="260" x="40" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-35" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jCnjvG8E_IOKK9DLNETW-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-33" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Доработка шедулера под мультиюзера" vertex="1">
+          <mxGeometry height="50" width="260" x="660" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-36" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Часть задачи по &lt;b&gt;ORIONMVP-590&lt;/b&gt;" vertex="1">
+          <mxGeometry height="50" width="310" x="250" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-56" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="jCnjvG8E_IOKK9DLNETW-55">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-37" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Развитие своего sandbox с выполнением скриптов созданных в скилах" vertex="1">
+          <mxGeometry height="50" width="260" x="40" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-61" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jCnjvG8E_IOKK9DLNETW-37">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="1040" />
+              <mxPoint x="170" y="1040" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-38" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Добавление web хуков и/или реакция на события" vertex="1">
+          <mxGeometry height="50" width="260" x="550" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-40" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Часть истории &lt;b&gt;ORIONMVP-604&lt;/b&gt;&amp;nbsp;- можно реализовать как отдельный вид транспорта" vertex="1">
+          <mxGeometry height="50" width="270" x="840" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-41" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="До текущего момента поддерживаются скилы - инструкции + MCP, нужно поддержать выполнение скриптов в составе скила на sandbox" vertex="1">
+          <mxGeometry height="125" width="195" x="307.5" y="1112.5" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-52" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-43" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jCnjvG8E_IOKK9DLNETW-50">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-43" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Развитие изолированного sandbox на личном устройстве пользователя" vertex="1">
+          <mxGeometry height="50" width="260" x="550" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-44" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Исполнение скриптов и тяжелых тулов на устройстве пользователя" vertex="1">
+          <mxGeometry height="91" width="162" x="820" y="1129.5" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-58" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="jCnjvG8E_IOKK9DLNETW-55">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1160" y="1510" />
+              <mxPoint x="170" y="1510" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-47" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Развитие изолированного sandbox на инфраструктуре пользователя (VM, контейнер и тд)?" vertex="1">
+          <mxGeometry height="50" width="260" x="1030" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-49" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Возможен ряд задач на которые я как пользователь хочу выделить больше ресурсов и/или хочу разворачивать с своей среде. Пример: devops для управления не критичным сервером поднимает sandbox через который идет управление инфрой, пользователь создал скил с скриптом, который потребляет много ресурсов. Тут нужно проверять гипотезы" vertex="1">
+          <mxGeometry height="130.5" width="310" x="1310" y="1129.5" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-54" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-50" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jCnjvG8E_IOKK9DLNETW-53">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-50" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Эволюция тулов и скилов на устройстве пользователя" vertex="1">
+          <mxGeometry height="50" width="260" x="550" y="1260" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-57" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jCnjvG8E_IOKK9DLNETW-55">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-53" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Приложение с фронтом?" vertex="1">
+          <mxGeometry height="50" width="260" x="550" y="1370" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-60" edge="1" parent="1" source="jCnjvG8E_IOKK9DLNETW-55" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jCnjvG8E_IOKK9DLNETW-59">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-55" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="..." vertex="1">
+          <mxGeometry height="50" width="260" x="40" y="1600" as="geometry" />
+        </mxCell>
+        <mxCell id="jCnjvG8E_IOKK9DLNETW-59" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="PROFIT" vertex="1">
+          <mxGeometry height="50" width="260" x="40" y="1704" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

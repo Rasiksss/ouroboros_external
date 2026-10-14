@@ -1,0 +1,54 @@
+# Хуки локальные (language: system + `uv run`), чтобы ruff и mypy брались из
+# uv.lock — те же версии, что в стадии `check` в .gitlab-ci.yml, и чтобы mypy
+# видел зависимости проекта.
+default_install_hook_types: [pre-commit, commit-msg]
+default_stages: [pre-commit]
+
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format . --check
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check .
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+
+      # Конфиг-driven: файлы берутся из [tool.mypy] files в pyproject.toml,
+      # проверять только staged-файлы нельзя — mypy даст ложные ошибки.
+      - id: mypy
+        name: mypy
+        entry: uv run mypy
+        language: system
+        types_or: [python, pyi]
+        pass_filenames: false
+        require_serial: true
+
+      # Тема коммита: GGGNT-<jira> (#<gitlab issue>) <что изменилось>. Решётка
+      # обязательна — по ней GitLab делает ссылку на issue и отметку в нём.
+      # Трекеры не связаны, существование тикетов не проверить — только формат.
+      # Правило целиком здесь: в дереве кода его нет.
+      # Только на feature/*: на develop, служебных ветках и в detached HEAD
+      # (rebase, cherry-pick) тикет не требуется — лазейка оставлена намеренно.
+      # Тема — первая непустая строка без комментариев, как её оставит git.
+      # Merge/Revert git пишет сам, fixup!/squash!/amend! схлопнутся до мерджа.
+      - id: commit-message
+        name: commit message GGGNT-<jira> (#<gitlab issue>)
+        entry: >-
+          bash -c 'b=$(git rev-parse --abbrev-ref HEAD);
+          case "$b" in feature/*) ;; *) exit 0;; esac;
+          s=$(sed -e "/^#/d" -e "/^[[:space:]]*$/d" "$1" | head -1);
+          echo "$s" |
+          grep -qE "^(GGGNT-[0-9]+ +\(#[0-9]+\)[.:]?[[:space:]]+[^[:space:]]|Merge |Revert |fixup!|squash!|amend!)" ||
+          { echo "Тема коммита \"$s\": ожидается GGGNT-<jira> (#<gitlab issue>) <что изменилось>," >&2;
+          echo "например GGGNT-123 (#456) Workstation tracing added. Починить: git commit --amend" >&2; exit 1; }' --
+        language: system
+        stages: [commit-msg]
+        always_run: true

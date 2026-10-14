@@ -1,0 +1,17 @@
+# Code ownership for governance artifacts.
+# Changes to these files require approval from the code owners, not just any approver.
+
+# Invariants — the one file that must not drift without a conscious decision
+docs/INVARIANTS.md            @lebedevav @khizrievshkh @prudyvuspa
+
+# Core governance docs — structural changes need architecture review
+AGENTS.md                     @lebedevav @khizrievshkh @prudyvuspa
+CLAUDE.md                     @lebedevav @khizrievshkh @prudyvuspa
+docs/ARCHITECTURE.md          @lebedevav @khizrievshkh @prudyvuspa
+docs/DEVELOPMENT.md           @lebedevav @khizrievshkh @prudyvuspa
+
+# Rule files — ownership maps reviewed monthly, not per-PR
+.rules/                       @lebedevav @khizrievshkh @prudyvuspa
+
+# Governance tests — enforce the rules above
+tests_headless/test_governance_docs.py  @lebedevav @khizrievshkh @prudyvuspa

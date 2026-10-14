@@ -1,0 +1,120 @@
+stages:
+  - check
+  - test
+  - publish
+
+variables:
+  IMAGE_PATH: "apps/fusion/ouroboros-desktop"
+  MAIN_BRANCH: "main"
+  DEVELOPMENT_BRANCH: "develop"
+  POSTGRES_IMAGE: "registry.genai.int/ci/postgres:16-alpine"
+  POSTGRES_HOST: "postgres"
+  POSTGRES_DB: "ouroboros_ci"
+  POSTGRES_USER: "ouroboros"
+  POSTGRES_PASSWORD: "ouroboros"
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_TAG =~ /^v.*/
+    - if: $CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == $MAIN_BRANCH || $CI_COMMIT_BRANCH == $DEVELOPMENT_BRANCH || $CI_COMMIT_BRANCH =~ /^release\/.+$/)
+    - when: never
+
+.postgres-service:
+  services:
+    - name: $POSTGRES_IMAGE
+      alias: postgres
+  variables:
+    OUROBOROS_RUNTIME_DB_URL_1: "postgresql+psycopg://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:5432/$POSTGRES_DB"
+
+.nexus-config:
+  before_script:
+    - |
+      if [ -n "${NEXUS_CA:-}" ]; then
+        mkdir -p /usr/local/share/ca-certificates
+        cp "$NEXUS_CA" /usr/local/share/ca-certificates/nexus-ca.crt
+        update-ca-certificates
+        echo "Imported Nexus CA certificate"
+      fi
+
+check:
+  stage: check
+  extends: .nexus-config
+  image: registry.genai.int/ci/uv:python3.12-bookworm-slim
+  cache:
+    key: "${CI_COMMIT_REF_SLUG}-uv"
+    paths:
+      - .venv/
+  script:
+    - uv sync --frozen
+    - uv run ruff format --check .
+    - uv run ruff check .
+    # No paths: `files` in pyproject.toml is the single list, so a new top-level
+    # package cannot slip past the type gate by not being named here.
+    - uv run mypy
+
+test:
+  stage: test
+  extends:
+    - .nexus-config
+    - .postgres-service
+  image: registry.genai.int/ci/uv:python3.12-bookworm-slim
+  cache:
+    key: "${CI_COMMIT_REF_SLUG}-uv"
+    paths:
+      - .venv/
+  script:
+    - uv sync --frozen
+    - uv run pytest -n 4
+
+unit-regression:
+  stage: test
+  extends:
+    - .nexus-config
+    - .postgres-service
+  image: registry.genai.int/ci/uv:python3.12-bookworm-slim
+  cache:
+    key: "${CI_COMMIT_REF_SLUG}-uv"
+    paths:
+      - .venv/
+  script:
+    - uv sync --frozen
+    - uv run pytest tests/ -n 4 -m "not integration and not browser"
+
+publish:
+  stage: publish
+  image: registry.genai.int/ci/docker/buildah:stable
+  before_script:
+    - |
+      if [ -n "${NEXUS_CA:-}" ]; then
+        cp "$NEXUS_CA" /etc/pki/ca-trust/source/anchors/nexus-ca.crt
+        update-ca-trust
+        echo "Imported Nexus CA certificate"
+      fi
+  variables:
+    STORAGE_DRIVER: vfs
+    BUILDAH_FORMAT: docker
+  script:
+    - |
+      if [ -n "$CI_COMMIT_TAG" ] && echo "$CI_COMMIT_TAG" | grep -q '^v'; then
+        IMAGE_TAG="$CI_COMMIT_TAG"
+      elif [ "$CI_COMMIT_BRANCH" = "$MAIN_BRANCH" ]; then
+        IMAGE_TAG="latest"
+      elif [ "$CI_PIPELINE_SOURCE" = "merge_request_event" ] && [ "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" = "$MAIN_BRANCH" ]; then
+        SANITIZED="${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME//\//-}"
+        IMAGE_TAG="branch-${SANITIZED}"
+      else
+        IMAGE_TAG="${CI_COMMIT_TAG:-latest}"
+      fi
+      echo "Pushing image ${NEXUS_REGISTRY}/${IMAGE_PATH}:${IMAGE_TAG}"
+      buildah build --storage-driver="$STORAGE_DRIVER" --platform linux/amd64 \
+          ${NEXUS_CA:+--secret id=nexus_ca,src="$NEXUS_CA"} \
+          -t "${NEXUS_REGISTRY}/${IMAGE_PATH}:${IMAGE_TAG}" .
+      buildah push --storage-driver="$STORAGE_DRIVER" --creds "$NEXUS_USER:$NEXUS_PASSWORD" \
+          "${NEXUS_REGISTRY}/${IMAGE_PATH}:${IMAGE_TAG}"
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v.*/
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == $MAIN_BRANCH && $CI_PIPELINE_SOURCE == "push"
+      when: on_success
+      allow_failure: false
