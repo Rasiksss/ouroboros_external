@@ -1,0 +1,1776 @@
+{
+  "_README": "Full self-contained registry for cell ifrs_bank_en (standard/industry/lang implied by profile_id). Edit freely — affects ONLY this cell. Aliases match the cell language; NO role field (role<->metric link lives in roles/layouts.json by role id). Schema: src/finengine/skills/metric_schema.py.",
+  "extractable": [
+    {
+      "enum": "MODIFIED_AUDITORS_OPINION",
+      "name_ru": "Наличие модифицированного мнения аудитора",
+      "name_en": "Modified auditor's opinion",
+      "aliases_en": [
+        "Modified auditor's opinion",
+        "Qualified opinion"
+      ],
+      "description": "Indicator of whether the independent auditor's report contains a modified audit opinion.",
+      "hint": "Use the independent auditor's report. Unmodified or unqualified opinion means 0; qualified opinion, adverse opinion or disclaimer of opinion means 1. Do not treat emphasis-of-matter, key audit matters or going-concern paragraphs alone as a modified opinion.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": false
+    },
+    {
+      "enum": "CASH_EQUIVALENTS",
+      "name_ru": "Денежные средства и их эквиваленты",
+      "name_en": "Cash and cash equivalents",
+      "aliases_en": [
+        "Cash and equivalents",
+        "Cash and cash equivalents at end of period"
+      ],
+      "description": "Cash on hand, demand deposits and short-term highly liquid investments that qualify as cash equivalents under IAS 7.",
+      "hint": "Use the statement of financial position or the closing cash-and-cash-equivalents line in the statement of cash flows. Return closing balances for all disclosed dates; do not extract the opening balance as a separate period unless it is also a comparative closing balance. Exclude term deposits, marketable securities and restricted cash when they are disclosed separately.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "PERPETUAL_BONDS",
+      "name_ru": "Бессрочные облигации",
+      "name_en": "Perpetual bonds / hybrid capital instruments",
+      "aliases_en": [
+        "Perpetual notes",
+        "Hybrid capital notes"
+      ],
+      "description": "Perpetual bonds, notes or AT1-style hybrid instruments with no contractual maturity, classified either in equity or subordinated liabilities depending on the issuer accounting policy.",
+      "hint": "Look in equity, subordinated debt or capital notes disclosures. Use only instruments explicitly described as perpetual, undated or AT1/hybrid capital. Do not use ordinary bonds, senior notes or retained earnings.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "TOTAL_ASSETS",
+      "name_ru": "Итого активы",
+      "name_en": "Total assets",
+      "aliases_en": [
+        "Total assets",
+        "Sum of assets"
+      ],
+      "description": "Total carrying amount of all assets recognised in the statement of financial position at the reporting date.",
+      "hint": "Use the bottom-line total assets figure in the statement of financial position. It should reconcile to current plus non-current assets for non-financial issuers, or to the asset total in a bank balance sheet.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "PPE",
+      "name_ru": "Основные средства",
+      "name_en": "Property, plant and equipment",
+      "aliases_en": [
+        "PP&E",
+        "Fixed assets",
+        "Property and equipment"
+      ],
+      "description": "Carrying amount of tangible fixed assets such as land, buildings, plant, machinery, equipment and vehicles.",
+      "hint": "Use the statement of financial position or the PPE note. Extract carrying amount at period end, not historical cost. Exclude right-of-use assets, intangible assets and goodwill when they are disclosed separately; if the balance sheet combines them, use the note breakdown.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "DEFERRED_TAX_ASSETS",
+      "name_ru": "Отложенные налоговые активы",
+      "name_en": "Deferred tax assets",
+      "aliases_en": [
+        "Deferred income tax assets"
+      ],
+      "description": "Deferred income tax assets recognised for deductible temporary differences, tax losses or tax credits under IAS 12.",
+      "hint": "Use the statement of financial position or the income tax / deferred tax note. Extract the asset balance at the reporting date. Do not net with deferred tax liabilities unless the report presents only a legally offset net amount.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "DEFERRED_TAX_LIABILITIES",
+      "name_ru": "Отложенные налоговые обязательства",
+      "name_en": "Deferred tax liabilities",
+      "aliases_en": [
+        "Deferred income tax liabilities"
+      ],
+      "description": "Deferred income tax liabilities recognised for taxable temporary differences under IAS 12.",
+      "hint": "Use the statement of financial position or the income tax / deferred tax note. Extract the liability balance at the reporting date. Do not net with deferred tax assets unless the report presents only a legally offset net amount.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "INTANGIBLE_ASSETS",
+      "name_ru": "Нематериальные активы",
+      "name_en": "Intangible assets",
+      "aliases_en": [
+        "Intangible assets",
+        "Other intangible assets",
+        "Intangibles"
+      ],
+      "description": "Identifiable non-monetary assets without physical substance, such as software, licences, patents, customer relationships and brands; excludes goodwill when disclosed separately.",
+      "hint": "Use the statement of financial position or intangible-assets note. Extract carrying amount at period end. Do not include goodwill, PPE or right-of-use assets; if intangibles and goodwill are combined, use the note breakdown.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "GOODWILL",
+      "name_ru": "Гудвил",
+      "name_en": "Goodwill",
+      "aliases_en": [
+        "Goodwill"
+      ],
+      "description": "Goodwill recognised in business combinations under IFRS 3, representing the excess of consideration over identifiable net assets acquired.",
+      "hint": "Use the non-current assets section or the goodwill / business-combinations note. Extract the carrying amount at the reporting date. Do not include other intangible assets.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "TOTAL_EQUITY",
+      "name_ru": "Итого собственный капитал",
+      "name_en": "Total equity",
+      "aliases_en": [
+        "Total shareholders' equity",
+        "Stockholders' equity"
+      ],
+      "description": "Total equity attributable to shareholders and non-controlling interests recognised at the reporting date.",
+      "hint": "Use the total equity line in the statement of financial position. If equity attributable to owners and non-controlling interests are shown separately, use their total, not only parent shareholders equity.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": false,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "RIGHT_OF_USE_ASSETS",
+      "name_ru": "Активы в форме права пользования",
+      "name_en": "Right-of-use assets",
+      "aliases_en": [
+        "Right-of-use assets",
+        "ROU assets"
+      ],
+      "description": "IFRS 16 right-of-use assets recognised by a lessee for the right to use leased assets.",
+      "hint": "Use the statement of financial position or the lease / right-of-use-assets note. Extract carrying amount at period end for all disclosed dates. Do not confuse with lease liabilities or owned PPE.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "NET_INCOME",
+      "name_ru": "Чистая прибыль",
+      "name_en": "Profit for the period",
+      "aliases_en": [
+        "Net earnings",
+        "Net profit",
+        "Profit for the period"
+      ],
+      "description": "Profit or loss for the period after income tax, before attribution between owners of the parent and non-controlling interests.",
+      "hint": "Use the statement of profit or loss. Prefer the general profit for the period / net income line after tax; do not substitute profit attributable to owners of the parent unless the general total is absent. Preserve loss signs or parentheses.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": false,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "INTEREST_PAID",
+      "name_ru": "Уплаченные проценты",
+      "name_en": "Interest paid",
+      "aliases_en": [
+        "Interest payments",
+        "Cash interest paid"
+      ],
+      "description": "Cash interest payments made during the period.",
+      "hint": "Use the statement of cash flows. Under IAS 7 interest paid may appear in operating or financing activities; extract the cash paid line, not finance costs from profit or loss. Preserve the source sign or parentheses.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "INTEREST_RECEIVED",
+      "name_ru": "Полученные проценты",
+      "name_en": "Interest received",
+      "aliases_en": [
+        "Interest receipts",
+        "Cash interest received"
+      ],
+      "description": "Cash interest receipts during the period.",
+      "hint": "Use the statement of cash flows. Under IAS 7 interest received may appear in operating or investing activities; extract the cash received line, not finance income from profit or loss.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "DIVIDENDS",
+      "name_ru": "Дивиденды",
+      "name_en": "Dividends paid",
+      "aliases_en": [
+        "Dividends paid"
+      ],
+      "description": "Cash dividends paid by the group during the period.",
+      "hint": "Use the statement of cash flows. If dividends paid to parent shareholders and to non-controlling interests are disclosed separately, use the total cash dividends paid or aggregate the two explicit lines. Preserve the source sign.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+      "name_ru": "Погашение обязательств по аренде",
+      "name_en": "Repayment of principal portion of lease liabilities",
+      "aliases_en": [
+        "Principal payments on lease liabilities",
+        "Repayment of lease liabilities"
+      ],
+      "description": "Cash repayment of the principal portion of IFRS 16 lease liabilities during the period.",
+      "hint": "Use the financing section of the statement of cash flows or the lease note. Extract principal repayments only; exclude lease interest, short-term lease expense and variable lease payments unless the source explicitly includes them in principal.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "CHANGES_OCF_ASSETS_LIABILITIES",
+      "name_ru": "Изменения в оборотном капитале",
+      "name_en": "Changes in operating assets and liabilities",
+      "aliases_en": [
+        "Changes in operating assets and liabilities",
+        "Changes in operating assets/liabilities",
+        "Operating assets and liabilities movements"
+      ],
+      "description": "Bank cash-flow subtotal for changes in operating assets and operating liabilities during the period.",
+      "hint": "Use the bank statement of cash flows, operating section. Prefer an explicit changes-in-operating-assets-and-liabilities subtotal. If no subtotal is printed, it may be derived from neighboring subtotals by subtracting the subtotal before operating asset/liability changes from the subtotal after those changes, or from operating cash flow before tax/interest payments. Exclude non-cash adjustments, ECL/provisions, interest, taxes and investing/financing cash flows.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": false
+    },
+    {
+      "enum": "TOTAL_LOANS_TO_CLIENTS",
+      "name_ru": "Кредиты клиентам",
+      "name_en": "Loans and advances to customers, net",
+      "aliases_en": [
+        "Loans and advances to customers",
+        "Loan portfolio",
+        "Loans and advances to customers, net",
+        "Net loans"
+      ],
+      "description": "Net carrying amount of loans and advances to customers after expected credit loss allowance.",
+      "hint": "Use the bank statement of financial position or loans-and-advances note. Extract the net amount after ECL allowance. If gross loans and allowance are disclosed separately, use gross less allowance; do not stop at gross loans, allowance or a stage subtotal.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "CORPORATE_LOANS",
+      "name_ru": "Корпоративные кредиты",
+      "name_en": "Corporate loans and advances, gross",
+      "aliases_en": [
+        "Corporate loans",
+        "Commercial loans"
+      ],
+      "description": "Gross loans and advances to corporate, commercial, SME or institutional customers before ECL allowance.",
+      "hint": "Use the loans-and-advances customer-segment breakdown. Aggregate corporate/commercial/SME subcategories when they are parts of the corporate book. Do not use net carrying amount after allowance.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "INDIVIDUALS_LOANS",
+      "name_ru": "Розничные кредиты",
+      "name_en": "Retail loans and advances, gross",
+      "aliases_en": [
+        "Retail loans",
+        "Consumer loans",
+        "Loans to individuals"
+      ],
+      "description": "Gross loans and advances to individuals before ECL allowance, including mortgages, cards, consumer, auto and other retail lending.",
+      "hint": "Use the loans-and-advances customer-segment breakdown. Aggregate explicit retail subcategories. Do not use net carrying amount after allowance.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "CLIENT_DEPOSITS",
+      "name_ru": "Депозиты клиентов",
+      "name_en": "Customer deposits",
+      "aliases_en": [
+        "Due to customers",
+        "Customer deposits"
+      ],
+      "description": "Amounts due to customers, including current accounts, deposits and other customer funding.",
+      "hint": "Use the bank statement of financial position or customer accounts / deposits note. Extract total customer deposits, not interbank funding, central-bank funding or issued debt securities.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "COMMON_EQUITY_TIER_ONE_CAPITAL",
+      "name_ru": "Основной капитал первого уровня",
+      "name_en": "Common Equity Tier 1 capital",
+      "aliases_en": [
+        "CET1 capital",
+        "Common equity Tier 1 capital ratio"
+      ],
+      "description": "Regulatory Common Equity Tier 1 capital amount under Basel / local prudential rules.",
+      "hint": "Use capital adequacy or regulatory capital disclosures. Extract the CET1 capital amount, not the CET1 ratio and not total equity.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "NET_INTEREST_INCOME",
+      "name_ru": "Чистый процентный доход",
+      "name_en": "Net interest income",
+      "aliases_en": [
+        "Net interest income",
+        "NII",
+        "Net interest income before provisions",
+        "Net interest income before credit loss allowance"
+      ],
+      "description": "Interest income less interest expense before impairment / credit-loss provisions.",
+      "hint": "Use the bank income statement. If both before-provision and after-provision lines are shown, use net interest income before provisions. In interim reports, return both 3M/Q and YTD columns when disclosed.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": false,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "NON_INTEREST_INCOME_BANKS",
+      "name_ru": "Непроцентный доход",
+      "name_en": "Non-interest income",
+      "aliases_en": [
+        "Non-interest revenue"
+      ],
+      "description": "Total non-interest income, including fees, trading, insurance and other operating income where included by the bank.",
+      "hint": "Use the income statement section after net interest income. If the bank does not disclose a total non-interest income line or clear subtotal, return null rather than constructing from incomplete components.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": false,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "OPERATING_INCOME_BANKS",
+      "name_ru": "Операционный доход банков",
+      "name_en": "Operating income",
+      "aliases_en": [
+        "Operating income",
+        "Net revenue"
+      ],
+      "description": "Total operating income of the bank before impairment / credit-loss provisions and before operating expenses.",
+      "hint": "Use the bank income statement subtotal for operating income / total revenue before ECL, impairment charges or credit-loss provisions. It normally aggregates net interest income, net fee and commission income, trading/FX and other operating income. Do not use net interest income alone, and do not use an after-provision subtotal when a before-provision operating income line is disclosed.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": false,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "TOTAL_CREDIT_ALLOWANCE",
+      "name_ru": "Резервы под обесценение кредитов и авансов клиентам",
+      "name_en": "Allowance for expected credit losses on loans",
+      "aliases_en": [
+        "Allowance for credit losses",
+        "Allowance for loan losses",
+        "Credit loss allowance",
+        "ECL allowance on loans"
+      ],
+      "description": "Closing expected credit loss allowance / impairment allowance for loans and advances to customers.",
+      "hint": "Use the loans-and-advances or credit-loss allowance note. Extract the closing allowance balance on loans at period end. This is a balance-sheet allowance, not the P&L provision flow; CHANGE_IN_EXPECTED_CREDIT_LOSSES captures the flow. Preserve contra-asset signs when shown.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "OPERATING_EXPENSES_BANKS",
+      "name_ru": "Операционные расходы банков",
+      "name_en": "Operating expenses",
+      "aliases_en": [
+        "Total operating expenses",
+        "Non-interest expenses"
+      ],
+      "description": "Total bank operating or administrative expenses, including staff, IT, occupancy and other non-interest expenses.",
+      "hint": "Use the bank income statement. Extract total operating expenses / administrative expenses / non-interest expenses. Preserve signs or parentheses from the source; if notes show components positive, follow the sign of the income-statement total.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "NET_COMMISSION_INCOME",
+      "name_ru": "Чистый комиссионный доход",
+      "name_en": "Net fee and commission income",
+      "aliases_en": [
+        "Net fee and commission income"
+      ],
+      "description": "Fee and commission income less fee and commission expense.",
+      "hint": "Use the bank income statement. If the bank discloses only gross fee income and gross fee expense, this metric can be calculated elsewhere; return null here unless a net fee and commission income line is explicitly disclosed.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": false,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "OTHER_OPERATING_INCOME",
+      "name_ru": "Прочие Операционные Доходы",
+      "name_en": "Other operating income",
+      "aliases_en": [
+        "Other income",
+        "Other revenues"
+      ],
+      "description": "Other operating income not captured in interest, fee, trading, insurance or FX lines.",
+      "hint": "Use the bank income statement or notes. Extract only explicitly labelled other operating income; do not use broad total non-interest income.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": false,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "INCOME_TAX",
+      "name_ru": "Расход по текущему налогу на прибыль",
+      "name_en": "Current income tax expense",
+      "aliases_en": [
+        "Current income tax expense",
+        "Current tax expense",
+        "Current provision for income taxes"
+      ],
+      "description": "Current income tax expense for the period, excluding deferred tax and discrete tax effects when separately disclosed.",
+      "hint": "Use the tax note or income statement breakdown. Extract current tax expense/provision. Do not substitute total income tax expense when current and deferred tax are separately disclosed. Preserve signs.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "EBT",
+      "name_ru": "Прибыль до налогообложения",
+      "name_en": "Profit before tax",
+      "aliases_en": [
+        "Profit before tax",
+        "Income before income taxes",
+        "Pre-tax income"
+      ],
+      "description": "Profit or loss before income tax expense.",
+      "hint": "Use the bank income statement, normally the line immediately before income tax. Preserve loss signs or parentheses.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": false,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "INTERBANK_DEPOSITS",
+      "name_ru": "Средства в банках",
+      "name_en": "Amounts due from banks",
+      "aliases_en": [
+        "Due from banks",
+        "Interbank placements",
+        "Deposits with banks"
+      ],
+      "description": "Placements, deposits and other amounts due from other banks.",
+      "hint": "Use the bank statement of financial position asset side. Extract due from banks / placements with banks / interbank deposits. Exclude cash with central banks and loans to customers.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "INTERBANK_LOANS",
+      "name_ru": "Средства банков",
+      "name_en": "Amounts due to banks",
+      "aliases_en": [
+        "Due to banks",
+        "Interbank borrowings",
+        "Deposits from banks"
+      ],
+      "description": "Interbank borrowings, deposits and other amounts due to banks.",
+      "hint": "Use the bank statement of financial position liability side. Extract due to banks / deposits from banks / interbank funding. Exclude customer deposits, central-bank funding and issued debt securities.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "SECURITIES_ASSETS",
+      "name_ru": "Финансовые инструменты (Актив)",
+      "name_en": "Investment securities",
+      "aliases_en": [
+        "Financial instruments",
+        "Investment securities",
+        "Marketable securities",
+        "Short-term investments",
+        "Available-for-sale securities"
+      ],
+      "description": "Debt and equity securities held by the bank as financial assets under IFRS 9.",
+      "hint": "Use the statement of financial position or IFRS 9 financial instruments note. Extract securities / investment securities subtotal when available, or aggregate FVPL, FVOCI and amortised-cost securities buckets. Exclude loans, cash, repo receivables and broad total financial assets.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "OTHER_ASSETS",
+      "name_ru": "Прочие активы",
+      "name_en": "Other assets",
+      "aliases_en": [
+        "Other assets",
+        "Prepaid expenses and other assets",
+        "Other current assets",
+        "Other long-term assets"
+      ],
+      "description": "Assets not classified in the main bank balance-sheet categories.",
+      "hint": "Use the bank statement of financial position. Include explicit other assets / prepaid and other assets / other non-current assets when disclosed. Do not use cash-flow changes in other assets.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "TOTAL_ASSOCIATE_INVESTMENTS",
+      "name_ru": "Инвестиции в ассоциированные и совместные предприятия",
+      "name_en": "Investments in associates and joint ventures",
+      "aliases_en": [
+        "Investments in associates and joint ventures",
+        "Equity-accounted investments",
+        "Equity method investment",
+        "Investments in associates",
+        "Investments: equity method",
+        "Equity method investments"
+      ],
+      "description": "Carrying amount of investments in associates and joint ventures accounted for using the equity method.",
+      "hint": "Use the non-current assets section or the associates / joint ventures note. Extract the period-end carrying amount, not purchases, disposals or share of profit.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "INDIVIDUALS_DEPOSITS",
+      "name_ru": "Средства Физических лиц",
+      "name_en": "Retail deposits",
+      "aliases_en": [
+        "Retail deposits",
+        "Deposits from individuals"
+      ],
+      "description": "Customer deposits from individuals and retail customers.",
+      "hint": "Use customer accounts / deposits breakdown. Extract retail or individual customer deposits only. Do not use total customer deposits, corporate deposits, government deposits or central-bank funding.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "CORPORATE_DEPOSITS",
+      "name_ru": "Средства корпоративных клиентов",
+      "name_en": "Corporate deposits",
+      "aliases_en": [
+        "Corporate deposits",
+        "Business deposits",
+        "Deposits from legal entities"
+      ],
+      "description": "Customer deposits from corporate, business, SME or legal-entity customers.",
+      "hint": "Use customer accounts / deposits breakdown. Extract corporate/business customer deposits only. Do not use total customer deposits, retail deposits, government deposits or central-bank funding.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "GOVERNMENTAL_DEPOSITS",
+      "name_ru": "Средства государственных органов власти",
+      "name_en": "Government deposits",
+      "aliases_en": [
+        "Government deposits",
+        "Deposits from government entities"
+      ],
+      "description": "Deposits and accounts from government bodies, public-sector entities or municipalities.",
+      "hint": "Use customer deposits breakdown. Extract government/public-sector deposits only when separately disclosed; otherwise return null.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "SECURITIES_LIABILITIES",
+      "name_ru": "Финансовые инструменты (Обязательства)",
+      "name_en": "Trading financial liabilities",
+      "aliases_en": [
+        "Financial liabilities at fair value through profit or loss",
+        "Financial liabilities at FVTPL",
+        "Trading financial liabilities",
+        "Securities liabilities"
+      ],
+      "description": "Financial liabilities measured at fair value through profit or loss, including short positions or trading securities liabilities.",
+      "hint": "Use the statement of financial position or financial instruments note. Do not use issued bonds, notes, certificates of deposit or other debt securities issued; those belong to DEBT_SECURITIES_ISSUED.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "JUNIOR_DEBT",
+      "name_ru": "Субординированная задолженность",
+      "name_en": "Subordinated debt",
+      "aliases_en": [
+        "Subordinated debt",
+        "Subordinated loans"
+      ],
+      "description": "Subordinated loans, notes or other debt ranking below senior obligations, often eligible for regulatory capital.",
+      "hint": "Use the liabilities section, subordinated debt note or regulatory capital note. Extract subordinated debt amount, not senior borrowings or perpetual equity instruments unless classified as subordinated debt.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "OTHER_LIABILITIES",
+      "name_ru": "Прочие обязательства",
+      "name_en": "Other liabilities",
+      "aliases_en": [
+        "Other liabilities",
+        "Accrued and other liabilities",
+        "Other current liabilities",
+        "Other long-term liabilities"
+      ],
+      "description": "Liabilities not classified in the main bank balance-sheet categories.",
+      "hint": "Use the bank statement of financial position. Include accrued and other liabilities / other current and non-current liabilities when disclosed. Do not use cash-flow changes in accrued liabilities.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "SHARE_CAPITAL",
+      "name_ru": "Уставной капитал",
+      "name_en": "Share capital",
+      "aliases_en": [
+        "Common stock",
+        "Ordinary shares",
+        "Capital stock"
+      ],
+      "description": "Nominal or stated value of issued ordinary and preference shares recognised in equity.",
+      "hint": "Use the equity section or statement of changes in equity. Extract the period-end share capital line only; do not use total equity, share premium or treasury shares.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "SHARE_PREMIUM",
+      "name_ru": "Эмиссионный доход",
+      "name_en": "Share premium",
+      "aliases_en": [
+        "Additional paid-in capital",
+        "Capital surplus",
+        "APIC"
+      ],
+      "description": "Additional paid-in capital / share premium arising from share issues above nominal value.",
+      "hint": "Use the equity section or statement of changes in equity. Extract only the explicit share premium / additional paid-in capital line; do not include share capital, retained earnings or other reserves.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "TREASURY_SHARES",
+      "name_ru": "Собственные акции, выкупленные у акционеров",
+      "name_en": "Treasury shares",
+      "aliases_en": [
+        "Treasury stock",
+        "Own shares repurchased"
+      ],
+      "description": "Carrying amount of own shares repurchased and held by the entity, presented as a deduction from equity.",
+      "hint": "Use the equity section or statement of changes in equity. Extract the period-end treasury shares balance; do not use cash paid for share buybacks during the period. Preserve negative presentation if shown.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "RETAINED_EARNINGS",
+      "name_ru": "Нераспределенная прибыль",
+      "name_en": "Retained earnings",
+      "aliases_en": [
+        "Accumulated retained earnings",
+        "Accumulated deficit",
+        "Retained earnings balance"
+      ],
+      "description": "Accumulated earnings retained in equity after dividends and other appropriations.",
+      "hint": "Use the equity section or statement of changes in equity. Extract the period-end retained earnings / accumulated deficit balance, not profit for the period.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": false
+    },
+    {
+      "enum": "NON_CONTROL_INTEREST",
+      "name_ru": "Неконтрольные доли участия",
+      "name_en": "Non-controlling interests",
+      "aliases_en": [
+        "Minority interest",
+        "Non-controlling interests"
+      ],
+      "description": "Equity in consolidated subsidiaries not attributable to owners of the parent.",
+      "hint": "Use the equity section of the statement of financial position. Extract the separate non-controlling interests line at period end; it may be positive or negative.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": false
+    },
+    {
+      "enum": "DERIVATIVE_LIABILITIES",
+      "name_ru": "Производные финансовые обязательства",
+      "name_en": "Derivative financial liabilities",
+      "aliases_en": [
+        "Derivative financial instruments",
+        "Derivative liabilities"
+      ],
+      "description": "Negative fair value of derivative financial instruments recognised as liabilities under IFRS 9.",
+      "hint": "Use the statement of financial position or financial instruments / risk-management note. Extract derivative liabilities only; do not net against derivative assets unless the balance sheet presents a net liability.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "INSURANCE_LIABILITIES",
+      "name_ru": "Обязательства по договорам страхования",
+      "name_en": "Insurance contract liabilities",
+      "aliases_en": [
+        "Insurance liabilities",
+        "Technical reserves"
+      ],
+      "description": "Liabilities arising from insurance contracts under IFRS 17, including fulfilment cash flows and contractual service margin where applicable.",
+      "hint": "Use the statement of financial position of insurers or the IFRS 17 insurance contracts note. Return null for non-insurance issuers unless an explicit insurance contract liability is disclosed.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "CASH_AND_CASH_BALANCES_WITH_CB",
+      "name_ru": "Обязательные резервы на счетах в центральных банках",
+      "name_en": "Cash and balances with central banks",
+      "aliases_en": [
+        "Mandatory reserves with central bank",
+        "Reserve deposits with central bank"
+      ],
+      "description": "Cash, mandatory reserves and other balances held with central banks.",
+      "hint": "Use the asset side of the bank statement of financial position, often the first line. Include mandatory reserves with central banks when part of the disclosed line. Do not confuse with central-bank funding, which is a liability.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "FUNDS_FROM_CENTRAL_BANK",
+      "name_ru": "Средства, предоставленные ЦБ",
+      "name_en": "Funding from central banks",
+      "aliases_en": [
+        "Loans from central bank",
+        "Borrowings from the central bank"
+      ],
+      "description": "Borrowings, deposits, repo funding or other liabilities owed to central banks.",
+      "hint": "Use liabilities or funding notes. Extract amounts provided by central banks. Do not use mandatory reserves or cash balances held with central banks; those are assets.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "INTEREST_INCOME_ER",
+      "name_ru": "Процентные доходы, рассчитываемые по методу эффективной процентной ставки",
+      "name_en": "Interest income calculated using the effective interest method",
+      "aliases_en": [
+        "Interest income calculated using the effective interest method",
+        "Interest income (EIR basis)"
+      ],
+      "description": "Interest income recognised using the IFRS 9 effective interest method.",
+      "hint": "Use the bank income statement or interest income note. Extract interest income on an effective-interest-rate basis. Do not use gross interest receipts from the cash-flow statement.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "INTEREST_EXPENSE_ER",
+      "name_ru": "Процентные расходы, рассчитываемые по методу эффективной процентной ставки",
+      "name_en": "Interest expense calculated using the effective interest method",
+      "aliases_en": [
+        "Interest expense calculated using the effective interest method",
+        "Interest expense (EIR basis)"
+      ],
+      "description": "Interest expense recognised using the IFRS 9 effective interest method.",
+      "hint": "Use the bank income statement or interest expense note. Extract interest expense on an effective-interest-rate basis. If a generic interest expense line is not identified as EIR/effective-interest basis, return null. Preserve signs.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "FEE_AND_COMMISSION_INCOME",
+      "name_ru": "Комиссионный доход",
+      "name_en": "Fee and commission income",
+      "aliases_en": [
+        "Fee income",
+        "Commission income"
+      ],
+      "description": "Gross fee and commission income from banking services.",
+      "hint": "Use the fee and commission income note or income statement. Extract gross fee and commission income, not net fee income and not fee expense.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "FEE_AND_COMMISSION_EXPENSE",
+      "name_ru": "Комиссионный расход",
+      "name_en": "Fee and commission expense",
+      "aliases_en": [
+        "Fee expense",
+        "Commission expense"
+      ],
+      "description": "Gross fee and commission expense incurred for payment systems, agents, counterparties and other fee-based services.",
+      "hint": "Use the fee and commission expense line or note. Preserve signs or parentheses from the income statement; do not net against fee income.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "CURRENCY_METALS_INCOME",
+      "name_ru": "Чистый доход от операций с иностранными валютами и драгоценными металлами",
+      "name_en": "Net foreign exchange and precious metals income",
+      "aliases_en": [
+        "Net foreign exchange income",
+        "Net FX income"
+      ],
+      "description": "Net result from foreign currency and precious metals transactions and remeasurement.",
+      "hint": "Use non-interest income in the bank income statement. Extract the net FX / precious metals income line; do not use gross trading revenue unless it is the same disclosed line.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": false
+    },
+    {
+      "enum": "INSURANCE_INCOME",
+      "name_ru": "Выручка по страховой деятельности",
+      "name_en": "Insurance service revenue",
+      "aliases_en": [
+        "Insurance premium income",
+        "Net earned premiums"
+      ],
+      "description": "Revenue from insurance contracts recognised under IFRS 17.",
+      "hint": "Use the statement of profit or loss of insurers. Extract insurance service revenue / insurance revenue. Return null for non-insurance issuers.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "INSURANCE_EXPENSE",
+      "name_ru": "Расходы по страховой деятельности",
+      "name_en": "Insurance service expenses",
+      "aliases_en": [
+        "Insurance claims and expenses",
+        "Claims and benefits paid"
+      ],
+      "description": "Insurance service expenses recognised under IFRS 17, including incurred claims and related service expenses.",
+      "hint": "Use the statement of profit or loss of insurers. Extract insurance service expenses or claims and benefits expense when that is the IFRS 17 service-expense line. Return null for non-insurance issuers.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "NET_OTHER_RESERVES",
+      "name_ru": "Чистое восстановление прочих резервов",
+      "name_en": "Net reversal / charge of other provisions",
+      "aliases_en": [
+        "Net reversal of other provisions",
+        "Net recovery of other provisions"
+      ],
+      "description": "Net period movement in other provisions or reserves for legal claims and other non-credit obligations, creation less reversal.",
+      "hint": "Use only an explicit net creation, reversal or change in other provisions. Do not use ECL/loan-loss provisions, deferred tax, fee expense, broad other operating income/expense or balance-sheet provision balances. Return null if no separate other-provisions flow is disclosed.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": false
+    },
+    {
+      "enum": "LOANS_STAGE1_GROSS",
+      "name_ru": "Кредиты Этап 1 (валовые)",
+      "name_en": "Stage 1 loans, gross carrying amount",
+      "aliases_en": [
+        "Stage 1 loans",
+        "Performing loans (Stage 1)"
+      ],
+      "description": "Gross carrying amount of loans in IFRS 9 Stage 1, subject to 12-month expected credit losses.",
+      "hint": "Use the loans-and-advances ECL stage table. Extract gross carrying amount for Stage 1, usually subtotal across customer loans. Do not use net carrying amount, allowance, total loans or a non-stage overdue table.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "LOANS_STAGE2_GROSS",
+      "name_ru": "Кредиты Этап 2 (валовые)",
+      "name_en": "Stage 2 loans, gross carrying amount",
+      "aliases_en": [
+        "Stage 2 loans",
+        "Under-performing loans (Stage 2)"
+      ],
+      "description": "Gross carrying amount of loans in IFRS 9 Stage 2, subject to lifetime ECL but not credit-impaired.",
+      "hint": "Use the loans-and-advances ECL stage table. Extract gross carrying amount for Stage 2. Do not use allowance, net carrying amount, Stage 1/3 or total loans.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "LOANS_STAGE3_GROSS",
+      "name_ru": "Кредиты Этап 3 (валовые)",
+      "name_en": "Stage 3 loans, gross carrying amount",
+      "aliases_en": [
+        "Stage 3 loans",
+        "Non-performing loans (Stage 3)"
+      ],
+      "description": "Gross carrying amount of credit-impaired loans in IFRS 9 Stage 3.",
+      "hint": "Use the loans-and-advances ECL stage table. Extract gross carrying amount for Stage 3 / credit-impaired loans. Do not use ECL allowance, net carrying amount, NPL ratio or generic overdue balances without stage classification.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "ECL_ALLOWANCE_STAGE1",
+      "name_ru": "Резерв под обесценение кредитов Этап 1",
+      "name_en": "Stage 1 ECL allowance",
+      "aliases_en": [
+        "Stage 1 ECL allowance"
+      ],
+      "description": "Expected credit loss allowance for Stage 1 loans.",
+      "hint": "Use the loans-and-advances impairment allowance table. Extract allowance/ECL reserve for Stage 1 only, not gross carrying amount. Preserve signs or parentheses; return null if Stage 1 allowance is not separately disclosed.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "ECL_ALLOWANCE_STAGE2",
+      "name_ru": "Резерв под обесценение кредитов Этап 2",
+      "name_en": "Stage 2 ECL allowance",
+      "aliases_en": [
+        "Stage 2 ECL allowance"
+      ],
+      "description": "Expected credit loss allowance for Stage 2 loans.",
+      "hint": "Use the loans-and-advances impairment allowance table. Extract allowance/ECL reserve for Stage 2 only, not gross carrying amount. Preserve signs or parentheses; return null if Stage 2 allowance is not separately disclosed.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "ECL_ALLOWANCE_STAGE3",
+      "name_ru": "Резерв под обесценение кредитов Этап 3",
+      "name_en": "Stage 3 ECL allowance",
+      "aliases_en": [
+        "Stage 3 ECL allowance"
+      ],
+      "description": "Expected credit loss allowance for Stage 3 credit-impaired loans.",
+      "hint": "Use the loans-and-advances impairment allowance table. Extract allowance/ECL reserve for Stage 3 only, not gross carrying amount and not NPL balances. Preserve signs or parentheses; return null if Stage 3 allowance is not separately disclosed.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "SECURITIES_FVPL",
+      "name_ru": "Ценные бумаги по справедливой стоимости через прибыль или убыток",
+      "name_en": "Securities at fair value through profit or loss",
+      "aliases_en": [
+        "Financial assets at FVTPL",
+        "Securities at fair value through profit or loss"
+      ],
+      "description": "Securities or financial assets measured at fair value through profit or loss under IFRS 9.",
+      "hint": "Use the IFRS 9 financial instruments note or balance sheet. Extract the FVPL/FVTPL securities bucket, often trading securities. Do not include FVOCI, amortised cost, repo, cash, loans or total securities.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "SECURITIES_FVOCI",
+      "name_ru": "Ценные бумаги по справедливой стоимости через прочий совокупный доход (FVOCI)",
+      "name_en": "Securities at fair value through other comprehensive income",
+      "aliases_en": [
+        "Financial assets at FVOCI",
+        "AFS securities"
+      ],
+      "description": "Securities or financial assets measured at fair value through other comprehensive income under IFRS 9.",
+      "hint": "Use the IFRS 9 financial instruments note or balance sheet. Extract the FVOCI securities bucket only. Do not include FVPL/FVTPL, amortised cost, repo or total securities.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "SECURITIES_AMORTISED_COST",
+      "name_ru": "Ценные бумаги по амортизированной стоимости (AC)",
+      "name_en": "Securities measured at amortised cost",
+      "aliases_en": [
+        "Financial assets at amortised cost",
+        "HTM securities"
+      ],
+      "description": "Debt securities held to collect contractual cash flows and measured at amortised cost under IFRS 9.",
+      "hint": "Use the IFRS 9 financial instruments note or balance sheet. Extract debt securities measured at amortised cost / held-to-collect securities. Do not include loans to customers, due from banks, repo receivables or total financial assets.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "REPO_PLEDGED_SECURITIES",
+      "name_ru": "Ценные бумаги, заложенные по договорам репо",
+      "name_en": "Securities pledged under repurchase agreements",
+      "aliases_en": [
+        "Securities sold under repurchase agreements",
+        "Pledged securities"
+      ],
+      "description": "Securities transferred or pledged as collateral in repo transactions while remaining recognised by the bank.",
+      "hint": "Use repo collateral, pledged assets or securities note. Extract securities pledged/transferred under repos. Do not use reverse repo receivables, repo liabilities, loans to banks, total securities or broad pledged assets.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "RISK_WEIGHTED_ASSETS",
+      "name_ru": "Активы, взвешенные по риску (RWA)",
+      "name_en": "Risk-weighted assets (RWA)",
+      "aliases_en": [
+        "Risk-weighted assets",
+        "RWA"
+      ],
+      "description": "Risk-weighted assets used as the denominator for regulatory capital ratios.",
+      "hint": "Use regulatory capital / capital adequacy disclosures. Extract RWA amount, not total assets and not capital ratios.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "CET1_RATIO_DISCLOSED",
+      "name_ru": "Норматив CET1 (раскрываемый)",
+      "name_en": "CET1 ratio",
+      "aliases_en": [
+        "CET1 capital ratio",
+        "Common equity Tier 1 ratio"
+      ],
+      "description": "Disclosed Common Equity Tier 1 capital ratio.",
+      "hint": "Use regulatory capital / capital adequacy disclosures. Extract the CET1 ratio as a percentage, not CET1 capital amount.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "TIER1_RATIO_DISCLOSED",
+      "name_ru": "Норматив Tier 1 (раскрываемый)",
+      "name_en": "Tier 1 capital ratio",
+      "aliases_en": [
+        "Tier 1 capital ratio"
+      ],
+      "description": "Disclosed Tier 1 capital adequacy ratio.",
+      "hint": "Use regulatory capital / capital adequacy disclosures. Extract the Tier 1 ratio as a percentage, not Tier 1 capital amount.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "EPS",
+      "name_ru": "Прибыль на одну обыкновенную акцию",
+      "name_en": "Basic earnings per share",
+      "aliases_en": [
+        "Earnings per share",
+        "EPS",
+        "Basic EPS",
+        "Basic earnings per share"
+      ],
+      "description": "Basic earnings per ordinary share for the period, expressed as currency per share rather than in millions.",
+      "hint": "Use the earnings-per-share line in the statement of profit or loss or EPS note. Extract Basic EPS, not Diluted EPS. Keep the per-share unit and decimal value exactly as disclosed.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": false,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "DIVIDENDS_RECEIVED",
+      "name_ru": "Дивиденды полученные",
+      "name_en": "Dividends received",
+      "aliases_en": [
+        "Cash dividends received"
+      ],
+      "description": "Cash dividends received from associates, joint ventures or other investees during the period.",
+      "hint": "Use the statement of cash flows, usually investing activities under IAS 7 unless the issuer classifies dividends received as operating. Do not use dividends declared or dividend income accruals unless they are cash receipts.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "CHANGE_IN_EXPECTED_CREDIT_LOSSES",
+      "name_ru": "Изменение резерва по ожидаемым кредитным убыткам",
+      "name_en": "Change in expected credit losses",
+      "aliases_en": [
+        "Movement in ECL allowance",
+        "Changes in ECL allowance"
+      ],
+      "description": "Net period charge, reversal or movement in expected credit loss allowances.",
+      "hint": "Use the bank income statement or allowance movement table. Extract the period flow for provision/charge/reversal/change in ECL. Expense/charge/creation is usually negative; recovery/reversal is positive. Do not use closing allowance balance, NII before/after provisions or OCI reserve movements.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": false,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "DEBT_SECURITIES_ISSUED",
+      "name_ru": "Выпущенные долговые ценные бумаги",
+      "name_en": "Debt securities issued",
+      "aliases_en": [
+        "Bonds issued",
+        "Notes and bonds issued"
+      ],
+      "description": "Bonds, notes, certificates of deposit and other debt securities issued by the bank and recognised as liabilities.",
+      "hint": "Use liabilities or funding notes. Extract issued debt securities. Do not classify these as trading financial liabilities / SECURITIES_LIABILITIES.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    },
+    {
+      "enum": "LEASE_LIABILITIES_BANKS",
+      "name_ru": "Обязательства по аренде",
+      "name_en": "Lease liabilities",
+      "aliases_en": [
+        "Lease liabilities"
+      ],
+      "description": "IFRS 16 lease liabilities of the bank, total current and non-current amount when no split is targeted.",
+      "hint": "Use the bank statement of financial position or lease note. Extract total lease liabilities; do not use right-of-use assets or lease expense.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "point",
+      "formula_default_abs_behavior": true
+    },
+    {
+      "enum": "COST_TO_INCOME_RATIO",
+      "name_ru": "Коэффициент затрат к доходам",
+      "name_en": "Cost-to-income ratio",
+      "aliases_en": [
+        "CIR",
+        "Cost-to-Income Ratio",
+        "Cost / income ratio"
+      ],
+      "description": "Bank-reported ratio of operating expenses to operating income for the period.",
+      "hint": "Extract only directly reported actual CIR. Do not calculate it from income and expenses or use a target or forecast ratio.",
+      "standard": "IFRS",
+      "value_basis": null,
+      "period_type": "duration",
+      "formula_default_abs_behavior": false,
+      "document_types": [
+        "financial_report",
+        "press_release",
+        "transcript",
+        "presentation",
+        "equity_research"
+      ]
+    }
+  ],
+  "calculated": [
+    {
+      "enum": "DIVIDENDS",
+      "name_ru": "Дивиденды и уплаченные дивиденды",
+      "formula": "DIVIDENDS_SHAREHOLDERS + DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+      "deps": [
+        "DIVIDENDS_SHAREHOLDERS",
+        "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS"
+      ]
+    },
+    {
+      "enum": "NET_INTEREST_PAID",
+      "name_ru": "Чистые уплаченные проценты",
+      "formula": "INTEREST_PAID – INTEREST_RECEIVED",
+      "deps": [
+        "INTEREST_PAID",
+        "INTEREST_RECEIVED"
+      ]
+    },
+    {
+      "enum": "ROE",
+      "name_ru": "Рентабельность собственного капитала",
+      "formula": "NET_INCOME / AVG (TOTAL_EQUITY)",
+      "deps": [
+        "NET_INCOME",
+        "TOTAL_EQUITY"
+      ]
+    },
+    {
+      "enum": "TAX_EXPENDITURE",
+      "name_ru": "Общий расход по налогу",
+      "formula": "EBT - NET_INCOME",
+      "deps": [
+        "EBT",
+        "NET_INCOME"
+      ]
+    },
+    {
+      "enum": "ORGANIC_NET_INCOME",
+      "name_ru": "Органическая чистая прибыль",
+      "formula": "(NET_INTEREST_INCOME + NET_COMMISSION_INCOME - TOTAL_CREDIT_ALLOWANCE - OPERATING_EXPENSES_BANKS) * 0,75",
+      "deps": [
+        "NET_INTEREST_INCOME",
+        "NET_COMMISSION_INCOME",
+        "TOTAL_CREDIT_ALLOWANCE",
+        "OPERATING_EXPENSES_BANKS"
+      ]
+    },
+    {
+      "enum": "NON_REGULAR_NET_INCOME",
+      "name_ru": "Нерегулярная чистая прибыль",
+      "formula": "NET_INCOME - ORGANIC_NET_INCOME - DEFERRED_TAX_ASSETS",
+      "deps": [
+        "NET_INCOME",
+        "ORGANIC_NET_INCOME",
+        "DEFERRED_TAX_ASSETS"
+      ]
+    },
+    {
+      "enum": "OPERATING_INCOME_CIR",
+      "name_ru": "Операционный доход, рассчитанный через CIR",
+      "formula": "OPERATING_EXPENSES_BANKS / COST_TO_INCOME_RATIO",
+      "deps": [
+        "OPERATING_EXPENSES_BANKS",
+        "COST_TO_INCOME_RATIO"
+      ]
+    },
+    {
+      "enum": "EXTREMELY_LIQUID_ASSETS",
+      "name_ru": "Высоколиквидные активы",
+      "formula": "CASH_EQUIVALENTS + INTERBANK_DEPOSITS",
+      "deps": [
+        "CASH_EQUIVALENTS",
+        "INTERBANK_DEPOSITS"
+      ]
+    },
+    {
+      "enum": "NET_OTHER_ASSETS",
+      "name_ru": "Чистые прочие активы",
+      "formula": "OTHER_ASSETS - TOTAL_CREDIT_ALLOWANCE",
+      "deps": [
+        "OTHER_ASSETS",
+        "TOTAL_CREDIT_ALLOWANCE"
+      ]
+    },
+    {
+      "enum": "OTHER_OTHER_ASSETS",
+      "name_ru": "Прочие нефинансовые активы",
+      "formula": "NET_OTHER_ASSETS - PPE - INTANGIBLE_ASSETS - TOTAL_ASSOCIATE_INVESTMENTS",
+      "deps": [
+        "NET_OTHER_ASSETS",
+        "PPE",
+        "INTANGIBLE_ASSETS",
+        "TOTAL_ASSOCIATE_INVESTMENTS"
+      ]
+    },
+    {
+      "enum": "NON_CONSUMER_DEPOSITS",
+      "name_ru": "Средства Юридических лиц",
+      "formula": "CORPORATE_DEPOSITS + GOVERNMENTAL_DEPOSITS",
+      "deps": [
+        "CORPORATE_DEPOSITS",
+        "GOVERNMENTAL_DEPOSITS"
+      ]
+    },
+    {
+      "enum": "TOTAL_LIABILITIES",
+      "name_ru": "Итого обязательства",
+      "formula": "TOTAL_ASSETS - TOTAL_EQUITY",
+      "deps": [
+        "TOTAL_ASSETS",
+        "TOTAL_EQUITY"
+      ]
+    },
+    {
+      "enum": "NET_OTHER_LIABILITIES",
+      "name_ru": "Чистые прочие обязательства",
+      "formula": "OTHER_LIABILITIES - JUNIOR_DEBT",
+      "deps": [
+        "OTHER_LIABILITIES",
+        "JUNIOR_DEBT"
+      ]
+    },
+    {
+      "enum": "CORPORATE_LOANS_TO_DEPOSITS_RATIO",
+      "name_ru": "Отношение кредитов к Депозитам (Юр. лица)",
+      "formula": "CORPORATE_LOANS  / NON_CONSUMER_DEPOSITS * 100",
+      "deps": [
+        "CORPORATE_LOANS",
+        "NON_CONSUMER_DEPOSITS"
+      ]
+    },
+    {
+      "enum": "LOANS_TO_DEPOSITS",
+      "name_ru": "Отношение кредитов к Депозитам",
+      "formula": "TOTAL_LOANS_TO_CLIENTS / CLIENT_DEPOSITS",
+      "deps": [
+        "TOTAL_LOANS_TO_CLIENTS",
+        "CLIENT_DEPOSITS"
+      ]
+    },
+    {
+      "enum": "DIVIDEND_PAYOUT_RATIO",
+      "name_ru": "Коэффициент выплаты дивидендов",
+      "formula": "DIVIDENDS / NET_INCOME",
+      "deps": [
+        "DIVIDENDS",
+        "NET_INCOME"
+      ]
+    },
+    {
+      "enum": "NET_INSURANCE_INCOME",
+      "name_ru": "Чистый страховой доход",
+      "formula": "INSURANCE_INCOME - INSURANCE_EXPENSE",
+      "deps": [
+        "INSURANCE_INCOME",
+        "INSURANCE_EXPENSE"
+      ]
+    },
+    {
+      "enum": "COST_TO_INCOME_RATIO",
+      "name_ru": "Соотношение затрат и расходов",
+      "formula": "OPERATING_INCOME_BANKS / OPERATING_EXPENSES_BANKS",
+      "deps": [
+        "OPERATING_INCOME_BANKS",
+        "OPERATING_EXPENSES_BANKS"
+      ]
+    },
+    {
+      "enum": "COST_OF_RISK_GENERAL",
+      "name_ru": "Стоимость риска (CoR)",
+      "formula": "ABS(CHANGE_IN_EXPECTED_CREDIT_LOSSES) / AVG(TOTAL_LOANS_TO_CLIENTS)",
+      "deps": [
+        "CHANGE_IN_EXPECTED_CREDIT_LOSSES",
+        "TOTAL_LOANS_TO_CLIENTS"
+      ]
+    },
+    {
+      "enum": "INTEREST_EARNING_ASSETS",
+      "name_ru": "Процентные активы",
+      "formula": "TOTAL_LOANS_TO_CLIENTS + SECURITIES_ASSETS + INTERBANK_DEPOSITS",
+      "deps": [
+        "TOTAL_LOANS_TO_CLIENTS",
+        "SECURITIES_ASSETS",
+        "INTERBANK_DEPOSITS"
+      ]
+    },
+    {
+      "enum": "INTEREST_BEARING_LIABILITIES",
+      "name_ru": "Процентные обязательства",
+      "formula": "CLIENT_DEPOSITS + INTERBANK_LOANS + DEBT_SECURITIES_ISSUED + FUNDS_FROM_CENTRAL_BANK + JUNIOR_DEBT",
+      "deps": [
+        "CLIENT_DEPOSITS",
+        "INTERBANK_LOANS",
+        "DEBT_SECURITIES_ISSUED",
+        "FUNDS_FROM_CENTRAL_BANK",
+        "JUNIOR_DEBT"
+      ]
+    },
+    {
+      "enum": "NET_INTEREST_MARGIN",
+      "name_ru": "Чистая процентная маржа (NIM)",
+      "formula": "NET_INTEREST_INCOME / AVG (INTEREST_EARNING_ASSETS)",
+      "deps": [
+        "NET_INTEREST_INCOME",
+        "INTEREST_EARNING_ASSETS"
+      ]
+    },
+    {
+      "enum": "COST_TO_ASSETS",
+      "name_ru": "Затраты к активам",
+      "formula": "OPERATING_EXPENSES_BANKS / AVG(TOTAL_ASSETS)",
+      "deps": [
+        "OPERATING_EXPENSES_BANKS",
+        "TOTAL_ASSETS"
+      ]
+    },
+    {
+      "enum": "STAGE3_RATIO",
+      "name_ru": "Доля Stage 3 (proxy NPL)",
+      "formula": "LOANS_STAGE3_GROSS / TOTAL_LOANS_TO_CLIENTS",
+      "deps": [
+        "LOANS_STAGE3_GROSS",
+        "TOTAL_LOANS_TO_CLIENTS"
+      ]
+    },
+    {
+      "enum": "STAGE3_COVERAGE",
+      "name_ru": "Покрытие Stage 3 резервами",
+      "formula": "ECL_ALLOWANCE_STAGE3 / LOANS_STAGE3_GROSS",
+      "deps": [
+        "ECL_ALLOWANCE_STAGE3",
+        "LOANS_STAGE3_GROSS"
+      ]
+    },
+    {
+      "enum": "RETAIL_DEPOSIT_SHARE",
+      "name_ru": "Доля розничных депозитов",
+      "formula": "INDIVIDUALS_DEPOSITS / (INDIVIDUALS_DEPOSITS + CORPORATE_DEPOSITS)",
+      "deps": [
+        "INDIVIDUALS_DEPOSITS",
+        "CORPORATE_DEPOSITS"
+      ]
+    },
+    {
+      "enum": "RWA_DENSITY",
+      "name_ru": "Плотность RWA",
+      "formula": "RISK_WEIGHTED_ASSETS / TOTAL_ASSETS",
+      "deps": [
+        "RISK_WEIGHTED_ASSETS",
+        "TOTAL_ASSETS"
+      ]
+    },
+    {
+      "enum": "NET_COMMISSION_INCOME",
+      "name_ru": "Чистый комиссионный доход",
+      "formula": "FEE_AND_COMMISSION_INCOME - FEE_AND_COMMISSION_EXPENSE",
+      "deps": [
+        "FEE_AND_COMMISSION_INCOME",
+        "FEE_AND_COMMISSION_EXPENSE"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+"""Vendored benchmark snapshot namespace."""
