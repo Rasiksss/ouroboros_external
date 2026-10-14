@@ -82,6 +82,19 @@ describe("DynamicRunTraceView", () => {
     expect(html).not.toContain("data-move-goal");
   });
 
+  it("renders a persisted legacy move without goals without losing its history", () => {
+    const trace = sampleTrace();
+    const legacy = { ...trace.moves[0], goals: undefined };
+    const persisted = JSON.parse(JSON.stringify({ moves: [legacy, trace.moves[1]] })) as DynamicTrace;
+
+    const html = render(persisted);
+
+    expect(html).toContain("получить ряд Brent");
+    expect(html).toContain("сопоставить ряды");
+    expect(html).toContain("Попытка 2");
+    expect(html).not.toContain("data-move-goal");
+  });
+
   it("shows the query of a web.search step and the reason when the search is switched off", () => {
     // Форма шага — та, что шлёт backend (tests/dynamic_run/test_web_search_review.py,
     // test_the_move_event_of_a_search_step_carries_the_query): запрос едет в concept.

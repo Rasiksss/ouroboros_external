@@ -128,7 +128,7 @@ function MoveCard({
       {item.objective ? <div className="mt-1.5 text-[13px] font-medium">{item.objective}</div> : null}
       {item.reason ? <div className="mt-0.5 text-[12px] text-[var(--color-neutral-600)]">{item.reason}</div> : null}
 
-      {item.goals.length ? (
+      {item.goals?.length ? (
         <ul className="mt-2 list-disc pl-5 text-[12px]">
           {item.goals.map((part) => (
             <li key={part.goal_ref} data-move-goal={part.goal_ref}>
