@@ -63,7 +63,7 @@ TOOLS = (REPO / "src" / "finengine" / "llm" / "tools.py").read_text(encoding="ut
 STATION = (REPO / "station-skills" / "aifa-analyze" / "scripts" / "analyze.py").read_text(
     encoding="utf-8")
 RUN = (REPO / "src" / "finengine" / "skills" / "analysis" / "run.py").read_text(encoding="utf-8")
-CARD_TSX = (REPO / "web" / "src" / "components" / "analysis-card.tsx").read_text(encoding="utf-8")
+CARD_TSX = (REPO.parent / "web" / "src" / "components" / "analysis-card.tsx").read_text(encoding="utf-8")
 
 
 # ── Выдача поисковика: две годные находки и три калеки ──────────────────────

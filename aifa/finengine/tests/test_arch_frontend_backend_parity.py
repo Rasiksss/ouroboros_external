@@ -39,7 +39,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MAIN_PY = ROOT / "src" / "finengine" / "api" / "main.py"
-PREFS_TS = ROOT / "web" / "src" / "lib" / "prefs.ts"
+PREFS_TS = ROOT.parent / "web" / "src" / "lib" / "prefs.ts"
 
 # Литералы, которые бэкенд сравнивает с arch, но которые фронт слать НЕ обязан.
 # "aifa" — историческое написание, оставлено в бэке для старых сохранённых

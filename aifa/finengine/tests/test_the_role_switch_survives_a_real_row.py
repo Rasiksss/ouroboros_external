@@ -43,7 +43,7 @@ from finengine.api import station_turn
 from finengine.api.main import MetricsExportRow, MetricsRoleFormatRequest
 
 ROOT = Path(__file__).resolve().parents[1]
-PANE = ROOT / "web" / "src" / "components" / "workspace" / "panes" / "extracted-pane.tsx"
+PANE = ROOT.parent / "web" / "src" / "components" / "workspace" / "panes" / "extracted-pane.tsx"
 
 # Событие движка ровно той формы, что приезжает со станции: пустые разрезы —
 # null, а не пустая строка. Так их пишет `two_stage_extractor`, так они лежат

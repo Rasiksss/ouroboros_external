@@ -25,7 +25,7 @@ from pathlib import Path
 
 from finengine.llm.tools import REGISTRY
 
-LABELS = Path(__file__).resolve().parents[1] / "web" / "src" / "lib" / "tool-labels.ts"
+LABELS = Path(__file__).resolve().parents[2] / "web" / "src" / "lib" / "tool-labels.ts"
 
 
 def _labelled() -> set[str]:

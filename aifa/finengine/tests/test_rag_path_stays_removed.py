@@ -46,7 +46,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # когда код переедет в подмодуль, — молча и зелёным.
 EXTRACTOR = ROOT / "src" / "finengine" / "skills" / "bulk_extractor"
 API = ROOT / "src" / "finengine" / "api" / "main.py"
-PREFS = ROOT / "web" / "src" / "lib" / "prefs.ts"
+PREFS = ROOT.parent / "web" / "src" / "lib" / "prefs.ts"
 
 REMOVED_DICTS = ("METRIC_ALIASES_EXTRA", "METRIC_EXPANSION_ALIASES", "METRIC_PROMPT_HINTS")
 REMOVED_FUNCS = (

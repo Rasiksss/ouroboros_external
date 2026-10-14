@@ -33,8 +33,8 @@ TURN = (REPO / "src" / "finengine" / "api" / "station_turn.py").read_text(encodi
 DRIVER = (REPO / "src" / "finengine" / "skills" / "station_driver.py").read_text(encoding="utf-8")
 STATION = (REPO / "station-skills" / "aifa-extract" / "scripts" / "extract.py").read_text(
     encoding="utf-8")
-PROJECTS_TS = (REPO / "web" / "src" / "lib" / "projects.ts").read_text(encoding="utf-8")
-API_TS = (REPO / "web" / "src" / "lib" / "api.ts").read_text(encoding="utf-8")
+PROJECTS_TS = (REPO.parent / "web" / "src" / "lib" / "projects.ts").read_text(encoding="utf-8")
+API_TS = (REPO.parent / "web" / "src" / "lib" / "api.ts").read_text(encoding="utf-8")
 
 
 def _cell(profile_id: str) -> tuple[set[str], set[str]]:
