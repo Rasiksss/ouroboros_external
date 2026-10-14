@@ -11,7 +11,7 @@ import { applyChatEvent, resetForReplay, type TextMessage } from "@/lib/projects
 // Кадры — настоящий выход backend (`test_workspace_event_contract.py`), с настоящими временами
 // в `node_run`: так идёт каждая перезагрузка страницы во время прогона и каждый обрыв связи.
 const FRAMES = readFileSync(
-  resolve(process.cwd(), "..", "tests", "dynamic_run", "fixtures", "sse", "workspace-wire.json"), "utf8",
+  resolve(process.cwd(), "..", "finengine", "tests", "dynamic_run", "fixtures", "sse", "workspace-wire.json"), "utf8",
 );
 
 async function unwrap(): Promise<ChatStreamEvent[]> {

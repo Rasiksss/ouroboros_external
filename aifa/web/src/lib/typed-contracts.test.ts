@@ -80,7 +80,7 @@ describe("typed result integration", () => {
 
   it("does not paint normal empty reads red in the chat plan island", () => {
     const events = JSON.parse(fs.readFileSync(
-      path.resolve(process.cwd(), "..", "tests", "dynamic_run", "fixtures", "sse", "empty-read-then-give-up.json"),
+      path.resolve(process.cwd(), "..", "finengine", "tests", "dynamic_run", "fixtures", "sse", "empty-read-then-give-up.json"),
       "utf8",
     )) as ChatStreamEvent[];
     const message = events.slice(0, 23).reduce((current, event) => applyChatEvent(current, event), assistant());

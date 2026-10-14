@@ -53,7 +53,7 @@ type SignatureCase = { name: string; row: Partial<MetricRow>; expect: string };
 const FIXTURE = JSON.parse(
   readFileSync(
     fileURLToPath(
-      new URL("../../../../../tests/fixtures/calculation_signature.json", import.meta.url),
+      new URL("../../../../../finengine/tests/fixtures/calculation_signature.json", import.meta.url),
     ),
     "utf8",
   ),

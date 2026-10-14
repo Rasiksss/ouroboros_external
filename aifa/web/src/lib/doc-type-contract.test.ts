@@ -16,7 +16,7 @@ import { DOC_TYPES } from "./api";
  * недостающий = вид, который выставить нечем.
  */
 const PY = readFileSync(
-  fileURLToPath(new URL("../../../src/finengine/models/document.py", import.meta.url)),
+  fileURLToPath(new URL("../../../finengine/src/finengine/models/document.py", import.meta.url)),
   "utf8",
 );
 

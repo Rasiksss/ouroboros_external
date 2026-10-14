@@ -9,7 +9,7 @@ import { nodeDisplayStatus } from "./plan-graph-progress";
 import { applyChatEvent, resetForReplay, type TextMessage } from "./projects";
 
 const fixturePath = (name: string) => fileURLToPath(
-  new URL(`../../../tests/dynamic_run/fixtures/sse/${name}`, import.meta.url),
+  new URL(`../../../finengine/tests/dynamic_run/fixtures/sse/${name}`, import.meta.url),
 );
 
 const events = (name: string): unknown[] => JSON.parse(readFileSync(fixturePath(name), "utf8"));

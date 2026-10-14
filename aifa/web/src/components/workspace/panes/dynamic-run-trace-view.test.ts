@@ -178,7 +178,7 @@ describe("DynamicRunTraceView", () => {
 
   it("part 14: the entry card of the shared backend stream names why the planner took over, and is not a move", () => {
     const events: ChatStreamEvent[] = JSON.parse(readFileSync(
-      resolve(process.cwd(), "..", "tests", "dynamic_run", "fixtures", "sse", "execution-failure-then-cycle.json"), "utf8",
+      resolve(process.cwd(), "..", "finengine", "tests", "dynamic_run", "fixtures", "sse", "execution-failure-then-cycle.json"), "utf8",
     ));
     const trace = events.reduce<DynamicTrace | undefined>(
       (current, event) => (event.type === "dynamic_move" ? applyDynamicMove(current, event) : current), undefined,

@@ -23,7 +23,7 @@ import {
 import { nodeDisplayStatus, nodeStatusLabel, summarizeProgress } from "@/lib/plan-graph-progress";
 
 function fixture(name: string): ChatStreamEvent[] {
-  return JSON.parse(readFileSync(resolve(process.cwd(), "..", "tests", "dynamic_run", "fixtures", "sse", name), "utf8"));
+  return JSON.parse(readFileSync(resolve(process.cwd(), "..", "finengine", "tests", "dynamic_run", "fixtures", "sse", name), "utf8"));
 }
 
 function message(): TextMessage {
