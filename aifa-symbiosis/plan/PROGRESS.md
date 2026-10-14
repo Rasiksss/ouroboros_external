@@ -20,7 +20,7 @@
 
 | № | Шаг | Реализация | Ревью | UI-тест | Коммиты (база..конец) |
 |---|---|---|---|---|---|
-| 01 | Единый репозиторий и перенос AIFA | — | — | — | |
+| 01 | Единый репозиторий и перенос AIFA | остановлено (P8) | — | — | `17b3f93..sym/01-repozitoriy` |
 | 02 | Каркас проверок, ворота, правила | — | — | — | |
 | 03 | Образы и compose dev | — | — | — | |
 | 04 | Контур ouroboros на dev | — | — | — | |
@@ -77,7 +77,67 @@
 - Отчёт: reviews/NN.md | uitest/NN.md                 ← ревью / UI-тест
 ```
 
-_(записей пока нет)_
+### 01 · реализация · 14.10.2026 · Sonnet 5.5 (High)
+- Коммиты: `17b3f93..sym/01-repozitoriy` (ветка от `dev`; тег `base/ouroboros-1.5.1` → `17b3f93`, локально):
+  1. `b08d27d` — документы `aifa-symbiosis/` как есть;
+  2. `a029c90` — перенос AIFA снимком из `f4a12fc6` (1248 файлов; сообщение называет исходник и пути);
+  3. `641e660` — пути 8 фронтенд-тестов под `aifa/finengine` (по строке на файл);
+  4. `a27b478` — `aifa/finengine/uv.lock`.
+  Запись `PROGRESS.md` — отдельным коммитом после них.
+- Сделано: проверено стартовое состояние (origin, `dev` = `17b3f93`, `origin/main` = `0e327f1` по
+  `ls-remote`, HEAD исходника = `f4a12fc6`); перенос по списку шага из `git archive f4a12fc6`
+  (не из рабочего дерева); раскладка: `src/ tests/ pyproject.toml` → `aifa/finengine/`, `web/` →
+  `aifa/web/`, 7 документов плана 34 и правил → `aifa/finengine/docs/`. Снимок побайтно равен
+  архиву (`diff -r`, и коммит против архива). `data/` в `f4a12fc6` не отслеживается — переносить
+  нечего. Поиск секретов по переносимому дереву: пуст (шаблоны ключей/токенов/PEM, файлов `.env*`
+  нет; совпадения — только имена настроек в коде).
+- Правки путей (все — тесты фронтенда, по одной строке; логика не менялась):
+  - `aifa/web/src/lib/assistant-answer-layout.test.ts:12` — `../../../tests/…` → `../../../finengine/tests/…`
+  - `aifa/web/src/lib/doc-type-contract.test.ts:19` — `../../../src/finengine/…` → `../../../finengine/src/finengine/…`
+  - `aifa/web/src/lib/typed-contracts.test.ts:83` — `"..", "tests"` → `"..", "finengine", "tests"`
+  - `aifa/web/src/lib/run-journal-replay.test.ts:14` — то же
+  - `aifa/web/src/lib/execution-graphs.test.ts:26` — то же
+  - `aifa/web/src/components/workspace/panes/plan-graph-workspace.test.ts:55` — то же
+  - `aifa/web/src/components/workspace/panes/dynamic-run-trace-view.test.ts:181` — то же
+  - `aifa/web/src/components/workspace/panes/calculation-hint.test.ts:56` — `…/tests/fixtures/…` → `…/finengine/tests/fixtures/…`
+  Python-тесты службы не правились — см. P8.
+- Тесты: новых нет (шаг структурный); контракты/проверки симбиоза ещё не заводились (шаг 02).
+- Базовая линия (Windows, Python 3.12.12, свежий замок; все прогоны — `pytest tests -q`):
+
+  | Набор | Результат | Замечание |
+  |---|---|---|
+  | Служба, эталон: **полный корень AIFA** `f4a12fc6`, собранный в скретчпаде (с `station-skills/`, `deploy/`, `benchmarks/`, `web/`) | 99 failed, 11 errors, 4594 passed, 154 skipped, 6 xfailed | красные — Windows/окружение; три `test_ingress_v2.py` на месте (`PROJECTS_STATE.md` §1.6) |
+  | Служба, `aifa/finengine` после переноса | 519 failed, 44 errors, 3513 passed, 193 skipped, 3 xfailed | **не равна эталону**: +474 строк падений, все от путей, которых в раскладке нет — P8 |
+  | Служба, проба: перенесённое + `station-skills/`, `deploy/`, `agent-workspace/`, `benchmarks/` (только 87 файлов, где было +падение) | 67 failed, 2 errors, 1235 passed | из 69 строк 59 есть в эталоне; **10 новых** — тесты читают `web/…` и корневой `CLAUDE.md` AIFA |
+  | Фронтенд, эталон (корень AIFA) | 431/431 (45 файлов) | |
+  | Фронтенд, `aifa/web` до правок путей | 366 passed, 45 failed (8 файлов) | пути `../tests`, `../../../src` |
+  | Фронтенд, `aifa/web` после правок путей | **431/431** (45 файлов) | = эталону |
+  | Ворота ouroboros `./scripts/check.sh --fast` | **не стартуют** на `ruff format`: `uv run` не создаёт корневое окружение — `nexus.genai.int` недоступен (DNS) | см. P9 |
+
+  Эталон «службы» снят на реплике, потому что в `Krab_ext` запрещено писать и запускать тесты;
+  реплика — тот же `git archive f4a12fc6` (без LFS-содержимого `benchmarks/`).
+- Что и почему:
+  - **Коммиты переноса без преобразования строк** (`core.autocrlf=false`): у `autocrlf=true` на
+    этой машине фикстуры `tests/golden/**/cases/*.json` с `eol=crlf` (в манифесте C0 — хэши
+    CRLF-байтов) были бы нормализованы. Архив берётся с `core.autocrlf=false`, поэтому эти файлы
+    лежат в коммите в CRLF, как их читали тесты AIFA (P10).
+  - **Замок службы — без конфигурации корня.** Корневой `pyproject.toml` ouroboros содержит
+    `[tool.uv]` с индексом nexus; `uv lock --project aifa/finengine` из корня его подхватывает.
+    Замок разрешён с `--no-config` по публичному PyPI (ADR-0020: образы на публичной базе). `dev`
+    у AIFA — `optional-dependencies`, поэтому `uv sync` для тестов — с `--extra dev`.
+    `mmar-carl` из git закреплён в замке коммитом `9c2ac0d4…`.
+  - **Не переносил недостающие каталоги сам**: раскладка `ARCHITECTURE.md` §3 и ADR-0019 — закон
+    шага; добавление каталогов — решение владельца (ADR). Варианты — в P8.
+  - **Ворота ouroboros — справочно** (не заменяют `check.sh`): `ruff 0.17.0` из окружения службы,
+    версия не как в замке ouroboros. `ruff format --check .` из корня: 726 файлов `aifa/` «would be
+    reformatted», 1443 файла ouroboros — чисто; `ruff check aifa`: 19 находок. У AIFA формат-ворот
+    не было. Корневой `pyproject.toml` не правим (F1) — ворота шага 02 должны уметь обходить `aifa/`.
+- Не сделано: сравнение тестов службы с эталоном «= эталону» → P8; запуск ворот ouroboros
+  (нет доступа к nexus) → P9. Push, `aifa/CLAUDE.md`, проверки F1/F2, Dockerfile — вне шага.
+- Проверки готовности: тег = `17b3f93aa0c7…` ✔; `git diff --name-only base/ouroboros-1.5.1..HEAD`
+  — только `aifa/`, `aifa-symbiosis/` ✔; `git log origin/dev..HEAD` — только коммиты шага, тегов
+  на origin нет, `origin/main` не тронут ✔; снимок = архиву ✔; секретов нет ✔; поведение AIFA —
+  фронтенд ✔, служба ✘ (P8).
 
 ---
 
@@ -92,6 +152,10 @@ _(записей пока нет)_
 | P5 | 04 | Память dev при новом контуре рядом со старым AIFA (~3,3 ГБ свободно 13.10) | не мерили | замер в шаге 04 | открыто |
 | P6 | 06 | Принимает ли нынешний AIFA XLS/DOC (если да — ожидаемое различие) | не смотрели `ingestion/` | шаг 06 | открыто |
 | P7 | 01 | Экран старого AIFA глазами не проверен с части 15 — нужна QA-учётка | `FINENGINE_ADMIN_*` на dev даёт 401 | предусловие §2 | открыто |
+| P8 | 01 | Тесты службы в `aifa/finengine` падают по путям: ожидалось (ARCHITECTURE §3, ADR-0019) — перенос `src/ tests/ pyproject.toml web/ docs`, результат «= базовой линии AIFA»; в коде (`tests/**`, падают 87 файлов) тесты читают `station-skills/` (напр. `aifa-analyze/scripts/analyze.py`), `benchmarks/` (`snap_extract_prompt.py`), `deploy/`, `agent-workspace/`, `web/src/…` и корневой `CLAUDE.md`. Каталогов нет ни в списке переноса, ни в раскладке `aifa/` → +474 падений к 99+11 эталона (519 failed, 44 errors). Варианты: (а) ADR: перенести `station-skills/`, `agent-workspace/`, `benchmarks/` (`station-skills` ≈1 МиБ, `benchmarks` ≈4,4 МиБ, `agent-workspace` — 13 файлов) в `aifa/finengine/` с той же раскладкой, `web/` и `CLAUDE.md` — правкой путей в ~10 тестах (`REPO/"web"` → `aifa/web`); (б) ADR: решить по каждому каталогу судьбу — `deploy/` уходит в шаг 03 (`aifa/deploy/dev/`) вместе с правкой путей тестов, `station-skills/`/`workstation-ext/` — к слою Workstation (шаг 03–04), `benchmarks/` — не нужен продукту, тесты `test_extract_prompt_golden`, `test_benchmark_uses_live_path` и др. помечаются известными красными; (в) оставить красные до шага 03 и сравнивать с эталоном по файлам, названным в пробе (87 файлов, список в записи шага 01) | выбор раскладки — архитектурный (ADR), не промпта шага | владелец: вариант и ADR; после — донести каталоги отдельным структурным коммитом и повторить прогон | открыто |
+| P9 | 01 | Ворота ouroboros `./scripts/check.sh --fast` не стартуют на этой машине: `uv run` берёт `nexus.genai.int` из `[tool.uv]` корня и из замка (`boto3` и др. — DNS не разрешается). Кроме того, `ruff format --check .` из корня захватит `aifa/` (726 файлов без формата ouroboros) | корпоративный индекс недоступен вне контура; правка корневого `pyproject.toml` запрещена (F1) | шаг 02: ворота симбиоза вызывают ouroboros с явными путями/`--exclude aifa` и описывают, как поднять окружение без nexus (или давать ворота только на dev/в контуре) | открыто |
+| P10 | 01 | `.gitattributes` AIFA (`*.sh eol=lf`, `tests/golden/**/cases/*.json eol=crlf`, `*.pdf`/benchmarks в LFS) не перенесён; корневого `.gitattributes` в репозитории нет, `autocrlf=true` на Windows нормализует CRLF при `git add` изменённого файла (в манифесте C0 — хэши CRLF-байтов). `tests/golden/security/files/corrupted.pdf` в источнике — указатель LFS (129 Б), в архив попало содержимое из LFS | перенос файла `.gitattributes` не в списке шага | шаг 02: предложить `aifa/finengine/.gitattributes` (или ADR) с `-text` для CRLF-фикстур и `eol=lf` для `*.sh` | открыто |
+| P11 | 01 | В `aifa/finengine/` нет `.gitignore`: `data/` (создаётся тестами и стендом, 154 файла после прогона) в `.gitignore` AIFA был закрыт, а корневой ouroboros его не закрывает; после прогона тестов дерево грязное (удалил вручную) | `.gitignore` AIFA не в списке переноса | шаг 02: `aifa/finengine/.gitignore` с `data/` и исключением `src/finengine/data/registry_layers/*.json` | открыто |
 
 ---
 
