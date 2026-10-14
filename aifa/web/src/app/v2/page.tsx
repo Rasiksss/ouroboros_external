@@ -36,7 +36,7 @@ import { PlanIsland } from "@/components/workspace/panes/plan-island";
 import { DynamicRunTraceView } from "@/components/workspace/panes/dynamic-run-trace-view";
 import { PlanGraphWorkspace } from "@/components/workspace/panes/plan-graph-workspace";
 import {
-  executionGraphsOf,
+  executionGraphsForDisplay,
   graphMessageForWorkspace,
   graphOwnerMessage,
   resolveGraphView,
@@ -549,9 +549,10 @@ function WorkArea({ project }: { project: Project | null }) {
   }, [project?.messages, project?.activeChatRun?.assistant_id]);
 
   const graphMsg = graphOwnerMessage(traceMsg, planGraphMsg);
+  const activeGraphMessageId = project?.activeChatRun?.assistant_id ?? null;
   const executionGraphs = useMemo(
-    () => graphMsg ? executionGraphsOf(graphMsg) : [],
-    [graphMsg],
+    () => graphMsg ? executionGraphsForDisplay(graphMsg, graphMsg.id === activeGraphMessageId) : [],
+    [graphMsg, activeGraphMessageId],
   );
   const { selected: selectedGraph, moveGraphs, graphCounts } = resolveGraphView(
     executionGraphs, graphMsg?.id, graphSelection,

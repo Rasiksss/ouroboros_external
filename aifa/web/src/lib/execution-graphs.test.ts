@@ -7,6 +7,7 @@ import {
   MAX_EXECUTION_GRAPHS_PER_MESSAGE,
   NODE_RUN_HANDLED_FIELDS,
   NODE_RUN_IGNORED_FIELDS,
+  executionGraphsForDisplay,
   executionGraphsOf,
   graphMessageForWorkspace,
   graphOwnerMessage,
@@ -20,7 +21,7 @@ import {
   type Project,
   type TextMessage,
 } from "@/lib/projects";
-import { nodeDisplayStatus, nodeStatusLabel, summarizeProgress } from "@/lib/plan-graph-progress";
+import { nodeDisplayStatus, nodeStatusLabel, nodeToken, summarizeProgress } from "@/lib/plan-graph-progress";
 
 function fixture(name: string): ChatStreamEvent[] {
   return JSON.parse(readFileSync(resolve(process.cwd(), "..", "finengine", "tests", "dynamic_run", "fixtures", "sse", name), "utf8"));
@@ -140,6 +141,35 @@ describe("execution graphs by planner move", () => {
     const graph = executionGraphsOf(persisted)[0];
 
     expect(graph.terminal?.status).toBe("failed");
+  });
+
+  it("closes an inactive persisted graph whose historical done event was not saved", () => {
+    const source = fixture("workspace-cycle.json");
+    const persisted = replay(source.slice(0, 2));
+    const graph = executionGraphsOf(persisted)[0];
+    const completed = graph.graph.nodes.find((node) => nodeToken(node.node_key) !== nodeToken(graph.graph.root))!;
+    const key = nodeToken(completed.node_key);
+    persisted.planGraphs = [{
+      ...graph,
+      nodeRuns: {
+        [key]: {
+          node_key: completed.node_key,
+          status: "succeeded",
+          attempt: 1,
+          produced_evidence_ids: ["evidence-1"],
+        },
+      },
+    }];
+
+    expect(executionGraphsForDisplay(persisted, true)[0].terminal).toBeUndefined();
+
+    const closed = executionGraphsForDisplay(persisted, false)[0];
+    const summary = summarizeProgress(closed.graph, closed.nodeRuns, {
+      ...closed.terminal!, startedAtMs: closed.openedAtMs,
+    });
+    expect(closed.terminal?.status).toBe("partial");
+    expect(summary.state).toBe("partial");
+    expect(summary.running).toBe(0);
   });
 
   it("uses the same recorded dev fixtures for target evidence and an empty node", () => {

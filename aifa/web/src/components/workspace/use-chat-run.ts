@@ -697,6 +697,12 @@ export function useChatRun(
               ),
             }));
           } else if (ev.type === "done") {
+            patch(projectId, (p) => ({
+              ...p,
+              messages: p.messages.map((m) =>
+                m.id === assistantId && m.role === "assistant" ? applyChatEvent(m, ev) : m,
+              ),
+            }));
             terminal = true;
             break;
           } else {

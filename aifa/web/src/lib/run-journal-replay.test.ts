@@ -13,6 +13,7 @@ import { applyChatEvent, resetForReplay, type TextMessage } from "@/lib/projects
 const FRAMES = readFileSync(
   resolve(process.cwd(), "..", "finengine", "tests", "dynamic_run", "fixtures", "sse", "workspace-wire.json"), "utf8",
 );
+const RUN_HOOK = readFileSync("src/components/workspace/use-chat-run.ts", "utf8");
 
 async function unwrap(): Promise<ChatStreamEvent[]> {
   const body = (JSON.parse(FRAMES) as unknown[]).map((frame) => `data: ${JSON.stringify(frame)}\n\n`).join("");
@@ -33,6 +34,13 @@ afterEach(() => {
 });
 
 describe("replay of the run journal through the A11 envelope", () => {
+  it("passes done through the message reducer before ending the live stream", () => {
+    const start = RUN_HOOK.indexOf('} else if (ev.type === "done") {');
+    const end = RUN_HOOK.indexOf("} else {", start + 1);
+    expect(start).toBeGreaterThan(-1);
+    expect(RUN_HOOK.slice(start, end)).toContain("applyChatEvent");
+  });
+
   it("unwraps every frame kind the workspace depends on", async () => {
     const events = await unwrap();
 

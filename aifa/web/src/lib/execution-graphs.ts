@@ -107,6 +107,28 @@ export function executionGraphsOf(message: GraphMessage): ExecutionGraph[] {
   }];
 }
 
+function inactiveTerminalStatus(graph: ExecutionGraph): GraphTerminalStatus {
+  const root = graph.nodeRuns[nodeToken(graph.graph.root)];
+  if (root?.status === "succeeded") return "succeeded";
+  if (Object.values(graph.nodeRuns).some((run) => run.status === "failed")) {
+    return "failed";
+  }
+  return "partial";
+}
+
+/** Close legacy persisted graphs only when their owning chat run is no longer active. */
+export function executionGraphsForDisplay(message: GraphMessage, active: boolean): ExecutionGraph[] {
+  const graphs = executionGraphsOf(message);
+  if (active) return graphs;
+  return graphs.map((graph) => graph.terminal ? graph : {
+    ...graph,
+    terminal: {
+      status: inactiveTerminalStatus(graph),
+      atMs: graphFinishedAt(graph.nodeRuns, message.created_at),
+    },
+  });
+}
+
 function graphFinishedAt(runs: Record<string, StoredNodeRun> | undefined, fallback = 0): number {
   return Math.max(
     fallback,

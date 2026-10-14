@@ -17,6 +17,7 @@ import {
   closeAllExecutionGraphs,
   closeExecutionMove,
   executionGraphsOf,
+  executionGraphsForDisplay,
   latestExecutionGraph,
   type ExecutionGraph,
   type GraphTerminalStatus,
@@ -1474,7 +1475,9 @@ export function turnProgress(project: Project | null | undefined): TurnProgress 
 
   // Once NodeRun events exist they are the sole progress contract. Model plan
   // prose remains a compatibility display for old runs only.
-  const progressGraph = graphMsg ? latestExecutionGraph(executionGraphsOf(graphMsg)) : null;
+  const progressGraph = graphMsg
+    ? latestExecutionGraph(executionGraphsForDisplay(graphMsg, graphMsg.id === runningId))
+    : null;
   const graphSteps: PlanStep[] = Object.values(progressGraph?.nodeRuns ?? graphMsg?.nodeRuns ?? {}).map((run) => ({
     title: run.node_key.atom_name,
     status: nodeStepStatus(run, Boolean(progressGraph?.terminal)),
