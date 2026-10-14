@@ -15,8 +15,8 @@ ADR-0019 и `ARCHITECTURE.md` §3 называли для переноса `src/
    `f4a12fc6`, ADR-0031):
    - `station-skills/` — исходники навыков станции, которые читают тесты службы;
    - `agent-workspace/` — рабочая папка агента OpenClaw (13 файлов);
-   - `benchmarks/` — **без файлов, лежащих в Git LFS у AIFA** (196 JSON эталонов в
-     `benchmarks/vendor/tests/test_benchmark/data/golden/*/json/`, 331 МиБ содержимого). Указатели
+   - `benchmarks/` — **без файлов, лежащих в Git LFS у AIFA** (196 файлов — 111 JSON и 85 PDF в
+     `benchmarks/vendor/tests/test_benchmark/data/golden/*/{json,pdf}/`, 331 МиБ содержимого). Указатели
      LFS без LFS в этом репозитории были бы поддельными данными, а 331 МиБ обычным git — отдельное
      решение владельца (`PROGRESS.md` P12).
 2. `web/` остаётся в `aifa/web/` (ADR-0019). Тесты службы, читающие исходники фронтенда, получают
