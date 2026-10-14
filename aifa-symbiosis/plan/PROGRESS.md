@@ -20,7 +20,7 @@
 
 | № | Шаг | Реализация | Ревью | UI-тест | Коммиты (база..конец) |
 |---|---|---|---|---|---|
-| 01 | Единый репозиторий и перенос AIFA | остановлено (P8) | — | — | `17b3f93..sym/01-repozitoriy` |
+| 01 | Единый репозиторий и перенос AIFA | готово (P8 решён ADR-0032; открыты P12, P13) | — | — | `17b3f93..sym/01-repozitoriy` |
 | 02 | Каркас проверок, ворота, правила | — | — | — | |
 | 03 | Образы и compose dev | — | — | — | |
 | 04 | Контур ouroboros на dev | — | — | — | |
@@ -76,6 +76,48 @@
 - Вердикт: …                                         ← ревью / UI-тест
 - Отчёт: reviews/NN.md | uitest/NN.md                 ← ревью / UI-тест
 ```
+
+### 01 · реализация (продолжение: P8, вариант (а)) · 14.10.2026 · Sonnet 5.5 (High)
+- Коммиты (поверх записи ниже; ветка `sym/01-repozitoriy`):
+  1. `4943d9f` — ADR-0032 + `ARCHITECTURE.md` §3 + строка статуса ADR-0019 + указатель ADR (один коммит, F13);
+  2. `5bae248` — структурный перенос `station-skills/`, `agent-workspace/`, `benchmarks/` из `f4a12fc6`
+     в `aifa/finengine/` (314 файлов; побайтно равны архиву, кроме 196 файлов LFS — P12);
+  3. `2b84986` — уточнение состава LFS в ADR-0032;
+  4. `f9b21bd` — 7 строк в 6 Python-тестах (`web/` → `aifa/web`, см. ниже).
+- Решение владельца: «Реализуй вариант а» (P8) → ADR-0032, R4. Что не вошло в вариант (а):
+  `deploy/` (шаг 03), корневой `CLAUDE.md` AIFA (пути, не меняющего смысл проверки, нет), 196 файлов LFS (P12).
+- Правки путей (тесты службы; логика не менялась):
+  - `aifa/finengine/tests/test_arch_frontend_backend_parity.py:42` — `ROOT / "web"` → `ROOT.parent / "web"`
+  - `aifa/finengine/tests/test_every_tool_has_a_human_name.py:28` — `parents[1]` → `parents[2]`
+  - `aifa/finengine/tests/test_external_context_live_path.py:66` — `REPO / "web"` → `REPO.parent / "web"`
+  - `aifa/finengine/tests/test_rag_path_stays_removed.py:49` — `ROOT / "web"` → `ROOT.parent / "web"`
+  - `aifa/finengine/tests/test_role_scope.py:36,37` — `REPO / "web"` → `REPO.parent / "web"` (две строки)
+  - `aifa/finengine/tests/test_the_role_switch_survives_a_real_row.py:46` — `ROOT / "web"` → `ROOT.parent / "web"`
+- Секреты: поиск по новым каталогам пуст (находки — только имена настроек в коде).
+- Базовая линия службы после ADR-0032 (`pytest tests -q`, Windows, Python 3.12.12):
+
+  | Набор | Результат | Замечание |
+  |---|---|---|
+  | Эталон: полный корень `f4a12fc6` (реплика) | 99 failed, 11 errors, 4594 passed | без изменений |
+  | `aifa/finengine` до ADR-0032 | 519 failed, 44 errors, 3513 passed | запись ниже |
+  | `aifa/finengine` после ADR-0032 | **212 failed, 18 errors, 4456 passed**, 165 skipped | +120 строк падений к эталону, 28 файлов; исправленных относительно эталона нет |
+  | Проба: то же + `deploy/` и корневой `CLAUDE.md` из эталона, 28 файлов | 23 failed, 239 passed | **все 23 есть в эталоне; новых красных нет** |
+
+  Вывод: остаток +120 целиком объясняется отсутствием `deploy/` (119 случаев — всё, кроме теста `CLAUDE.md`; закрывается
+  шагом 03 вместе с правкой путей) и корневого `CLAUDE.md` AIFA (`test_claude_md_does_not_invent_
+  faiss_work_that_is_already_done`) — P13. Новых падений вне этих двух причин нет.
+- Фронтенд не менялся с прошлой записи: 431/431 (= эталону).
+- Что и почему:
+  - **Не стал подгонять путь `CLAUDE.md`**: единственный CLAUDE.md рядом — `aifa/web/CLAUDE.md` другого
+    содержания; направить тест на него значило бы сохранить зелёную галочку, потеряв смысл проверки.
+    Тест остаётся известным красным до решения (перенести AIFA-овский файл как справочный текст не в
+    корне `aifa/finengine`, чтобы Claude Code не подгружал его правилами, — решает шаг 02).
+  - **LFS не переносил в обоих видах**: указатели без LFS — поддельные данные; 331 МиБ обычным git —
+    решение владельца (P12). Тесты, читавшие эти файлы, красные и в эталоне: у реплики были указатели.
+  - **Временность**: `station-skills/` и `agent-workspace/` в `aifa/finengine/` — до шага 19 (ADR-0009, F10).
+  - **Вендорная копия**: `benchmarks/vendor/src/finengine/` — копия пакета; проверки F2/F10 шага 02
+    должны её исключать (записано в ADR-0032).
+- Не сделано: P12 (LFS-эталоны), P13 (красные от `deploy/` и `CLAUDE.md`), P9–P11 (шаг 02).
 
 ### 01 · реализация · 14.10.2026 · Sonnet 5.5 (High)
 - Коммиты: `17b3f93..sym/01-repozitoriy` (ветка от `dev`; тег `base/ouroboros-1.5.1` → `17b3f93`, локально):
@@ -152,10 +194,12 @@
 | P5 | 04 | Память dev при новом контуре рядом со старым AIFA (~3,3 ГБ свободно 13.10) | не мерили | замер в шаге 04 | открыто |
 | P6 | 06 | Принимает ли нынешний AIFA XLS/DOC (если да — ожидаемое различие) | не смотрели `ingestion/` | шаг 06 | открыто |
 | P7 | 01 | Экран старого AIFA глазами не проверен с части 15 — нужна QA-учётка | `FINENGINE_ADMIN_*` на dev даёт 401 | предусловие §2 | открыто |
-| P8 | 01 | Тесты службы в `aifa/finengine` падают по путям: ожидалось (ARCHITECTURE §3, ADR-0019) — перенос `src/ tests/ pyproject.toml web/ docs`, результат «= базовой линии AIFA»; в коде (`tests/**`, падают 87 файлов) тесты читают `station-skills/` (напр. `aifa-analyze/scripts/analyze.py`), `benchmarks/` (`snap_extract_prompt.py`), `deploy/`, `agent-workspace/`, `web/src/…` и корневой `CLAUDE.md`. Каталогов нет ни в списке переноса, ни в раскладке `aifa/` → +474 падений к 99+11 эталона (519 failed, 44 errors). Варианты: (а) ADR: перенести `station-skills/`, `agent-workspace/`, `benchmarks/` (`station-skills` ≈1 МиБ, `benchmarks` ≈4,4 МиБ, `agent-workspace` — 13 файлов) в `aifa/finengine/` с той же раскладкой, `web/` и `CLAUDE.md` — правкой путей в ~10 тестах (`REPO/"web"` → `aifa/web`); (б) ADR: решить по каждому каталогу судьбу — `deploy/` уходит в шаг 03 (`aifa/deploy/dev/`) вместе с правкой путей тестов, `station-skills/`/`workstation-ext/` — к слою Workstation (шаг 03–04), `benchmarks/` — не нужен продукту, тесты `test_extract_prompt_golden`, `test_benchmark_uses_live_path` и др. помечаются известными красными; (в) оставить красные до шага 03 и сравнивать с эталоном по файлам, названным в пробе (87 файлов, список в записи шага 01) | выбор раскладки — архитектурный (ADR), не промпта шага | владелец: вариант и ADR; после — донести каталоги отдельным структурным коммитом и повторить прогон | открыто |
+| P8 | 01 | Тесты службы в `aifa/finengine` падают по путям: ожидалось (ARCHITECTURE §3, ADR-0019) — перенос `src/ tests/ pyproject.toml web/ docs`, результат «= базовой линии AIFA»; в коде (`tests/**`, падают 87 файлов) тесты читают `station-skills/` (напр. `aifa-analyze/scripts/analyze.py`), `benchmarks/` (`snap_extract_prompt.py`), `deploy/`, `agent-workspace/`, `web/src/…` и корневой `CLAUDE.md`. Каталогов нет ни в списке переноса, ни в раскладке `aifa/` → +474 падений к 99+11 эталона (519 failed, 44 errors). Варианты: (а) ADR: перенести `station-skills/`, `agent-workspace/`, `benchmarks/` (`station-skills` ≈1 МиБ, `benchmarks` ≈4,4 МиБ, `agent-workspace` — 13 файлов) в `aifa/finengine/` с той же раскладкой, `web/` и `CLAUDE.md` — правкой путей в ~10 тестах (`REPO/"web"` → `aifa/web`); (б) ADR: решить по каждому каталогу судьбу — `deploy/` уходит в шаг 03 (`aifa/deploy/dev/`) вместе с правкой путей тестов, `station-skills/`/`workstation-ext/` — к слою Workstation (шаг 03–04), `benchmarks/` — не нужен продукту, тесты `test_extract_prompt_golden`, `test_benchmark_uses_live_path` и др. помечаются известными красными; (в) оставить красные до шага 03 и сравнивать с эталоном по файлам, названным в пробе (87 файлов, список в записи шага 01) | выбор раскладки — архитектурный (ADR), не промпта шага | владелец: вариант и ADR; после — донести каталоги отдельным структурным коммитом и повторить прогон | решено: R4 (ADR-0032); остаток — P12, P13 |
 | P9 | 01 | Ворота ouroboros `./scripts/check.sh --fast` не стартуют на этой машине: `uv run` берёт `nexus.genai.int` из `[tool.uv]` корня и из замка (`boto3` и др. — DNS не разрешается). Кроме того, `ruff format --check .` из корня захватит `aifa/` (726 файлов без формата ouroboros) | корпоративный индекс недоступен вне контура; правка корневого `pyproject.toml` запрещена (F1) | шаг 02: ворота симбиоза вызывают ouroboros с явными путями/`--exclude aifa` и описывают, как поднять окружение без nexus (или давать ворота только на dev/в контуре) | открыто |
 | P10 | 01 | `.gitattributes` AIFA (`*.sh eol=lf`, `tests/golden/**/cases/*.json eol=crlf`, `*.pdf`/benchmarks в LFS) не перенесён; корневого `.gitattributes` в репозитории нет, `autocrlf=true` на Windows нормализует CRLF при `git add` изменённого файла (в манифесте C0 — хэши CRLF-байтов). `tests/golden/security/files/corrupted.pdf` в источнике — указатель LFS (129 Б), в архив попало содержимое из LFS | перенос файла `.gitattributes` не в списке шага | шаг 02: предложить `aifa/finengine/.gitattributes` (или ADR) с `-text` для CRLF-фикстур и `eol=lf` для `*.sh` | открыто |
 | P11 | 01 | В `aifa/finengine/` нет `.gitignore`: `data/` (создаётся тестами и стендом, 154 файла после прогона) в `.gitignore` AIFA был закрыт, а корневой ouroboros его не закрывает; после прогона тестов дерево грязное (удалил вручную) | `.gitignore` AIFA не в списке переноса | шаг 02: `aifa/finengine/.gitignore` с `data/` и исключением `src/finengine/data/registry_layers/*.json` | открыто |
+| P12 | 01 | 196 файлов Git LFS из `benchmarks/vendor/tests/test_benchmark/data/golden/*/{json,pdf}/` (111 JSON, 85 PDF, 331 МиБ) не перенесены: указатели без LFS в этом репозитории были бы поддельными данными, 331 МиБ обычным git — отдельное решение. Затронуты тесты, читающие эталоны банков/компаний (`test_c0_corpus_integrity`, `test_extract_prompt_golden` и др.): красные и в эталоне (там указатели), но с реальным содержимым могли бы быть зелёными | объём и способ хранения — решение владельца | владелец: (а) включить LFS в `Rasiksss/ouroboros_external` (`aifa/finengine/.gitattributes` + `git lfs push`, содержимое — из локального кэша `Krab_ext/.git/lfs`, 802 МБ); (б) положить обычным git (331 МиБ); (в) оставить без эталонов, тесты — известные красные | открыто |
+| P13 | 01 | 120 падений в 28 файлах тестов службы (после ADR-0032) читают `deploy/…` (`station-bridge/bridge.py`, `skill-hub/ship.sh`, `gateway/*`, `infproxy/*`, `docker-compose.yml`, `Dockerfile.*` и др.) и корневой `CLAUDE.md` AIFA; проба с этими файлами из эталона — новых красных нет | `deploy/` — шаг 03 (`aifa/deploy/dev/`), `CLAUDE.md` — путь, не меняющий смысл, отсутствует | шаг 03: перенос нужных частей `deploy/`, правка путей тестов; `CLAUDE.md` — решение шага 02 | открыто |
 
 ---
 
@@ -166,3 +210,4 @@
 | R1 | 14.10.2026 | Текст ответа, оригиналы, граница «текста документа», XLS/DOC | приняты владельцем | владелец | ADR-0024…0026 |
 | R2 | 14.10.2026 | Репозиторий пересоздан: нет корпоративной истории и `release/1.5.1` | база — снимок `17b3f93` на `dev` в `Rasiksss/ouroboros_external`; тег `base/ouroboros-1.5.1`; ветки `sym/NN-*` | владелец (репозиторий), сессия плана (запись) | ADR-0030 |
 | R3 | 14.10.2026 | О1: история git AIFA при переносе | без истории: снимок `f4a12fc6` одним структурным коммитом со ссылкой на исходник; история остаётся в `Baltazar2795/AIFA-CLAW` (там же работают хэши из `34-status.md`); так же, как ouroboros (ADR-0030); нет риска вынести старые секреты из истории | владелец | ADR-0031 |
+| R4 | 14.10.2026 | P8: каталоги AIFA, нужные тестам службы, отсутствуют в раскладке | вариант (а): `station-skills/`, `agent-workspace/`, `benchmarks/` (без LFS) — в `aifa/finengine/` с прежней раскладкой; `web/` — правкой путей тестов; `deploy/` — шаг 03; корневой `CLAUDE.md` — не переносится | владелец («Реализуй вариант а») | ADR-0032 |
