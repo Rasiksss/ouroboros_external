@@ -69,7 +69,8 @@
 │   ├── aifa-atom-author/      instruction: SKILL.md (промпт 7.1 плана 34, работа в Workstation, отчёты)
 │   └── aifa-engine/           extension: SKILL.md, plugin.py (тонкий клиент), tests/ (F4, F12)
 ├── aifa/
-│   ├── finengine/             служба: pyproject.toml, uv.lock, src/finengine/, tests/
+│   ├── finengine/             служба: pyproject.toml, uv.lock, src/finengine/, tests/, docs/;
+│   │                          временно (ADR-0032): station-skills/, agent-workspace/ — до шага 19; benchmarks/
 │   ├── web/                   фронтенд Next.js
 │   ├── contracts/             tools.snapshot.json, loop_rules.yaml, tool_names.json, events/*.schema.json, ws/*.json
 │   ├── tests/
@@ -87,8 +88,10 @@
 **Откуда берётся код AIFA.** Из `Krab_ext/AIFA-CLAW` ветки `feature/Claw-v2-1.0` @ `f4a12fc6`:
 `src/` и `tests/` → `aifa/finengine/`, `pyproject.toml` → `aifa/finengine/` (с uv-замком), `web/` →
 `aifa/web/`, нужные части `deploy/` → `aifa/deploy/dev/`, `docs/build-plan/34*.md` и
-`01-nerushimye-resheniya.md` → `aifa/finengine/docs/`. Корневые заметки AIFA (`Nedodelano.md`,
-`План_разработки.md`, выгрузки, мусор сессий) не переносятся. Перенос — снимком из коммита
+`01-nerushimye-resheniya.md` → `aifa/finengine/docs/`; `station-skills/`, `agent-workspace/`,
+`benchmarks/` (без LFS-эталонов) → `aifa/finengine/` (ADR-0032, нужны тестам службы). Корневые
+заметки AIFA (`Nedodelano.md`, `План_разработки.md`, выгрузки, мусор сессий) не переносятся.
+Перенос — снимком из коммита
 `f4a12fc6` без истории git; история остаётся в исходном репозитории (ADR-0031).
 
 **Сборка.**
