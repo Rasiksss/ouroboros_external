@@ -1,0 +1,10 @@
+# Проверки симбиоза: тот же стиль, что у службы (aifa/finengine/pyproject.toml), плюс порядок
+# импортов и типичные ошибки. Только стандартная библиотека и pytest (ADR-0020).
+line-length = 100
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[lint.isort]
+known-first-party = ["arch_support"]

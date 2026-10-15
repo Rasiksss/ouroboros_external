@@ -8,7 +8,7 @@
 1. `aifa-symbiosis/plan/prompts/claude-impl/15-zhivoe-sravnenie-a1-a8.md` — **целиком**.
 2. `aifa-symbiosis/plan/PRINCIPLES.md`, `aifa-symbiosis/plan/REVIEW_GUIDE.md`.
 3. `aifa-symbiosis/plan/PROGRESS.md` — запись реализации шага 15, метрики.
-4. `aifa-symbiosis/plan/uitest/15-compare.md`; `aifa/tests/golden/README.md`.
+4. `aifa-symbiosis/plan/reports/15-compare.md`; `aifa/tests/golden/README.md`.
 
 ## Вертикальное ревью
 Для двух сценариев с наибольшим различием: запись эталона → запись новой системы → нормализованное

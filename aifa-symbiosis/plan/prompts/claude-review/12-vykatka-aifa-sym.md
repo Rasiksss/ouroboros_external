@@ -9,7 +9,7 @@
 2. `aifa-symbiosis/plan/PRINCIPLES.md` §Г, `aifa-symbiosis/plan/REVIEW_GUIDE.md`.
 3. `aifa-symbiosis/plan/PROGRESS.md` — §2, запись реализации шага 12 (снимки до/после, таблица
    сравнения S0–S5, исправления).
-4. `aifa/deploy/dev/README.md`, `aifa/deploy/dev/smoke/`, `aifa-symbiosis/plan/uitest/STAND.md`.
+4. `aifa/deploy/dev/README.md`, `aifa/deploy/dev/smoke/`.
 5. ADR-0005, ADR-0014, ADR-0015, ADR-0018, ADR-0026, ADR-0028; `FITNESS.md` F5 (б), F9.
 
 ## Доступ к стенду
@@ -27,7 +27,7 @@ ouroboros: задача, вызов `aifa_goal`; лог службы: `tool_api`
 - Таблица сравнения: каждое различие классифицировано; «разрешённое» — только по ADR; «разброс» —
   в пределах `golden/README.md`; дефекты — исправлены с тестом или в §4 с номером шага.
 - Исправления этого шага: каждое с тестом, в пределах контрактов 08–11 (иначе — блокер «вышел за шаг»).
-- `README.md` повторяем; `STAND.md` достаточно тестировщику.
+- `README.md` повторяем: что развёрнуто, туннель, где пароли учёток, ограничения.
 
 ## Связность тестов
 | Граница | Что проверить |

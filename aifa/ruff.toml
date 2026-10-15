@@ -1,0 +1,5 @@
+# Корневой `./scripts/check.sh` ouroboros гоняет `ruff format --check .` и `ruff check .` по всему
+# репозиторию, включая aifa/. У AIFA своё форматирование и свой набор правил (aifa/finengine/
+# pyproject.toml, aifa/tests/ruff.toml); эта строка не пускает ouroboros-овый ruff в aifa/,
+# не трогая корневые файлы. Ворота AIFA — aifa/scripts/check.sh.
+extend-exclude = ["*"]

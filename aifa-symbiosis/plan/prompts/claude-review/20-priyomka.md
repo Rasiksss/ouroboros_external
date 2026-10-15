@@ -8,7 +8,7 @@
 1. `aifa-symbiosis/plan/prompts/claude-impl/20-priyomka.md` — **целиком**.
 2. `aifa-symbiosis/plan/PRINCIPLES.md`, `aifa-symbiosis/plan/REVIEW_GUIDE.md`.
 3. `aifa-symbiosis/plan/PROGRESS.md` — целиком.
-4. `aifa-symbiosis/plan/uitest/20-acceptance.md`; все `reviews/*.md` и `uitest/*.md` — только вердикты
+4. `aifa-symbiosis/plan/reports/20-acceptance.md`; все `reviews/*.md` — только вердикты
    и незакрытые пункты.
 5. `SYMBIOSIS.md` §1 (критерий готовности); `FITNESS.md` целиком; `adr/README.md`.
 
@@ -22,8 +22,8 @@
 - Все ADR со статусом «предложено» — приняты или отклонены владельцем; нет кода, опирающегося на
   непринятую ADR.
 - §4 `PROGRESS.md`: нет «открытых» без решения или плана.
-- Все блокеры прошлых ревью и UI-тестов закрыты (сверь по отчётам).
-- Критерий готовности владельца выполнен по пунктам: наборы приёмки, экран (по UI-тесту 20),
+- Все блокеры прошлых ревью закрыты (сверь по отчётам).
+- Критерий готовности владельца выполнен по пунктам: наборы приёмки, экран (F5 а, б на всех сценариях),
   путь через OpenClaw удалён из кода.
 
 ## Связность тестов
