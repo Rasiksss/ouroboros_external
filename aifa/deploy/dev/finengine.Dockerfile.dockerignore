@@ -1,0 +1,15 @@
+# Контекст образа службы (finengine.Dockerfile) — aifa/finengine. ADR-0020.
+# Нужны pyproject.toml, uv.lock, src/, station-skills/ и deploy/; остальное в образ не идёт.
+.venv
+data
+tests
+benchmarks
+agent-workspace
+docs
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.env
+.env.*

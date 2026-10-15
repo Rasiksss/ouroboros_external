@@ -70,9 +70,11 @@
 │   └── aifa-engine/           extension: SKILL.md, plugin.py (тонкий клиент), tests/ (F4, F12)
 ├── aifa/
 │   ├── finengine/             служба: pyproject.toml, uv.lock, src/finengine/, tests/, docs/;
-│   │                          временно (ADR-0032): station-skills/, agent-workspace/ — до шага 19; benchmarks/
+│   │                          временно (ADR-0032): station-skills/, agent-workspace/ — до шага 19; benchmarks/;
+│   │                          deploy/ (ADR-0034): tools_whitelist.yaml, certs/ — копируются в образ службы
 │   ├── web/                   фронтенд Next.js
-│   ├── contracts/             tools.snapshot.json, loop_rules.yaml, tool_names.json, events/*.schema.json, ws/*.json
+│   ├── contracts/             tools.snapshot.json, loop_rules.yaml, tool_names.json, events/*.schema.json, ws/*.json,
+│   │                          dev_config.snapshot.json (снимок F9, ADR-0034)
 │   ├── tests/
 │   │   ├── architecture/      F1, F2, F7, F9, F11, F12a, F13
 │   │   ├── contract/          C1, C2, C4, C6 (живой ouroboros в compose-профиле contract)

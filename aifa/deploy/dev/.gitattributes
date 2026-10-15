@@ -1,0 +1,3 @@
+# Dockerfile и *.env читает Linux (BuildKit, docker compose на dev): CRLF после checkout на Windows
+# оставил бы `\r` в значениях env_file и в строках продолжения. Как у aifa/scripts/.gitattributes.
+* text eol=lf

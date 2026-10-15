@@ -109,6 +109,6 @@ def test_certificates_are_copied_into_the_runtime_image():
     но до места работы не доехало.
     """
     root = pathlib.Path(__file__).resolve().parents[1]
-    df = (root / "deploy" / "Dockerfile.backend").read_text(encoding="utf-8")
-    assert "COPY deploy/certs/" in df, (
+    df = (root.parent / "deploy" / "dev" / "finengine.Dockerfile").read_text(encoding="utf-8")
+    assert "/app/deploy/certs/" in df, (
         "сертификаты не копируются в образ — на стенде Росстат останется закрыт")

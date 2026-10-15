@@ -1,0 +1,227 @@
+# Compose-проект dev-контура симбиоза AIFA и ouroboros. Только dev (ADR-0018): ни одного
+# внешнего ресурса, ни одного контейнера prod; старый AIFA на dev (finengine-*, openclaw-dev,
+# workstation-svc) этим файлом не затрагивается и работает рядом до шага 21.
+#
+#   cp ouroboros.env.example ouroboros.env && cp engine.env.example engine.env
+#   cp infra.env.example .env            # пароли контейнеров инфраструктуры, см. README.md
+#   docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml config
+#   docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml up -d                 # ouroboros и хранилища
+#   docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml --profile app up -d   # + служба, фронтенд (с шага 12)
+#
+# Проверяет файл F9 (aifa/tests/architecture/test_dev_config.py, test_dev_images.py).
+
+name: aifa-sym
+
+services:
+  ouroboros:
+    build:
+      context: ../../..
+      dockerfile: aifa/deploy/dev/ouroboros.Dockerfile
+    image: aifa-sym-ouroboros:dev
+    restart: unless-stopped
+    init: true
+    # Хост общий с prod и AIFA: потолок памяти, как у старой копии ouroboros (P5 — замер в шаге 04).
+    mem_limit: 1536m
+    env_file:
+      - path: ouroboros.env
+        required: false # без файла `config` проходит; ouroboros без базы всё равно не стартует
+    environment:
+      # Явно, а не по умолчанию (SETTINGS.md §1.2): контур не должен стать development случайно.
+      OUROBOROS_ENV: production
+      OUROBOROS_DATA_DIR: /data
+      OUROBOROS_SERVER_HOST: 0.0.0.0
+    ports:
+      # ADR-0028: порт ouroboros наружу не публикуется; loopback — только для /ready.
+      # 18180: на хосте старая копия ouroboros держит 127.0.0.1:8080 и 18800.
+      - "127.0.0.1:18180:8080"
+    volumes:
+      - ouro-data:/data
+    depends_on:
+      ouro-postgres:
+        condition: service_healthy
+      s3-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/ready', timeout=5)
+      interval: 10s
+      timeout: 5s
+      retries: 24
+      start_period: 120s
+    networks: [internal]
+
+  # ADR-0013, О2 не решён: «новые контейнеры» — до решения О2 (PROGRESS.md §2).
+  ouro-postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ouroboros
+      POSTGRES_USER: ouroboros
+      # Пустой пароль — образ откажется стартовать; честнее молчаливого умолчания.
+      POSTGRES_PASSWORD: ${AIFA_SYM_OURO_PG_PASSWORD:-}
+    volumes:
+      - ouro-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U ouroboros -d ouroboros"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+    networks: [internal]
+
+  # S3 для ouroboros (корзина `ouroboros`) и для хранилища блобов службы (корзина `finengine`).
+  # ADR-0013, до решения О2. SeaweedFS вместо MinIO: образы minio/minio убраны с Docker Hub и
+  # quay.io (проверено 15.10.2026), из публичных реестров их больше не получить (ADR-0035).
+  # Ключ доступа берётся из окружения контейнера, как у AWS SDK.
+  s3:
+    image: chrislusf/seaweedfs:4.48
+    restart: unless-stopped
+    command: [server, -dir=/data, -s3, -s3.port=8333, -master.volumeSizeLimitMB=512]
+    environment:
+      AWS_ACCESS_KEY_ID: ${AIFA_SYM_S3_USER:-}
+      AWS_SECRET_ACCESS_KEY: ${AIFA_SYM_S3_PASSWORD:-}
+    volumes:
+      - s3-data:/data
+    healthcheck:
+      test: [CMD-SHELL, "nc -z 127.0.0.1 8333"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 15s
+    networks: [internal]
+
+  # Разовый: ouroboros корзину сам не создаёт и без неё не стартует.
+  s3-init:
+    image: amazon/aws-cli:2.38.1
+    restart: "no"
+    depends_on:
+      s3:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: ${AIFA_SYM_S3_USER:-}
+      AWS_SECRET_ACCESS_KEY: ${AIFA_SYM_S3_PASSWORD:-}
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint: [sh, -c]
+    command:
+      - >-
+        for b in ouroboros finengine; do
+        aws --endpoint-url http://s3:8333 s3api head-bucket --bucket $$b 2>/dev/null ||
+        aws --endpoint-url http://s3:8333 s3 mb s3://$$b || exit 1;
+        done
+    networks: [internal]
+
+  # ADR-0007: свой Workstation контура. Портов нет вовсе (ADR-0028): к нему ходят ouroboros и служба
+  # по внутренней сети. Образ локально не собирается — базы workstation-svc:local нет (P4).
+  workstation:
+    build:
+      context: workstation
+      dockerfile: Dockerfile
+    image: aifa-sym-workstation:dev
+    restart: unless-stopped
+    environment:
+      # ADR-0028: секрет создания сессии знают ouroboros (WORKSTATION_CREATE_SECRET) и служба.
+      # Имя переменной на стороне сервиса Workstation — по ADR-0028, проверить на dev (P4).
+      WORKSTATION_CREATE_SECRET: ${AIFA_SYM_WORKSTATION_CREATE_SECRET:-}
+    expose:
+      - "8080"
+    networks: [internal]
+
+  # Ниже — профиль `app`: поднимается с шага 12, а не вместе с контуром ouroboros.
+  engine:
+    profiles: [app]
+    build:
+      context: ../../finengine
+      dockerfile: ../deploy/dev/finengine.Dockerfile
+    image: aifa-sym-engine:dev
+    restart: unless-stopped
+    init: true
+    mem_limit: 2g
+    env_file:
+      - path: engine.env
+        required: false
+    volumes:
+      - engine-data:/app/data
+    depends_on:
+      engine-postgres:
+        condition: service_healthy
+      s3-init:
+        condition: service_completed_successfully
+    expose:
+      - "8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks: [internal]
+
+  # ADR-0013: у службы своя роль и своя БД; отдельный сервер — доступа к базе ouroboros нет.
+  engine-postgres:
+    profiles: [app]
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: finengine
+      POSTGRES_USER: finengine
+      POSTGRES_PASSWORD: ${AIFA_SYM_ENGINE_PG_PASSWORD:-}
+    volumes:
+      - engine-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U finengine -d finengine"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+    networks: [internal]
+
+  frontend:
+    profiles: [app]
+    build:
+      context: ../../web
+      dockerfile: ../deploy/dev/frontend.Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: /api
+        NEXT_PUBLIC_BUILD_ID: ${AIFA_SYM_BUILD_ID:-dev}
+    image: aifa-sym-frontend:dev
+    restart: unless-stopped
+    environment:
+      # Серверные перезаписи Next.js (/api/*) идут в службу по внутренней сети.
+      API_BASE_URL: http://engine:8000
+    expose:
+      - "3000"
+    depends_on:
+      - engine
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks: [internal]
+
+networks:
+  # Одна внутренняя сеть (ADR-0028). Не `internal: true`: ouroboros ходит к Cloud.ru, служба — к
+  # шлюзу моделей и интернету; изоляция — в том, что порты не опубликованы.
+  internal:
+    name: aifa-sym-internal
+    driver: bridge
+
+volumes:
+  ouro-data:
+    name: aifa-sym-ouro-data
+  ouro-pgdata:
+    name: aifa-sym-ouro-pgdata
+  s3-data:
+    name: aifa-sym-s3-data
+  engine-data:
+    name: aifa-sym-engine-data
+  engine-pgdata:
+    name: aifa-sym-engine-pgdata

@@ -5,3 +5,6 @@ data/
 !src/finengine/data/
 !src/finengine/data/registry_layers/
 !src/finengine/data/registry_layers/*.json
+# Публичные сертификаты центра Минцифры (не ключи), доставляются в образ службы (ADR-0034, P15).
+# Корневой .gitignore ouroboros закрывает `*.pem` целиком.
+!deploy/certs/*.pem

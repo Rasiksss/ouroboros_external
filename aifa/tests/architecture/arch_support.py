@@ -17,6 +17,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 BASE_TAG = "base/ouroboros-1.5.1"
 ADR_DIR = "aifa-symbiosis/architecture/adr"
+DEV_DIR = REPO_ROOT / "aifa" / "deploy" / "dev"
 EXCEPTIONS_FILE = Path(__file__).with_name("core_freeze_exceptions.txt")
 
 _SKIP_DIR_NAMES = frozenset({".git", "node_modules", "__pycache__", ".next", "venv"})
