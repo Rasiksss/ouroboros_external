@@ -67,3 +67,4 @@
 | [0031](0031-perenos-aifa-snimkom.md) | Код AIFA переносится снимком `f4a12fc6` без истории git | принято (владелец, О1) |
 | [0032](0032-katalogi-sluzhby-v-finengine.md) | Каталоги службы, нужные её тестам (`station-skills/`, `agent-workspace/`, `benchmarks/`), переносятся в `aifa/finengine/` | принято (владелец, вариант (а) P8) |
 | [0033](0033-bez-polzovatelskogo-testirovaniya.md) | Пользовательское тестирование третьим агентом исключено; шаг принимается ревью кода | принято (владелец) |
+| [0034](0034-obrazy-dev-ustanovka-po-zamku.md) | Образы dev: установка ouroboros по замку без `uv sync`, состав образов, `deploy/` службы | **предложено** (сессия шага 03; принимает владелец) |
