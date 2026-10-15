@@ -117,7 +117,7 @@ docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml build workstation     
 |---|---|---|
 | 1 | `/ready` ouroboros через `127.0.0.1:18180` | HTTP 200 |
 | 2 | WS `ws://ouroboros:8080/ws` (`ws_chat.py`) | без `X-Ouroboros-Owner-Id` — рукопожатие отклонено; с `X-Ouroboros-Owner-Id: smoke`, `X-Ouroboros-Chat-Id: smoke-1` — ответ модели на «привет» |
-| 3 | `code_exec` в Workstation контура | ответ содержит «4», в логе ouroboros — вызов `code_exec` |
+| 3 | `code_exec` в Workstation контура | ответ содержит «4», в логе ouroboros — `POST …/v1/sessions/<id>/exec:stream` к `workstation:8080` |
 | 4 | C5.2: разовая комната по протоколу `sealed_room` (`room.py`) | `numpy`, `pandas`, `openpyxl`, `pptx`, `docx` импортируются; сокет заблокирован; переменных окружения службы нет |
 
 ### Откат

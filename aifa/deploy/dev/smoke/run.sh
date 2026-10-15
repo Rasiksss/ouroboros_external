@@ -51,8 +51,10 @@ for check in "${CHECKS[@]}"; do
       inside ws_chat.py --chat smoke-code --expect 4 --timeout 420 --prompt \
         "Выполни в Workstation код print(2+2) через инструмент code_exec и пришли его вывод."
       rc=$?
-      calls=$(docker logs --since "$since" "${PROJECT}-ouroboros-1" 2>&1 | grep -c -i "code_exec")
-      echo "упоминаний code_exec в логе ouroboros: $calls"
+      # Имя инструмента ouroboros в лог не пишет: вызов виден как exec-запрос к Workstation контура.
+      calls=$(docker logs --since "$since" "${PROJECT}-ouroboros-1" 2>&1 |
+        grep -c -E 'workstation:8080/v1/sessions/[^ ]*/exec:stream')
+      echo "exec-запросов к Workstation в логе ouroboros: $calls"
       [ "$rc" -eq 0 ] && [ "$calls" -gt 0 ]
       result 3 "code_exec выполнен в Workstation контура" $?
       ;;

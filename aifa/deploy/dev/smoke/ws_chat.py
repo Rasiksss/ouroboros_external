@@ -76,7 +76,7 @@ async def main(args: argparse.Namespace) -> int:
     finally:
         await ws.close()
     print(f"кадры: {' '.join(frames)}")
-    print(f"ответ ({len(reply)} знаков): {reply[:600]}")
+    print(f"ответ ({len(reply)} знаков): {reply[: args.show]}")
     if args.expect and args.expect.lower() not in reply.lower():
         print(f"FAIL в ответе нет {args.expect!r}")
         return 1
@@ -95,6 +95,7 @@ def parse() -> argparse.Namespace:
     parser.add_argument("--prompt", default="привет")
     parser.add_argument("--expect", default="")
     parser.add_argument("--timeout", type=float, default=240)
+    parser.add_argument("--show", type=int, default=600, help="сколько знаков ответа печатать")
     parser.add_argument("--no-owner", action="store_true")
     return parser.parse_args()
 
