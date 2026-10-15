@@ -106,6 +106,12 @@ def image_violations(dev: Path, engine_deploy: Path = ENGINE_DEPLOY) -> list[str
             for word in ("finengine", "bridge", "infproxy")
             if word in text
         )
+        # P4: в базе entrypoint.sh с CRLF (`#!/bin/sh\r`), ядро отвечает «no such file»;
+        # старый AIFA обходит это своим start.sh, у контура его нет.
+        if "entrypoint.sh" not in text:
+            problems.append(
+                "F9 (P4): workstation/Dockerfile не нормализует /app/entrypoint.sh (CRLF базы)"
+            )
         tokens = {t.rstrip("\\") for line in lines["workstation"] for t in line.split()}
         problems.extend(
             f"F9 (P30): пакет комнаты {name} без версии в workstation/Dockerfile"
@@ -165,6 +171,15 @@ def test_f9_catches_an_unpinned_room_package(tmp_path: Path) -> None:
         path.read_text(encoding="utf-8").replace("numpy==", "numpy #", 1), encoding="utf-8"
     )
     assert any("numpy" in p and "P30" in p for p in image_violations(dev))
+
+
+def test_f9_catches_a_workstation_entrypoint_left_with_crlf(tmp_path: Path) -> None:
+    """F9: нарушитель — слой Workstation не чинит CRLF в entrypoint.sh базы (P4)."""
+    dev = _copy_dev(tmp_path)
+    path = dev / "workstation" / "Dockerfile"
+    kept = [ln for ln in path.read_text(encoding="utf-8").splitlines() if "entrypoint.sh" not in ln]
+    path.write_text("\n".join(kept) + "\n", encoding="utf-8")
+    assert any("entrypoint.sh" in p and "P4" in p for p in image_violations(dev))
 
 
 def test_f9_catches_a_corporate_registry(tmp_path: Path) -> None:

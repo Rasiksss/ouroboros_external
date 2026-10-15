@@ -114,7 +114,7 @@ services:
     networks: [internal]
 
   # ADR-0007: свой Workstation контура. Портов нет вовсе (ADR-0028): к нему ходят ouroboros и служба
-  # по внутренней сети. Образ локально не собирается — базы workstation-svc:local нет (P4).
+  # по внутренней сети. Базу workstation-svc:local на dev восстанавливает restore_base.py (P34).
   workstation:
     build:
       context: workstation
@@ -123,7 +123,8 @@ services:
     restart: unless-stopped
     environment:
       # ADR-0028: секрет создания сессии знают ouroboros (WORKSTATION_CREATE_SECRET) и служба.
-      # Имя переменной на стороне сервиса Workstation — по ADR-0028, проверить на dev (P4).
+      # Этот сервис Workstation секрет не проверяет (в app/ нет такой настройки, P4): защита — сеть
+      # без опубликованных портов. Переменная оставлена: клиент ouroboros присылает заголовок.
       WORKSTATION_CREATE_SECRET: ${AIFA_SYM_WORKSTATION_CREATE_SECRET:-}
     expose:
       - "8080"

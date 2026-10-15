@@ -5,6 +5,10 @@
 FROM workstation-svc:local
 USER root
 
+# В базе entrypoint.sh с CRLF (`#!/bin/sh\r`): ядро отвечает «no such file or directory».
+# Старый AIFA запускает сервис своим start.sh и этого не замечает (P4).
+RUN sed -i 's/\r$//' /app/entrypoint.sh
+
 # Landlock ws-sandbox запрещает читать /etc; импорт openpyxl вызывает mimetypes.init(), который
 # открывает /etc/mime.types и падает с PermissionError. Без файла mimetypes его пропускает.
 RUN rm -f /etc/mime.types
