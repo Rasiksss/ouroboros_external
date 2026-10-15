@@ -1,6 +1,6 @@
 {
-  "adr": "ADR-0027",
-  "note": "Снимок F9 (aifa/tests/architecture/test_dev_config.py). Списки инструментов и навыков черновые до шага 04 (P3): уточняются по list_available_tools живого экземпляра, изменение — новая ADR.",
+  "adr": "ADR-0027, ADR-0036",
+  "note": "Снимок F9 (aifa/tests/architecture/test_dev_config.py). Списки отключённых инструментов и навыков сверены с живым экземпляром на шаге 04 (P3, ADR-0036); изменение набора — новая ADR (F13).",
   "required": {
     "OUROBOROS_MULTIUSER": "true",
     "BROWSER_INGRESS_ENABLED": "true",
@@ -60,7 +60,13 @@
       "distribution:pdf-tools",
       "distribution:tasks-scheduler",
       "distribution:xlsx-tools"
+    ],
+    "OUROBOROS_USER_ENABLED_SKILL_IDS": [
+      "distribution:workstation"
     ]
   },
-  "absent_prefixes": ["A2A_", "DIALOGS_"]
+  "absent_prefixes": [
+    "A2A_",
+    "DIALOGS_"
+  ]
 }

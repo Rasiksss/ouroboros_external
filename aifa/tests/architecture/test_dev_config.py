@@ -282,6 +282,19 @@ def test_f9_catches_a_drifted_tool_list(tmp_path: Path) -> None:
     assert any("OUROBOROS_DISABLED_TOOLS" in p and "attachment_read" in p for p in problems)
 
 
+def test_f9_catches_a_missing_skill_admission(tmp_path: Path) -> None:
+    """F9: нарушитель — навык workstation не допущен владельцам (ADR-0036): в multiuser
+    встроенные code_exec и file_* без допуска недоступны, а список по умолчанию пуст."""
+    dev = _copy_dev(tmp_path)
+    _edit(
+        dev / "ouroboros.env.example",
+        "OUROBOROS_USER_ENABLED_SKILL_IDS=distribution:workstation",
+        "OUROBOROS_USER_ENABLED_SKILL_IDS=",
+    )
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("OUROBOROS_USER_ENABLED_SKILL_IDS" in p for p in problems)
+
+
 def test_f9_catches_a_port_published_beyond_loopback(tmp_path: Path) -> None:
     """F9: нарушитель — порт ouroboros опубликован на все интерфейсы (ADR-0028)."""
     dev = _copy_dev(tmp_path)
