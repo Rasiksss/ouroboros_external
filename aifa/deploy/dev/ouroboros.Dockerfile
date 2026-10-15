@@ -12,9 +12,9 @@ WORKDIR /src
 COPY pyproject.toml uv.lock ./
 # ADR-0034: замок указывает на nexus.genai.int, `uv sync --frozen` из публичной сети невозможен.
 # Версии и sha256 — из замка, файлы — с pypi.org.
-RUN uv export --frozen --no-dev --no-emit-project --no-config --no-header -o requirements.lock \
+RUN uv export --frozen --no-dev --no-emit-project --no-config --no-header -o requirements.txt \
  && uv pip install --python /opt/venv/bin/python --no-config --no-deps --require-hashes \
-        --index-url https://pypi.org/simple -r requirements.lock
+        --index-url https://pypi.org/simple -r requirements.txt
 
 FROM python:3.12-slim
 
