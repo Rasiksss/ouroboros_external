@@ -1,0 +1,8 @@
+# Контекст образа фронтенда (frontend.Dockerfile) — aifa/web. ADR-0020.
+node_modules
+.next
+out
+coverage
+*.tsbuildinfo
+.env
+.env.*

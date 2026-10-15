@@ -1,0 +1,66 @@
+{
+  "adr": "ADR-0027",
+  "note": "Снимок F9 (aifa/tests/architecture/test_dev_config.py). Списки инструментов и навыков черновые до шага 04 (P3): уточняются по list_available_tools живого экземпляра, изменение — новая ADR.",
+  "required": {
+    "OUROBOROS_MULTIUSER": "true",
+    "BROWSER_INGRESS_ENABLED": "true",
+    "OUROBOROS_WORKER_SLOTS": "4",
+    "OUROBOROS_HARD_TIMEOUT_SEC": "2700",
+    "OUROBOROS_MEMORY_DISTILL": "false",
+    "OUROBOROS_TOOL_CONFIRMATION_ENABLED": "false",
+    "OUROBOROS_MODEL": "cloudru::zai-org/GLM-5.2",
+    "OUROBOROS_MODEL_LIGHT": "cloudru::zai-org/GLM-5.2",
+    "OUROBOROS_MODEL_FALLBACK": "cloudru::zai-org/GLM-5.2"
+  },
+  "lists": {
+    "OUROBOROS_ENABLED_TOOLS": [
+      "aifa-engine.aifa_goal",
+      "aifa-engine.aifa_wait",
+      "aifa-engine.aifa_state",
+      "aifa-engine.aifa_move",
+      "aifa-engine.aifa_finish",
+      "aifa-engine.aifa_author_brief",
+      "aifa-engine.aifa_author_attempt",
+      "aifa-engine.aifa_create_atom"
+    ],
+    "OUROBOROS_DISABLED_TOOLS": [
+      "attachment_read",
+      "vlm_query",
+      "data_read",
+      "data_list",
+      "data_write",
+      "send_file",
+      "send_image",
+      "send_photo",
+      "send_user_message",
+      "gigasearch",
+      "browse_page",
+      "browser_action",
+      "image_generate",
+      "memory_save",
+      "memory_read",
+      "memory_list",
+      "memory_delete",
+      "schedule_task",
+      "create_scheduled_task",
+      "create_reminder",
+      "list_schedules",
+      "edit_schedule",
+      "cancel_schedule",
+      "pause_schedule",
+      "resume_schedule",
+      "confirm_schedule",
+      "move_schedule_here"
+    ],
+    "OUROBOROS_DISABLED_SKILLS": [
+      "distribution:agent-delegation",
+      "distribution:calendar-orientation",
+      "distribution:docx-tools",
+      "distribution:image-generation",
+      "distribution:pdf-tools",
+      "distribution:tasks-scheduler",
+      "distribution:xlsx-tools"
+    ]
+  },
+  "absent_prefixes": ["A2A_", "DIALOGS_"]
+}

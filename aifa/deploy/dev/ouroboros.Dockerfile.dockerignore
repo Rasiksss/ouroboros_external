@@ -1,0 +1,15 @@
+# Контекст образа ouroboros (ouroboros.Dockerfile) — корень репозитория. ADR-0020, ADR-0034.
+# Dockerfile копирует каталоги поимённо; этот файл не даёт лишнему даже попасть в контекст.
+aifa
+aifa-symbiosis
+.git
+.venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.mypy_cache
+.ruff_cache
+node_modules
+.env
+.env.*
+!.env.example
