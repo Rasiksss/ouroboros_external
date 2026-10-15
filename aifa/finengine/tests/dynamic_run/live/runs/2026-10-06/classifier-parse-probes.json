@@ -1,0 +1,2163 @@
+[
+ {
+  "q": "Извлеки выручку и посчитай для неё коэффициент вариации.",
+  "n_calls": 2,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"SALES_REVENUE\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[{\"goal_ref\":\"goal-2\",\"depends_on\":null,\"intent_kind\":\"custom_analysis\",\"targets\":null,\"analysis_concepts\":null,\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":null,\"ambiguities\":null,\"correction\":null}]}",
+   "{\"goal_ref\":\"goal-2\",\"depends_on\":[\"goal-1\"],\"intent_kind\":\"calculate_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":{\"name_ru\":\"Коэффициент вариации выручки\",\"name_en\":\"Revenue coefficient of variation\",\"definition\":\"Отношение стандартного отклонения выручки к её среднему значению за период\",\"unit\":\"%\",\"expression\":\"(STDDEV / AVG) * 100\",\"assumptions\":\"Стандартное отклонение и среднее значение рассчитываются по выручке за выбранный период\",\"components\":{\"STDDEV\":\"Стандартное отклонение выручки\",\"AVG\":\"Средняя выручка\"}},\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "db87a987-94b2-46ba-864b-2541ecf0bf4a",
+    "raw_query": "Извлеки выручку и посчитай для неё коэффициент вариации.",
+    "intent_kind": "extract_registered_metric",
+    "targets": [
+     {
+      "target_id": "60e6bb89-96c6-4f22-9f17-cac4946bcc42",
+      "concept": "SALES_REVENUE",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     }
+    ],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": [
+     {
+      "goal_ref": "goal-2",
+      "raw_query": "Извлеки выручку и посчитай для неё коэффициент вариации.",
+      "intent_kind": "calculate_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_formula": {
+        "spec_id": "199791dc-87e5-445d-9791-9f26f55e73b5",
+        "term": "Коэффициент вариации выручки",
+        "expression": "(STDDEV / AVG) * 100",
+        "dependencies": [
+         "STDDEV",
+         "AVG"
+        ],
+        "assumptions": "Стандартное отклонение и среднее значение рассчитываются по выручке за выбранный период",
+        "origin": "ad_hoc",
+        "name_ru": "Коэффициент вариации выручки",
+        "name_en": "Revenue coefficient of variation",
+        "definition": "Отношение стандартного отклонения выручки к её среднему значению за период",
+        "unit": "%",
+        "components": [
+         {
+          "spec_id": "f176ab44-8c3e-4d0d-899b-92890d578868",
+          "term": "Стандартное отклонение выручки",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "STDDEV",
+          "name_ru": "Стандартное отклонение выручки",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         },
+         {
+          "spec_id": "52548a5d-e48a-48d3-8f19-a9a9e4c93dee",
+          "term": "Средняя выручка",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "AVG",
+          "name_ru": "Средняя выручка",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         }
+        ]
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     }
+    ]
+   }
+  }
+ },
+ {
+  "q": "Извлеки выручку и посчитай для неё коэффициент вариации.",
+  "n_calls": 2,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"SALES_REVENUE\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[{\"goal_ref\":\"goal-2\",\"depends_on\":null,\"intent_kind\":\"custom_analysis\",\"targets\":null,\"analysis_concepts\":null,\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":null,\"ambiguities\":null,\"correction\":null}]}",
+   "{\"goal_ref\":\"goal-2\",\"depends_on\":[\"goal-1\"],\"intent_kind\":\"calculate_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":{\"name_ru\":\"Коэффициент вариации выручки\",\"name_en\":\"Revenue coefficient of variation\",\"definition\":\"Отношение стандартного отклонения выручки к её среднему значению за период\",\"unit\":\"%\",\"expression\":\"σ / μ\",\"assumptions\":\"Рассчитывается на основе временного ряда выручки\",\"components\":{\"σ\":\"Стандартное отклонение выручки\",\"μ\":\"Средняя выручка\"}},\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}"
+  ],
+  "result": {
+   "ok": false,
+   "err": "IntentParseError: intent.parse: focused repair составной цели не прошёл схему: ad_hoc_formula отвергнута: expression пуст или содержит недопустимые конструкции: разрешены только числа, круглые скобки, + - * / и символы из ЗАГЛАВНЫХ латинских букв, цифр и _ (без функций, степеней и условий)"
+  }
+ },
+ {
+  "q": "Извлеки выручку и посчитай для неё коэффициент вариации.",
+  "n_calls": 2,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"SALES_REVENUE\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[{\"goal_ref\":\"goal-2\",\"depends_on\":null,\"intent_kind\":\"custom_analysis\",\"targets\":null,\"analysis_concepts\":null,\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":null,\"ambiguities\":null,\"correction\":null}]}",
+   "{\"goal_ref\":\"goal-2\",\"depends_on\":[\"goal-1\"],\"intent_kind\":\"calculate_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":{\"name_ru\":\"Коэффициент вариации выручки\",\"name_en\":\"Revenue coefficient of variation\",\"definition\":\"Отношение стандартного отклонения выручки к её среднему значению за период\",\"unit\":\"%\",\"expression\":\"(СТАНДОТКЛОН(SALES_REVENUE) / СРЗНАЧ(SALES_REVENUE)) * 100\",\"assumptions\":\"Коэффициент вариации показывает относительную меру изменчивости выручки. Рассчитывается как отношение стандартного отклонения к среднему значению, выраженное в процентах.\",\"components\":{\"SALES_REVENUE\":\"Выручка\"}},\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}"
+  ],
+  "result": {
+   "ok": false,
+   "err": "IntentParseError: intent.parse: focused repair составной цели не прошёл схему: ad_hoc_formula отвергнута: expression пуст или содержит недопустимые конструкции: разрешены только числа, круглые скобки, + - * / и символы из ЗАГЛАВНЫХ латинских букв, цифр и _ (без функций, степеней и условий)"
+  }
+ },
+ {
+  "q": "Посчитай коэффициент вариации выручки по доступным периодам.",
+  "n_calls": 1,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"custom_analysis\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[\"Посчитай коэффициент вариации выручки по доступным периодам.\"],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[]}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "cadb3375-9f87-4360-a703-bbf746684666",
+    "raw_query": "Посчитай коэффициент вариации выручки по доступным периодам.",
+    "intent_kind": "custom_analysis",
+    "targets": [],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [
+     "Посчитай коэффициент вариации выручки по доступным периодам."
+    ],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": []
+   }
+  }
+ },
+ {
+  "q": "Посчитай коэффициент вариации выручки по доступным периодам.",
+  "n_calls": 1,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"custom_analysis\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[\"Посчитай коэффициент вариации выручки по доступным периодам.\"],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[]}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "5cfcc6db-acd5-4e13-870a-309da3052d3d",
+    "raw_query": "Посчитай коэффициент вариации выручки по доступным периодам.",
+    "intent_kind": "custom_analysis",
+    "targets": [],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [
+     "Посчитай коэффициент вариации выручки по доступным периодам."
+    ],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": []
+   }
+  }
+ },
+ {
+  "q": "Посчитай коэффициент вариации выручки по доступным периодам.",
+  "n_calls": 1,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"custom_analysis\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[\"Посчитай коэффициент вариации выручки по доступным периодам.\"],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[]}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "654732bc-e2ea-4069-94f1-b99c41440063",
+    "raw_query": "Посчитай коэффициент вариации выручки по доступным периодам.",
+    "intent_kind": "custom_analysis",
+    "targets": [],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [
+     "Посчитай коэффициент вариации выручки по доступным периодам."
+    ],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": []
+   }
+  }
+ },
+ {
+  "q": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+  "n_calls": 24,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"SALES_REVENUE\"},{\"concept\":\"EBITDA\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[{\"goal_ref\":\"goal-2\",\"depends_on\":\":[\"},\"intent_kind\",\"custom_analysis\",\"targets\",[],\"analysis_concepts\",[],\"ad_hoc_concept\",null,\"ad_hoc_formula\",null,\"entity_ref\",null,\"period_ref\",null,\"role\",null,\"unresolved\",[\"посчитай коэффициент вариации по каждому из двух показателей\"],\"ambiguities\",[],\"correction\",null]}",
+   "{\"  \" : 0, \"goal_ref\": \"goal-2\", \"depends_on\": [\"goal-1\"], \"intent_kind\": \"calculate_ad_hoc_metric\", \"targets\": [], \"analysis_concepts\": [], \"ad_hoc_concept\": null, \"ad_hoc_formula\": {\"name_ru\": \"Коэффициент вариации\", \"name_en\": \"Coefficient of Variation\", \"definition\": \"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\", \"unit\": \"доли ед.\", \"expression\": \"STDDEV / AVG\", \"assumptions\": \"Используются стандартное отклонение и среднее значение за выбранный период\", \"components\": {\"STDDEV\": \"Стандартное отклонение\", \"AVG\": \"Среднее значение\"}}, \"entity_ref\": null, \"period_ref\": null, \"role\": null, \"unresolved\": [], \"ambiguities\": [], \"correction\": null}",
+   "{\"goal_ref\":\"goal-3\",\"depends_on\":[\"goal-1\"],\"intent_kind\":\"calculate_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"unit\":\"доли ед.\",\"expression\":\"STDDEV / AVG\",\"assumptions\":\"Используются стандартное отклонение и среднее значение за выбранный период\",\"components\":{\"STDDEV\":\"Стандартное отклонение\",\"AVG\":\"Среднее значение\"}},\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-4\",\"depends_on\":[\"goal-1\"],\"intent_kind\":\"calculate_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"unit\":\"доли ед.\",\"expression\":\"STDDEV / AVG\",\"assumptions\":\"Используются стандартное отклонение и среднее значение за выбранный период\",\"components\":{\"STDDEV\":\"Стандартное отклонение\",\"AVG\":\"Среднее значение\"}},\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-5\",\"depends_on\":[\"goal-1\"],\"intent_kind\":\"calculate_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"unit\":\"доли ед.\",\"expression\":\"STDDEV / AVG\",\"assumptions\":\"Используются стандартное отклонение и среднее значение за выбранный период\",\"components\":{\"STDDEV\":\"Стандартное отклонение\",\"AVG\":\"Среднее значение\"}},\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-6\",\"depends_on\":[\"goal-1\"],\"intent_kind\":\"calculate_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"unit\":\"доли ед.\",\"expression\":\"STDDEV / AVG\",\"assumptions\":\"Используются стандартное отклонение и среднее значение за выбранный период\",\"components\":{\"STDDEV\":\"Стандартное отклонение\",\"AVG\":\"Среднее значение\"}},\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-7\",\"depends_on\":[\"goal-1\"],\"intent_kind\":\"calculate_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"unit\":\"доли ед.\",\"expression\":\"STDDEV / AVG\",\"assumptions\":\"Используются стандартное отклонение и среднее значение за выбранный период\",\"components\":{\"STDDEV\":\"Стандартное отклонение\",\"AVG\":\"Среднее значение\"}},\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-8\",\"depends_on\":[\"goal-1\"],\"intent_kind\":\"calculate_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"unit\":\"доли ед.\",\"expression\":\"STDDEV / AVG\",\"assumptions\":\"Используются стандартное отклонение и среднее значение за выбранный период\",\"components\":{\"STDDEV\":\"Стандартное отклонение\",\"AVG\":\"Среднее значение\"}},\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-9\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-10\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-11\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-12\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-13\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-14\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-15\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-16\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-17\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-18\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-19\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-20\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-21\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-22\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-23\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}",
+   "{\"goal_ref\":\"goal-24\",\"depends_on\":[],\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Коэффициент вариации\",\"name_en\":\"Coefficient of Variation\",\"aliases_ru\":[\"коэффициент вариации\",\"относительное стандартное отклонение\"],\"aliases_en\":[\"coefficient of variation\",\"relative standard deviation\"],\"definition\":\"Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность\",\"hint\":\"Рассчитывается как стандартное отклонение, делённое на среднее значение\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "394dcaf9-ccc9-4ec8-bb53-a6d3d37d578d",
+    "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+    "intent_kind": "extract_registered_metric",
+    "targets": [
+     {
+      "target_id": "ffa2cf17-7925-4426-807b-e7c242d85a25",
+      "concept": "SALES_REVENUE",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     },
+     {
+      "target_id": "f13c327d-a9a5-4f43-ae7d-a2b3e6cc32e1",
+      "concept": "EBITDA",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     }
+    ],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": [
+     {
+      "goal_ref": "goal-2",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "calculate_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_formula": {
+        "spec_id": "bcf57f67-4dac-4443-973d-8a8f2917d4bc",
+        "term": "Коэффициент вариации",
+        "expression": "STDDEV / AVG",
+        "dependencies": [
+         "STDDEV",
+         "AVG"
+        ],
+        "assumptions": "Используются стандартное отклонение и среднее значение за выбранный период",
+        "origin": "ad_hoc",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "unit": "доли ед.",
+        "components": [
+         {
+          "spec_id": "921a8fc7-d221-40e0-8a88-774642f3ff26",
+          "term": "Стандартное отклонение",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "STDDEV",
+          "name_ru": "Стандартное отклонение",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         },
+         {
+          "spec_id": "9b6c508c-b1cc-4166-81f9-fee45e4c1af9",
+          "term": "Среднее значение",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "AVG",
+          "name_ru": "Среднее значение",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         }
+        ]
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     },
+     {
+      "goal_ref": "goal-3",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "calculate_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_formula": {
+        "spec_id": "ba1b343e-f58f-4939-aadf-e6bd07d39b7d",
+        "term": "Коэффициент вариации",
+        "expression": "STDDEV / AVG",
+        "dependencies": [
+         "STDDEV",
+         "AVG"
+        ],
+        "assumptions": "Используются стандартное отклонение и среднее значение за выбранный период",
+        "origin": "ad_hoc",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "unit": "доли ед.",
+        "components": [
+         {
+          "spec_id": "00678418-2b0f-498e-a90a-906fa3ada5bf",
+          "term": "Стандартное отклонение",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "STDDEV",
+          "name_ru": "Стандартное отклонение",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         },
+         {
+          "spec_id": "b5e964a6-eb9c-4d38-aadb-2eda189699ff",
+          "term": "Среднее значение",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "AVG",
+          "name_ru": "Среднее значение",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         }
+        ]
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     },
+     {
+      "goal_ref": "goal-4",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "calculate_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_formula": {
+        "spec_id": "7321632f-c833-45d5-bfcd-2460267534bb",
+        "term": "Коэффициент вариации",
+        "expression": "STDDEV / AVG",
+        "dependencies": [
+         "STDDEV",
+         "AVG"
+        ],
+        "assumptions": "Используются стандартное отклонение и среднее значение за выбранный период",
+        "origin": "ad_hoc",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "unit": "доли ед.",
+        "components": [
+         {
+          "spec_id": "9dd9974e-0c4a-402a-a21a-ee1d008d88a8",
+          "term": "Стандартное отклонение",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "STDDEV",
+          "name_ru": "Стандартное отклонение",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         },
+         {
+          "spec_id": "f6492226-cb85-4398-aa2d-618ea88d7015",
+          "term": "Среднее значение",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "AVG",
+          "name_ru": "Среднее значение",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         }
+        ]
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     },
+     {
+      "goal_ref": "goal-5",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "calculate_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_formula": {
+        "spec_id": "66a28d68-01d5-47eb-b33a-3176704a979b",
+        "term": "Коэффициент вариации",
+        "expression": "STDDEV / AVG",
+        "dependencies": [
+         "STDDEV",
+         "AVG"
+        ],
+        "assumptions": "Используются стандартное отклонение и среднее значение за выбранный период",
+        "origin": "ad_hoc",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "unit": "доли ед.",
+        "components": [
+         {
+          "spec_id": "d543473f-7e8a-4085-bb78-d28b8d3a9b3e",
+          "term": "Стандартное отклонение",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "STDDEV",
+          "name_ru": "Стандартное отклонение",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         },
+         {
+          "spec_id": "97f28116-e050-498e-b72e-258ed3c5d324",
+          "term": "Среднее значение",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "AVG",
+          "name_ru": "Среднее значение",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         }
+        ]
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     },
+     {
+      "goal_ref": "goal-6",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "calculate_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_formula": {
+        "spec_id": "83569c6a-0e40-46d2-a1cb-66e6f608f51e",
+        "term": "Коэффициент вариации",
+        "expression": "STDDEV / AVG",
+        "dependencies": [
+         "STDDEV",
+         "AVG"
+        ],
+        "assumptions": "Используются стандартное отклонение и среднее значение за выбранный период",
+        "origin": "ad_hoc",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "unit": "доли ед.",
+        "components": [
+         {
+          "spec_id": "f2a55421-6272-4fb4-82ff-60cc160ea9d5",
+          "term": "Стандартное отклонение",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "STDDEV",
+          "name_ru": "Стандартное отклонение",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         },
+         {
+          "spec_id": "96de720d-4e76-41f9-ba8a-e70a47ebaf39",
+          "term": "Среднее значение",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "AVG",
+          "name_ru": "Среднее значение",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         }
+        ]
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     },
+     {
+      "goal_ref": "goal-7",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "calculate_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_formula": {
+        "spec_id": "b0ac38c3-83b9-4133-9701-97300481a6db",
+        "term": "Коэффициент вариации",
+        "expression": "STDDEV / AVG",
+        "dependencies": [
+         "STDDEV",
+         "AVG"
+        ],
+        "assumptions": "Используются стандартное отклонение и среднее значение за выбранный период",
+        "origin": "ad_hoc",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "unit": "доли ед.",
+        "components": [
+         {
+          "spec_id": "f5160dab-bb0b-4adb-a355-803c1888d40b",
+          "term": "Стандартное отклонение",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "STDDEV",
+          "name_ru": "Стандартное отклонение",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         },
+         {
+          "spec_id": "7716fcdd-2373-4c61-a38a-80cc04e9c58a",
+          "term": "Среднее значение",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "AVG",
+          "name_ru": "Среднее значение",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         }
+        ]
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     },
+     {
+      "goal_ref": "goal-8",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "calculate_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_formula": {
+        "spec_id": "f65a17f1-6e56-4698-8cdb-8bd79afb7136",
+        "term": "Коэффициент вариации",
+        "expression": "STDDEV / AVG",
+        "dependencies": [
+         "STDDEV",
+         "AVG"
+        ],
+        "assumptions": "Используются стандартное отклонение и среднее значение за выбранный период",
+        "origin": "ad_hoc",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "unit": "доли ед.",
+        "components": [
+         {
+          "spec_id": "0f0c6ea3-0ccc-448a-80c5-a70e4085d022",
+          "term": "Стандартное отклонение",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "STDDEV",
+          "name_ru": "Стандартное отклонение",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         },
+         {
+          "spec_id": "4b4d2f49-1b1a-4302-b5b7-a67609c4e62f",
+          "term": "Среднее значение",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "AVG",
+          "name_ru": "Среднее значение",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         }
+        ]
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     },
+     {
+      "goal_ref": "goal-9",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "2e4598e5-62b2-453c-9eb2-bf09caacc069",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-10",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "1c94f132-1635-4c83-b039-4554793b9b8a",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-11",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "ddd660f0-c79f-4b55-8e4a-38621e265b19",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-12",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "53a65b91-cb09-4b55-a716-6139936be585",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-13",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "319445f3-c70e-4b28-b540-fd8b0eea2c6b",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-14",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "176bc3cf-e0d2-4e8d-94a8-b41f58f89f00",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-15",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "f7f70132-27d9-432e-81ef-e1a7d3844ce3",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-16",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "ec82b1e2-804d-40b8-a152-1101b54b32b2",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-17",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "f36f66bb-a75e-425c-a6f3-2f0cf41bcac8",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-18",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "f039c4c4-b3fc-40f8-82f1-a1d2598400c6",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-19",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "34c45701-f8db-40ba-a871-0335f006bd87",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-20",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "228792af-971c-4a40-ae0f-fdc9a365ee9b",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-21",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "831af8be-326a-4794-9c82-a4e076fa0e2b",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-22",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "c902af21-17cb-40d6-a486-ccb8ffaa50ca",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-23",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "a7a86f64-25f7-4f4e-acb9-f639a1c7acf5",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     },
+     {
+      "goal_ref": "goal-24",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "dbadf427-3190-43d0-aaae-332c3833f06e",
+        "term": "Коэффициент вариации",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Коэффициент вариации",
+        "name_en": "Coefficient of Variation",
+        "aliases_ru": [
+         "коэффициент вариации",
+         "относительное стандартное отклонение"
+        ],
+        "aliases_en": [
+         "coefficient of variation",
+         "relative standard deviation"
+        ],
+        "definition": "Отношение стандартного отклонения к среднему значению, измеряет относительную волатильность",
+        "hint": "Рассчитывается как стандартное отклонение, делённое на среднее значение",
+        "value_kind": "ratio"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     }
+    ]
+   }
+  }
+ },
+ {
+  "q": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+  "n_calls": 2,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"SALES_REVENUE\"},{\"concept\":\"EBITDA\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[{\"goal_ref\":\"goal-2\",\"depends_on\":null,\"intent_kind\":\"custom_analysis\",\"targets\":null,\"analysis_concepts\":null,\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":null,\"ambiguities\":null,\"correction\":null}]}",
+   "{\"goal_ref\":\"goal-2\",\"depends_on\":[\"goal-1\"],\"intent_kind\":\"custom_analysis\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[\"Невозможно рассчитать коэффициент вариации: требуется статистическая обработка (среднее и стандартное отклонение) по временному ряду, что выходит за рамки доступных операций\"],\"ambiguities\":[],\"correction\":null}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "6a47c5d9-9758-44c1-b68a-82bfad1d4ff9",
+    "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+    "intent_kind": "extract_registered_metric",
+    "targets": [
+     {
+      "target_id": "56089000-9d87-4484-b450-c5ee15f4612e",
+      "concept": "SALES_REVENUE",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     },
+     {
+      "target_id": "52d2a399-30b8-49a8-9aa9-106991178b9c",
+      "concept": "EBITDA",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     }
+    ],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": [
+     {
+      "goal_ref": "goal-2",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "custom_analysis",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {},
+      "unresolved": [
+       "Невозможно рассчитать коэффициент вариации: требуется статистическая обработка (среднее и стандартное отклонение) по временному ряду, что выходит за рамки доступных операций"
+      ],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     }
+    ]
+   }
+  }
+ },
+ {
+  "q": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+  "n_calls": 2,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"SALES_REVENUE\"},{\"concept\":\"EBITDA\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[{\"goal_ref\":\"goal-2\",\"depends_on\":null,\"intent_kind\":\"custom_analysis\",\"targets\":null,\"analysis_concepts\":null,\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":null,\"ambiguities\":null,\"correction\":null}]}",
+   "{\"goal_ref\": \"goal-2\", \"depends_on\": [\"goal-1\"], \"intent_kind\": \"custom_analysis\", \"targets\": [], \"analysis_concepts\": [], \"ad_hoc_concept\": null, \"ad_hoc_formula\": null, \"entity_ref\": null, \"period_ref\": null, \"role\": null, \"unresolved\": [\"Коэффициент вариации не является стандартным зарегистрированным показателем и не может быть выражен простой арифметической формулой только из выручки и EBITDA, так как требует расчета среднего значения и стандартного отклонения по временному ряду\"], \"ambiguities\": [], \"correction\": null}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "91e175e7-429d-4abb-88f9-762186cab1ef",
+    "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+    "intent_kind": "extract_registered_metric",
+    "targets": [
+     {
+      "target_id": "74432e6a-5081-4cfa-9518-e2d39038a0c8",
+      "concept": "SALES_REVENUE",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     },
+     {
+      "target_id": "379ed531-998b-41f0-a3a5-4ae0441ae9a8",
+      "concept": "EBITDA",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     }
+    ],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": [
+     {
+      "goal_ref": "goal-2",
+      "raw_query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+      "intent_kind": "custom_analysis",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {},
+      "unresolved": [
+       "Коэффициент вариации не является стандартным зарегистрированным показателем и не может быть выражен простой арифметической формулой только из выручки и EBITDA, так как требует расчета среднего значения и стандартного отклонения по временному ряду"
+      ],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     }
+    ]
+   }
+  }
+ },
+ {
+  "q": "Извлеки выручку из отчёта и отдельно рассчитай, на сколько процентов изменилась среднегодовая цена нефти Brent в 2021 году по сравнению с 2020, по публичному CSV FRED https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU.",
+  "n_calls": 2,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"SALES_REVENUE\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[{\"goal_ref\":\"goal-2\",\"depends_on\":null,\"intent_kind\":\"custom_analysis\",\"targets\":null,\"analysis_concepts\":null,\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":null,\"ambiguities\":null,\"correction\":null}]}",
+   "{\"goal_ref\": \"goal-2\", \"depends_on\": [], \"intent_kind\": \"calculate_ad_hoc_metric\", \"targets\": [], \"analysis_concepts\": [], \"ad_hoc_concept\": null, \"ad_hoc_formula\": {\"name_ru\": \"Изменение среднегодовой цены нефти Brent в 2021 году по сравнению с 2020\", \"name_en\": \"Brent Crude Oil Average Price Change 2021 vs 2020\", \"definition\": \"Процентное изменение среднегодовой цены нефти Brent в 2021 году по сравнению с 2020 годом, рассчитанное на основе публичных данных FRED (DCOILBRENTEU).\", \"unit\": \"%\", \"expression\": \"(B - A) / A * 100\", \"assumptions\": \"Среднегодовая цена рассчитывается как среднее арифметическое дневных значений за соответствующий год. Данные извлекаются из CSV-файла по ссылке https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU.\", \"components\": {\"A\": \"Среднегодовая цена нефти Brent за 2020 год\", \"B\": \"Среднегодовая цена нефти Brent за 2021 год\"}}, \"entity_ref\": null, \"period_ref\": null, \"role\": null, \"unresolved\": [], \"ambiguities\": [], \"correction\": null}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "24b00679-c5b1-45c1-99da-744e043292a9",
+    "raw_query": "Извлеки выручку из отчёта и отдельно рассчитай, на сколько процентов изменилась среднегодовая цена нефти Brent в 2021 году по сравнению с 2020, по публичному CSV FRED https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU.",
+    "intent_kind": "extract_registered_metric",
+    "targets": [
+     {
+      "target_id": "39985d02-e100-4395-8a3f-4afadeb2a0fe",
+      "concept": "SALES_REVENUE",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     }
+    ],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": [
+     {
+      "goal_ref": "goal-2",
+      "raw_query": "Извлеки выручку из отчёта и отдельно рассчитай, на сколько процентов изменилась среднегодовая цена нефти Brent в 2021 году по сравнению с 2020, по публичному CSV FRED https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU.",
+      "intent_kind": "calculate_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_formula": {
+        "spec_id": "0c8fa677-baa2-42f9-b5fb-92de5b6f87a8",
+        "term": "Изменение среднегодовой цены нефти Brent в 2021 году по сравнению с 2020",
+        "expression": "(B - A) / A * 100",
+        "dependencies": [
+         "A",
+         "B"
+        ],
+        "assumptions": "Среднегодовая цена рассчитывается как среднее арифметическое дневных значений за соответствующий год. Данные извлекаются из CSV-файла по ссылке https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU.",
+        "origin": "ad_hoc",
+        "name_ru": "Изменение среднегодовой цены нефти Brent в 2021 году по сравнению с 2020",
+        "name_en": "Brent Crude Oil Average Price Change 2021 vs 2020",
+        "definition": "Процентное изменение среднегодовой цены нефти Brent в 2021 году по сравнению с 2020 годом, рассчитанное на основе публичных данных FRED (DCOILBRENTEU).",
+        "unit": "%",
+        "components": [
+         {
+          "spec_id": "cc55592d-760e-4c87-9122-253390b7bdce",
+          "term": "Среднегодовая цена нефти Brent за 2020 год",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "A",
+          "name_ru": "Среднегодовая цена нефти Brent за 2020 год",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         },
+         {
+          "spec_id": "d5d9bfe0-62bc-494d-a896-abe5adf91361",
+          "term": "Среднегодовая цена нефти Brent за 2021 год",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "B",
+          "name_ru": "Среднегодовая цена нефти Brent за 2021 год",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         }
+        ]
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     }
+    ]
+   }
+  }
+ },
+ {
+  "q": "Извлеки выручку из отчёта и отдельно рассчитай, на сколько процентов изменилась среднегодовая цена нефти Brent в 2021 году по сравнению с 2020, по публичному CSV FRED https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU.",
+  "n_calls": 2,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"SALES_REVENUE\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[{\"goal_ref\":\"goal-2\",\"depends_on\":null,\"intent_kind\":\"custom_analysis\",\"targets\":null,\"analysis_concepts\":null,\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":null,\"ambiguities\":null,\"correction\":null}]}",
+   "{\"goal_ref\": \"goal-2\", \"depends_on\": [], \"intent_kind\": \"extract_ad_hoc_metric\", \"targets\": [], \"analysis_concepts\": [], \"ad_hoc_concept\": {\"name_ru\": \"Среднегодовая цена нефти Brent\", \"name_en\": \"Average Annual Brent Crude Oil Price\", \"aliases_ru\": [\"Среднегодовая цена нефти Brent\", \"Средняя цена нефти Brent за год\"], \"aliases_en\": [\"Average Annual Brent Crude Oil Price\", \"Brent Crude Oil Average Annual Price\"], \"definition\": \"Среднеарифметическое значение ежедневных цен нефти марки Brent за календарный год, рассчитанное на основе публичных данных FRED (DCOILBRENTEU).\", \"hint\": \"Для расчёта среднегодовой цены необходимо агрегировать ежедневные значения цены за соответствующий год.\", \"value_kind\": \"money\"}, \"ad_hoc_formula\": null, \"entity_ref\": null, \"period_ref\": null, \"role\": null, \"unresolved\": [], \"ambiguities\": [], \"correction\": null}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "c7912bc2-b567-4462-bf5c-6b969f5d18c2",
+    "raw_query": "Извлеки выручку из отчёта и отдельно рассчитай, на сколько процентов изменилась среднегодовая цена нефти Brent в 2021 году по сравнению с 2020, по публичному CSV FRED https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU.",
+    "intent_kind": "extract_registered_metric",
+    "targets": [
+     {
+      "target_id": "3fff6405-757f-4d37-843c-88f12a973adb",
+      "concept": "SALES_REVENUE",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     }
+    ],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": [
+     {
+      "goal_ref": "goal-2",
+      "raw_query": "Извлеки выручку из отчёта и отдельно рассчитай, на сколько процентов изменилась среднегодовая цена нефти Brent в 2021 году по сравнению с 2020, по публичному CSV FRED https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU.",
+      "intent_kind": "extract_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_concept": {
+        "spec_id": "46ca684e-f07e-43d8-a741-7d660687f918",
+        "term": "Среднегодовая цена нефти Brent",
+        "assumptions": "",
+        "origin": "ad_hoc",
+        "key": "",
+        "name_ru": "Среднегодовая цена нефти Brent",
+        "name_en": "Average Annual Brent Crude Oil Price",
+        "aliases_ru": [
+         "Среднегодовая цена нефти Brent",
+         "Средняя цена нефти Brent за год"
+        ],
+        "aliases_en": [
+         "Average Annual Brent Crude Oil Price",
+         "Brent Crude Oil Average Annual Price"
+        ],
+        "definition": "Среднеарифметическое значение ежедневных цен нефти марки Brent за календарный год, рассчитанное на основе публичных данных FRED (DCOILBRENTEU).",
+        "hint": "Для расчёта среднегодовой цены необходимо агрегировать ежедневные значения цены за соответствующий год.",
+        "value_kind": "other"
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     }
+    ]
+   }
+  }
+ },
+ {
+  "q": "Извлеки выручку из отчёта и отдельно рассчитай, на сколько процентов изменилась среднегодовая цена нефти Brent в 2021 году по сравнению с 2020, по публичному CSV FRED https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU.",
+  "n_calls": 2,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"SALES_REVENUE\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[{\"goal_ref\":\"goal-2\",\"depends_on\":null,\"intent_kind\":\"custom_analysis\",\"targets\":null,\"analysis_concepts\":null,\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":null,\"ambiguities\":null,\"correction\":null}]}",
+   "{\"goal_ref\": \"goal-2\", \"depends_on\": [], \"intent_kind\": \"calculate_ad_hoc_metric\", \"targets\": [], \"analysis_concepts\": [], \"ad_hoc_concept\": null, \"ad_hoc_formula\": {\"name_ru\": \"Изменение среднегодовой цены нефти Brent в 2021 году по сравнению с 2020, %\", \"name_en\": \"Brent Crude Oil Average Annual Price Percentage Change 2021 vs 2020\", \"definition\": \"Процентное изменение среднегодовой цены нефти Brent в 2021 году по сравнению с 2020 годом, рассчитанное как ((Среднегодовая цена Brent 2021 - Среднегодовая цена Brent 2020) / Среднегодовая цена Brent 2020) * 100\", \"unit\": \"percent\", \"expression\": \"((B - A) / A) * 100\", \"assumptions\": \"Данные из публичного CSV FRED (DCOILBRENTEU) содержат дневные цены; среднегодовая цена рассчитывается как среднее арифметическое дневных цен за соответствующий календарный год.\", \"components\": {\"A\": \"Среднегодовая цена нефти Brent за 2020 год\", \"B\": \"Среднегодовая цена нефти Brent за 2021 год\"}}, \"entity_ref\": null, \"period_ref\": null, \"role\": null, \"unresolved\": [], \"ambiguities\": [], \"correction\": null}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "2689eb52-e733-42fe-9c49-913cc5026fa3",
+    "raw_query": "Извлеки выручку из отчёта и отдельно рассчитай, на сколько процентов изменилась среднегодовая цена нефти Brent в 2021 году по сравнению с 2020, по публичному CSV FRED https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU.",
+    "intent_kind": "extract_registered_metric",
+    "targets": [
+     {
+      "target_id": "12b03b38-b4da-470b-8b0e-7cd2e3142682",
+      "concept": "SALES_REVENUE",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     }
+    ],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": [
+     {
+      "goal_ref": "goal-2",
+      "raw_query": "Извлеки выручку из отчёта и отдельно рассчитай, на сколько процентов изменилась среднегодовая цена нефти Brent в 2021 году по сравнению с 2020, по публичному CSV FRED https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU.",
+      "intent_kind": "calculate_ad_hoc_metric",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {
+       "ad_hoc_formula": {
+        "spec_id": "e15df248-f0a7-420c-8847-c39c4245f7bd",
+        "term": "Изменение среднегодовой цены нефти Brent в 2021 году по сравнению с 2020, %",
+        "expression": "((B - A) / A) * 100",
+        "dependencies": [
+         "A",
+         "B"
+        ],
+        "assumptions": "Данные из публичного CSV FRED (DCOILBRENTEU) содержат дневные цены; среднегодовая цена рассчитывается как среднее арифметическое дневных цен за соответствующий календарный год.",
+        "origin": "ad_hoc",
+        "name_ru": "Изменение среднегодовой цены нефти Brent в 2021 году по сравнению с 2020, %",
+        "name_en": "Brent Crude Oil Average Annual Price Percentage Change 2021 vs 2020",
+        "definition": "Процентное изменение среднегодовой цены нефти Brent в 2021 году по сравнению с 2020 годом, рассчитанное как ((Среднегодовая цена Brent 2021 - Среднегодовая цена Brent 2020) / Среднегодовая цена Brent 2020) * 100",
+        "unit": "percent",
+        "components": [
+         {
+          "spec_id": "1e42f17d-9236-4f10-9a76-7e1a99b063ac",
+          "term": "Среднегодовая цена нефти Brent за 2020 год",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "A",
+          "name_ru": "Среднегодовая цена нефти Brent за 2020 год",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         },
+         {
+          "spec_id": "007c2f31-f807-4cef-ba1f-0e61d534143b",
+          "term": "Среднегодовая цена нефти Brent за 2021 год",
+          "assumptions": "",
+          "origin": "ad_hoc",
+          "key": "B",
+          "name_ru": "Среднегодовая цена нефти Brent за 2021 год",
+          "name_en": "",
+          "aliases_ru": [],
+          "aliases_en": [],
+          "definition": "",
+          "hint": "",
+          "value_kind": "other"
+         }
+        ]
+       }
+      },
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": []
+     }
+    ]
+   }
+  }
+ },
+ {
+  "q": "Извлеки выручку и извлеки EBITDA.",
+  "n_calls": 1,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"SALES_REVENUE\"},{\"concept\":\"EBITDA\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[]}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "3f0bf00a-4eb1-41a0-bf65-8b67937c0571",
+    "raw_query": "Извлеки выручку и извлеки EBITDA.",
+    "intent_kind": "extract_registered_metric",
+    "targets": [
+     {
+      "target_id": "4eab871f-aef0-4508-aac0-551794565e07",
+      "concept": "SALES_REVENUE",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     },
+     {
+      "target_id": "928a0dba-e457-4e8b-8fd0-527319e9a651",
+      "concept": "EBITDA",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     }
+    ],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": []
+   }
+  }
+ },
+ {
+  "q": "Извлеки выручку и выгрузи результат в Excel-файл.",
+  "n_calls": 1,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"SALES_REVENUE\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[\"выгрузи результат в Excel-файл\"],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[]}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "29a42704-8bfa-49b7-af0e-02941bb57940",
+    "raw_query": "Извлеки выручку и выгрузи результат в Excel-файл.",
+    "intent_kind": "extract_registered_metric",
+    "targets": [
+     {
+      "target_id": "0d84721a-d592-4a0c-981c-a5bc96fa0137",
+      "concept": "SALES_REVENUE",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     }
+    ],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [
+     "выгрузи результат в Excel-файл"
+    ],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": []
+   }
+  }
+ },
+ {
+  "q": "Извлеки прибыль и посчитай для неё коэффициент вариации.",
+  "n_calls": 2,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"PROFIT_FROM_SALES\"},{\"concept\":\"EBT\"},{\"concept\":\"NET_INCOME\"},{\"concept\":\"EBITDA\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[{\"goal_ref\":\"goal-2\",\"depends_on\":null,\"intent_kind\":\"custom_analysis\",\"targets\":null,\"analysis_concepts\":null,\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":null,\"ambiguities\":null,\"correction\":null}]}",
+   "{\"goal_ref\":\"goal-2\",\"depends_on\":[\"goal-1\"],\"intent_kind\":\"custom_analysis\",\"intent_kind\":\"custom_analysis\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_ad_hoc_formula\":{\"name_ru\":\"Коэффициент\",\"ad_hoc_ad_hoc_ad_hoc_ad_hoc_formula\":{\"name_ru\":\"Коэффициент вариации прибыли\",\"name_en\":\"Profit Coefficient of Variation\",\"definition\":\"Отношение стандартного отклонения прибыли к её среднему значению за период\",\"unit\":\"%\",\"expression\":\"STDDEV / AVG\",\"assumptions\":\"Прибыль извлеч\",\"components\":\"Прибыль извлеч\",\"components\":\"Прибыль извлечена из goal-1\"},\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[],\"ambiguities\":[],\"correction\":null},\"unresolved\":[],\"ambiguities\":[],\"correction\":null}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "29b6168a-e431-414f-80f3-3d2b2c60ddef",
+    "raw_query": "Извлеки прибыль и посчитай для неё коэффициент вариации.",
+    "intent_kind": "extract_registered_metric",
+    "targets": [
+     {
+      "target_id": "e376c34e-e686-48e7-8393-458cbb163120",
+      "concept": "PROFIT_FROM_SALES",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     },
+     {
+      "target_id": "9661ec21-5307-4602-842d-60bd9fe2201d",
+      "concept": "EBT",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     },
+     {
+      "target_id": "67d98a23-9e45-4a57-8938-28c777c960f8",
+      "concept": "NET_INCOME",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     },
+     {
+      "target_id": "c6e3edfd-7daf-46ed-a8c1-0acef458d66d",
+      "concept": "EBITDA",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     }
+    ],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": [
+     {
+      "goal_ref": "goal-2",
+      "raw_query": "Извлеки прибыль и посчитай для неё коэффициент вариации.",
+      "intent_kind": "custom_analysis",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {},
+      "unresolved": [],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     }
+    ]
+   }
+  }
+ },
+ {
+  "q": "Извлеки прибыль и посчитай для неё коэффициент вариации.",
+  "n_calls": 2,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"PROFIT_FROM_SALES\"},{\"concept\":\"EBT\"},{\"concept\":\"NET_INCOME\"},{\"concept\":\"EBITDA\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[{\"goal_ref\":\"goal-2\",\"depends_on\":null,\"intent_kind\":\"custom_analysis\",\"targets\":null,\"analysis_concepts\":null,\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":null,\"ambiguities\":null,\"correction\":null}]}",
+   "{\"goal_ref\": \"goal-2\", \"depends_on\": [\"goal-1\"], \"intent_kind\": \"custom_analysis\", \"targets\": [], \"analysis_concepts\": [], \"ad_hoc_concept\": null, \"ad_hoc_formula\": null, \"entity_ref\": null, \"period_ref\": null, \"role\": null, \"unresolved\": [\"Коэффициент вариации не является стандартным зарегистрированным показателем и не может быть выражен через простую арифметическую формулу с использованием только зарегистрированных показателей. Для его расчёта требуется статистическая обработка временного ряда (среднее и стандартное отклонение), что выходит за рамки доступных операций.\"], \"ambiguities\": [], \"correction\": null}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "9b870517-0e66-4e4a-8829-82f2430d8023",
+    "raw_query": "Извлеки прибыль и посчитай для неё коэффициент вариации.",
+    "intent_kind": "extract_registered_metric",
+    "targets": [
+     {
+      "target_id": "8ce4b42f-6d13-41fc-8282-68fa5452e91d",
+      "concept": "PROFIT_FROM_SALES",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     },
+     {
+      "target_id": "d25d7f05-8979-4cf2-85a2-8205c56d2ec1",
+      "concept": "EBT",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     },
+     {
+      "target_id": "eafc83f9-c0e1-4f37-b0aa-90a0354c24c9",
+      "concept": "NET_INCOME",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     },
+     {
+      "target_id": "83314edb-0fa9-46a4-909b-64345622bace",
+      "concept": "EBITDA",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     }
+    ],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": [
+     {
+      "goal_ref": "goal-2",
+      "raw_query": "Извлеки прибыль и посчитай для неё коэффициент вариации.",
+      "intent_kind": "custom_analysis",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {},
+      "unresolved": [
+       "Коэффициент вариации не является стандартным зарегистрированным показателем и не может быть выражен через простую арифметическую формулу с использованием только зарегистрированных показателей. Для его расчёта требуется статистическая обработка временного ряда (среднее и стандартное отклонение), что выходит за рамки доступных операций."
+      ],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     }
+    ]
+   }
+  }
+ },
+ {
+  "q": "Извлеки чистую процентную маржу.",
+  "n_calls": 1,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Чистая процентная маржа\",\"name_en\":\"Net Interest Margin\",\"aliases_ru\":[\"чистая процентная маржа\",\"процентная маржа\",\"маржа процентного дохода\",\"NIM\",\"чистый процентный спред\"],\"aliases_en\":[\"net interest margin\",\"NIM\",\"interest margin\",\"net interest spread\"],\"definition\":\"Отношение чистого процентного дохода к средним процентным активам, показывающее эффективность управления процентными доходами и расходами.\",\"hint\":\"Рассчитывается как чистый процентный доход, делённый на средние процентные активы. Ищите в примечаниях к отчётности, обычно в разделе о процентных доходах и расходах или в анализе финансовых результатов.\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[]}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "41f3027a-4c4f-4d7a-b702-fbf0655f1738",
+    "raw_query": "Извлеки чистую процентную маржу.",
+    "intent_kind": "extract_ad_hoc_metric",
+    "targets": [],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {
+     "ad_hoc_concept": {
+      "spec_id": "0b81d47c-d463-46a4-9c58-5e6c4d928381",
+      "term": "Чистая процентная маржа",
+      "assumptions": "",
+      "origin": "ad_hoc",
+      "key": "",
+      "name_ru": "Чистая процентная маржа",
+      "name_en": "Net Interest Margin",
+      "aliases_ru": [
+       "чистая процентная маржа",
+       "процентная маржа",
+       "маржа процентного дохода",
+       "NIM",
+       "чистый процентный спред"
+      ],
+      "aliases_en": [
+       "net interest margin",
+       "NIM",
+       "interest margin",
+       "net interest spread"
+      ],
+      "definition": "Отношение чистого процентного дохода к средним процентным активам, показывающее эффективность управления процентными доходами и расходами.",
+      "hint": "Рассчитывается как чистый процентный доход, делённый на средние процентные активы. Ищите в примечаниях к отчётности, обычно в разделе о процентных доходах и расходах или в анализе финансовых результатов.",
+      "value_kind": "ratio"
+     }
+    },
+    "unresolved": [],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": []
+   }
+  }
+ },
+ {
+  "q": "Покажи маржу компании и посчитай для неё коэффициент вариации.",
+  "n_calls": 2,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_ad_hoc_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":{\"name_ru\":\"Маржа\",\"name_en\":\"Margin\",\"aliases_ru\":[\"маржа\",\"маржа прибыли\",\"рентабельность\",\"маржа чистой прибыли\",\"маржа валовой прибыли\",\"операционная маржа\",\"маржа EBITDA\",\"коэффициент маржи\",\"прибыльность\",\"уровень маржи\"],\"aliases_en\":[\"margin\",\"profit margin\",\"net margin\",\"gross margin\",\"operating margin\",\"EBITDA margin\",\"margin ratio\",\"profitability\",\"margin level\"],\"definition\":\"Показатель рентабельности, отражающий долю прибыли в выручке или другой базе.\",\"hint\":\"Искать в отчете о прибылях и убытках или примечаниях, может быть представлен в процентах или долях.\",\"value_kind\":\"ratio\"},\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[{\"term\":\"маржа\",\"candidates\":null,\"reason\":\"Не указан конкретный вид маржи (валовая, операционная, чистая и т.д.). Требуется уточнение.\"}],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[{\"goal_ref\":\"goal-2\",\"depends_on\":null,\"intent_kind\":\"custom_analysis\",\"targets\":null,\"analysis_concepts\":null,\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":null,\"ambiguities\":null,\"correction\":null}]}",
+   "{\"goal_ref\": \"goal-2\", \"depends_on\": [\"goal-1\"], \"intent_kind\": \"custom_analysis\", \"targets\": [], \"analysis_concepts\": [], \"ad_hoc_concept\": null, \"ad_hoc_formula\": null, \"entity_ref\": null, \"period_ref\": null, \"role\": null, \"unresolved\": [\"Невозможно рассчитать коэффициент вариации без указания конкретного вида маржи и без доступа к историческим данным для вычисления среднего и стандартного отклонения.\"], \"ambiguities\": [], \"correction\": null}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "3c3c819b-1200-4a85-b3fb-c29f8e2cbb7c",
+    "raw_query": "Покажи маржу компании и посчитай для неё коэффициент вариации.",
+    "intent_kind": "extract_ad_hoc_metric",
+    "targets": [],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {
+     "ad_hoc_concept": {
+      "spec_id": "f7e4759e-d9e3-4377-a86f-68b16f7e1660",
+      "term": "Маржа",
+      "assumptions": "",
+      "origin": "ad_hoc",
+      "key": "",
+      "name_ru": "Маржа",
+      "name_en": "Margin",
+      "aliases_ru": [
+       "маржа",
+       "маржа прибыли",
+       "рентабельность",
+       "маржа чистой прибыли",
+       "маржа валовой прибыли",
+       "операционная маржа",
+       "маржа EBITDA",
+       "коэффициент маржи",
+       "прибыльность",
+       "уровень маржи"
+      ],
+      "aliases_en": [
+       "margin",
+       "profit margin",
+       "net margin",
+       "gross margin",
+       "operating margin",
+       "EBITDA margin",
+       "margin ratio",
+       "profitability",
+       "margin level"
+      ],
+      "definition": "Показатель рентабельности, отражающий долю прибыли в выручке или другой базе.",
+      "hint": "Искать в отчете о прибылях и убытках или примечаниях, может быть представлен в процентах или долях.",
+      "value_kind": "ratio"
+     }
+    },
+    "unresolved": [],
+    "ambiguities": [
+     {
+      "term": "маржа",
+      "candidates": [],
+      "reason": "Не указан конкретный вид маржи (валовая, операционная, чистая и т.д.). Требуется уточнение."
+     }
+    ],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": [
+     {
+      "goal_ref": "goal-2",
+      "raw_query": "Покажи маржу компании и посчитай для неё коэффициент вариации.",
+      "intent_kind": "custom_analysis",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {},
+      "unresolved": [
+       "Невозможно рассчитать коэффициент вариации без указания конкретного вида маржи и без доступа к историческим данным для вычисления среднего и стандартного отклонения."
+      ],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     }
+    ]
+   }
+  }
+ },
+ {
+  "q": "Какой долг у компании и посчитай для него коэффициент вариации?",
+  "n_calls": 2,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"TOTAL_DEBT\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[{\"goal_ref\":\"goal-2\",\"depends_on\":null,\"intent_kind\":\"custom_analysis\",\"targets\":null,\"analysis_concepts\":null,\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":null,\"ambiguities\":null,\"correction\":null}]}",
+   "{\"goal_ref\": \"goal-2\", \"depends_on\": [\"goal-1\"], \"intent_kind\": \"custom_analysis\", \"targets\": [], \"analysis_concepts\": [], \"ad_hoc_concept\": null, \"ad_hoc_formula\": null, \"entity_ref\": null, \"period_ref\": null, \"role\": null, \"unresolved\": [\"Невозможно рассчитать коэффициент вариации для одного показателя без указания периода или набора данных\"], \"ambiguities\": [], \"correction\": null}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "58d03d8b-a0f2-41b1-8e8b-46a92850786d",
+    "raw_query": "Какой долг у компании и посчитай для него коэффициент вариации?",
+    "intent_kind": "extract_registered_metric",
+    "targets": [
+     {
+      "target_id": "32047e13-1096-44d4-ae03-6aa8ac6ff063",
+      "concept": "TOTAL_DEBT",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     }
+    ],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": [
+     {
+      "goal_ref": "goal-2",
+      "raw_query": "Какой долг у компании и посчитай для него коэффициент вариации?",
+      "intent_kind": "custom_analysis",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {},
+      "unresolved": [
+       "Невозможно рассчитать коэффициент вариации для одного показателя без указания периода или набора данных"
+      ],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     }
+    ]
+   }
+  }
+ },
+ {
+  "q": "Извлеки рентабельность и посчитай для неё коэффициент вариации.",
+  "n_calls": 2,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[\"рентабельность\"],\"ambiguities\":[{\"term\":\"рентабельность\",\"candidates\":null,\"reason\":\"Не указан конкретный вид рентабельности. Возможные варианты: PROFIT_FROM_SALES_MARGIN, EBIT_MARGIN, ROA, EBITDA_MARGIN, ROE, ROE_SHAREHOLDERS.\"}],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[{\"goal_ref\":\"goal-2\",\"depends_on\":null,\"intent_kind\":\"custom_analysis\",\"targets\":null,\"analysis_concepts\":null,\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":null,\"ambiguities\":null,\"correction\":null}]}",
+   "{\"goal_ref\":\"goal-2\",\"depends_on\":[\"goal-1\"],\"intent_kind\":\"custom_analysis\",\"targets\":[],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":[\"Не указан конкретный вид рентабельности для расчёта коэффициента вариации. Требуется уточнение у пользователя.\"],\"ambiguities\":[],\"correction\":null}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "5caaacc9-eafd-4e7f-a920-d1ef524191fb",
+    "raw_query": "Извлеки рентабельность и посчитай для неё коэффициент вариации.",
+    "intent_kind": "extract_registered_metric",
+    "targets": [],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [
+     "рентабельность"
+    ],
+    "ambiguities": [
+     {
+      "term": "рентабельность",
+      "candidates": [],
+      "reason": "Не указан конкретный вид рентабельности. Возможные варианты: PROFIT_FROM_SALES_MARGIN, EBIT_MARGIN, ROA, EBITDA_MARGIN, ROE, ROE_SHAREHOLDERS."
+     }
+    ],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": [
+     {
+      "goal_ref": "goal-2",
+      "raw_query": "Извлеки рентабельность и посчитай для неё коэффициент вариации.",
+      "intent_kind": "custom_analysis",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {},
+      "unresolved": [
+       "Не указан конкретный вид рентабельности для расчёта коэффициента вариации. Требуется уточнение у пользователя."
+      ],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     }
+    ]
+   }
+  }
+ },
+ {
+  "q": "Извлеки капитал компании и посчитай для него коэффициент вариации.",
+  "n_calls": 2,
+  "raws": [
+   "{\"route\":\"plan\",\"intent_kind\":\"extract_registered_metric\",\"targets\":[{\"concept\":\"TOTAL_EQUITY\"}],\"analysis_concepts\":[],\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":\"other\",\"unresolved\":[],\"ambiguities\":[],\"correction\":null,\"goal_ref\":\"goal-1\",\"depends_on\":[],\"additional_goals\":[{\"goal_ref\":\"goal-2\",\"depends_on\":null,\"intent_kind\":\"custom_analysis\",\"targets\":null,\"analysis_concepts\":null,\"ad_hoc_concept\":null,\"ad_hoc_formula\":null,\"entity_ref\":null,\"period_ref\":null,\"role\":null,\"unresolved\":null,\"ambiguities\":null,\"correction\":null}]}",
+   "{\"goal_ref\": \"goal-2\", \"depends_on\": [\"goal-1\"], \"intent_kind\": \"custom_analysis\", \"targets\": [], \"analysis_concepts\": [], \"ad_hoc_concept\": null, \"ad_hoc_formula\": null, \"entity_ref\": null, \"period_ref\": null, \"role\": null, \"unresolved\": [\"Невозможно построить арифметическую формулу для коэффициента вариации, так как он требует статистического расчёта (стандартное отклонение / среднее), что невыразимо через простые арифметические операции с извлечёнными показателями.\"], \"ambiguities\": [], \"correction\": null}"
+  ],
+  "result": {
+   "ok": true,
+   "route": "plan",
+   "goal": {
+    "goal_id": "236a6933-acfb-411a-aaca-73ca0b10abb4",
+    "raw_query": "Извлеки капитал компании и посчитай для него коэффициент вариации.",
+    "intent_kind": "extract_registered_metric",
+    "targets": [
+     {
+      "target_id": "d01c8410-c6c3-4f04-a69f-1c4a09859e3d",
+      "concept": "TOTAL_EQUITY",
+      "period_ref": null,
+      "entity_ref": null,
+      "output_kind": "scalar"
+     }
+    ],
+    "entity_ref": null,
+    "period_ref": null,
+    "role": "other",
+    "parameters": {},
+    "unresolved": [],
+    "ambiguities": [],
+    "correction": null,
+    "goal_ref": "goal-1",
+    "depends_on": [],
+    "additional_goals": [
+     {
+      "goal_ref": "goal-2",
+      "raw_query": "Извлеки капитал компании и посчитай для него коэффициент вариации.",
+      "intent_kind": "custom_analysis",
+      "targets": [],
+      "entity_ref": null,
+      "period_ref": null,
+      "role": "other",
+      "parameters": {},
+      "unresolved": [
+       "Невозможно построить арифметическую формулу для коэффициента вариации, так как он требует статистического расчёта (стандартное отклонение / среднее), что невыразимо через простые арифметические операции с извлечёнными показателями."
+      ],
+      "ambiguities": [],
+      "depends_on": [
+       "goal-1"
+      ]
+     }
+    ]
+   }
+  }
+ }
+]

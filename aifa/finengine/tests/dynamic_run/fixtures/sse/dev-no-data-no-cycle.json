@@ -1,0 +1,583 @@
+[
+  {
+    "session_id": "<uuid-1>",
+    "type": "session_id"
+  },
+  {
+    "text": "Разбираю запрос…",
+    "type": "thinking"
+  },
+  {
+    "args_summary": "Извлеки чистую процентную маржу.",
+    "name": "financial_pipeline",
+    "type": "tool_call"
+  },
+  {
+    "graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+          "atom_name": "ingest.document",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "document_text"
+        ],
+        "requires": [],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+          "atom_name": "identify.classify",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "RunPassport"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+          "atom_name": "locate",
+          "atom_version": "1.0.2"
+        },
+        "produces": [
+          "CandidateLocator:Чистая процентная маржа"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+          "atom_name": "read.value",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:Чистая процентная маржа"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "locate",
+            "atom_version": "1.0.2"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "ea477eb7261bf3a4ba94f796d9c60694330735085532c779e165e9ae0bc2371f",
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:unit"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "read.value",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "1850861b00c8241445777b99384f0777027ddb005e09685e7ee6ae852fb4b2d8",
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:time"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "ea477eb7261bf3a4ba94f796d9c60694330735085532c779e165e9ae0bc2371f",
+            "atom_name": "norm.unit",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "0a84020704bc41ce5fe119347aa71c71415dffb45716672061f0b646b2838fcf",
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:bounds"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "1850861b00c8241445777b99384f0777027ddb005e09685e7ee6ae852fb4b2d8",
+            "atom_name": "norm.time",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "1.0.0",
+    "root": {
+      "args_fingerprint": "0a84020704bc41ce5fe119347aa71c71415dffb45716672061f0b646b2838fcf",
+      "atom_name": "verify.bounds",
+      "atom_version": "1.0.0"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ea477eb7261bf3a4ba94f796d9c60694330735085532c779e165e9ae0bc2371f",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "1850861b00c8241445777b99384f0777027ddb005e09685e7ee6ae852fb4b2d8",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "0a84020704bc41ce5fe119347aa71c71415dffb45716672061f0b646b2838fcf",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "content:db7118e32b873b4aff36a9e6dd0a46f697414e6e6e9bd84da356c342e903effa"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-2>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=Чистая процентная маржа;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ea477eb7261bf3a4ba94f796d9c60694330735085532c779e165e9ae0bc2371f",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ea477eb7261bf3a4ba94f796d9c60694330735085532c779e165e9ae0bc2371f",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "1850861b00c8241445777b99384f0777027ddb005e09685e7ee6ae852fb4b2d8",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "1850861b00c8241445777b99384f0777027ddb005e09685e7ee6ae852fb4b2d8",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "0a84020704bc41ce5fe119347aa71c71415dffb45716672061f0b646b2838fcf",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "0a84020704bc41ce5fe119347aa71c71415dffb45716672061f0b646b2838fcf",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:65f8dff2e07c5c08ba225aae5e75a13dfbd643e426f3d11e5fdf471e21f050de",
+    "type": "node_run"
+  },
+  {
+    "error": {
+      "code": "metric_not_found",
+      "details": {},
+      "message": "Показатель «Чистая процентная маржа» не найден в отчёте. Искал также по: чистая процентная маржа, маржа чистая процентная, NIM, процентная маржа, чистый процентный спред, net interest margin, NIM, interest margin, net interest spread.",
+      "node_key": null,
+      "retryable": false
+    },
+    "partial_results": [],
+    "type": "typed_error"
+  },
+  {
+    "name": "financial_pipeline",
+    "ok": false,
+    "type": "tool_output"
+  },
+  {
+    "sources": [
+      {
+        "company_name": "ПрайсвотерхаусКуперс Аудит",
+        "filename": "Novatek_FS_12m2021_RUS.pdf"
+      }
+    ],
+    "type": "sources"
+  },
+  {
+    "status": "failed",
+    "type": "done"
+  }
+]

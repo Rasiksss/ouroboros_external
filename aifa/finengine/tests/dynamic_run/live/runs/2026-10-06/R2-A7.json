@@ -1,0 +1,103 @@
+{
+ "label": "R2-A7",
+ "query": "Извлеки рентабельность и посчитай для неё коэффициент вариации.",
+ "doc_id": "9dba0a66-a5a0-4012-8cd1-235ab8e25fe4",
+ "run_id": "df9e640d-ec49-4b6e-93c8-c1af9f2266cf",
+ "elapsed_s": 54.4,
+ "events": [
+  {
+   "schema_version": "1.0",
+   "event_id": "ec587667-44be-4ba8-b4ac-12c513a52a2d",
+   "run_id": "df9e640d-ec49-4b6e-93c8-c1af9f2266cf",
+   "sequence": 1,
+   "occurred_at": "2026-10-06T18:13:10.830413Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "session_id",
+    "session_id": "df374ed0-a1bc-4290-82ef-2dedb7c9ebd6"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "e7827639-4de9-417c-bb9b-968fba513f2f",
+   "run_id": "df9e640d-ec49-4b6e-93c8-c1af9f2266cf",
+   "sequence": 2,
+   "occurred_at": "2026-10-06T18:13:10.830453Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "thinking",
+    "text": "Разбираю запрос…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "b275a678-21de-4da1-9ccd-79a490c199c3",
+   "run_id": "df9e640d-ec49-4b6e-93c8-c1af9f2266cf",
+   "sequence": 3,
+   "occurred_at": "2026-10-06T18:13:44.532754Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_call",
+    "name": "financial_pipeline",
+    "args_summary": "Извлеки рентабельность и посчитай для неё коэффициент вар…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "77432e39-3b99-4f18-8436-410860b323a3",
+   "run_id": "df9e640d-ec49-4b6e-93c8-c1af9f2266cf",
+   "sequence": 4,
+   "occurred_at": "2026-10-06T18:13:44.532873Z",
+   "event_type": "error",
+   "error": {
+    "code": "goal_needs_clarification",
+    "message": "нужно уточнение: неоднозначные термины: рентабельность",
+    "retryable": true,
+    "node_key": null,
+    "details": {}
+   },
+   "partial_results": []
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "3171391d-7350-4cef-a724-4ed7e2495534",
+   "run_id": "df9e640d-ec49-4b6e-93c8-c1af9f2266cf",
+   "sequence": 5,
+   "occurred_at": "2026-10-06T18:13:44.543211Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_output",
+    "name": "financial_pipeline",
+    "ok": false
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "91c72492-3217-498c-b8e2-ef39d2e30351",
+   "run_id": "df9e640d-ec49-4b6e-93c8-c1af9f2266cf",
+   "sequence": 6,
+   "occurred_at": "2026-10-06T18:13:44.543326Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "sources",
+    "sources": [
+     {
+      "filename": "Novatek_FS_12m2021_RUS.pdf",
+      "company_name": "ПрайсвотерхаусКуперс Аудит"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "4a5251ea-304e-4202-b987-1ffd98900e97",
+   "run_id": "df9e640d-ec49-4b6e-93c8-c1af9f2266cf",
+   "sequence": 7,
+   "occurred_at": "2026-10-06T18:13:44.543367Z",
+   "event_type": "completed",
+   "status": "failed"
+  }
+ ],
+ "session_id": "df374ed0-a1bc-4290-82ef-2dedb7c9ebd6",
+ "started_utc": "2026-10-06T18:13:46Z"
+}

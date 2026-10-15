@@ -1,0 +1,308 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  /* Шрифты ведёт активная тема: утилиты ссылаются на её токены
+   * (--font-body / --font-heading задаются блоками [data-theme] ниже).
+   * `@theme inline` подставляет var() в утилиты и НЕ объявляет переменную
+   * повторно — самоссылки не возникает. */
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-body);
+  --font-heading: var(--font-heading);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * ТЕМЫ (дизайн-хендофф, эталон — prototypes/AIFA Documents v2 - *.dc.html).
+ *
+ * Один источник правды — токены темы (--color-*, --font-*, --radius-*), взятые
+ * из объекта `themes` прототипа один-в-один. Семантика shadcn (--background,
+ * --primary, …) НЕ дублирует палитру, а ВЫВОДИТСЯ из этих токенов ниже, чтобы
+ * существующие компоненты подхватывали тему без правок.
+ *
+ * Тему ставит ThemeBridge атрибутом data-theme на <html>; для «Терминала»
+ * дополнительно вешается класс .dark (у части компонентов есть dark:-варианты).
+ *
+ * Шрифты: Индастри в эталоне на Barlow / Barlow Condensed — у них НЕТ
+ * кириллицы (проверено по Google Fonts: latin, latin-ext, vietnamese), русский
+ * текст свалился бы на системный фоллбэк. Взяты ближайшие технические
+ * гротески с кириллицей — Roboto / Roboto Condensed.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+:root,
+:root[data-theme="classic"] {
+  --font-heading: var(--font-cormorant), Georgia, serif;
+  --font-body: var(--font-lora), Georgia, serif;
+  --font-heading-weight: 600;
+
+  --color-bg: #f3f2f2;
+  --color-surface: #fbfaf9;
+  --color-text: #201f1d;
+  --color-divider: #dcd8d3;
+  --color-neutral-100: #eeeceb;
+  --color-neutral-200: #e6e3e0;
+  --color-neutral-300: #d6d2cd;
+  --color-neutral-400: #b3aea8;
+  --color-neutral-500: #8b857e;
+  --color-neutral-600: #6d6862;
+  --color-neutral-700: #4f4b46;
+  --color-neutral-800: #33302c;
+  --color-neutral-900: #201f1d;
+  --color-accent: #b68235;
+  --color-accent-100: #f6ecdc;
+  --color-accent-200: #ecd9b9;
+  --color-accent-300: #dcc08a;
+  --color-accent-400: #c89e58;
+  --color-accent-500: #b68235;
+  --color-accent-600: #9c6c28;
+  --color-accent-700: #7f5720;
+  --color-accent-800: #5d3f17;
+  --radius-token-sm: 3px;
+  --radius-token-md: 4px;
+}
+
+:root[data-theme="industry"] {
+  --font-heading: var(--font-roboto-condensed), "Arial Narrow", sans-serif;
+  --font-body: var(--font-roboto), system-ui, sans-serif;
+  --font-heading-weight: 600;
+
+  --color-bg: #f2f2f3;
+  --color-surface: #fbfbfc;
+  --color-text: #1d1f20;
+  --color-divider: #d5d7da;
+  --color-neutral-100: #eeeff1;
+  --color-neutral-200: #e5e7ea;
+  --color-neutral-300: #d0d3d7;
+  --color-neutral-400: #a8adb4;
+  --color-neutral-500: #7f858d;
+  --color-neutral-600: #636870;
+  --color-neutral-700: #474c53;
+  --color-neutral-800: #2f3338;
+  --color-neutral-900: #1d1f20;
+  --color-accent: #5980a6;
+  --color-accent-100: #e8eef5;
+  --color-accent-200: #cddcea;
+  --color-accent-300: #a9c2d9;
+  --color-accent-400: #7ba0c1;
+  --color-accent-500: #5980a6;
+  --color-accent-600: #476a8c;
+  --color-accent-700: #3a5872;
+  --color-accent-800: #2a4054;
+  --radius-token-sm: 0px;
+  --radius-token-md: 0px;
+}
+
+:root[data-theme="terminal"] {
+  --font-heading: var(--font-plex-mono), ui-monospace, monospace;
+  --font-body: var(--font-inter), "Helvetica Neue", Helvetica, sans-serif;
+  --font-heading-weight: 600;
+
+  --color-bg: #16181a;
+  --color-surface: #1b1e20;
+  --color-text: #e7e5e2;
+  --color-divider: #2b2f33;
+  --color-neutral-100: #1f2325;
+  --color-neutral-200: #101214;
+  --color-neutral-300: #2b2f33;
+  --color-neutral-400: #3a3f42;
+  --color-neutral-500: #6a6f6e;
+  --color-neutral-600: #8d918f;
+  --color-neutral-700: #a8aca9;
+  --color-neutral-800: #cfcdc9;
+  --color-neutral-900: #e7e5e2;
+  --color-accent: #3fbfa0;
+  --color-accent-100: #17322c;
+  --color-accent-200: #1d453c;
+  --color-accent-300: #2a6b5c;
+  --color-accent-400: #35a086;
+  --color-accent-500: #3fbfa0;
+  --color-accent-600: #4fd3b2;
+  --color-accent-700: #74e2c6;
+  --color-accent-800: #a2eedb;
+  --radius-token-sm: 3px;
+  --radius-token-md: 5px;
+}
+
+/* Семантика shadcn выводится из токенов темы — одно место, все три темы. */
+:root {
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-accent);
+  --primary-foreground: var(--color-surface);
+  --secondary: var(--color-neutral-200);
+  --secondary-foreground: var(--color-neutral-800);
+  --muted: var(--color-neutral-100);
+  --muted-foreground: var(--color-neutral-600);
+  /* shadcn зовёт «accent» подложку наведения, а не акцентный цвет бренда. */
+  --accent: var(--color-accent-100);
+  --accent-foreground: var(--color-accent-700);
+  --destructive: #c0392b;
+  --border: var(--color-divider);
+  --input: var(--color-divider);
+  --ring: var(--color-accent);
+  --chart-1: var(--color-accent-500);
+  --chart-2: var(--color-accent-300);
+  --chart-3: var(--color-neutral-500);
+  --chart-4: var(--color-accent-700);
+  --chart-5: var(--color-neutral-400);
+  --radius: var(--radius-token-md);
+  --sidebar: var(--color-bg);
+  --sidebar-foreground: var(--color-text);
+  --sidebar-primary: var(--color-accent);
+  --sidebar-primary-foreground: var(--color-surface);
+  --sidebar-accent: var(--color-accent-100);
+  --sidebar-accent-foreground: var(--color-accent-700);
+  --sidebar-border: var(--color-divider);
+  --sidebar-ring: var(--color-accent);
+}
+
+:root[data-theme="terminal"] {
+  /* На тёмной теме destructive должен светиться, а не тонуть. */
+  --destructive: #e5654f;
+}
+
+/* Размер текста и плотность (раздел «Внешний вид»). Кегль правит корневой
+ * rem — вся вёрстка на rem/em масштабируется вместе с ним. */
+:root[data-text-size="small"] { font-size: 14px; }
+:root[data-text-size="normal"] { font-size: 16px; }
+:root[data-text-size="large"] { font-size: 18px; }
+
+:root[data-density="dense"] { --density-scale: 0.85; }
+:root[data-density="normal"] { --density-scale: 1; }
+:root[data-density="roomy"] { --density-scale: 1.15; }
+
+/* Перетаскивание панелей рабочей поверхности: браузер иначе начинает штатное
+ * выделение текста и подсвечивает пол-экрана. Класс вешает use-panel-layout
+ * на время жеста. */
+body.aifa-dragging,
+body.aifa-dragging * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  /* Editorial serif headings sit a touch tighter — the Claude display voice. */
+  .font-heading,
+  .font-serif {
+    letter-spacing: -0.01em;
+  }
+  /* Warm clay text selection instead of the default cold blue. */
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 22%, transparent);
+  }
+}
+
+/* Warm, unobtrusive scrollbars (Claude-like). */
+@supports (scrollbar-color: auto) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--foreground) 20%, transparent)
+      transparent;
+  }
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in oklch, var(--foreground) 16%, transparent);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklch, var(--foreground) 28%, transparent);
+  background-clip: padding-box;
+}
+
+/* Calm entrance motion for mounting content; opt-in via `.animate-rise`. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes fade-rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .animate-rise {
+    animation: fade-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+/* Print only the analysis card the user clicked «Скачать PDF» on. The card is
+ * tagged `.analysis-print-active` for the duration of window.print() (see
+ * analysis-card.tsx); the `:has()` guard keeps normal printing untouched when
+ * no card is active. */
+@media print {
+  body:has(.analysis-print-active) * {
+    visibility: hidden;
+  }
+  body:has(.analysis-print-active) .analysis-print-active,
+  body:has(.analysis-print-active) .analysis-print-active * {
+    visibility: visible;
+  }
+  .analysis-print-active {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

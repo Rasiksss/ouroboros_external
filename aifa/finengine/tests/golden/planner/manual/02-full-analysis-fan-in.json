@@ -1,0 +1,59 @@
+{
+  "scenario_id": "planner-02-full-analysis-fan-in",
+  "description": "Полный анализ ликвидности: несколько извлечённых фактов сходятся в один расчётный узел, затем в суждение и объяснение.",
+  "target": {"target_id": "t-2", "concept": "LIQUIDITY_ANALYSIS", "period_ref": "p-2024-fy", "entity_ref": "nlmk", "output_kind": "bundle"},
+  "plan_graph": {
+    "plan_id": "plan-02",
+    "root": {"atom_name": "analyze.explain", "atom_version": "1.0.0", "args_fingerprint": "concept=LIQUIDITY_ANALYSIS;period=p-2024-fy;entity=nlmk"},
+    "nodes": [
+      {
+        "node_key": {"atom_name": "ingest.document", "atom_version": "1.0.0", "args_fingerprint": "entity=nlmk;period=p-2024-fy"},
+        "requires": [],
+        "produces": ["document_text"],
+        "sandbox_profile": "document_read"
+      },
+      {
+        "node_key": {"atom_name": "extract.scalar", "atom_version": "1.0.0", "args_fingerprint": "concept=CURRENT_ASSETS;period=p-2024-fy;entity=nlmk"},
+        "requires": [{"atom_name": "ingest.document", "atom_version": "1.0.0", "args_fingerprint": "entity=nlmk;period=p-2024-fy"}],
+        "produces": ["CURRENT_ASSETS"],
+        "sandbox_profile": "compute_no_network"
+      },
+      {
+        "node_key": {"atom_name": "extract.scalar", "atom_version": "1.0.0", "args_fingerprint": "concept=CURRENT_LIABILITIES;period=p-2024-fy;entity=nlmk"},
+        "requires": [{"atom_name": "ingest.document", "atom_version": "1.0.0", "args_fingerprint": "entity=nlmk;period=p-2024-fy"}],
+        "produces": ["CURRENT_LIABILITIES"],
+        "sandbox_profile": "compute_no_network"
+      },
+      {
+        "node_key": {"atom_name": "calc.formula_engine", "atom_version": "1.0.0", "args_fingerprint": "formula=current_ratio;entity=nlmk;period=p-2024-fy"},
+        "requires": [
+          {"atom_name": "extract.scalar", "atom_version": "1.0.0", "args_fingerprint": "concept=CURRENT_ASSETS;period=p-2024-fy;entity=nlmk"},
+          {"atom_name": "extract.scalar", "atom_version": "1.0.0", "args_fingerprint": "concept=CURRENT_LIABILITIES;period=p-2024-fy;entity=nlmk"}
+        ],
+        "produces": ["CURRENT_RATIO"],
+        "sandbox_profile": "compute_no_network"
+      },
+      {
+        "node_key": {"atom_name": "verify.arithmetic", "atom_version": "1.0.0", "args_fingerprint": "target=CURRENT_RATIO;entity=nlmk;period=p-2024-fy"},
+        "requires": [{"atom_name": "calc.formula_engine", "atom_version": "1.0.0", "args_fingerprint": "formula=current_ratio;entity=nlmk;period=p-2024-fy"}],
+        "produces": ["VerificationFinding:CURRENT_RATIO"],
+        "sandbox_profile": "compute_no_network"
+      },
+      {
+        "node_key": {"atom_name": "analyze.judge", "atom_version": "1.0.0", "args_fingerprint": "concept=LIQUIDITY_ANALYSIS;entity=nlmk;period=p-2024-fy"},
+        "requires": [{"atom_name": "verify.arithmetic", "atom_version": "1.0.0", "args_fingerprint": "target=CURRENT_RATIO;entity=nlmk;period=p-2024-fy"}],
+        "produces": ["Judgment:LIQUIDITY_ANALYSIS"],
+        "sandbox_profile": "compute_no_network"
+      },
+      {
+        "node_key": {"atom_name": "analyze.explain", "atom_version": "1.0.0", "args_fingerprint": "concept=LIQUIDITY_ANALYSIS;period=p-2024-fy;entity=nlmk"},
+        "requires": [{"atom_name": "analyze.judge", "atom_version": "1.0.0", "args_fingerprint": "concept=LIQUIDITY_ANALYSIS;entity=nlmk;period=p-2024-fy"}],
+        "produces": ["NarrativeOutput:LIQUIDITY_ANALYSIS"],
+        "sandbox_profile": "compute_no_network"
+      }
+    ],
+    "graph_hash": "sha256:manual-fixture-02"
+  },
+  "expected_feasibility": {"feasible": true, "unreachable_targets": [], "reason": null},
+  "notes": "Два узла extract.scalar сходятся (fan-in) в один calc.formula_engine — кандидат на пакетное объединение (C9), если оба относятся к одному ingest.document."
+}

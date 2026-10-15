@@ -1,0 +1,1675 @@
+[
+  {
+    "session_id": "<uuid-1>",
+    "type": "session_id"
+  },
+  {
+    "text": "Разбираю запрос…",
+    "type": "thinking"
+  },
+  {
+    "args_summary": "Извлеки выручку и EBITDA и посчитай коэффициент вариации …",
+    "name": "financial_pipeline",
+    "type": "tool_call"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "move": 1,
+    "new_atoms": [],
+    "objective": "Получить временные ряды выручки и EBITDA за все периоды отчёта",
+    "outcome": "",
+    "reason": "Goal-1 — стандартное извлечение двух показателей за все периоды. Goal-2 — расчёт коэффициента вариации, который не является стандартным и не может быть выражен через простую арифметическую формулу, так как требует вычисления среднего и стандартного отклонения по временному ряду. Сначала получим данные сценарием, затем создадим атом для расчёта.",
+    "scenarios": [
+      "Извлеки SALES_REVENUE и EBITDA за все доступные периоды"
+    ],
+    "status": "running",
+    "steps": [],
+    "type": "dynamic_move"
+  },
+  {
+    "graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+          "atom_name": "ingest.document",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "document_text"
+        ],
+        "requires": [],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+          "atom_name": "identify.classify",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "RunPassport"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+          "atom_name": "locate",
+          "atom_version": "1.0.2"
+        },
+        "produces": [
+          "CandidateLocator:EBITDA"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+          "atom_name": "read.value",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:EBITDA"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "locate",
+            "atom_version": "1.0.2"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "022db7f83620aba2350550597de37d301ed5d7fdf086bf761f193f2df6d5ae22",
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:unit"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "read.value",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "fd21d3af515d67e146c67a61277a9499c50df65f4d93c611c7080892d4a98ccd",
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:time"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "022db7f83620aba2350550597de37d301ed5d7fdf086bf761f193f2df6d5ae22",
+            "atom_name": "norm.unit",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "f59a0bbf1158d0cf59b89ce54e10f486eee293d3f4a9dbb9a73483f46794a2a7",
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:bounds"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "fd21d3af515d67e146c67a61277a9499c50df65f4d93c611c7080892d4a98ccd",
+            "atom_name": "norm.time",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+          "atom_name": "locate",
+          "atom_version": "1.0.2"
+        },
+        "produces": [
+          "CandidateLocator:SALES_REVENUE"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+          "atom_name": "read.value",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:SALES_REVENUE"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "locate",
+            "atom_version": "1.0.2"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "9597ff8ca60cb80998cdbdbd7302162c846f1c6e369aee6e9bac2923d03e0e43",
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:unit"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "read.value",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "ae9ea712b3f45e4b58f86319208a6744db83d550859860444931e691b977590c",
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:time"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "9597ff8ca60cb80998cdbdbd7302162c846f1c6e369aee6e9bac2923d03e0e43",
+            "atom_name": "norm.unit",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748",
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:bounds"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "ae9ea712b3f45e4b58f86319208a6744db83d550859860444931e691b977590c",
+            "atom_name": "norm.time",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+          "atom_name": "out.form",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "FormOutput"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "f59a0bbf1158d0cf59b89ce54e10f486eee293d3f4a9dbb9a73483f46794a2a7",
+            "atom_name": "verify.bounds",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748",
+            "atom_name": "verify.bounds",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "1.0.0",
+    "root": {
+      "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+      "atom_name": "out.form",
+      "atom_version": "1.0.0"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "022db7f83620aba2350550597de37d301ed5d7fdf086bf761f193f2df6d5ae22",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "fd21d3af515d67e146c67a61277a9499c50df65f4d93c611c7080892d4a98ccd",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f59a0bbf1158d0cf59b89ce54e10f486eee293d3f4a9dbb9a73483f46794a2a7",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "9597ff8ca60cb80998cdbdbd7302162c846f1c6e369aee6e9bac2923d03e0e43",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ae9ea712b3f45e4b58f86319208a6744db83d550859860444931e691b977590c",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "out.form",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "content:db7118e32b873b4aff36a9e6dd0a46f697414e6e6e9bd84da356c342e903effa"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-2>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [
+        "<uuid-3>",
+        "<uuid-4>",
+        "<uuid-5>",
+        "<uuid-6>",
+        "<uuid-7>",
+        "<uuid-8>",
+        "<uuid-9>",
+        "<uuid-10>",
+        "<uuid-11>",
+        "<uuid-12>",
+        "<uuid-13>",
+        "<uuid-14>",
+        "<uuid-15>",
+        "<uuid-16>",
+        "<uuid-17>",
+        "<uuid-18>",
+        "<uuid-19>",
+        "<uuid-20>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-21>",
+        "<uuid-22>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "022db7f83620aba2350550597de37d301ed5d7fdf086bf761f193f2df6d5ae22",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "022db7f83620aba2350550597de37d301ed5d7fdf086bf761f193f2df6d5ae22",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "9597ff8ca60cb80998cdbdbd7302162c846f1c6e369aee6e9bac2923d03e0e43",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "9597ff8ca60cb80998cdbdbd7302162c846f1c6e369aee6e9bac2923d03e0e43",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-23>",
+        "<uuid-21>",
+        "<uuid-24>",
+        "<uuid-22>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "fd21d3af515d67e146c67a61277a9499c50df65f4d93c611c7080892d4a98ccd",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "fd21d3af515d67e146c67a61277a9499c50df65f4d93c611c7080892d4a98ccd",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ae9ea712b3f45e4b58f86319208a6744db83d550859860444931e691b977590c",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ae9ea712b3f45e4b58f86319208a6744db83d550859860444931e691b977590c",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-25>",
+        "<uuid-21>",
+        "<uuid-26>",
+        "<uuid-22>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f59a0bbf1158d0cf59b89ce54e10f486eee293d3f4a9dbb9a73483f46794a2a7",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f59a0bbf1158d0cf59b89ce54e10f486eee293d3f4a9dbb9a73483f46794a2a7",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-27>",
+        "<uuid-21>",
+        "<uuid-28>",
+        "<uuid-22>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "out.form",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "out.form",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-29>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:f5831d7a9d3ac3cb5c7c3c001c9894c2eef41f25cc6d90c60a6afd85cc9cda0c",
+    "type": "node_run"
+  },
+  {
+    "action": "execute",
+    "details": "сценарий «Извлеки SALES_REVENUE и EBITDA за все доступные периоды»: ✓ extract_registered_metric: FormOutput",
+    "move": 1,
+    "new_atoms": [],
+    "objective": "Получить временные ряды выручки и EBITDA за все периоды отчёта",
+    "outcome": "✓ 2 новых результатов",
+    "reason": "Goal-1 — стандартное извлечение двух показателей за все периоды. Goal-2 — расчёт коэффициента вариации, который не является стандартным и не может быть выражен через простую арифметическую формулу, так как требует вычисления среднего и стандартного отклонения по временному ряду. Сначала получим данные сценарием, затем создадим атом для расчёта.",
+    "scenarios": [
+      "Извлеки SALES_REVENUE и EBITDA за все доступные периоды"
+    ],
+    "status": "done",
+    "steps": [],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "move": 2,
+    "new_atoms": [],
+    "objective": "Извлечь значения EBITDA за все периоды отчёта",
+    "outcome": "",
+    "reason": "Для расчёта коэффициента вариации по EBITDA нужны значения этого показателя за все периоды. Выручка уже извлечена, EBITDA — нет.",
+    "scenarios": [],
+    "status": "running",
+    "steps": [
+      {
+        "atom": "read.value",
+        "concept": "EBITDA",
+        "period_ref": null
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+          "atom_name": "identify.classify",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "RunPassport"
+        ],
+        "requires": [],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+          "atom_name": "ingest.document",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "document_text"
+        ],
+        "requires": [],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+          "atom_name": "locate",
+          "atom_version": "1.0.2"
+        },
+        "produces": [
+          "CandidateLocator:EBITDA"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+          "atom_name": "read.value",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:EBITDA"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "locate",
+            "atom_version": "1.0.2"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "022db7f83620aba2350550597de37d301ed5d7fdf086bf761f193f2df6d5ae22",
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:unit"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+            "atom_name": "read.value",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "fd21d3af515d67e146c67a61277a9499c50df65f4d93c611c7080892d4a98ccd",
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:time"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "022db7f83620aba2350550597de37d301ed5d7fdf086bf761f193f2df6d5ae22",
+            "atom_name": "norm.unit",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "f59a0bbf1158d0cf59b89ce54e10f486eee293d3f4a9dbb9a73483f46794a2a7",
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:bounds"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "fd21d3af515d67e146c67a61277a9499c50df65f4d93c611c7080892d4a98ccd",
+            "atom_name": "norm.time",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+      "args_fingerprint": "f59a0bbf1158d0cf59b89ce54e10f486eee293d3f4a9dbb9a73483f46794a2a7",
+      "atom_name": "verify.bounds",
+      "atom_version": "1.0.0"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-2>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "content:db7118e32b873b4aff36a9e6dd0a46f697414e6e6e9bd84da356c342e903effa"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "022db7f83620aba2350550597de37d301ed5d7fdf086bf761f193f2df6d5ae22",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "fd21d3af515d67e146c67a61277a9499c50df65f4d93c611c7080892d4a98ccd",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f59a0bbf1158d0cf59b89ce54e10f486eee293d3f4a9dbb9a73483f46794a2a7",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=EBITDA;entity=ent-fd1cc82fa3fadc622e2fa3a7",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "022db7f83620aba2350550597de37d301ed5d7fdf086bf761f193f2df6d5ae22",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "022db7f83620aba2350550597de37d301ed5d7fdf086bf761f193f2df6d5ae22",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "fd21d3af515d67e146c67a61277a9499c50df65f4d93c611c7080892d4a98ccd",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "fd21d3af515d67e146c67a61277a9499c50df65f4d93c611c7080892d4a98ccd",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f59a0bbf1158d0cf59b89ce54e10f486eee293d3f4a9dbb9a73483f46794a2a7",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f59a0bbf1158d0cf59b89ce54e10f486eee293d3f4a9dbb9a73483f46794a2a7",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:8c8c17f7e7b065cc55aeceb744bed3099aaf30b5abb25dfcf6b512fdb7866926",
+    "type": "node_run"
+  },
+  {
+    "action": "execute",
+    "details": "✓ identify.classify  → RunPassport (1)\n✓ ingest.document  → DocumentText (1)\n∅ locate  → нет результата (0)\n∅ read.value  → нет результата (0)\n∅ norm.unit  → нет результата (0)\n∅ norm.time  → нет результата (0)\n∅ verify.bounds  → нет результата (0)",
+    "move": 2,
+    "new_atoms": [],
+    "objective": "Извлечь значения EBITDA за все периоды отчёта",
+    "outcome": "результатов нет: locate, read.value, norm.unit, norm.time, verify.bounds вернули пусто",
+    "reason": "Для расчёта коэффициента вариации по EBITDA нужны значения этого показателя за все периоды. Выручка уже извлечена, EBITDA — нет.",
+    "scenarios": [],
+    "status": "done",
+    "steps": [
+      {
+        "atom": "read.value",
+        "concept": "EBITDA",
+        "period_ref": null
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "finalize",
+    "details": "Выручка (SALES_REVENUE) извлечена за периоды FY 2020 (699 750 млн руб.) и FY 2021 (1 135 206 млн руб.). Показатель EBITDA в отчёте не обнаружен. Коэффициент вариации не может быть рассчитан ни по одному из показателей: для EBITDA отсутствуют данные, а для выручки недостаточно точек (всего две, требуется минимум три для статистически значимого расчёта).",
+    "move": 3,
+    "new_atoms": [],
+    "objective": "Сообщить пользователю о частичном успехе и невозможности выполнить расчёт.",
+    "outcome": "",
+    "reason": "Выручка извлечена за два периода, EBITDA не найдена в отчёте. Коэффициент вариации требует минимум трёх точек данных, а для EBITDA данных нет совсем. Продолжать нецелесообразно.",
+    "scenarios": [],
+    "status": "done",
+    "steps": [],
+    "type": "dynamic_move"
+  },
+  {
+    "result": {
+      "concept": "SALES_REVENUE",
+      "definition_origin": "registry",
+      "metric_id": "<uuid-30>",
+      "output_type": "ExtractedMetric",
+      "period_ref": "FY 2021",
+      "scalar_fact": {
+        "basis": null,
+        "concept": "SALES_REVENUE",
+        "document_version": "sha256:0072d8b39d75e492d339026c977f23d0515f651f6fdec1ba3abf990dfc6b5ba0",
+        "evidence_id": "<uuid-21>",
+        "page": 11,
+        "period_ref": "FY 2021",
+        "produced_by_atom": "read.value",
+        "produced_by_atom_version": "1.0.0",
+        "source_ref": "<uuid-3>",
+        "supersedes": null,
+        "unit": "млн. руб.",
+        "value": 1135206.0
+      },
+      "schema_version": "1.0",
+      "status": "supported"
+    },
+    "status": "complete",
+    "type": "typed_result"
+  },
+  {
+    "result": {
+      "concept": "SALES_REVENUE",
+      "definition_origin": "registry",
+      "metric_id": "<uuid-31>",
+      "output_type": "ExtractedMetric",
+      "period_ref": "FY 2020",
+      "scalar_fact": {
+        "basis": null,
+        "concept": "SALES_REVENUE",
+        "document_version": "sha256:0072d8b39d75e492d339026c977f23d0515f651f6fdec1ba3abf990dfc6b5ba0",
+        "evidence_id": "<uuid-22>",
+        "page": 11,
+        "period_ref": "FY 2020",
+        "produced_by_atom": "read.value",
+        "produced_by_atom_version": "1.0.0",
+        "source_ref": "<uuid-3>",
+        "supersedes": null,
+        "unit": "млн. руб.",
+        "value": 699750.0
+      },
+      "schema_version": "1.0",
+      "status": "supported"
+    },
+    "status": "complete",
+    "type": "typed_result"
+  },
+  {
+    "name": "financial_pipeline",
+    "ok": true,
+    "type": "tool_output"
+  },
+  {
+    "text": "Выручка (SALES_REVENUE) извлечена за периоды FY 2020 (699 750 млн руб.) и FY 2021 (1 135 206 млн руб.). Показатель EBITDA в отчёте не обнаружен. Коэффициент вариации не может быть рассчитан ни по одному из показателей: для EBITDA отсутствуют данные, а для выручки недостаточно точек (всего две, требуется минимум три для статистически значимого расчёта).",
+    "type": "text_delta"
+  },
+  {
+    "sources": [
+      {
+        "company_name": "ПрайсвотерхаусКуперс Аудит",
+        "filename": "Novatek_FS_12m2021_RUS.pdf"
+      }
+    ],
+    "type": "sources"
+  },
+  {
+    "status": "succeeded",
+    "type": "done"
+  }
+]

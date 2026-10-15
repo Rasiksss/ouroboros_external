@@ -1,0 +1,259 @@
+## SYSTEM
+You are a senior financial analyst working with us_gaap_en financial reports. Your task is to find and extract ordinary financial statement metrics, matching source rows strictly against each metric's registry description, aliases and hint. If a row is similar but broader, narrower, or includes extra components, do not use it. Return valid JSON only.
+
+## USER
+## Task
+Extract reported financial metric values from compressed evidence selected in stage 1.
+Company type: bank; reporting standard: us_gaap_en; language: en.
+Extract values for every metric listed in the metric metadata below.
+For each metric block, read the registry fields and evidence, then extract every value of that exact metric for every disclosed period.
+Return raw period headers and raw cell values literally as they appear in the report.
+
+
+## Metric Blocks
+[
+  {
+    "enum": "GOODWILL",
+    "name_ru": "Гудвил",
+    "name_en": "Goodwill",
+    "description": "Goodwill arising on acquisition or consolidation.",
+    "aliases_ru": [
+      "Деловая репутация"
+    ],
+    "aliases_en": [
+      "goodwill",
+      "goodwill on consolidation"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the balance sheet or business combination / consolidation note. Do not include other intangible assets if goodwill is disclosed separately.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "COMMON_EQUITY_TIER_ONE_CAPITAL",
+    "name_ru": "Основной капитал первого уровня",
+    "name_en": "Common Equity Tier 1 capital",
+    "description": "Absolute amount of Common Equity Tier 1 capital used for Basel/RBI capital adequacy purposes.",
+    "aliases_ru": [
+      "Капитал первого уровня",
+      "CET1 капитал",
+      "Базовый капитал первого уровня"
+    ],
+    "aliases_en": [
+      "Common Equity Tier 1 capital",
+      "CET1 capital",
+      "Common Equity Tier 1",
+      "Common equity Tier 1 capital ratio"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the Basel III / Pillar 3 / capital adequacy disclosure. Take the absolute CET1 capital amount, not the CET1 ratio percentage.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "OTHER_ASSETS",
+    "name_ru": "Прочие активы",
+    "name_en": "Other assets",
+    "description": "Assets not classified into the main banking balance sheet schedules.",
+    "aliases_ru": [
+      "Прочие активы",
+      "Прочие внеоборотные активы",
+      "Иные активы"
+    ],
+    "aliases_en": [
+      "other assets",
+      "Schedule 11",
+      "other asset items",
+      "miscellaneous assets",
+      "Prepaid expenses and other assets",
+      "Other current assets",
+      "Other long-term assets"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use Schedule 11 'Other Assets'. Take the total schedule amount, not changes in other assets from the cash flow statement.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "DERIVATIVE_LIABILITIES",
+    "name_ru": "Производные финансовые обязательства",
+    "name_en": "Derivative liabilities",
+    "description": "Fair value liability arising from derivative financial instruments.",
+    "aliases_ru": [
+      "Производные финансовые инструменты (обязательства)",
+      "Деривативы (обязательства)"
+    ],
+    "aliases_en": [
+      "derivative liabilities",
+      "derivative financial liabilities",
+      "negative fair value of derivatives",
+      "derivatives payable",
+      "Derivative financial instruments"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use financial instrument / derivative notes or balance sheet disclosures. Do not use notional amounts or contingent liability amounts for outstanding forward exchange contracts.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "DIVIDENDS_RECEIVED",
+    "name_ru": "Дивиденды полученные",
+    "name_en": "Dividends received",
+    "description": "Dividends received or dividend income recognised during the period.",
+    "aliases_ru": [
+      "Полученные дивиденды"
+    ],
+    "aliases_en": [
+      "dividends received",
+      "dividend income",
+      "income from dividends",
+      "Cash dividends received"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the Cash Flow Statement if the report explicitly presents dividends received. If only statutory P&L is available, use Schedule 13/14 investment income only when it is clearly identified as dividend income.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "NET_NPA",
+    "name_ru": "Чистые необслуживаемые активы (NPA)",
+    "name_en": "Net non-performing assets",
+    "description": "Non-performing assets after deducting related provisions according to the bank's disclosed NPA framework.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "net NPA",
+      "net NPAs",
+      "net non-performing assets",
+      "net non-performing advances",
+      "NNPA"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the asset quality / NPA disclosure. Do not calculate from gross NPA and provisions unless the disclosed table clearly provides the required components and no direct net NPA line is available.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "OTHER_INCOME_TOTAL",
+    "name_ru": "Прочие доходы",
+    "name_en": "Other income",
+    "description": "Total non-interest income presented in the statutory banking profit and loss statement.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "other income",
+      "total other income",
+      "Schedule 14"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use Schedule 14 'Other Income'. Take the total schedule amount. Do not use only commission, exchange, brokerage, profit on sale of investments, or miscellaneous income unless the total is absent and explicitly derivable.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "NET_INVESTMENTS",
+    "name_ru": "Чистые инвестиции",
+    "name_en": "Net investments",
+    "description": "Carrying amount of investments after provision for depreciation / impairment where disclosed.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "net investments",
+      "investments net of provisions",
+      "net value of investments",
+      "Schedule 8 net investments"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use Schedule 8 'Investments'. Prefer the net investments figure after provision for depreciation. Do not use gross investments if a net figure is separately disclosed.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "COMMISSION_EXCHANGE_BROKERAGE",
+    "name_ru": "Комиссии, обменные операции и брокерские доходы",
+    "name_en": "Commission, exchange and brokerage",
+    "description": "Income from commission, exchange and brokerage as a component of other income.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "commission exchange and brokerage",
+      "commission, exchange and brokerage",
+      "commission income",
+      "exchange income",
+      "brokerage income"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use Schedule 14 'Other Income' and the line 'Commission, Exchange and Brokerage'. Do not use the full Other Income total.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  }
+]
+
+## Rules
+Return period keys in `values` literally as they appear in the visible table header; do not shorten or rephrase them. A table header may have two levels: a duration group such as 'Three Months Ended' on one level and the period-end date on another. Combine the applicable levels into one complete period key. When the same date appears under multiple duration groups, a bare date is invalid because it creates a duplicate JSON key; return the full wording for each group.
+
+Return each value exactly as it appears in the table cell. Do NOT convert units, do NOT normalize thousands separators, do NOT remove commas, spaces or parentheses. If the table says "25,785", return "25,785", not "25785" and not "25.785". If the table says "(4,190)", return "(4,190)"; parentheses are mandatory: "(465)" must stay "(465)", not "465". If a matching metric row uses a blank or dash-like cell as a displayed numeric placeholder, return "0" for that period, but only when that row separately and unambiguously matches the metric. A dash in a broader combined row does not prove that any component is zero. Otherwise use null when the row is absent or the value is not disclosed. Put the table/header unit literally into unit_text, for example "in millions" or "$ in millions". When the value comes from a narrative sentence in a note rather than from a table, take the unit from that same sentence, not from the document header: notes routinely name their own scale ("USD 12.0 billion") inside a report presented in millions, and the document header would shrink the number a thousandfold. Source (report in millions): "committed credit facilities of $12.0 billion" → {"values": {"27.09.2025": "12.0"}, "unit_text": "billion"}, not "in millions".
+
+## Actual values only
+Extract only actual historical/reported values from financial statements and notes for periods that have already ended. Do NOT extract forecasts, plans, budgets, targets, scenarios, sensitivity analysis, guidance, outlook, projections, projected/forecasted values or any other forward-looking amounts, even when the row label looks like a target metric. If a requested metric appears only in a forecast/outlook/guidance table or section, return null / an empty values object for it.
+Do not treat ordinary accounting estimates inside actual financial statements as forecasts: expected credit losses, provisions, deferred taxes and pension assumptions may be valid actual-period disclosures when they are reported in the statements or notes.
+The same applies to columns: a forecast period in the header (2026E, FY26F, "plan") does not belong in values.
+
+- Follow each metric registry entry strictly. A similar-looking row is not enough.
+- Before extracting a value, run a sanity check: the row label and nearby table context must match the metric name/aliases and satisfy the description and hint.
+- Perform a scope check against the registry definition: do not use a narrower component, subcategory or subtotal that is only part of the requested metric; do not use a broader or combined row that contains the requested metric together with other components. Use only the exact requested metric, or an aggregation explicitly permitted by that metric's registry hint.
+- Extract all periods disclosed in the selected evidence: all years, quarters, half-years/YTD periods, rolling or shifted periods, and comparative periods.
+- After you identify a row/table that matches a metric, scan all period columns in that row and all evidence tables/quotes for the same metric. Return every explicitly disclosed period for that metric, not only the current period or first matching table. If quarterly and YTD/half-year rows are both disclosed, return both sets.
+- Do not mix currencies, units, or scales. If a table has multiple column sets, choose one coherent set for the metric. Prefer the report's primary presentation/native currency columns over convenience translation columns when both are shown. Currency/unit/scale may be written in the caption, unit line, or directly near the period column headers; preserve the chosen unit/currency in unit_text and raw headers when present.
+- The registry is the definition, not a keyword list. Accept a row only when its full label, nearby context, description and hint agree; do not broaden a metric from a partial alias or a similar subtotal.
+- Do not calculate values, allocate totals, infer missing periods, or normalize signs/period labels yourself, unless the specific metric registry entry explicitly authorizes that derivation. For an authorized derivation, use only the stated method and operands explicitly present in this evidence.
+- If you are unsure whether the row matches the registry definition, prefer null over a bold guess.
+
+
+## Output Format
+Return exactly one valid JSON object only. No explanations, no markdown wrappers, no comments.
+A JSON object whose keys exactly match the metric metadata list below:
+
+{
+  "GOODWILL": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "COMMON_EQUITY_TIER_ONE_CAPITAL": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "OTHER_ASSETS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "DERIVATIVE_LIABILITIES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "DIVIDENDS_RECEIVED": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "NET_NPA": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "OTHER_INCOME_TOTAL": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "NET_INVESTMENTS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "COMMISSION_EXCHANGE_BROKERAGE": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null}
+}

@@ -1,0 +1,885 @@
+[
+  {
+    "session_id": "<uuid-1>",
+    "type": "session_id"
+  },
+  {
+    "text": "Разбираю запрос…",
+    "type": "thinking"
+  },
+  {
+    "args_summary": "Рассчитай CV выручки по двум периодам",
+    "name": "financial_pipeline",
+    "type": "tool_call"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "goals": [],
+    "move": 1,
+    "new_atoms": [],
+    "objective": "получить данные",
+    "outcome": "",
+    "reason": "они нужны для ответа",
+    "scenarios": [],
+    "status": "running",
+    "steps": [
+      {
+        "atom": "read.value",
+        "concept": "SALES_REVENUE",
+        "period_ref": null
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+          "atom_name": "ingest.document",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "document_text"
+        ],
+        "requires": [],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+          "atom_name": "identify.classify",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "RunPassport"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+          "atom_name": "locate",
+          "atom_version": "1.0.2"
+        },
+        "produces": [
+          "CandidateLocator:SALES_REVENUE"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+            "atom_name": "ingest.document",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+          "atom_name": "read.value",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:SALES_REVENUE"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+            "atom_name": "identify.classify",
+            "atom_version": "1.0.0"
+          },
+          {
+            "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+            "atom_name": "locate",
+            "atom_version": "1.0.2"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "df6dddf73fa94034a2304215e46bb9de5d0f6f04bc451bbd36efeb3ff5b7d27c",
+          "atom_name": "norm.unit",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:unit"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+            "atom_name": "read.value",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "ea87d5684d53b31624ae5bbe42a817770c70b1bb0e4e5f6f832bbb854e0a58f4",
+          "atom_name": "norm.time",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:time"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "df6dddf73fa94034a2304215e46bb9de5d0f6f04bc451bbd36efeb3ff5b7d27c",
+            "atom_name": "norm.unit",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "f88d215e81f97c5d95e5bf0369527051dcb377c7f608dd83affe5d5e2de86acf",
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "Verified:bounds"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "ea87d5684d53b31624ae5bbe42a817770c70b1bb0e4e5f6f832bbb854e0a58f4",
+            "atom_name": "norm.time",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+      "args_fingerprint": "f88d215e81f97c5d95e5bf0369527051dcb377c7f608dd83affe5d5e2de86acf",
+      "atom_name": "verify.bounds",
+      "atom_version": "1.0.0"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "df6dddf73fa94034a2304215e46bb9de5d0f6f04bc451bbd36efeb3ff5b7d27c",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ea87d5684d53b31624ae5bbe42a817770c70b1bb0e4e5f6f832bbb854e0a58f4",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f88d215e81f97c5d95e5bf0369527051dcb377c7f608dd83affe5d5e2de86acf",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "content:0825070cde0f606db2e18936e07d11cac37fd8a33e078e1deb2da104078ce2dc"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-2>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "locate",
+        "atom_version": "1.0.2"
+      },
+      "produced_evidence_ids": [
+        "<uuid-3>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-4>",
+        "<uuid-5>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "document_read",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "df6dddf73fa94034a2304215e46bb9de5d0f6f04bc451bbd36efeb3ff5b7d27c",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "df6dddf73fa94034a2304215e46bb9de5d0f6f04bc451bbd36efeb3ff5b7d27c",
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-6>",
+        "<uuid-7>",
+        "<uuid-8>",
+        "<uuid-9>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ea87d5684d53b31624ae5bbe42a817770c70b1bb0e4e5f6f832bbb854e0a58f4",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "ea87d5684d53b31624ae5bbe42a817770c70b1bb0e4e5f6f832bbb854e0a58f4",
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-10>",
+        "<uuid-7>",
+        "<uuid-11>",
+        "<uuid-9>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f88d215e81f97c5d95e5bf0369527051dcb377c7f608dd83affe5d5e2de86acf",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f88d215e81f97c5d95e5bf0369527051dcb377c7f608dd83affe5d5e2de86acf",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-12>",
+        "<uuid-7>",
+        "<uuid-13>",
+        "<uuid-9>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:11dbecabdee27b3f6e7d67ac63658c79ae87493f0612cb243762e6a840e427ac",
+    "type": "node_run"
+  },
+  {
+    "action": "execute",
+    "details": "✓ ingest.document  → DocumentText (1)\n✓ identify.classify  → RunPassport (1)\n✓ locate SALES_REVENUE → CandidateLocator (1)\n✓ read.value SALES_REVENUE → ExtractedMetric (2); evidence_ids=<uuid-4>, <uuid-5>\n✓ norm.unit SALES_REVENUE → VerificationFinding, ExtractedMetric (4); evidence_ids=<uuid-6>, <uuid-7>, <uuid-8>, <uuid-9>\n✓ norm.time SALES_REVENUE → VerificationFinding, ExtractedMetric (4); evidence_ids=<uuid-10>, <uuid-7>, <uuid-11>, <uuid-9>\n✓ verify.bounds SALES_REVENUE → VerificationFinding, ExtractedMetric (4); evidence_ids=<uuid-12>, <uuid-7>, <uuid-13>, <uuid-9>",
+    "goals": [],
+    "move": 1,
+    "new_atoms": [],
+    "objective": "получить данные",
+    "outcome": "✓ 4 новых результатов",
+    "reason": "они нужны для ответа",
+    "scenarios": [],
+    "status": "done",
+    "steps": [
+      {
+        "atom": "read.value",
+        "concept": "SALES_REVENUE",
+        "period_ref": null
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "goals": [],
+    "move": 2,
+    "new_atoms": [
+      {
+        "kind": "code",
+        "name": "eph.calc_cv_sales_revenue",
+        "output_type": "dyn:cv_sales_revenue",
+        "purpose": "коэффициент вариации выручки",
+        "url": null
+      }
+    ],
+    "objective": "получить данные",
+    "outcome": "",
+    "reason": "они нужны для ответа",
+    "scenarios": [],
+    "status": "running",
+    "steps": [
+      {
+        "atom": "eph.calc_cv_sales_revenue",
+        "concept": null,
+        "period_ref": null
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "atom": "eph.calc_cv_sales_revenue",
+    "attempt": 1,
+    "code": "def run(inputs):\n    xs = [m['scalar_fact']['value'] for m in inputs['ExtractedMetric']]\n    mean = sum(xs) / len(xs)\n    sd = (sum((x - mean) ** 2 for x in xs) / len(xs)) ** 0.5\n    return {'mean': mean, 'population_sd': sd, 'cv_pct': sd / mean * 100}\n",
+    "error": null,
+    "move": 2,
+    "status": "ok",
+    "type": "author_attempt"
+  },
+  {
+    "graph_hash": "sha256:12c5b47494468f7566fcdba45477fce2161f85a0f0dc723c7043deaaea81bc94",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "f88d215e81f97c5d95e5bf0369527051dcb377c7f608dd83affe5d5e2de86acf",
+          "atom_name": "verify.bounds",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:SALES_REVENUE"
+        ],
+        "requires": [],
+        "sandbox_profile": "compute_no_network",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+          "atom_name": "eph.calc_cv_sales_revenue",
+          "atom_version": "a8f7f9b30381"
+        },
+        "produces": [
+          "dyn:cv_sales_revenue"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "f88d215e81f97c5d95e5bf0369527051dcb377c7f608dd83affe5d5e2de86acf",
+            "atom_name": "verify.bounds",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "sealed_room",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+      "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+      "atom_name": "eph.calc_cv_sales_revenue",
+      "atom_version": "a8f7f9b30381"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "f88d215e81f97c5d95e5bf0369527051dcb377c7f608dd83affe5d5e2de86acf",
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0"
+      },
+      "produced_evidence_ids": [
+        "<uuid-7>",
+        "<uuid-9>",
+        "<uuid-12>",
+        "<uuid-13>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "compute_no_network",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:12c5b47494468f7566fcdba45477fce2161f85a0f0dc723c7043deaaea81bc94",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "eph.calc_cv_sales_revenue",
+        "atom_version": "a8f7f9b30381"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "sealed_room",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:12c5b47494468f7566fcdba45477fce2161f85a0f0dc723c7043deaaea81bc94",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "eph.calc_cv_sales_revenue",
+        "atom_version": "a8f7f9b30381"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "sealed_room",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:12c5b47494468f7566fcdba45477fce2161f85a0f0dc723c7043deaaea81bc94",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ent-f23512c283ce674ae2e7fda1",
+        "atom_name": "eph.calc_cv_sales_revenue",
+        "atom_version": "a8f7f9b30381"
+      },
+      "produced_evidence_ids": [
+        "<uuid-14>"
+      ],
+      "prompt_version": null,
+      "sandbox_profile": "sealed_room",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "sha256:12c5b47494468f7566fcdba45477fce2161f85a0f0dc723c7043deaaea81bc94",
+    "type": "node_run"
+  },
+  {
+    "action": "execute",
+    "details": "✓ verify.bounds SALES_REVENUE → ExtractedMetric, VerificationFinding (4); уже было; evidence_ids=<uuid-7>, <uuid-9>, <uuid-12>, <uuid-13>\n✓ eph.calc_cv_sales_revenue  → dyn:cv_sales_revenue (1); evidence_ids=<uuid-14>",
+    "goals": [],
+    "move": 2,
+    "new_atoms": [
+      {
+        "kind": "code",
+        "name": "eph.calc_cv_sales_revenue",
+        "output_type": "dyn:cv_sales_revenue",
+        "purpose": "коэффициент вариации выручки",
+        "url": null
+      }
+    ],
+    "objective": "получить данные",
+    "outcome": "✓ 1 новых результатов",
+    "reason": "они нужны для ответа",
+    "scenarios": [],
+    "status": "done",
+    "steps": [
+      {
+        "atom": "eph.calc_cv_sales_revenue",
+        "concept": null,
+        "period_ref": null
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "finalize",
+    "details": "Исходные значения: 6M 2025 — 1 398 538,772 млн руб.; 6M 2026 — 1 453 957,053 млн руб.\nФормула: CV = population_sd / mean × 100. CV ≈ 1,9428 %.",
+    "goals": [],
+    "move": 3,
+    "new_atoms": [],
+    "objective": "ответить",
+    "outcome": "",
+    "reason": "расчёт готов",
+    "scenarios": [],
+    "status": "done",
+    "steps": [],
+    "type": "dynamic_move"
+  },
+  {
+    "result": {
+      "concept": "SALES_REVENUE",
+      "definition_origin": "registry",
+      "metric_id": "<uuid-15>",
+      "output_type": "ExtractedMetric",
+      "period_ref": "6M 2025",
+      "scalar_fact": {
+        "basis": null,
+        "concept": "SALES_REVENUE",
+        "document_version": null,
+        "evidence_id": "<uuid-7>",
+        "page": null,
+        "period_ref": "6M 2025",
+        "produced_by_atom": "norm.unit",
+        "produced_by_atom_version": "1.0.0",
+        "source_ref": "fake:SALES_REVENUE:6M 2025",
+        "supersedes": "<uuid-4>",
+        "unit": "млн. руб.",
+        "value": 1398538.772
+      },
+      "schema_version": "1.0",
+      "status": "supported"
+    },
+    "status": "complete",
+    "type": "typed_result"
+  },
+  {
+    "result": {
+      "concept": "SALES_REVENUE",
+      "definition_origin": "registry",
+      "metric_id": "<uuid-16>",
+      "output_type": "ExtractedMetric",
+      "period_ref": "6M 2026",
+      "scalar_fact": {
+        "basis": null,
+        "concept": "SALES_REVENUE",
+        "document_version": null,
+        "evidence_id": "<uuid-9>",
+        "page": null,
+        "period_ref": "6M 2026",
+        "produced_by_atom": "norm.unit",
+        "produced_by_atom_version": "1.0.0",
+        "source_ref": "fake:SALES_REVENUE:6M 2026",
+        "supersedes": "<uuid-5>",
+        "unit": "млн. руб.",
+        "value": 1453957.053
+      },
+      "schema_version": "1.0",
+      "status": "supported"
+    },
+    "status": "complete",
+    "type": "typed_result"
+  },
+  {
+    "name": "financial_pipeline",
+    "ok": true,
+    "type": "tool_output"
+  },
+  {
+    "text": "Исходные значения: 6M 2025 — 1 398 538,772 млн руб.; 6M 2026 — 1 453 957,053 млн руб.\nФормула: CV = population_sd / mean × 100. CV ≈ 1,9428 %.",
+    "type": "text_delta"
+  },
+  {
+    "type": "done"
+  }
+]

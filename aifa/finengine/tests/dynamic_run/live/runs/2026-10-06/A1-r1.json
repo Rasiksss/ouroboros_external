@@ -1,0 +1,59 @@
+{
+ "label": "A1-r1",
+ "query": "Извлеки выручку и посчитай для неё коэффициент вариации.",
+ "doc_id": "9dba0a66-a5a0-4012-8cd1-235ab8e25fe4",
+ "run_id": "389f973e-a7d5-4f2d-b582-b318dc465fd8",
+ "elapsed_s": 38.5,
+ "events": [
+  {
+   "schema_version": "1.0",
+   "event_id": "78b566da-9f0c-4db5-a7bf-ba309f39b5a3",
+   "run_id": "389f973e-a7d5-4f2d-b582-b318dc465fd8",
+   "sequence": 1,
+   "occurred_at": "2026-10-06T15:14:29.602097Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "session_id",
+    "session_id": "e9255c12-d2a5-42ab-858c-33457b9da1eb"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "20e263d1-965c-47e3-9422-d1c5112e9cdf",
+   "run_id": "389f973e-a7d5-4f2d-b582-b318dc465fd8",
+   "sequence": 2,
+   "occurred_at": "2026-10-06T15:14:29.602208Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "thinking",
+    "text": "Разбираю запрос…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "42e0158d-2eb9-4035-b40c-e9742d40083d",
+   "run_id": "389f973e-a7d5-4f2d-b582-b318dc465fd8",
+   "sequence": 3,
+   "occurred_at": "2026-10-06T15:15:00.022780Z",
+   "event_type": "error",
+   "error": {
+    "code": "intent_parse_failed",
+    "message": "не удалось разобрать запрос; повторите его, пожалуйста",
+    "retryable": true,
+    "node_key": null,
+    "details": {}
+   },
+   "partial_results": []
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "5bba6a5e-0f92-4408-acd2-d411e12db264",
+   "run_id": "389f973e-a7d5-4f2d-b582-b318dc465fd8",
+   "sequence": 4,
+   "occurred_at": "2026-10-06T15:15:00.022950Z",
+   "event_type": "completed",
+   "status": "failed"
+  }
+ ],
+ "started_utc": "2026-10-06T15:15:01Z"
+}

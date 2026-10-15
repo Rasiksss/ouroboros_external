@@ -1,0 +1,776 @@
+{
+ "label": "P16c-pptx",
+ "query": "Извлеки выручку за все периоды и сделай презентацию из трёх слайдов: заголовок, значения выручки по периодам, краткий вывод.",
+ "doc_id": "a3c81e32-43b4-4c29-8e59-4ef643b83785",
+ "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+ "elapsed_s": 253.3,
+ "events": [
+  {
+   "schema_version": "1.0",
+   "event_id": "0aff222c-5c5f-4d6e-b9e0-d25f0033588f",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 1,
+   "occurred_at": "2026-10-06T20:43:36.006832Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "session_id",
+    "session_id": "8a77f826-36f3-4c6d-9b6f-7095e74132aa"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d2347bac-734d-4737-847a-bb685fe91951",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 2,
+   "occurred_at": "2026-10-06T20:43:36.006916Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "thinking",
+    "text": "Разбираю запрос…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "1d57fc6e-f6e5-4e9b-bab7-1c48c41308b2",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 3,
+   "occurred_at": "2026-10-06T20:44:23.456362Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_call",
+    "name": "financial_pipeline",
+    "args_summary": "Извлеки выручку за все периоды и сделай презентацию из тр…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "1393cac6-97e5-4481-8059-fa24b604d64a",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 4,
+   "occurred_at": "2026-10-06T20:44:23.456486Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 1,
+    "status": "running",
+    "action": "execute",
+    "objective": "Извлечь выручку за все периоды",
+    "reason": "Это первая часть составной цели, от которой зависит создание презентации",
+    "scenarios": [
+     "Извлеки SALES_REVENUE за все периоды"
+    ],
+    "new_atoms": [],
+    "steps": [],
+    "outcome": "",
+    "details": ""
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "c42c11bc-21a1-4744-9a38-e92752ea2dea",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 5,
+   "occurred_at": "2026-10-06T20:44:39.054966Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "plan_graph",
+    "graph_hash": "sha256:ee64e4151fc18f6d94862b5d7679c1fe55d32886b7d9c3a910969b965ef440b3",
+    "planner_version": "1.0.0",
+    "root": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "ffd81558cca34029e430fd329488e313bd9f17158f88844d112acb17c9b367a8"
+    },
+    "nodes": [
+     {
+      "node_key": {
+       "atom_name": "ingest.document",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+      },
+      "produces": [
+       "document_text"
+      ],
+      "requires": [],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "identify.classify",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+      },
+      "produces": [
+       "RunPassport"
+      ],
+      "requires": [
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "locate",
+       "atom_version": "1.0.2",
+       "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391"
+      },
+      "produces": [
+       "CandidateLocator:SALES_REVENUE"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+       },
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "read.value",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391"
+      },
+      "produces": [
+       "ExtractedMetric:SALES_REVENUE"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-09f97cec158f1edc680cf391"
+       },
+       {
+        "atom_name": "locate",
+        "atom_version": "1.0.2",
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.unit",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "f6b837dfccb50a09670b7bed089f5cfcc2644b6fa0d202e9d319d01132dbf5fa"
+      },
+      "produces": [
+       "Verified:unit"
+      ],
+      "requires": [
+       {
+        "atom_name": "read.value",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-09f97cec158f1edc680cf391"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.time",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "b2280057d8868c2f50935904c54cb2ef5864478ff4688f18b3e3b88fd155c17b"
+      },
+      "produces": [
+       "Verified:time"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "f6b837dfccb50a09670b7bed089f5cfcc2644b6fa0d202e9d319d01132dbf5fa"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "ffd81558cca34029e430fd329488e313bd9f17158f88844d112acb17c9b367a8"
+      },
+      "produces": [
+       "Verified:bounds"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "b2280057d8868c2f50935904c54cb2ef5864478ff4688f18b3e3b88fd155c17b"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     }
+    ],
+    "scenarios": []
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "9d2c1b69-e608-4203-b548-4fe64e186a3a",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 27,
+   "occurred_at": "2026-10-06T20:44:43.730771Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 1,
+    "status": "done",
+    "action": "execute",
+    "objective": "Извлечь выручку за все периоды",
+    "reason": "Это первая часть составной цели, от которой зависит создание презентации",
+    "scenarios": [
+     "Извлеки SALES_REVENUE за все периоды"
+    ],
+    "new_atoms": [],
+    "steps": [],
+    "outcome": "✓ 2 новых результатов",
+    "details": "сценарий «Извлеки SALES_REVENUE за все периоды»: ✓ extract_registered_metric: ExtractedMetric"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "ea30ed55-9684-4995-8f19-0b6b25dc143e",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 28,
+   "occurred_at": "2026-10-06T20:45:13.221470Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 2,
+    "status": "rejected",
+    "action": "rejected",
+    "objective": "",
+    "reason": "",
+    "scenarios": [],
+    "new_atoms": [],
+    "steps": [],
+    "outcome": "",
+    "details": "атомы ['eph.revenue_pptx'] объявлены в new_atoms, но не вызваны в steps: создание атома его не запускает — добавь шаг с этим атомом в этот же ход"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "eb5897b5-f4b3-4407-94c2-fcec2892816a",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 29,
+   "occurred_at": "2026-10-06T20:45:51.197939Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 3,
+    "status": "rejected",
+    "action": "rejected",
+    "objective": "",
+    "reason": "",
+    "scenarios": [],
+    "new_atoms": [],
+    "steps": [],
+    "outcome": "",
+    "details": "атомы ['eph.revenue_pptx'] объявлены в new_atoms, но не вызваны в steps: создание атома его не запускает — добавь шаг с этим атомом в этот же ход"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "0bd6635f-b888-42bf-a0fd-9cc58b68940f",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 30,
+   "occurred_at": "2026-10-06T20:46:09.333228Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 4,
+    "status": "running",
+    "action": "execute",
+    "objective": "Создать презентацию из трёх слайдов",
+    "reason": "Пользователь запросил презентацию на основе извлечённой выручки",
+    "scenarios": [],
+    "new_atoms": [
+     {
+      "name": "eph.revenue_pptx",
+      "kind": "code",
+      "purpose": "Создаёт презентацию из трёх слайдов: заголовок, значения выручки по периодам, краткий вывод. Данные берутся из входных ExtractedMetric.",
+      "output_type": "dyn:revenue_pptx",
+      "url": null
+     }
+    ],
+    "steps": [
+     {
+      "atom": "eph.revenue_pptx",
+      "concept": "SALES_REVENUE",
+      "period_ref": null
+     }
+    ],
+    "outcome": "",
+    "details": ""
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "228a0900-c813-4030-9b20-d2c7dc91b5af",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 31,
+   "occurred_at": "2026-10-06T20:46:53.312159Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "author_attempt",
+    "move": 4,
+    "atom": "eph.revenue_pptx",
+    "attempt": 1,
+    "status": "error",
+    "error": "Traceback (most recent call last):\n  File \"<string>\", line 18, in <module>\n  File \"<string>\", line 12, in main\n  File \"<atom>\", line 43, in run\n  File \"/usr/lib64/python3.12/site-packages/pptx/dml/color.py\", line 62, in rgb\n    raise ValueError(\"assigned value must be type RGBColor\")\nValueError: assigned value must be type RGBColor\n",
+    "code": "def run(inputs: dict) -> dict:\n    import os\n    from pptx import Presentation\n    from pptx.util import Inches, Pt\n    from pptx.enum.text import PP_ALIGN\n\n    metrics = inputs.get(\"ExtractedMetric\", [])\n    if not metrics:\n        raise ValueError(\"Нет данных ExtractedMetric для создания презентации\")\n\n    # Собираем данные: period_ref -> value\n    data = {}\n    units = set()\n    for m in metrics:\n        sf = m.get(\"scalar_fact\", {})\n        period = m.get(\"period_ref\", sf.get(\"period_ref\", \"\"))\n        value = sf.get(\"value\")\n        unit = sf.get(\"unit\", \"\")\n        if not period or value is None:\n            continue\n        data[period] = value\n        units.add(unit)\n\n    if not data:\n        raise ValueError(\"Нет данных с периодом и значением\")\n    if len(units) > 1:\n        raise ValueError(f\"Обнаружены разные единицы измерения: {units}\")\n    unit = units.pop()\n\n    # Сортируем периоды для порядка на слайде\n    sorted_periods = sorted(data.keys())\n\n    prs = Presentation()\n    prs.slide_width = Inches(13.333)\n    prs.slide_height = Inches(7.5)\n\n    # --- Слайд 1: Заголовок ---\n    slide1 = prs.slides.add_slide(prs.slide_layouts[6])  # blank\n    # Фон\n    bg = slide1.background\n    fill = bg.fill\n    fill.solid()\n    fill.fore_color.rgb = (0x00, 0x2B, 0x36)  # тёмно-синий\n\n    # Заголовок\n    left = Inches(1)\n    top = Inches(2.5)\n    width = Inches(11.333)\n    height = Inches(1.5)\n    txBox = slide1.shapes.add_textbox(left, top, width, height)\n    tf = txBox.text_frame\n    tf.word_wrap = True\n    p = tf.paragraphs[0]\n    p.text = \"Выручка компании\"\n    p.font.size = Pt(48)\n    p.font.bold = True\n    p.font.color.rgb = (0xFF, 0xFF, 0xFF)\n    p.alignment = PP_ALIGN.CENTER\n\n    # Подзаголовок\n    top2 = Inches(4.2)\n    height2 = Inches(1)\n    txBox2 = slide1.shapes.add_textbox(left, top2, width, height2)\n    tf2 = txBox2.text_frame\n    tf2.word_wrap = True\n    p2 = tf2.paragraphs[0]\n    p2.text = f\"Периоды: {', '.join(sorted_periods)}\"\n    p2.font.size = Pt(24)\n    p2.font.color.rgb = (0xCC, 0xCC, 0xCC)\n    p2.alignment = PP_ALIGN.CENTER\n\n    # --- Слайд 2: Значения выручки по периодам ---\n    slide2 = prs.slides.add_slide(prs.slide_layouts[6])\n    bg2 = slide2.background\n    fill2 = bg2.fill\n    fill2.solid()\n    fill2.fore_color.rgb = (0xFF, 0xFF, 0xFF)\n\n    # Заголовок слайда\n    left_title = Inches(0.5)\n    top_title = Inches(0.3)\n    width_title = Inches(12.333)\n    height_title = Inches(1)\n    txBox_title = slide2.shapes.add_textbox(left_title, top_title, width_title, height_title)\n    tf_title = txBox_title.text_frame\n    p_title = tf_title.paragraphs[0]\n    p_title.text = \"Выручка по периодам\"\n    p_title.font.size = Pt(36)\n    p_title.font.bold = True\n    p_title.font.color.rgb = (0x00, 0x2B, 0x36)\n    p_title.alignment = PP_ALIGN.LEFT\n\n    # Таблица с данными\n    rows = len(sorted_periods) + 1\n    cols = 2\n    left_tbl = Inches(1.5)\n    top_tbl = Inches(1.8)\n    width_tbl = Inches(10.333)\n    height_tbl = Inches(0.6 * rows)\n    table_shape = slide2.shapes.add_table(rows, cols, left_tbl, top_tbl, width_tbl, height_tbl)\n    table = table_shape.table\n\n    # Заголовки таблицы\n    cell_hdr0 = table.cell(0, 0)\n    cell_hdr0.text = \"Период\"\n    cell_hdr1 = table.cell(0, 1)\n    cell_hdr1.text = f\"Выручка, {unit}\"\n    for cell in [cell_hdr0, cell_hdr1]:\n        for paragraph in cell.text_frame.paragraphs:\n            paragraph.font.size = Pt(18)\n            paragraph.font.bold = True\n            paragraph.font.color.rgb = (0xFF, 0xFF, 0xFF)\n            paragraph.alignment = PP_ALIGN.CENTER\n        cell.fill.solid()\n        cell.fill.fore_color.rgb = (0x00, 0x5B, 0x7F)\n\n    for i, period in enumerate(sorted_periods, start=1):\n        val = data[period]\n        cell_p = table.cell(i, 0)\n        cell_p.text = period\n        cell_v = table.cell(i, 1)\n        cell_v.text = f\"{val:,.3f}\"\n        for cell in [cell_p, cell_v]:\n            for paragraph in cell.text_frame.paragraphs:\n                paragraph.font.size = Pt(16)\n                paragraph.font.color.rgb = (0x00, 0x2B, 0x36)\n                paragraph.alignment = PP_ALIGN.CENTER\n            cell.fill.solid()\n            cell.fill.fore_color.rgb = (0xF0, 0xF4, 0xF8) if i % 2 == 0 else (0xFF, 0xFF, 0xFF)\n\n    # --- Слайд 3: Краткий вывод ---\n    slide3 = prs.slides.add_slide(prs.slide_layouts[6])\n    bg3 = slide3.background\n    fill3 = bg3.fill\n    fill3.solid()\n    fill3.fore_color.rgb = (0xFF, 0xFF, 0xFF)\n\n    left3 = Inches(1)\n    top3 = Inches(1)\n    width3 = Inches(11.333)\n    height3 = Inches(5.5)\n    txBox3 = slide3.shapes.add_textbox(left3, top3, width3, height3)\n    tf3 = txBox3.text_frame\n    tf3.word_wrap = True\n\n    p3_title = tf3.paragraphs[0]\n    p3_title.text = \"Краткий вывод\"\n    p3_title.font.size = Pt(36)\n    p3_title.font.bold = True\n    p3_title.font.color.rgb = (0x00, 0x2B, 0x36)\n    p3_title.alignment = PP_ALIGN.LEFT\n\n    # Формируем текст вывода\n    if len(sorted_periods) >= 2:\n        p1, p2 = sorted_periods[0], sorted_periods[1]\n        v1, v2 = data[p1], data[p2]\n        change = v2 - v1\n        change_pct = (change / v1) * 100 if v1 != 0 else 0\n        direction = \"рост\" if change > 0 else \"снижение\"\n        conclusion_text = (\n            f\"За период {p1} выручка составила {v1:,.3f} {unit}.\\n\"\n            f\"За период {p2} выручка составила {v2:,.3f} {unit}.\\n\"\n            f\"Изменение: {direction} на {abs(change):,.3f} {unit} ({change_pct:+.1f}%).\"\n        )\n    else:\n        p = sorted_periods[0]\n        conclusion_text = f\"За период {p} выручка составила {data[p]:,.3f} {unit}.\"\n\n    p3_body = tf3.add_paragraph()\n    p3_body.text = conclusion_text\n    p3_body.font.size = Pt(20)\n    p3_body.font.color.rgb = (0x33, 0x33, 0x33)\n    p3_body.space_before = Pt(24)\n\n    # Сохраняем\n    os.makedirs(\"out\", exist_ok=True)\n    filename = \"revenue_report.pptx\"\n    prs.save(f\"out/{filename}\")\n\n    return {\"file\": filename, \"slides\": len(prs.slides)}\n"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "1403715f-e864-4469-b93f-b2acd0db4a88",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 32,
+   "occurred_at": "2026-10-06T20:47:12.993302Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "author_attempt",
+    "move": 4,
+    "atom": "eph.revenue_pptx",
+    "attempt": 2,
+    "status": "ok",
+    "error": null,
+    "code": "def run(inputs: dict) -> dict:\n    import os\n    from pptx import Presentation\n    from pptx.util import Inches, Pt\n    from pptx.enum.text import PP_ALIGN\n    from pptx.dml.color import RGBColor\n\n    metrics = inputs.get(\"ExtractedMetric\", [])\n    if not metrics:\n        raise ValueError(\"Нет данных ExtractedMetric для создания презентации\")\n\n    # Собираем данные: period_ref -> value\n    data = {}\n    units = set()\n    for m in metrics:\n        sf = m.get(\"scalar_fact\", {})\n        period = m.get(\"period_ref\", sf.get(\"period_ref\", \"\"))\n        value = sf.get(\"value\")\n        unit = sf.get(\"unit\", \"\")\n        if not period or value is None:\n            continue\n        data[period] = value\n        units.add(unit)\n\n    if not data:\n        raise ValueError(\"Нет данных с периодом и значением\")\n    if len(units) > 1:\n        raise ValueError(f\"Обнаружены разные единицы измерения: {units}\")\n    unit = units.pop()\n\n    # Сортируем периоды для порядка на слайде\n    sorted_periods = sorted(data.keys())\n\n    prs = Presentation()\n    prs.slide_width = Inches(13.333)\n    prs.slide_height = Inches(7.5)\n\n    # --- Слайд 1: Заголовок ---\n    slide1 = prs.slides.add_slide(prs.slide_layouts[6])  # blank\n    # Фон\n    bg = slide1.background\n    fill = bg.fill\n    fill.solid()\n    fill.fore_color.rgb = RGBColor(0x00, 0x2B, 0x36)  # тёмно-синий\n\n    # Заголовок\n    left = Inches(1)\n    top = Inches(2.5)\n    width = Inches(11.333)\n    height = Inches(1.5)\n    txBox = slide1.shapes.add_textbox(left, top, width, height)\n    tf = txBox.text_frame\n    tf.word_wrap = True\n    p = tf.paragraphs[0]\n    p.text = \"Выручка компании\"\n    p.font.size = Pt(48)\n    p.font.bold = True\n    p.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)\n    p.alignment = PP_ALIGN.CENTER\n\n    # Подзаголовок\n    top2 = Inches(4.2)\n    height2 = Inches(1)\n    txBox2 = slide1.shapes.add_textbox(left, top2, width, height2)\n    tf2 = txBox2.text_frame\n    tf2.word_wrap = True\n    p2 = tf2.paragraphs[0]\n    p2.text = f\"Периоды: {', '.join(sorted_periods)}\"\n    p2.font.size = Pt(24)\n    p2.font.color.rgb = RGBColor(0xCC, 0xCC, 0xCC)\n    p2.alignment = PP_ALIGN.CENTER\n\n    # --- Слайд 2: Значения выручки по периодам ---\n    slide2 = prs.slides.add_slide(prs.slide_layouts[6])\n    bg2 = slide2.background\n    fill2 = bg2.fill\n    fill2.solid()\n    fill2.fore_color.rgb = RGBColor(0xFF, 0xFF, 0xFF)\n\n    # Заголовок слайда\n    left_title = Inches(0.5)\n    top_title = Inches(0.3)\n    width_title = Inches(12.333)\n    height_title = Inches(1)\n    txBox_title = slide2.shapes.add_textbox(left_title, top_title, width_title, height_title)\n    tf_title = txBox_title.text_frame\n    p_title = tf_title.paragraphs[0]\n    p_title.text = \"Выручка по периодам\"\n    p_title.font.size = Pt(36)\n    p_title.font.bold = True\n    p_title.font.color.rgb = RGBColor(0x00, 0x2B, 0x36)\n    p_title.alignment = PP_ALIGN.LEFT\n\n    # Таблица с данными\n    rows = len(sorted_periods) + 1\n    cols = 2\n    left_tbl = Inches(1.5)\n    top_tbl = Inches(1.8)\n    width_tbl = Inches(10.333)\n    height_tbl = Inches(0.6 * rows)\n    table_shape = slide2.shapes.add_table(rows, cols, left_tbl, top_tbl, width_tbl, height_tbl)\n    table = table_shape.table\n\n    # Заголовки таблицы\n    cell_hdr0 = table.cell(0, 0)\n    cell_hdr0.text = \"Период\"\n    cell_hdr1 = table.cell(0, 1)\n    cell_hdr1.text = f\"Выручка, {unit}\"\n    for cell in [cell_hdr0, cell_hdr1]:\n        for paragraph in cell.text_frame.paragraphs:\n            paragraph.font.size = Pt(18)\n            paragraph.font.bold = True\n            paragraph.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)\n            paragraph.alignment = PP_ALIGN.CENTER\n        cell.fill.solid()\n        cell.fill.fore_color.rgb = RGBColor(0x00, 0x5B, 0x7F)\n\n    for i, period in enumerate(sorted_periods, start=1):\n        val = data[period]\n        cell_p = table.cell(i, 0)\n        cell_p.text = period\n        cell_v = table.cell(i, 1)\n        cell_v.text = f\"{val:,.3f}\"\n        for cell in [cell_p, cell_v]:\n            for paragraph in cell.text_frame.paragraphs:\n                paragraph.font.size = Pt(16)\n                paragraph.font.color.rgb = RGBColor(0x00, 0x2B, 0x36)\n                paragraph.alignment = PP_ALIGN.CENTER\n            cell.fill.solid()\n            cell.fill.fore_color.rgb = RGBColor(0xF0, 0xF4, 0xF8) if i % 2 == 0 else RGBColor(0xFF, 0xFF, 0xFF)\n\n    # --- Слайд 3: Краткий вывод ---\n    slide3 = prs.slides.add_slide(prs.slide_layouts[6])\n    bg3 = slide3.background\n    fill3 = bg3.fill\n    fill3.solid()\n    fill3.fore_color.rgb = RGBColor(0xFF, 0xFF, 0xFF)\n\n    left3 = Inches(1)\n    top3 = Inches(1)\n    width3 = Inches(11.333)\n    height3 = Inches(5.5)\n    txBox3 = slide3.shapes.add_textbox(left3, top3, width3, height3)\n    tf3 = txBox3.text_frame\n    tf3.word_wrap = True\n\n    p3_title = tf3.paragraphs[0]\n    p3_title.text = \"Краткий вывод\"\n    p3_title.font.size = Pt(36)\n    p3_title.font.bold = True\n    p3_title.font.color.rgb = RGBColor(0x00, 0x2B, 0x36)\n    p3_title.alignment = PP_ALIGN.LEFT\n\n    # Формируем текст вывода\n    if len(sorted_periods) >= 2:\n        p1, p2 = sorted_periods[0], sorted_periods[1]\n        v1, v2 = data[p1], data[p2]\n        change = v2 - v1\n        change_pct = (change / v1) * 100 if v1 != 0 else 0\n        direction = \"рост\" if change > 0 else \"снижение\"\n        conclusion_text = (\n            f\"За период {p1} выручка составила {v1:,.3f} {unit}.\\n\"\n            f\"За период {p2} выручка составила {v2:,.3f} {unit}.\\n\"\n            f\"Изменение: {direction} на {abs(change):,.3f} {unit} ({change_pct:+.1f}%).\"\n        )\n    else:\n        p = sorted_periods[0]\n        conclusion_text = f\"За период {p} выручка составила {data[p]:,.3f} {unit}.\"\n\n    p3_body = tf3.add_paragraph()\n    p3_body.text = conclusion_text\n    p3_body.font.size = Pt(20)\n    p3_body.font.color.rgb = RGBColor(0x33, 0x33, 0x33)\n    p3_body.space_before = Pt(24)\n\n    # Сохраняем\n    os.makedirs(\"out\", exist_ok=True)\n    filename = \"revenue_report.pptx\"\n    prs.save(f\"out/{filename}\")\n\n    return {\"file\": filename, \"slides\": len(prs.slides)}\n"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "007006ac-aeb0-416b-b695-5e018039c70e",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 33,
+   "occurred_at": "2026-10-06T20:47:13.159328Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "plan_graph",
+    "graph_hash": "sha256:25727c44d5951003266a0d23e0d3e77bc0d87c1d6e58252749e5b503eeb9e275",
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+     "atom_name": "eph.revenue_pptx",
+     "atom_version": "8961a008f478",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+    },
+    "nodes": [
+     {
+      "node_key": {
+       "atom_name": "ingest.document",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "document_text"
+      ],
+      "requires": [],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "identify.classify",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "RunPassport"
+      ],
+      "requires": [
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ЛУКОЙЛ"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "locate",
+       "atom_version": "1.0.2",
+       "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "CandidateLocator:SALES_REVENUE"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ЛУКОЙЛ"
+       },
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ЛУКОЙЛ"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "read.value",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "ExtractedMetric:SALES_REVENUE"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ЛУКОЙЛ"
+       },
+       {
+        "atom_name": "locate",
+        "atom_version": "1.0.2",
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.unit",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "08a9bae71da4f0b2854b6d2a498afd3a99ca6375a0cf42dfa59ea15020419b06"
+      },
+      "produces": [
+       "Verified:unit"
+      ],
+      "requires": [
+       {
+        "atom_name": "read.value",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.time",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "aa4ae7bd31e241cf751a51f67a37bf9068c6d948539a9b6ced14127066b68f53"
+      },
+      "produces": [
+       "Verified:time"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "08a9bae71da4f0b2854b6d2a498afd3a99ca6375a0cf42dfa59ea15020419b06"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c"
+      },
+      "produces": [
+       "Verified:bounds"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "aa4ae7bd31e241cf751a51f67a37bf9068c6d948539a9b6ced14127066b68f53"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "eph.revenue_pptx",
+       "atom_version": "8961a008f478",
+       "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "dyn:revenue_pptx:SALES_REVENUE"
+      ],
+      "requires": [
+       {
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c"
+       }
+      ],
+      "sandbox_profile": "sealed_room",
+      "status": "pending",
+      "scenario_refs": []
+     }
+    ],
+    "scenarios": []
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "743e3152-9529-44e0-973b-d611988852eb",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 58,
+   "occurred_at": "2026-10-06T20:47:26.145144Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 4,
+    "status": "done",
+    "action": "execute",
+    "objective": "Создать презентацию из трёх слайдов",
+    "reason": "Пользователь запросил презентацию на основе извлечённой выручки",
+    "scenarios": [],
+    "new_atoms": [
+     {
+      "name": "eph.revenue_pptx",
+      "kind": "code",
+      "purpose": "Создаёт презентацию из трёх слайдов: заголовок, значения выручки по периодам, краткий вывод. Данные берутся из входных ExtractedMetric.",
+      "output_type": "dyn:revenue_pptx",
+      "url": null
+     }
+    ],
+    "steps": [
+     {
+      "atom": "eph.revenue_pptx",
+      "concept": "SALES_REVENUE",
+      "period_ref": null
+     }
+    ],
+    "outcome": "✓ 4 новых результатов",
+    "details": "✓ ingest.document  → DocumentText (1)\n✓ identify.classify  → RunPassport (1)\n✓ locate SALES_REVENUE → CandidateLocator (3)\n✓ read.value SALES_REVENUE → ExtractedMetric (2); evidence_ids=566c7381-86f0-457c-8971-c98b0319631b, 0a575585-aa61-46b8-beab-c6dd5198c9a4\n✓ norm.unit SALES_REVENUE → VerificationFinding, ExtractedMetric (4); evidence_ids=92b5563f-b505-4aa6-b800-a9f3d7137c9f, 566c7381-86f0-457c-8971-c98b0319631b, 0192d93f-10a3-47a9-8524-661d1d07baf1, 0a575585-aa61-46b8-beab-c6dd5198c9a4\n✓ norm.time SALES_REVENUE → VerificationFinding, ExtractedMetric (4); evidence_ids=7aa48cb8-f7aa-4099-9204-cade8a2567d0, 566c7381-86f0-457c-8971-c98b0319631b, 432131d7-c06c-470b-89e4-4148602d01e1, 0a575585-aa61-46b8-beab-c6dd5198c9a4\n✓ verify.bounds SALES_REVENUE → VerificationFinding, ExtractedMetric (4); evidence_ids=1d54ba94-dd26-4adf-91dd-ca575b0d048b, 566c7381-86f0-457c-8971-c98b0319631b, 712da854-e915-4b6f-9663-be592a5b89f2, 0a575585-aa61-46b8-beab-c6dd5198c9a4\n✓ eph.revenue_pptx  → dyn:revenue_pptx, FileArtifact (2); evidence_ids=31efede3-a530-4978-8a48-3004542e7933; файлы: 5f4e46dc-baad-4381-bb7d-9e8bf510c783 (revenue_report.pptx: pptx, 31034 байт; слайдов 3)"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "3fc27fa2-31a5-48aa-9fd5-bc6591952b8c",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 59,
+   "occurred_at": "2026-10-06T20:47:39.647971Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 5,
+    "status": "done",
+    "action": "finalize",
+    "objective": "Предоставить пользователю готовую презентацию и ответ",
+    "reason": "Все части цели выполнены: выручка извлечена, презентация создана.",
+    "scenarios": [],
+    "new_atoms": [],
+    "steps": [],
+    "outcome": "",
+    "details": "Презентация готова. В ней три слайда: заголовок, значения выручки по периодам и краткий вывод. Выручка ЛУКОЙЛа за 6M 2026 составила 1 453 957,05 млн руб., за 6M 2025 — 1 398 538,77 млн руб. Файл приложен."
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "86f53d0a-6b5e-4006-8e9c-4a0c2765e089",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 60,
+   "occurred_at": "2026-10-06T20:47:39.686396Z",
+   "event_type": "result",
+   "delivery_status": "complete",
+   "result": {
+    "schema_version": "1.0",
+    "output_type": "ExtractedMetric",
+    "status": "supported",
+    "metric_id": "658c4530-3d8c-4846-801d-e810ccb42790",
+    "scalar_fact": {
+     "evidence_id": "566c7381-86f0-457c-8971-c98b0319631b",
+     "produced_by_atom": "read.value",
+     "produced_by_atom_version": "1.0.0",
+     "source_ref": "fa6ca9af-33f1-4801-91e4-da9e0b6e5882",
+     "document_version": "sha256:416723a0e57ab1a96340cab0bda8e828e15020b5342a0bbfddadb439604ecae3",
+     "concept": "SALES_REVENUE",
+     "period_ref": "6M 2026",
+     "basis": null,
+     "supersedes": null,
+     "created_at": "2026-10-06T20:47:25.761800Z",
+     "value": 1453957.053,
+     "unit": "млн. руб.",
+     "page": 24
+    },
+    "concept": "SALES_REVENUE",
+    "period_ref": "6M 2026",
+    "definition_origin": "registry"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d2495ce2-eaac-4816-82ac-a15d8cbbcefb",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 61,
+   "occurred_at": "2026-10-06T20:47:39.686597Z",
+   "event_type": "result",
+   "delivery_status": "complete",
+   "result": {
+    "schema_version": "1.0",
+    "output_type": "ExtractedMetric",
+    "status": "supported",
+    "metric_id": "2d08ee25-6968-4fb4-bd87-597760506293",
+    "scalar_fact": {
+     "evidence_id": "0a575585-aa61-46b8-beab-c6dd5198c9a4",
+     "produced_by_atom": "read.value",
+     "produced_by_atom_version": "1.0.0",
+     "source_ref": "fa6ca9af-33f1-4801-91e4-da9e0b6e5882",
+     "document_version": "sha256:416723a0e57ab1a96340cab0bda8e828e15020b5342a0bbfddadb439604ecae3",
+     "concept": "SALES_REVENUE",
+     "period_ref": "6M 2025",
+     "basis": null,
+     "supersedes": null,
+     "created_at": "2026-10-06T20:47:25.761825Z",
+     "value": 1398538.772,
+     "unit": "млн. руб.",
+     "page": 24
+    },
+    "concept": "SALES_REVENUE",
+    "period_ref": "6M 2025",
+    "definition_origin": "registry"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "9a360bc4-601f-4c03-8e85-b1f60c56954d",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 62,
+   "occurred_at": "2026-10-06T20:47:39.686656Z",
+   "event_type": "result",
+   "delivery_status": "complete",
+   "result": {
+    "schema_version": "1.0",
+    "output_type": "FileArtifact",
+    "artifact_id": "5f4e46dc-baad-4381-bb7d-9e8bf510c783",
+    "run_id": "ca9dd161-7e65-422c-b508-2f6ab1974a2d",
+    "file_kind": "pptx",
+    "mime_type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "filename": "revenue_report.pptx",
+    "template_id": "eph.revenue_pptx",
+    "template_version": "8961a008f478",
+    "source_result": {
+     "result_type": "DynamicArtifact",
+     "result_id": "31efede3-a530-4978-8a48-3004542e7933",
+     "schema_version": "1.0",
+     "run_id": "ca9dd161-7e65-422c-b508-2f6ab1974a2d",
+     "evidence_version": "1.0",
+     "result_hash": "506aa15833176fea70d2ed6498d78675823c62ea1c41d1bbeb1acb508e5e1a8d"
+    },
+    "content_hash": "40a757e591a518feeb11413fa9b3948aa9cfbe7cddeddb44f4058db417ec41c7",
+    "object_store_location": "users/1/projects/p16-accept-pptx-1/sources/84804e7068d049d39fd7bf9a40e7bc95.pptx",
+    "size_bytes": 31034,
+    "summary": "pptx, 31034 байт; слайдов 3",
+    "created_at": "2026-10-06T20:47:26.062299Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "ed7fa3c2-be70-450b-af3b-20212c09d791",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 63,
+   "occurred_at": "2026-10-06T20:47:39.686765Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "file",
+    "file_id": "84804e7068d049d39fd7bf9a40e7bc95",
+    "filename": "revenue_report.pptx",
+    "kind": "pptx"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "fdca1eee-cf0c-45b4-951f-a8bb681a9416",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 64,
+   "occurred_at": "2026-10-06T20:47:40.056597Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_output",
+    "name": "financial_pipeline",
+    "ok": true
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "102eb601-066e-42a2-894f-534647fd2cf9",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 65,
+   "occurred_at": "2026-10-06T20:47:40.056718Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "text_delta",
+    "text": "Презентация готова. В ней три слайда: заголовок, значения выручки по периодам и краткий вывод. Выручка ЛУКОЙЛа за 6M 2026 составила 1 453 957,05 млн руб., за 6M 2025 — 1 398 538,77 млн руб. Файл приложен."
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "43f5feb9-d82c-42bf-b955-44a61bdea8ab",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 66,
+   "occurred_at": "2026-10-06T20:47:40.056754Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "sources",
+    "sources": [
+     {
+      "filename": "Бухгалтерская отчетность на 30.06.2026.pdf",
+      "company_name": "ЛУКОЙЛ"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "5b762420-31c8-4f92-95bc-847a636bae73",
+   "run_id": "b2104a25-b50d-4c2e-8a0a-d4e69f849f3e",
+   "sequence": 67,
+   "occurred_at": "2026-10-06T20:47:40.056791Z",
+   "event_type": "completed",
+   "status": "succeeded"
+  }
+ ],
+ "project": "p16-accept-pptx-1",
+ "session_id": "8a77f826-36f3-4c6d-9b6f-7095e74132aa",
+ "started_utc": "2026-10-06T20:47:42Z"
+}

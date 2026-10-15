@@ -1,0 +1,1176 @@
+{
+ "label": "S4",
+ "query": "Используй уже извлечённые значения SALES_REVENUE за 6M 2026 и 6M 2025. Создай временный вычислительный атом и рассчитай коэффициент вариации выручки для этих двух значений (стандартное отклонение генеральной совокупности / среднее * 100). Покажи исходные значения, формулу и результат; новых данных не выдумывай.",
+ "doc_id": "a3c81e32-43b4-4c29-8e59-4ef643b83785",
+ "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+ "elapsed_s": 163.8,
+ "events": [
+  {
+   "schema_version": "1.0",
+   "event_id": "93c68294-ccaa-4b3a-8a9f-eba685d3e289",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 1,
+   "occurred_at": "2026-10-06T15:40:35.052905Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "session_id",
+    "session_id": "7960ef7f-5f78-41ad-bbb0-183e89e17cbd"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "64122498-d4a9-44c1-8453-46fe68373ae0",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 2,
+   "occurred_at": "2026-10-06T15:40:35.052975Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "thinking",
+    "text": "Разбираю запрос…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "3cebe716-9a95-4a04-a8e2-4677ca790d0f",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 3,
+   "occurred_at": "2026-10-06T15:41:19.061710Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_call",
+    "name": "financial_pipeline",
+    "args_summary": "Используй уже извлечённые значения SALES_REVENUE за 6M 20…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "14e97aba-fab4-44a9-8dc3-a65e21c61c34",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 4,
+   "occurred_at": "2026-10-06T15:41:19.061858Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 1,
+    "status": "rejected",
+    "action": "rejected",
+    "objective": "",
+    "reason": "",
+    "scenarios": [],
+    "new_atoms": [],
+    "steps": [],
+    "outcome": "",
+    "details": "атомы ['eph.calc_cv_sales_revenue'] объявлены в new_atoms, но не вызваны в steps: создание атома его не запускает — добавь шаг с этим атомом в этот же ход"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "e903d3aa-afef-4e1c-bdb5-c73d92fbfa98",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 5,
+   "occurred_at": "2026-10-06T15:41:54.070009Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 2,
+    "status": "rejected",
+    "action": "rejected",
+    "objective": "",
+    "reason": "",
+    "scenarios": [],
+    "new_atoms": [],
+    "steps": [],
+    "outcome": "",
+    "details": "атомы ['eph.calc_cv_sales_revenue'] объявлены в new_atoms, но не вызваны в steps: создание атома его не запускает — добавь шаг с этим атомом в этот же ход"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "c3784516-c11b-455d-8864-d915c5ba9145",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 6,
+   "occurred_at": "2026-10-06T15:42:21.034485Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 3,
+    "status": "running",
+    "action": "execute",
+    "objective": "Создать и запустить атом eph.calc_cv_sales_revenue для расчёта коэффициента вариации выручки",
+    "reason": "Пользователь явно просит создать атом для расчёта коэффициента вариации на основе уже извлечённых значений SALES_REVENUE за 6M 2026 и 6M 2025. Входные данные готовы, поэтому можно сразу объявить атом и запустить его.",
+    "scenarios": [],
+    "new_atoms": [
+     {
+      "name": "eph.calc_cv_sales_revenue",
+      "kind": "code",
+      "purpose": "Рассчитывает коэффициент вариации выручки (CV) для двух значений SALES_REVENUE (6M 2026 и 6M 2025) по формуле: CV = (σ / μ) * 100, где σ — стандартное отклонение генеральной совокупности (population std), μ — среднее арифметическое двух значений. Входные значения в млн. руб., результат в процентах.",
+      "output_type": "dyn:cv_sales_revenue",
+      "url": null
+     }
+    ],
+    "steps": [
+     {
+      "atom": "eph.calc_cv_sales_revenue",
+      "concept": null,
+      "period_ref": null
+     }
+    ],
+    "outcome": "",
+    "details": ""
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "8e836280-5514-49d4-b681-1f8f9a85b036",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 7,
+   "occurred_at": "2026-10-06T15:42:42.757830Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "author_attempt",
+    "move": 3,
+    "atom": "eph.calc_cv_sales_revenue",
+    "attempt": 1,
+    "status": "ok",
+    "error": null,
+    "code": "def run(inputs: dict) -> dict:\n    import math\n\n    metrics = inputs.get(\"ExtractedMetric\", [])\n\n    # Ищем значения для 6M 2026 и 6M 2025\n    val_2026 = None\n    val_2025 = None\n\n    for m in metrics:\n        if m.get(\"concept\") != \"SALES_REVENUE\":\n            continue\n        period = m.get(\"period_ref\")\n        sf = m.get(\"scalar_fact\")\n        if not sf:\n            continue\n        unit = sf.get(\"unit\")\n        if unit != \"млн. руб.\":\n            raise ValueError(f\"Ожидалась единица 'млн. руб.', получена '{unit}'\")\n        value = sf.get(\"value\")\n        if value is None:\n            continue\n        if period == \"6M 2026\":\n            val_2026 = value\n        elif period == \"6M 2025\":\n            val_2025 = value\n\n    if val_2026 is None or val_2025 is None:\n        raise ValueError(\"Не найдены оба значения SALES_REVENUE для периодов 6M 2026 и 6M 2025\")\n\n    # Среднее арифметическое\n    mu = (val_2026 + val_2025) / 2.0\n\n    # Стандартное отклонение генеральной совокупности (population std)\n    # σ = sqrt( ((x1 - μ)^2 + (x2 - μ)^2) / N ), где N = 2\n    variance = ((val_2026 - mu) ** 2 + (val_2025 - mu) ** 2) / 2.0\n    sigma = math.sqrt(variance)\n\n    # CV = (σ / μ) * 100\n    if mu == 0:\n        raise ValueError(\"Среднее значение равно нулю, CV не определён\")\n    cv_percent = (sigma / mu) * 100.0\n\n    return {\"cv_percent\": cv_percent}\n"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "bf9a87b8-3964-430c-8bc8-d117d1e11c80",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 8,
+   "occurred_at": "2026-10-06T15:42:43.196373Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "plan_graph",
+    "graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+     "atom_name": "eph.calc_cv_sales_revenue",
+     "atom_version": "797bc6edbd5f",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "nodes": [
+     {
+      "node_key": {
+       "atom_name": "ingest.document",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "document_text"
+      ],
+      "requires": [],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "identify.classify",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "RunPassport"
+      ],
+      "requires": [
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ЛУКОЙЛ"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "locate",
+       "atom_version": "1.0.2",
+       "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "CandidateLocator:SALES_REVENUE"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ЛУКОЙЛ"
+       },
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ЛУКОЙЛ"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "read.value",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "ExtractedMetric:SALES_REVENUE"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ЛУКОЙЛ"
+       },
+       {
+        "atom_name": "locate",
+        "atom_version": "1.0.2",
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.unit",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "08a9bae71da4f0b2854b6d2a498afd3a99ca6375a0cf42dfa59ea15020419b06"
+      },
+      "produces": [
+       "Verified:unit"
+      ],
+      "requires": [
+       {
+        "atom_name": "read.value",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.time",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "aa4ae7bd31e241cf751a51f67a37bf9068c6d948539a9b6ced14127066b68f53"
+      },
+      "produces": [
+       "Verified:time"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "08a9bae71da4f0b2854b6d2a498afd3a99ca6375a0cf42dfa59ea15020419b06"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c"
+      },
+      "produces": [
+       "Verified:bounds"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "aa4ae7bd31e241cf751a51f67a37bf9068c6d948539a9b6ced14127066b68f53"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "eph.calc_cv_sales_revenue",
+       "atom_version": "797bc6edbd5f",
+       "args_fingerprint": "entity=ЛУКОЙЛ"
+      },
+      "produces": [
+       "dyn:cv_sales_revenue"
+      ],
+      "requires": [
+       {
+        "atom_name": "verify.bounds",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c"
+       }
+      ],
+      "sandbox_profile": "sealed_room",
+      "status": "pending",
+      "scenario_refs": []
+     }
+    ],
+    "scenarios": []
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "6b842c42-7984-4e2e-a74f-0a82addeec99",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 9,
+   "occurred_at": "2026-10-06T15:42:43.200493Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "8e57c596-9fc6-413d-bfc2-0196d7e2f08f",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "f8cfcb59-a0d6-4efe-aeed-3df826d7c7a7",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 10,
+   "occurred_at": "2026-10-06T15:42:43.204222Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "3194abc2-5ce5-4480-8f5b-62e7c03da70a",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "390958dd-fd75-4259-9865-98cedb4272aa",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 11,
+   "occurred_at": "2026-10-06T15:42:43.207753Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "fd9228a5-39d1-4917-836d-dbc0ec55c5fe",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "bf1f86e5-13e0-4ca9-86d5-32070f77de9c",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 12,
+   "occurred_at": "2026-10-06T15:42:43.211391Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "92c7efc1-8eaf-4742-a68f-8e950ae75872",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "46c38e2a-902a-467f-a442-8e0c5f651865",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 13,
+   "occurred_at": "2026-10-06T15:42:43.214030Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "6077b306-9f5a-465a-9e73-d493bd5db510",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "08a9bae71da4f0b2854b6d2a498afd3a99ca6375a0cf42dfa59ea15020419b06"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "dbe659ed-ca29-437b-bed0-9ca2d5fbe6f9",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 14,
+   "occurred_at": "2026-10-06T15:42:43.217607Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "e6237106-7cf4-4d86-b3ee-5a011ee55960",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "aa4ae7bd31e241cf751a51f67a37bf9068c6d948539a9b6ced14127066b68f53"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "feda1ee2-dcba-461e-be68-bcd29e5e16fb",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 15,
+   "occurred_at": "2026-10-06T15:42:43.220233Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "4fa563bd-1342-4dea-9bd3-559048c04694",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "ccaef8ec-26a1-4526-b49b-c72db5b7b5f1",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 16,
+   "occurred_at": "2026-10-06T15:42:43.223897Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "6b011490-01ac-4ea1-abeb-659e0026b1c6",
+    "node_key": {
+     "atom_name": "eph.calc_cv_sales_revenue",
+     "atom_version": "797bc6edbd5f",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "planned",
+    "sandbox_profile": "sealed_room",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "c4241c7f-59b8-42a4-bb22-a1fbd8186467",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 17,
+   "occurred_at": "2026-10-06T15:42:43.227085Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "8e57c596-9fc6-413d-bfc2-0196d7e2f08f",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:43.221458Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "285a363a-377b-481e-928e-adbbc8811a27",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 18,
+   "occurred_at": "2026-10-06T15:42:43.230403Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "8e57c596-9fc6-413d-bfc2-0196d7e2f08f",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "content:3018a07ee1ae9555e83960ad47197d7d28b0ffe594c421d7fd211a1873deb703"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:43.221458Z",
+    "finished_at": "2026-10-06T15:42:43.224380Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "8994b3f1-835d-48a4-907b-dfa7956215da",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 19,
+   "occurred_at": "2026-10-06T15:42:43.311467Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "3194abc2-5ce5-4480-8f5b-62e7c03da70a",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:43.236748Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "f637d9c9-2d6d-4dfb-8e3d-8f2ae1ba2846",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 20,
+   "occurred_at": "2026-10-06T15:42:43.511475Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "3194abc2-5ce5-4480-8f5b-62e7c03da70a",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "e33cce72-0499-47f5-a178-186480b4c14d"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:43.236748Z",
+    "finished_at": "2026-10-06T15:42:43.504462Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "4105c85a-ba9c-4db0-9159-75520ef290f3",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 21,
+   "occurred_at": "2026-10-06T15:42:43.579030Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "fd9228a5-39d1-4917-836d-dbc0ec55c5fe",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:43.513160Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "4b55fda5-6407-4b65-8e07-de0abc804500",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 22,
+   "occurred_at": "2026-10-06T15:42:48.681394Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "fd9228a5-39d1-4917-836d-dbc0ec55c5fe",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "a2f8efd8-1d49-4cf8-8ffa-0cc5742b203a",
+     "7b18cbdc-7069-4902-92be-d8e0f77e0c42",
+     "8144815b-26ec-4047-b100-6d5ad4634282"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:43.513160Z",
+    "finished_at": "2026-10-06T15:42:48.674766Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "3bf60c4b-e260-48bf-a386-18d0266d9b91",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 23,
+   "occurred_at": "2026-10-06T15:42:48.751781Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "92c7efc1-8eaf-4742-a68f-8e950ae75872",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:48.682584Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "4889dca0-3f0f-4c7c-ba42-6bd3b02951da",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 24,
+   "occurred_at": "2026-10-06T15:42:51.542603Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "92c7efc1-8eaf-4742-a68f-8e950ae75872",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ЛУКОЙЛ"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "fc5d581b-164f-4b6a-93bb-7c028cc0cc4c",
+     "47dc9219-0e87-416f-b344-d334893f9f9b"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:48.682584Z",
+    "finished_at": "2026-10-06T15:42:51.488252Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "b73670e7-45af-4efd-a8bb-030ba1260caf",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 25,
+   "occurred_at": "2026-10-06T15:42:51.552056Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "6077b306-9f5a-465a-9e73-d493bd5db510",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "08a9bae71da4f0b2854b6d2a498afd3a99ca6375a0cf42dfa59ea15020419b06"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:51.542194Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "e4e37230-681b-42eb-9a1b-0dab4fffd127",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 26,
+   "occurred_at": "2026-10-06T15:42:51.599848Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "6077b306-9f5a-465a-9e73-d493bd5db510",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "08a9bae71da4f0b2854b6d2a498afd3a99ca6375a0cf42dfa59ea15020419b06"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "10ba6054-411d-4575-959e-6f63988859b0",
+     "fc5d581b-164f-4b6a-93bb-7c028cc0cc4c",
+     "08c6330a-c7e4-45e2-8483-d8ba7020ccd3",
+     "47dc9219-0e87-416f-b344-d334893f9f9b"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:51.542194Z",
+    "finished_at": "2026-10-06T15:42:51.548213Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "fc87d31e-c035-4a39-b593-57e129f2c3c6",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 27,
+   "occurred_at": "2026-10-06T15:42:51.669772Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "e6237106-7cf4-4d86-b3ee-5a011ee55960",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "aa4ae7bd31e241cf751a51f67a37bf9068c6d948539a9b6ced14127066b68f53"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:51.649142Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "bb0a34f2-ad98-4ed1-bf2a-56a349f0441f",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 28,
+   "occurred_at": "2026-10-06T15:42:51.676727Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "e6237106-7cf4-4d86-b3ee-5a011ee55960",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "aa4ae7bd31e241cf751a51f67a37bf9068c6d948539a9b6ced14127066b68f53"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "cc93fa25-8ac6-4015-802b-f9a86c3f1a19",
+     "fc5d581b-164f-4b6a-93bb-7c028cc0cc4c",
+     "21be574b-a7e3-435a-a8ec-375955e32374",
+     "47dc9219-0e87-416f-b344-d334893f9f9b"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:51.649142Z",
+    "finished_at": "2026-10-06T15:42:51.664940Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "90c949c9-692d-429a-8d1a-5871fe88cb53",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 29,
+   "occurred_at": "2026-10-06T15:42:51.771076Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "4fa563bd-1342-4dea-9bd3-559048c04694",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:51.689813Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "966e84d9-4632-4258-8a13-e32b7f0fd7c2",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 30,
+   "occurred_at": "2026-10-06T15:42:51.777993Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "4fa563bd-1342-4dea-9bd3-559048c04694",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "ae11f73e2086ef792cc9a184fcba877675be994fabfbc0d37fb065eedc086e2c"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "446db2c8-dc74-48a3-ab54-90dbad91fdb3",
+     "fc5d581b-164f-4b6a-93bb-7c028cc0cc4c",
+     "695d3827-737b-4a6d-ad4e-054541fa9bed",
+     "47dc9219-0e87-416f-b344-d334893f9f9b"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:51.689813Z",
+    "finished_at": "2026-10-06T15:42:51.766448Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "f7e0838f-63d4-4485-8671-0f422a641da4",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 31,
+   "occurred_at": "2026-10-06T15:42:51.848552Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "6b011490-01ac-4ea1-abeb-659e0026b1c6",
+    "node_key": {
+     "atom_name": "eph.calc_cv_sales_revenue",
+     "atom_version": "797bc6edbd5f",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "running",
+    "sandbox_profile": "sealed_room",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:51.780175Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "091a0465-f1c5-4673-9879-c9195e624d2b",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 32,
+   "occurred_at": "2026-10-06T15:42:51.970348Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:7faeaad0bcf50557d5c62f7e119cd5ed184ce5ed78226bb749bad6e031663c0b",
+   "node_run": {
+    "node_run_id": "6b011490-01ac-4ea1-abeb-659e0026b1c6",
+    "node_key": {
+     "atom_name": "eph.calc_cv_sales_revenue",
+     "atom_version": "797bc6edbd5f",
+     "args_fingerprint": "entity=ЛУКОЙЛ"
+    },
+    "run_id": "f6ecd614-38c4-4699-aea8-2ed57dab97a9",
+    "status": "succeeded",
+    "sandbox_profile": "sealed_room",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "db8f9580-5325-4e30-a9e5-79add91ea806"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T15:42:51.780175Z",
+    "finished_at": "2026-10-06T15:42:51.960404Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "9c223c68-dd03-4a70-bedf-d5fccc07648d",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 33,
+   "occurred_at": "2026-10-06T15:42:52.418141Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 3,
+    "status": "done",
+    "action": "execute",
+    "objective": "Создать и запустить атом eph.calc_cv_sales_revenue для расчёта коэффициента вариации выручки",
+    "reason": "Пользователь явно просит создать атом для расчёта коэффициента вариации на основе уже извлечённых значений SALES_REVENUE за 6M 2026 и 6M 2025. Входные данные готовы, поэтому можно сразу объявить атом и запустить его.",
+    "scenarios": [],
+    "new_atoms": [
+     {
+      "name": "eph.calc_cv_sales_revenue",
+      "kind": "code",
+      "purpose": "Рассчитывает коэффициент вариации выручки (CV) для двух значений SALES_REVENUE (6M 2026 и 6M 2025) по формуле: CV = (σ / μ) * 100, где σ — стандартное отклонение генеральной совокупности (population std), μ — среднее арифметическое двух значений. Входные значения в млн. руб., результат в процентах.",
+      "output_type": "dyn:cv_sales_revenue",
+      "url": null
+     }
+    ],
+    "steps": [
+     {
+      "atom": "eph.calc_cv_sales_revenue",
+      "concept": null,
+      "period_ref": null
+     }
+    ],
+    "outcome": "✓ 3 новых результатов",
+    "details": "✓ ingest.document  → DocumentText (1)\n✓ identify.classify  → RunPassport (1)\n✓ locate SALES_REVENUE → CandidateLocator (3)\n✓ read.value SALES_REVENUE → ExtractedMetric (2); evidence_ids=fc5d581b-164f-4b6a-93bb-7c028cc0cc4c, 47dc9219-0e87-416f-b344-d334893f9f9b\n✓ norm.unit SALES_REVENUE → VerificationFinding, ExtractedMetric (4); evidence_ids=10ba6054-411d-4575-959e-6f63988859b0, fc5d581b-164f-4b6a-93bb-7c028cc0cc4c, 08c6330a-c7e4-45e2-8483-d8ba7020ccd3, 47dc9219-0e87-416f-b344-d334893f9f9b\n✓ norm.time SALES_REVENUE → VerificationFinding, ExtractedMetric (4); evidence_ids=cc93fa25-8ac6-4015-802b-f9a86c3f1a19, fc5d581b-164f-4b6a-93bb-7c028cc0cc4c, 21be574b-a7e3-435a-a8ec-375955e32374, 47dc9219-0e87-416f-b344-d334893f9f9b\n✓ verify.bounds SALES_REVENUE → VerificationFinding, ExtractedMetric (4); evidence_ids=446db2c8-dc74-48a3-ab54-90dbad91fdb3, fc5d581b-164f-4b6a-93bb-7c028cc0cc4c, 695d3827-737b-4a6d-ad4e-054541fa9bed, 47dc9219-0e87-416f-b344-d334893f9f9b\n✓ eph.calc_cv_sales_revenue  → dyn:cv_sales_revenue (1); evidence_ids=db8f9580-5325-4e30-a9e5-79add91ea806"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "9cf60661-4abf-4ddc-860d-6deba30c737e",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 34,
+   "occurred_at": "2026-10-06T15:43:09.808366Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 4,
+    "status": "done",
+    "action": "finalize",
+    "objective": "Предоставить пользователю исходные значения, формулу и результат расчёта коэффициента вариации выручки",
+    "reason": "Все необходимые данные получены и расчёт выполнен, можно сформировать итоговый ответ",
+    "scenarios": [],
+    "new_atoms": [],
+    "steps": [],
+    "outcome": "",
+    "details": "Исходные значения выручки (SALES_REVENUE):\n- 6M 2026: 1 453 957,053 млн руб.\n- 6M 2025: 1 398 538,772 млн руб.\n\nФормула коэффициента вариации (CV):\nCV = (σ / μ) × 100, где\nσ — стандартное отклонение генеральной совокупности,\nμ — среднее арифметическое двух значений.\n\nРасчёт:\nμ = (1 453 957,053 + 1 398 538,772) / 2 = 1 426 247,9125 млн руб.\nσ = √[((1 453 957,053 - 1 426 247,9125)² + (1 398 538,772 - 1 426 247,9125)²) / 2] = √[(27 709,1405² + (-27 709,1405)²) / 2] = √[(767 796 468,6 + 767 796 468,6) / 2] = √767 796 468,6 ≈ 27 709,14 млн руб.\nCV = (27 709,14 / 1 426 247,91) × 100 ≈ 1,94%\n\nРезультат (рассчитано созданным атомом eph.calc_cv_sales_revenue):\nКоэффициент вариации выручки = 1,94%"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "901400ff-d709-4a08-8953-ae780d4a8a18",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 35,
+   "occurred_at": "2026-10-06T15:43:09.836774Z",
+   "event_type": "result",
+   "delivery_status": "complete",
+   "result": {
+    "schema_version": "1.0",
+    "output_type": "ExtractedMetric",
+    "status": "supported",
+    "metric_id": "8d7c8712-2299-4530-832c-5068ca94e89b",
+    "scalar_fact": {
+     "evidence_id": "fc5d581b-164f-4b6a-93bb-7c028cc0cc4c",
+     "produced_by_atom": "read.value",
+     "produced_by_atom_version": "1.0.0",
+     "source_ref": "a2f8efd8-1d49-4cf8-8ffa-0cc5742b203a",
+     "document_version": "sha256:416723a0e57ab1a96340cab0bda8e828e15020b5342a0bbfddadb439604ecae3",
+     "concept": "SALES_REVENUE",
+     "period_ref": "6M 2026",
+     "basis": null,
+     "supersedes": null,
+     "created_at": "2026-10-06T15:42:51.487999Z",
+     "value": 1453957.053,
+     "unit": "млн. руб.",
+     "page": 24
+    },
+    "concept": "SALES_REVENUE",
+    "period_ref": "6M 2026",
+    "definition_origin": "registry"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d4a1f6cd-bb85-42d4-938f-a0afe5fb031b",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 36,
+   "occurred_at": "2026-10-06T15:43:09.836919Z",
+   "event_type": "result",
+   "delivery_status": "complete",
+   "result": {
+    "schema_version": "1.0",
+    "output_type": "ExtractedMetric",
+    "status": "supported",
+    "metric_id": "8cf75af2-b79f-47e1-8fec-a6b399677ba9",
+    "scalar_fact": {
+     "evidence_id": "47dc9219-0e87-416f-b344-d334893f9f9b",
+     "produced_by_atom": "read.value",
+     "produced_by_atom_version": "1.0.0",
+     "source_ref": "a2f8efd8-1d49-4cf8-8ffa-0cc5742b203a",
+     "document_version": "sha256:416723a0e57ab1a96340cab0bda8e828e15020b5342a0bbfddadb439604ecae3",
+     "concept": "SALES_REVENUE",
+     "period_ref": "6M 2025",
+     "basis": null,
+     "supersedes": null,
+     "created_at": "2026-10-06T15:42:51.488039Z",
+     "value": 1398538.772,
+     "unit": "млн. руб.",
+     "page": 24
+    },
+    "concept": "SALES_REVENUE",
+    "period_ref": "6M 2025",
+    "definition_origin": "registry"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "db47fc7b-e4cb-4506-9c87-d09c0893baf7",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 37,
+   "occurred_at": "2026-10-06T15:43:09.850801Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_output",
+    "name": "financial_pipeline",
+    "ok": true
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d0bd0a5e-9f68-4d62-8787-79aee4c995b0",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 38,
+   "occurred_at": "2026-10-06T15:43:09.850922Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "text_delta",
+    "text": "Исходные значения выручки (SALES_REVENUE):\n- 6M 2026: 1 453 957,053 млн руб.\n- 6M 2025: 1 398 538,772 млн руб.\n\nФормула коэффициента вариации (CV):\nCV = (σ / μ) × 100, где\nσ — стандартное отклонение генеральной совокупности,\nμ — среднее арифметическое двух значений.\n\nРасчёт:\nμ = (1 453 957,053 + 1 398 538,772) / 2 = 1 426 247,9125 млн руб.\nσ = √[((1 453 957,053 - 1 426 247,9125)² + (1 398 538,772 - 1 426 247,9125)²) / 2] = √[(27 709,1405² + (-27 709,1405)²) / 2] = √[(767 796 468,6 + 767 796 468,6) / 2] = √767 796 468,6 ≈ 27 709,14 млн руб.\nCV = (27 709,14 / 1 426 247,91) × 100 ≈ 1,94%\n\nРезультат (рассчитано созданным атомом eph.calc_cv_sales_revenue):\nКоэффициент вариации выручки = 1,94%"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "37fa6114-a591-40d4-b26b-ee4ff8e2abfc",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 39,
+   "occurred_at": "2026-10-06T15:43:09.850966Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "sources",
+    "sources": [
+     {
+      "filename": "Бухгалтерская отчетность на 30.06.2026.pdf",
+      "company_name": "ЛУКОЙЛ"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d16fc7d5-9136-47f8-851d-10980bd09374",
+   "run_id": "bd8cf756-9d7a-490c-a6a2-8bb8ddc59b09",
+   "sequence": 40,
+   "occurred_at": "2026-10-06T15:43:09.851016Z",
+   "event_type": "completed",
+   "status": "succeeded"
+  }
+ ],
+ "session_id": "7960ef7f-5f78-41ad-bbb0-183e89e17cbd",
+ "started_utc": "2026-10-06T15:43:11Z"
+}

@@ -1,0 +1,5331 @@
+{
+  "version": 1,
+  "roles": {
+    "other": {
+      "label": "Общая",
+      "formats": {
+        "non_financial": {
+          "format": "wide",
+          "preserve_empty": true,
+          "rows": [
+            {
+              "kind": "metric",
+              "enum": "RIGHT_OF_USE_ASSETS",
+              "label": "Активы в форме права пользования"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEPRECIATION_AMORTIZATION",
+              "label": "Амортизация материальных и нематериальных активов"
+            },
+            {
+              "kind": "metric",
+              "enum": "BANK_DEPOSITS",
+              "label": "Банковские депозиты"
+            },
+            {
+              "kind": "metric",
+              "enum": "PERPETUAL_BONDS",
+              "label": "Бессрочные облигации"
+            },
+            {
+              "kind": "metric",
+              "enum": "GROSS_PROFIT",
+              "label": "Валовая прибыль"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSOCIATE_INVESTMENTS",
+              "label": "Вложения в ассоциированные организации (общества) и совместные предприятия"
+            },
+            {
+              "kind": "metric",
+              "enum": "SHARES_BUYBACK",
+              "label": "Выкуп собственных акций"
+            },
+            {
+              "kind": "metric",
+              "enum": "SALES_REVENUE",
+              "label": "Выручка"
+            },
+            {
+              "kind": "metric",
+              "enum": "GUARANTEES",
+              "label": "Гарантии, поручительства"
+            },
+            {
+              "kind": "metric",
+              "enum": "GOODWILL",
+              "label": "Гудвил"
+            },
+            {
+              "kind": "metric",
+              "enum": "ACCOUNTS_RECEIVABLE",
+              "label": "Дебиторская задолженность"
+            },
+            {
+              "kind": "metric",
+              "enum": "CASH_EQUIVALENTS",
+              "label": "Денежные средства и их эквиваленты"
+            },
+            {
+              "kind": "metric",
+              "enum": "DIVIDENDS_SHAREHOLDERS",
+              "label": "Дивиденды акционерам"
+            },
+            {
+              "kind": "metric",
+              "enum": "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+              "label": "Дивиденды, выплаченные держателям неконтролирующих долей"
+            },
+            {
+              "kind": "metric",
+              "enum": "DIVIDENDS",
+              "label": "Дивиденды и уплаченные дивиденды"
+            },
+            {
+              "kind": "metric",
+              "enum": "LONG_TERM_DEBT",
+              "label": "Долгосрочные кредиты и займы"
+            },
+            {
+              "kind": "metric",
+              "enum": "LONG_TERM_LEASE_LIABILITIES",
+              "label": "Долгосрочные обязательства по аренде"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSOCIATE_INCOMES",
+              "label": "Доход от продажи дочерних организаций и дивиденды от них"
+            },
+            {
+              "kind": "metric",
+              "enum": "INVENTORIES",
+              "label": "Запасы"
+            },
+            {
+              "kind": "metric",
+              "enum": "CHANGES_OCF_ASSETS_LIABILITIES",
+              "label": "Изменения в оборотном капитале"
+            },
+            {
+              "kind": "metric",
+              "enum": "INVESTMENTS",
+              "label": "Инвестиции"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_ASSETS",
+              "label": "Итого активы"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_LIABILITIES",
+              "label": "Итого обязательства"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_CURRENT_ASSETS",
+              "label": "Итого оборотных активов"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_CURRENT_LIABILITIES",
+              "label": "Итого краткосрочных обязательств"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_EQUITY",
+              "label": "Итого собственный капитал"
+            },
+            {
+              "kind": "metric",
+              "enum": "CAPEX",
+              "label": "Капитальные затраты"
+            },
+            {
+              "kind": "metric",
+              "enum": "CAPITALIZED_INTEREST",
+              "label": "Капитализированные и уплаченные проценты"
+            },
+            {
+              "kind": "metric",
+              "enum": "CURRENT_RATIO",
+              "label": "Коэффициент текущей ликвидности"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEBT_TO_EQUITY_RATIO",
+              "label": "Коэффициент левериджа"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTEREST_COVERAGE_RATIO",
+              "label": "Коэффициент покрытия процентов"
+            },
+            {
+              "kind": "metric",
+              "enum": "ADJUSTMENTS_OPERATING_CASH_FLOWS",
+              "label": "Корректировки"
+            },
+            {
+              "kind": "metric",
+              "enum": "ACCOUNTS_PAYABLE",
+              "label": "Кредиторская задолженность"
+            },
+            {
+              "kind": "metric",
+              "enum": "SHORT_TERM_BORROWINGS",
+              "label": "Краткосрочные кредиты и займы"
+            },
+            {
+              "kind": "metric",
+              "enum": "SHORT_TERM_LEASE_LIABILITIES",
+              "label": "Краткосрочные обязательства по аренде"
+            },
+            {
+              "kind": "metric",
+              "enum": "MODIFIED_AUDITORS_OPINION",
+              "label": "Наличие модифицированного мнения аудитора"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTANGIBLE_ASSETS",
+              "label": "Нематериальные активы"
+            },
+            {
+              "kind": "metric",
+              "enum": "COMMITTED_CREDIT_FACILITIES",
+              "label": "Неиспользованные (свободные/доступные) кредитные линии (лимиты)"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_DEBT",
+              "label": "Общий долг"
+            },
+            {
+              "kind": "metric",
+              "enum": "FUTURE_CAPEX_LIABILITIES",
+              "label": "Обязательства будущих периодов по капитальным затратам"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSET_TURNOVER",
+              "label": "Оборачиваемость активов"
+            },
+            {
+              "kind": "metric",
+              "enum": "ACCOUNTS_RECEIVABLE_TURNOVER",
+              "label": "Оборачиваемость дебиторской задолженности"
+            },
+            {
+              "kind": "metric",
+              "enum": "INVENTORIES_TURNOVER",
+              "label": "Оборачиваемость запасов"
+            },
+            {
+              "kind": "metric",
+              "enum": "ACCOUNTS_PAYABLE_TURNOVER",
+              "label": "Оборачиваемость кредиторской задолженности"
+            },
+            {
+              "kind": "metric",
+              "enum": "FIXED_ASSET_TURNOVER",
+              "label": "Оборачиваемость основных средств"
+            },
+            {
+              "kind": "metric",
+              "enum": "OPERATING_PROFIT",
+              "label": "Операционная прибыль"
+            },
+            {
+              "kind": "metric",
+              "enum": "OPERATING_EXPENSES",
+              "label": "Операционные расходы"
+            },
+            {
+              "kind": "metric",
+              "enum": "PPE",
+              "label": "Основные средства"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEFERRED_TAX_ASSETS",
+              "label": "Отложенные налоговые активы"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEFERRED_TAX_LIABILITIES",
+              "label": "Отложенные налоговые обязательства"
+            },
+            {
+              "kind": "metric",
+              "enum": "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+              "label": "Погашение обязательств по аренде"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSET_SALES_PROCEEDS",
+              "label": "Поступления от продажи основных средств и нематериальных активов"
+            },
+            {
+              "kind": "metric",
+              "enum": "SUBSIDIARY_ACQUISITIONS",
+              "label": "Приобретение дочерних организаций (обществ) за вычетом денежных средств"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTANGIBLE_ASSET_PURCHASES",
+              "label": "Приобретение нематериальных активов"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSET_PURCHASES",
+              "label": "Приобретение основных средств"
+            },
+            {
+              "kind": "metric",
+              "enum": "COMBINED_ASSET_PURCHASES",
+              "label": "Приобретение основных средств и нематериальных активов"
+            },
+            {
+              "kind": "metric",
+              "enum": "EBT",
+              "label": "Прибыль до налогообложения"
+            },
+            {
+              "kind": "metric",
+              "enum": "EBITDA",
+              "label": "Прибыль до вычета процентов, налогов, износа и амортизации"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTEREST_RECEIVED",
+              "label": "Полученные проценты"
+            },
+            {
+              "kind": "metric",
+              "enum": "INCOME_TAX",
+              "label": "Расход по налогу на прибыль"
+            },
+            {
+              "kind": "metric",
+              "enum": "EBITDA_MARGIN",
+              "label": "Рентабельность по EBITDA"
+            },
+            {
+              "kind": "metric",
+              "enum": "EBIT_MARGIN",
+              "label": "Рентабельность по EBIT"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INCOME_MARGIN",
+              "label": "Рентабельность по чистой прибыли"
+            },
+            {
+              "kind": "metric",
+              "enum": "ROA",
+              "label": "Рентабельность активов"
+            },
+            {
+              "kind": "metric",
+              "enum": "ROE",
+              "label": "Рентабельность собственного капитала"
+            },
+            {
+              "kind": "metric",
+              "enum": "DOUBTFUL_ACCOUNTS_ALLOWANCE",
+              "label": "(Оценочный) Резерв под ожидаемые кредитные убытки"
+            },
+            {
+              "kind": "metric",
+              "enum": "COSTS_EXPENSES",
+              "label": "Себестоимость"
+            },
+            {
+              "kind": "metric",
+              "enum": "FREE_CASH_FLOW",
+              "label": "Свободный денежный поток"
+            },
+            {
+              "kind": "metric",
+              "enum": "FREE_CASH_FLOW_FIRM",
+              "label": "Свободный денежный поток (для кредиторов)"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTERBANK_DEPOSITS",
+              "label": "Средства в банках"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTERBANK_LOANS",
+              "label": "Средства банков"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTEREST_PAID",
+              "label": "Уплаченные проценты"
+            },
+            {
+              "kind": "metric",
+              "enum": "FINANCIAL_INCOME",
+              "label": "Финансовые доходы"
+            },
+            {
+              "kind": "metric",
+              "enum": "SECURITIES_ASSETS",
+              "label": "Финансовые инструменты (Актив)"
+            },
+            {
+              "kind": "metric",
+              "enum": "SECURITIES_LIABILITIES",
+              "label": "Финансовые инструменты (Обязательства)"
+            },
+            {
+              "kind": "metric",
+              "enum": "FINANCIAL_EXPENSES",
+              "label": "Финансовые расходы"
+            },
+            {
+              "kind": "metric",
+              "enum": "CASH_CONVERSION_CYCLE",
+              "label": "Финансовый (денежный) цикл"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSETS_TO_EQUITY_RATIO",
+              "label": "Финансовый рычаг"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INCOME",
+              "label": "Чистая прибыль"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_DEBT",
+              "label": "Чистый долг"
+            },
+            {
+              "kind": "metric",
+              "enum": "RATIO_NET_DEBT_EBITDA",
+              "label": "Чистый долг / Прибыль до вычета процентов, налогов, износа и амортизации"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_OPERATING_CASH_FLOW",
+              "label": "Чистый операционный денежный поток"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INTEREST_PAID",
+              "label": "Чистые уплаченные проценты"
+            }
+          ]
+        },
+        "bank": {
+          "format": "wide",
+          "preserve_empty": false,
+          "rows": [
+            {
+              "kind": "metric",
+              "enum": "RIGHT_OF_USE_ASSETS",
+              "label": "Активы в форме права пользования"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEPRECIATION_AMORTIZATION",
+              "label": "Амортизация материальных и нематериальных активов"
+            },
+            {
+              "kind": "metric",
+              "enum": "BANK_DEPOSITS",
+              "label": "Банковские депозиты"
+            },
+            {
+              "kind": "metric",
+              "enum": "PERPETUAL_BONDS",
+              "label": "Бессрочные облигации"
+            },
+            {
+              "kind": "metric",
+              "enum": "GROSS_PROFIT",
+              "label": "Валовая прибыль"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSOCIATE_INVESTMENTS",
+              "label": "Вложения в ассоциированные организации (общества) и совместные предприятия"
+            },
+            {
+              "kind": "metric",
+              "enum": "SHARES_BUYBACK",
+              "label": "Выкуп собственных акций"
+            },
+            {
+              "kind": "metric",
+              "enum": "SALES_REVENUE",
+              "label": "Выручка"
+            },
+            {
+              "kind": "metric",
+              "enum": "GUARANTEES",
+              "label": "Гарантии, поручительства"
+            },
+            {
+              "kind": "metric",
+              "enum": "GOODWILL",
+              "label": "Гудвил"
+            },
+            {
+              "kind": "metric",
+              "enum": "ACCOUNTS_RECEIVABLE",
+              "label": "Дебиторская задолженность"
+            },
+            {
+              "kind": "metric",
+              "enum": "CASH_EQUIVALENTS",
+              "label": "Денежные средства и их эквиваленты"
+            },
+            {
+              "kind": "metric",
+              "enum": "DIVIDENDS_SHAREHOLDERS",
+              "label": "Дивиденды акционерам"
+            },
+            {
+              "kind": "metric",
+              "enum": "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+              "label": "Дивиденды, выплаченные держателям неконтролирующих долей"
+            },
+            {
+              "kind": "metric",
+              "enum": "DIVIDENDS",
+              "label": "Дивиденды и уплаченные дивиденды"
+            },
+            {
+              "kind": "metric",
+              "enum": "LONG_TERM_DEBT",
+              "label": "Долгосрочные кредиты и займы"
+            },
+            {
+              "kind": "metric",
+              "enum": "LONG_TERM_LEASE_LIABILITIES",
+              "label": "Долгосрочные обязательства по аренде"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSOCIATE_INCOMES",
+              "label": "Доход от продажи дочерних организаций и дивиденды от них"
+            },
+            {
+              "kind": "metric",
+              "enum": "INVENTORIES",
+              "label": "Запасы"
+            },
+            {
+              "kind": "metric",
+              "enum": "CHANGES_OCF_ASSETS_LIABILITIES",
+              "label": "Изменения в оборотном капитале"
+            },
+            {
+              "kind": "metric",
+              "enum": "INVESTMENTS",
+              "label": "Инвестиции"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_ASSETS",
+              "label": "Итого активы"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_LIABILITIES",
+              "label": "Итого обязательства"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_CURRENT_ASSETS",
+              "label": "Итого оборотных активов"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_CURRENT_LIABILITIES",
+              "label": "Итого краткосрочных обязательств"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_EQUITY",
+              "label": "Итого собственный капитал"
+            },
+            {
+              "kind": "metric",
+              "enum": "CAPEX",
+              "label": "Капитальные затраты"
+            },
+            {
+              "kind": "metric",
+              "enum": "CAPITALIZED_INTEREST",
+              "label": "Капитализированные и уплаченные проценты"
+            },
+            {
+              "kind": "metric",
+              "enum": "CURRENT_RATIO",
+              "label": "Коэффициент текущей ликвидности"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEBT_TO_EQUITY_RATIO",
+              "label": "Коэффициент левериджа"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTEREST_COVERAGE_RATIO",
+              "label": "Коэффициент покрытия процентов"
+            },
+            {
+              "kind": "metric",
+              "enum": "ADJUSTMENTS_OPERATING_CASH_FLOWS",
+              "label": "Корректировки"
+            },
+            {
+              "kind": "metric",
+              "enum": "ACCOUNTS_PAYABLE",
+              "label": "Кредиторская задолженность"
+            },
+            {
+              "kind": "metric",
+              "enum": "SHORT_TERM_BORROWINGS",
+              "label": "Краткосрочные кредиты и займы"
+            },
+            {
+              "kind": "metric",
+              "enum": "SHORT_TERM_LEASE_LIABILITIES",
+              "label": "Краткосрочные обязательства по аренде"
+            },
+            {
+              "kind": "metric",
+              "enum": "MODIFIED_AUDITORS_OPINION",
+              "label": "Наличие модифицированного мнения аудитора"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTANGIBLE_ASSETS",
+              "label": "Нематериальные активы"
+            },
+            {
+              "kind": "metric",
+              "enum": "COMMITTED_CREDIT_FACILITIES",
+              "label": "Неиспользованные (свободные/доступные) кредитные линии (лимиты)"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_DEBT",
+              "label": "Общий долг"
+            },
+            {
+              "kind": "metric",
+              "enum": "FUTURE_CAPEX_LIABILITIES",
+              "label": "Обязательства будущих периодов по капитальным затратам"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSET_TURNOVER",
+              "label": "Оборачиваемость активов"
+            },
+            {
+              "kind": "metric",
+              "enum": "ACCOUNTS_RECEIVABLE_TURNOVER",
+              "label": "Оборачиваемость дебиторской задолженности"
+            },
+            {
+              "kind": "metric",
+              "enum": "INVENTORIES_TURNOVER",
+              "label": "Оборачиваемость запасов"
+            },
+            {
+              "kind": "metric",
+              "enum": "ACCOUNTS_PAYABLE_TURNOVER",
+              "label": "Оборачиваемость кредиторской задолженности"
+            },
+            {
+              "kind": "metric",
+              "enum": "FIXED_ASSET_TURNOVER",
+              "label": "Оборачиваемость основных средств"
+            },
+            {
+              "kind": "metric",
+              "enum": "OPERATING_PROFIT",
+              "label": "Операционная прибыль"
+            },
+            {
+              "kind": "metric",
+              "enum": "OPERATING_EXPENSES",
+              "label": "Операционные расходы"
+            },
+            {
+              "kind": "metric",
+              "enum": "PPE",
+              "label": "Основные средства"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEFERRED_TAX_ASSETS",
+              "label": "Отложенные налоговые активы"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEFERRED_TAX_LIABILITIES",
+              "label": "Отложенные налоговые обязательства"
+            },
+            {
+              "kind": "metric",
+              "enum": "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+              "label": "Погашение обязательств по аренде"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSET_SALES_PROCEEDS",
+              "label": "Поступления от продажи основных средств и нематериальных активов"
+            },
+            {
+              "kind": "metric",
+              "enum": "SUBSIDIARY_ACQUISITIONS",
+              "label": "Приобретение дочерних организаций (обществ) за вычетом денежных средств"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTANGIBLE_ASSET_PURCHASES",
+              "label": "Приобретение нематериальных активов"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSET_PURCHASES",
+              "label": "Приобретение основных средств"
+            },
+            {
+              "kind": "metric",
+              "enum": "COMBINED_ASSET_PURCHASES",
+              "label": "Приобретение основных средств и нематериальных активов"
+            },
+            {
+              "kind": "metric",
+              "enum": "EBT",
+              "label": "Прибыль до налогообложения"
+            },
+            {
+              "kind": "metric",
+              "enum": "EBITDA",
+              "label": "Прибыль до вычета процентов, налогов, износа и амортизации"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTEREST_RECEIVED",
+              "label": "Полученные проценты"
+            },
+            {
+              "kind": "metric",
+              "enum": "INCOME_TAX",
+              "label": "Расход по налогу на прибыль"
+            },
+            {
+              "kind": "metric",
+              "enum": "EBITDA_MARGIN",
+              "label": "Рентабельность по EBITDA"
+            },
+            {
+              "kind": "metric",
+              "enum": "EBIT_MARGIN",
+              "label": "Рентабельность по EBIT"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INCOME_MARGIN",
+              "label": "Рентабельность по чистой прибыли"
+            },
+            {
+              "kind": "metric",
+              "enum": "ROA",
+              "label": "Рентабельность активов"
+            },
+            {
+              "kind": "metric",
+              "enum": "ROE",
+              "label": "Рентабельность собственного капитала"
+            },
+            {
+              "kind": "metric",
+              "enum": "DOUBTFUL_ACCOUNTS_ALLOWANCE",
+              "label": "(Оценочный) Резерв под ожидаемые кредитные убытки"
+            },
+            {
+              "kind": "metric",
+              "enum": "COSTS_EXPENSES",
+              "label": "Себестоимость"
+            },
+            {
+              "kind": "metric",
+              "enum": "FREE_CASH_FLOW",
+              "label": "Свободный денежный поток"
+            },
+            {
+              "kind": "metric",
+              "enum": "FREE_CASH_FLOW_FIRM",
+              "label": "Свободный денежный поток (для кредиторов)"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTERBANK_DEPOSITS",
+              "label": "Средства в банках"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTERBANK_LOANS",
+              "label": "Средства банков"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTEREST_PAID",
+              "label": "Уплаченные проценты"
+            },
+            {
+              "kind": "metric",
+              "enum": "FINANCIAL_INCOME",
+              "label": "Финансовые доходы"
+            },
+            {
+              "kind": "metric",
+              "enum": "SECURITIES_ASSETS",
+              "label": "Финансовые инструменты (Актив)"
+            },
+            {
+              "kind": "metric",
+              "enum": "SECURITIES_LIABILITIES",
+              "label": "Финансовые инструменты (Обязательства)"
+            },
+            {
+              "kind": "metric",
+              "enum": "FINANCIAL_EXPENSES",
+              "label": "Финансовые расходы"
+            },
+            {
+              "kind": "metric",
+              "enum": "CASH_CONVERSION_CYCLE",
+              "label": "Финансовый (денежный) цикл"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSETS_TO_EQUITY_RATIO",
+              "label": "Финансовый рычаг"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INCOME",
+              "label": "Чистая прибыль"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_DEBT",
+              "label": "Чистый долг"
+            },
+            {
+              "kind": "metric",
+              "enum": "RATIO_NET_DEBT_EBITDA",
+              "label": "Чистый долг / Прибыль до вычета процентов, налогов, износа и амортизации"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_OPERATING_CASH_FLOW",
+              "label": "Чистый операционный денежный поток"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INTEREST_PAID",
+              "label": "Чистые уплаченные проценты"
+            }
+          ]
+        }
+      }
+    },
+    "risks": {
+      "label": "Риски",
+      "formats": {
+        "non_financial": {
+          "format": "risks",
+          "preserve_empty": true,
+          "rows": [
+            {
+              "kind": "metric",
+              "enum": "TOTAL_ASSETS",
+              "label_ru": "Активы",
+              "label_en": "Assets",
+              "value_kind": "number",
+              "no_delta_pct": false
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_DEBT",
+              "label_ru": "Долгосрочный финансовый долг +Краткосрочный финансовый долг",
+              "label_en": "Debt",
+              "value_kind": "number",
+              "no_delta_pct": false
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_CASH_EQUIVALENTS",
+              "label_ru": "Денежные средства и их эквиваленты",
+              "label_en": "Cash and cash equivalents",
+              "value_kind": "number",
+              "no_delta_pct": false
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_DEBT_FOR_RISKS",
+              "label_ru": "Долгосрочный финансовый долг + Краткосрочный финансовый долг - Денежные средства",
+              "label_en": "Net debt",
+              "value_kind": "number",
+              "no_delta_pct": false
+            },
+            {
+              "kind": "metric",
+              "enum": "SALES_REVENUE",
+              "label_ru": "Выручка от реализации",
+              "label_en": "Sales, Revenues",
+              "value_kind": "number",
+              "no_delta_pct": false
+            },
+            {
+              "kind": "metric",
+              "enum": "SALES_REVENUE_LTM",
+              "label_ru": "Выручка за текущий период + Выручка за завершившийся год - Выручка за аналогичный текущему период прошлого года",
+              "label_en": "Sales, Revenues LTM",
+              "value_kind": "number",
+              "no_delta_pct": false
+            },
+            {
+              "kind": "metric",
+              "enum": "OPERATING_PROFIT",
+              "label_ru": "Операционная прибыль (убыток)",
+              "label_en": "Operating profit (loss)",
+              "value_kind": "number",
+              "no_delta_pct": false
+            },
+            {
+              "kind": "metric",
+              "enum": "EBITDA",
+              "label_ru": "Операционная прибыль (убыток) + Амортизация + Корректировка для расчета EBITDA",
+              "label_en": "EBITDA",
+              "value_kind": "number",
+              "no_delta_pct": false
+            },
+            {
+              "kind": "metric",
+              "enum": "EBITDA_LTM",
+              "label_ru": "Операционная прибыль (убыток) + Амортизация + Корректировка для расчета EBITDA за последние 12 месяцев",
+              "label_en": "EBITDA LTM",
+              "value_kind": "number",
+              "no_delta_pct": false
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INCOME",
+              "label_ru": "Чистая прибыль",
+              "label_en": "Net Income",
+              "value_kind": "number",
+              "no_delta_pct": false
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INCOME_LTM",
+              "label_ru": "Чистая прибыль за текущий период + Чистая прибыль за завершившийся год - Чистая прибыль за аналогичный текущему период прошлого года",
+              "label_en": "Net Income LTM",
+              "value_kind": "number",
+              "no_delta_pct": false
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_OPERATING_CASH_FLOW",
+              "label_ru": "CFO за текущий период + CFO за завершившийся год - CFO за аналогичный текущему период прошлого года",
+              "label_en": "CFO LTM",
+              "value_kind": "number",
+              "no_delta_pct": false
+            },
+            {
+              "kind": "metric",
+              "enum": "EBITDA_MARGIN",
+              "label_ru": "EBITDA / Выручка",
+              "label_en": "EBITDA Margin, %",
+              "value_kind": "percent",
+              "no_delta_pct": true
+            },
+            {
+              "kind": "metric",
+              "enum": "ROE",
+              "label_ru": "Чистая прибыль LTM / Собственный капитал",
+              "label_en": "ROE LTM",
+              "value_kind": "ratio",
+              "no_delta_pct": true
+            },
+            {
+              "kind": "metric",
+              "enum": "RATIO_TOTAL_DEBT_EBITDA",
+              "label_ru": "Долг / EBITDA LTM",
+              "label_en": "Debt / EBITDA LTM",
+              "value_kind": "ratio",
+              "no_delta_pct": true
+            },
+            {
+              "kind": "metric",
+              "enum": "RATIO_NET_DEBT_EBITDA",
+              "label_ru": "Чистый долг / EBITDA LTM",
+              "label_en": "Net Debt / EBITDA LTM",
+              "value_kind": "ratio",
+              "no_delta_pct": true
+            },
+            {
+              "kind": "metric",
+              "enum": "RATIO_TOTAL_DEBT_NOCF",
+              "label_ru": "Финансовый долг / Чистое поступление денежных средств от операционной деятельности (только по годовым данным)",
+              "label_en": "Debt / CFO LTM",
+              "value_kind": "ratio",
+              "no_delta_pct": true
+            },
+            {
+              "kind": "metric",
+              "enum": "EBITDA_TO_INTEREST_PAID",
+              "label_ru": "EBITDA / проценты уплаченные",
+              "label_en": "EBITDA / interest paid",
+              "value_kind": "ratio",
+              "no_delta_pct": true
+            },
+            {
+              "kind": "metric",
+              "enum": "FCF_TO_INTEREST_PAID",
+              "label_ru": "FCF / проценты уплаченные",
+              "label_en": "FCF / interest paid",
+              "value_kind": "ratio",
+              "no_delta_pct": true
+            },
+            {
+              "kind": "metric",
+              "enum": "CASH_TO_SHORT_TERM_DEBT",
+              "label_ru": "Денежные средства / Краткосрочный долг",
+              "label_en": "Cash / Short-term debt, %",
+              "value_kind": "percent",
+              "no_delta_pct": true
+            },
+            {
+              "kind": "metric",
+              "enum": "SHORT_TERM_PORTION_OF_DEBT",
+              "label_ru": "Краткосрочный долг / Суммарный долг",
+              "label_en": "Share of short-term debt, %",
+              "value_kind": "percent",
+              "no_delta_pct": true
+            },
+            {
+              "kind": "metric",
+              "enum": "CURRENT_RATIO",
+              "label_ru": "Текущие активы / Краткосрочные обязательства",
+              "label_en": "Current ratio",
+              "value_kind": "ratio",
+              "no_delta_pct": true
+            }
+          ]
+        }
+      }
+    },
+    "baifp": {
+      "label": "БАИФП",
+      "formats": {
+        "bank": {
+          "format": "baifp",
+          "preserve_empty": true,
+          "rows": [
+            {
+              "kind": "metric",
+              "enum": "TOTAL_ASSETS",
+              "label": "Итого активы"
+            },
+            {
+              "kind": "metric",
+              "enum": "PPE",
+              "label": "Основные средства"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEFERRED_TAX_ASSETS",
+              "label": "Отложенные налоговые активы"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTANGIBLE_ASSETS",
+              "label": "Нематериальные активы"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_EQUITY",
+              "label": "Итого собственный капитал"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INCOME",
+              "label": "Чистая прибыль"
+            },
+            {
+              "kind": "metric",
+              "enum": "CORPORATE_LOANS",
+              "label": "Корпоративные кредиты"
+            },
+            {
+              "kind": "metric",
+              "enum": "INDIVIDUALS_LOANS",
+              "label": "Розничные кредиты"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INTEREST_INCOME",
+              "label": "Чистый процентный доход"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_CREDIT_ALLOWANCE",
+              "label": "Резервы под ОКУ по кредитам"
+            },
+            {
+              "kind": "metric",
+              "enum": "OPERATING_EXPENSES_BANKS",
+              "label": "Операционные расходы банков"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_COMMISSION_INCOME",
+              "label": "Чистый комиссионный доход"
+            },
+            {
+              "kind": "metric",
+              "enum": "OTHER_OPERATING_INCOME",
+              "label": "Прочие Операционные Доходы"
+            },
+            {
+              "kind": "metric",
+              "enum": "INCOME_TAX",
+              "label": "Расход по налогу на прибыль"
+            },
+            {
+              "kind": "metric",
+              "enum": "COST_OF_RISK_GENERAL",
+              "label": "Стоимость риска"
+            },
+            {
+              "kind": "metric",
+              "enum": "COST_TO_INCOME_RATIO",
+              "label": "Коэффициент затрат к расходам"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTERBANK_DEPOSITS",
+              "label": "Средства в банках"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTERBANK_LOANS",
+              "label": "Средства банков"
+            },
+            {
+              "kind": "metric",
+              "enum": "SECURITIES_ASSETS",
+              "label": "Финансовые инструменты (Актив)"
+            },
+            {
+              "kind": "metric",
+              "enum": "OTHER_ASSETS",
+              "label": "Прочие активы"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_ASSOCIATE_INVESTMENTS",
+              "label": "Инвестиции в ассоциированные и совместные предприятия"
+            },
+            {
+              "kind": "metric",
+              "enum": "INDIVIDUALS_DEPOSITS",
+              "label": "Средства Физических лиц"
+            },
+            {
+              "kind": "metric",
+              "enum": "CORPORATE_DEPOSITS",
+              "label": "Средства корпоративных клиентов"
+            },
+            {
+              "kind": "metric",
+              "enum": "GOVERNMENTAL_DEPOSITS",
+              "label": "Средства государственных органов власти"
+            },
+            {
+              "kind": "metric",
+              "enum": "SECURITIES_LIABILITIES",
+              "label": "Финансовые инструменты (Обязательства)"
+            },
+            {
+              "kind": "metric",
+              "enum": "JUNIOR_DEBT",
+              "label": "Субординированная задолженность"
+            },
+            {
+              "kind": "metric",
+              "enum": "OTHER_LIABILITIES",
+              "label": "Прочие обязательства"
+            },
+            {
+              "kind": "metric",
+              "enum": "ORGANIC_NET_INCOME",
+              "label": "Органическая чистая прибыль"
+            },
+            {
+              "kind": "metric",
+              "enum": "NON_REGULAR_NET_INCOME",
+              "label": "Нерегулярная чистая прибыль"
+            },
+            {
+              "kind": "metric",
+              "enum": "OPERATING_INCOME_CIR",
+              "label": "Операционный доход, рассчитанный через CIR"
+            },
+            {
+              "kind": "metric",
+              "enum": "EXTREMELY_LIQUID_ASSETS",
+              "label": "Высоколиквидные активы"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_OTHER_ASSETS",
+              "label": "Чистые прочие активы"
+            },
+            {
+              "kind": "metric",
+              "enum": "OTHER_OTHER_ASSETS",
+              "label": "Прочие нефинансовые активы"
+            },
+            {
+              "kind": "metric",
+              "enum": "NON_CONSUMER_DEPOSITS",
+              "label": "Средства Юридических лиц"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_LIABILITIES",
+              "label": "Итого обязательства"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_OTHER_LIABILITIES",
+              "label": "Чистые прочие обязательства"
+            },
+            {
+              "kind": "metric",
+              "enum": "CORPORATE_LOANS_TO_DEPOSITS_RATIO",
+              "label": "Отношение кредитов к Депозитам (Юр. лица)"
+            },
+            {
+              "kind": "metric",
+              "enum": "STAGE3_RATIO",
+              "label": "Доля Stage 3 (proxy NPL)"
+            },
+            {
+              "kind": "metric",
+              "enum": "STAGE3_COVERAGE",
+              "label": "Покрытие Stage 3 резервами"
+            },
+            {
+              "kind": "metric",
+              "enum": "ROE",
+              "label": "Рентабельность собственного капитала"
+            }
+          ]
+        }
+      }
+    },
+    "die": {
+      "label": "ДИЭ",
+      "formats": {
+        "non_financial": {
+          "format": "die_nf",
+          "preserve_empty": true,
+          "rows": [
+            {
+              "kind": "metric",
+              "title": "Выручка",
+              "enum": "SALES_REVENUE",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "SALES_REVENUE",
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "Себестоимость",
+              "enum": "COSTS_EXPENSES",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "COSTS_EXPENSES",
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "Валовая прибыль",
+              "enum": "GROSS_PROFIT",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "GROSS_PROFIT",
+              "is_percent": true
+            },
+            {
+              "kind": "margin",
+              "title": "-маржа",
+              "enum": "GROSS_MARGIN",
+              "base_enum": null,
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "Операционные расходы",
+              "enum": "OPERATING_EXPENSES",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "OPERATING_EXPENSES",
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "Операционная прибыль",
+              "enum": "OPERATING_PROFIT",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "OPERATING_PROFIT",
+              "is_percent": true
+            },
+            {
+              "kind": "margin",
+              "title": "- маржа",
+              "enum": "EBIT_MARGIN",
+              "base_enum": null,
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "Чистая прибыль",
+              "enum": "NET_INCOME",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "NET_INCOME",
+              "is_percent": true
+            },
+            {
+              "kind": "margin",
+              "title": "- маржа",
+              "enum": "NET_INCOME_MARGIN",
+              "base_enum": null,
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "OCF",
+              "enum": "NET_OPERATING_CASH_FLOW",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "NET_OPERATING_CASH_FLOW",
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "FCF",
+              "enum": "FREE_CASH_FLOW",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "FREE_CASH_FLOW",
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "Capex",
+              "enum": "CAPEX",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "CAPEX",
+              "is_percent": true
+            },
+            {
+              "kind": "percent_of_revenue",
+              "title": "% выручки",
+              "enum": "CAPEX_TO_REVENUE",
+              "base_enum": null,
+              "is_percent": true
+            }
+          ]
+        },
+        "bank": {
+          "format": "die_bank",
+          "preserve_empty": true,
+          "rows": [
+            {
+              "kind": "section",
+              "title": "Баланс ($ млрд)",
+              "enum": null,
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "metric",
+              "title": "Активы",
+              "enum": "TOTAL_ASSETS",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "ytd",
+              "title": "...YtD",
+              "enum": null,
+              "base_enum": "TOTAL_ASSETS",
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "Кредиты",
+              "enum": "TOTAL_LOANS_TO_CLIENTS",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "metric",
+              "title": "Потребительские кредиты",
+              "enum": "INDIVIDUALS_LOANS",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "metric",
+              "title": "Корпоративные кредиты",
+              "enum": "CORPORATE_LOANS",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "metric",
+              "title": "LDR (gross), %",
+              "enum": "LOANS_TO_DEPOSITS",
+              "base_enum": null,
+              "is_percent": true
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "LOANS_TO_DEPOSITS",
+              "is_percent": true
+            },
+            {
+              "kind": "ytd",
+              "title": "...YtD",
+              "enum": null,
+              "base_enum": "LOANS_TO_DEPOSITS",
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "Депозиты",
+              "enum": "CLIENT_DEPOSITS",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "CLIENT_DEPOSITS",
+              "is_percent": true
+            },
+            {
+              "kind": "ytd",
+              "title": "...YtD",
+              "enum": null,
+              "base_enum": "CLIENT_DEPOSITS",
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "Капитал",
+              "enum": "TOTAL_EQUITY",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "metric",
+              "title": "CET1, %",
+              "enum": "CET1_RATIO_DISCLOSED",
+              "base_enum": null,
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "Div Payout, %",
+              "enum": "DIVIDEND_PAYOUT_RATIO",
+              "base_enum": null,
+              "is_percent": true
+            },
+            {
+              "kind": "spacer",
+              "title": "",
+              "enum": null,
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "section",
+              "title": "ОПУ ($ млрд)",
+              "enum": null,
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "metric",
+              "title": "Чистый процентный доход",
+              "enum": "NET_INTEREST_INCOME",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "metric",
+              "title": "NIM, %",
+              "enum": "NET_INTEREST_MARGIN",
+              "base_enum": null,
+              "is_percent": true
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "NET_INTEREST_MARGIN",
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "Непроцентный доход",
+              "enum": "NON_INTEREST_INCOME_BANKS",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "NON_INTEREST_INCOME_BANKS",
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "в т.ч. от инвестиционно-банковского бизнеса",
+              "enum": "TOTAL_INVESTMENT_BANKING_FEES",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "TOTAL_INVESTMENT_BANKING_FEES",
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "Операционный доход",
+              "enum": "OPERATING_INCOME_BANKS",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "OPERATING_INCOME_BANKS",
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "Резервы",
+              "enum": "TOTAL_CREDIT_ALLOWANCE",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "TOTAL_CREDIT_ALLOWANCE",
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "CoR, %",
+              "enum": "COST_OF_RISK_GENERAL",
+              "base_enum": null,
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "Операционные расходы",
+              "enum": "OPERATING_EXPENSES_BANKS",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "OPERATING_EXPENSES_BANKS",
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "CIR, %",
+              "enum": "COST_TO_INCOME_RATIO",
+              "base_enum": null,
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "Чистая прибыль",
+              "enum": "NET_INCOME",
+              "base_enum": null,
+              "is_percent": false
+            },
+            {
+              "kind": "yoy",
+              "title": "...YoY",
+              "enum": null,
+              "base_enum": "NET_INCOME",
+              "is_percent": true
+            },
+            {
+              "kind": "metric",
+              "title": "ROE, %",
+              "enum": "ROE",
+              "base_enum": null,
+              "is_percent": true
+            }
+          ]
+        }
+      }
+    },
+    "cib": {
+      "label": "CIB",
+      "formats": {
+        "non_financial": {
+          "format": "cib",
+          "preserve_empty": false,
+          "rows": [
+            {
+              "kind": "metric",
+              "enum": "LONG_TERM_DEBT"
+            },
+            {
+              "kind": "metric",
+              "enum": "LONG_TERM_LEASE_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "SHORT_TERM_BORROWINGS"
+            },
+            {
+              "kind": "metric",
+              "enum": "SHORT_TERM_LEASE_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "CASH_EQUIVALENTS"
+            },
+            {
+              "kind": "metric",
+              "enum": "BANK_DEPOSITS"
+            },
+            {
+              "kind": "metric",
+              "enum": "PERPETUAL_BONDS"
+            },
+            {
+              "kind": "metric",
+              "enum": "ACCOUNTS_PAYABLE"
+            },
+            {
+              "kind": "metric",
+              "enum": "ACCOUNTS_RECEIVABLE"
+            },
+            {
+              "kind": "metric",
+              "enum": "INVENTORIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_CURRENT_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_CURRENT_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "PPE"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEFERRED_TAX_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEFERRED_TAX_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTANGIBLE_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "GOODWILL"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_EQUITY"
+            },
+            {
+              "kind": "metric",
+              "enum": "RIGHT_OF_USE_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "SALES_REVENUE"
+            },
+            {
+              "kind": "metric",
+              "enum": "OPERATING_PROFIT"
+            },
+            {
+              "kind": "metric",
+              "enum": "COSTS_EXPENSES"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INCOME"
+            },
+            {
+              "kind": "metric",
+              "enum": "EBT"
+            },
+            {
+              "kind": "metric",
+              "enum": "CAPITALIZED_INTEREST"
+            },
+            {
+              "kind": "metric",
+              "enum": "GROSS_PROFIT"
+            },
+            {
+              "kind": "metric",
+              "enum": "OPERATING_EXPENSES"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEPRECIATION_AMORTIZATION"
+            },
+            {
+              "kind": "metric",
+              "enum": "CAPEX"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTEREST_PAID"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTEREST_RECEIVED"
+            },
+            {
+              "kind": "metric",
+              "enum": "DIVIDENDS_SHAREHOLDERS"
+            },
+            {
+              "kind": "metric",
+              "enum": "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS"
+            },
+            {
+              "kind": "metric",
+              "enum": "DIVIDENDS"
+            },
+            {
+              "kind": "metric",
+              "enum": "SHARES_BUYBACK"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_OPERATING_CASH_FLOW"
+            },
+            {
+              "kind": "metric",
+              "enum": "SUBSIDIARY_ACQUISITIONS"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSOCIATE_INVESTMENTS"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSOCIATE_INCOMES"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSET_PURCHASES"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTANGIBLE_ASSET_PURCHASES"
+            },
+            {
+              "kind": "metric",
+              "enum": "COMBINED_ASSET_PURCHASES"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSET_SALES_PROCEEDS"
+            },
+            {
+              "kind": "metric",
+              "enum": "FINANCIAL_INCOME"
+            },
+            {
+              "kind": "metric",
+              "enum": "FINANCIAL_EXPENSES"
+            },
+            {
+              "kind": "metric",
+              "enum": "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "EBITDA"
+            },
+            {
+              "kind": "metric",
+              "enum": "DOUBTFUL_ACCOUNTS_ALLOWANCE"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_DEBT"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_DEBT"
+            },
+            {
+              "kind": "metric",
+              "enum": "RATIO_NET_DEBT_EBITDA"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INTEREST_PAID"
+            },
+            {
+              "kind": "metric",
+              "enum": "EBITDA_MARGIN"
+            },
+            {
+              "kind": "metric",
+              "enum": "INVESTMENTS"
+            },
+            {
+              "kind": "metric",
+              "enum": "EBIT_MARGIN"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEBT_TO_EQUITY_RATIO"
+            },
+            {
+              "kind": "metric",
+              "enum": "ACCOUNTS_PAYABLE_TURNOVER"
+            },
+            {
+              "kind": "metric",
+              "enum": "ACCOUNTS_RECEIVABLE_TURNOVER"
+            },
+            {
+              "kind": "metric",
+              "enum": "INVENTORIES_TURNOVER"
+            },
+            {
+              "kind": "metric",
+              "enum": "CASH_CONVERSION_CYCLE"
+            },
+            {
+              "kind": "metric",
+              "enum": "CURRENT_RATIO"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSETS_TO_EQUITY_RATIO"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTEREST_COVERAGE_RATIO"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INCOME_MARGIN"
+            },
+            {
+              "kind": "metric",
+              "enum": "ASSET_TURNOVER"
+            },
+            {
+              "kind": "metric",
+              "enum": "FIXED_ASSET_TURNOVER"
+            },
+            {
+              "kind": "metric",
+              "enum": "ROA"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_CASH_EQUIVALENTS"
+            },
+            {
+              "kind": "metric",
+              "enum": "RATIO_TOTAL_DEBT_NOCF"
+            },
+            {
+              "kind": "metric",
+              "enum": "EBITDA_TO_INTEREST_PAID"
+            },
+            {
+              "kind": "metric",
+              "enum": "CASH_TO_SHORT_TERM_DEBT"
+            },
+            {
+              "kind": "metric",
+              "enum": "SHORT_TERM_PORTION_OF_DEBT"
+            },
+            {
+              "kind": "metric",
+              "enum": "RATIO_TOTAL_DEBT_EBITDA"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "CAPEX_TO_REVENUE"
+            },
+            {
+              "kind": "metric",
+              "enum": "GROSS_MARGIN"
+            },
+            {
+              "kind": "metric",
+              "enum": "DIVIDEND_PAYOUT_RATIO"
+            },
+            {
+              "kind": "metric",
+              "enum": "MODIFIED_AUDITORS_OPINION"
+            },
+            {
+              "kind": "metric",
+              "enum": "ADJUSTMENTS_OPERATING_CASH_FLOWS"
+            },
+            {
+              "kind": "metric",
+              "enum": "CHANGES_OCF_ASSETS_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "GUARANTEES"
+            },
+            {
+              "kind": "metric",
+              "enum": "COMMITTED_CREDIT_FACILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "FUTURE_CAPEX_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "INCOME_TAX"
+            },
+            {
+              "kind": "metric",
+              "enum": "TAX_EXPENDITURE"
+            },
+            {
+              "kind": "metric",
+              "enum": "SECURITIES_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_ASSOCIATE_INVESTMENTS"
+            },
+            {
+              "kind": "metric",
+              "enum": "SECURITIES_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "LONG_TERM_ROU"
+            },
+            {
+              "kind": "metric",
+              "enum": "SHORT_TERM_ROU"
+            },
+            {
+              "kind": "metric",
+              "enum": "ROU_DEPRECIATION"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTEREST_PAID_LEASE_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "SHARE_CAPITAL"
+            },
+            {
+              "kind": "metric",
+              "enum": "SHARE_PREMIUM"
+            },
+            {
+              "kind": "metric",
+              "enum": "TREASURY_SHARES"
+            },
+            {
+              "kind": "metric",
+              "enum": "RETAINED_EARNINGS"
+            },
+            {
+              "kind": "metric",
+              "enum": "NON_CONTROL_INTEREST"
+            },
+            {
+              "kind": "metric",
+              "enum": "DERIVATIVE_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "INSURANCE_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "INSURANCE_INCOME"
+            },
+            {
+              "kind": "metric",
+              "enum": "INSURANCE_EXPENSE"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_OTHER_RESERVES"
+            },
+            {
+              "kind": "metric",
+              "enum": "EPS"
+            },
+            {
+              "kind": "metric",
+              "enum": "DIVIDENDS_RECEIVED"
+            },
+            {
+              "kind": "metric",
+              "enum": "FREE_CASH_FLOW"
+            },
+            {
+              "kind": "metric",
+              "enum": "FREE_CASH_FLOW_FIRM"
+            },
+            {
+              "kind": "metric",
+              "enum": "ROE"
+            },
+            {
+              "kind": "metric",
+              "enum": "FCF_TO_INTEREST_PAID"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_DEBT_IAS_17"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_DEBT_IAS_17"
+            },
+            {
+              "kind": "metric",
+              "enum": "FREE_CASH_FLOW_GEN"
+            },
+            {
+              "kind": "metric",
+              "enum": "FREE_CASH_FLOW_DEBT"
+            },
+            {
+              "kind": "metric",
+              "enum": "ADJ_OCF_TO_INTEREST_PAID"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INSURANCE_INCOME"
+            },
+            {
+              "kind": "metric",
+              "enum": "FCF_TO_INTEREST_PAID_CIB"
+            }
+          ]
+        },
+        "bank": {
+          "format": "cib",
+          "preserve_empty": false,
+          "rows": [
+            {
+              "kind": "metric",
+              "enum": "CASH_AND_CASH_BALANCES_WITH_CB"
+            },
+            {
+              "kind": "metric",
+              "enum": "CASH_EQUIVALENTS"
+            },
+            {
+              "kind": "metric",
+              "enum": "CET1_RATIO_DISCLOSED"
+            },
+            {
+              "kind": "metric",
+              "enum": "CHANGES_OCF_ASSETS_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "CHANGE_IN_EXPECTED_CREDIT_LOSSES"
+            },
+            {
+              "kind": "metric",
+              "enum": "CLIENT_DEPOSITS"
+            },
+            {
+              "kind": "metric",
+              "enum": "COMMON_EQUITY_TIER_ONE_CAPITAL"
+            },
+            {
+              "kind": "metric",
+              "enum": "CORPORATE_DEPOSITS"
+            },
+            {
+              "kind": "metric",
+              "enum": "CORPORATE_LOANS"
+            },
+            {
+              "kind": "metric",
+              "enum": "CORPORATE_LOANS_TO_DEPOSITS_RATIO"
+            },
+            {
+              "kind": "metric",
+              "enum": "COST_OF_RISK_GENERAL"
+            },
+            {
+              "kind": "metric",
+              "enum": "COST_TO_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "COST_TO_INCOME_RATIO"
+            },
+            {
+              "kind": "metric",
+              "enum": "CURRENCY_METALS_INCOME"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEBT_SECURITIES_ISSUED"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEFERRED_TAX_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "DEFERRED_TAX_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "DERIVATIVE_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "DIVIDENDS"
+            },
+            {
+              "kind": "metric",
+              "enum": "DIVIDENDS_RECEIVED"
+            },
+            {
+              "kind": "metric",
+              "enum": "DIVIDEND_PAYOUT_RATIO"
+            },
+            {
+              "kind": "metric",
+              "enum": "ECL_ALLOWANCE_STAGE1"
+            },
+            {
+              "kind": "metric",
+              "enum": "ECL_ALLOWANCE_STAGE2"
+            },
+            {
+              "kind": "metric",
+              "enum": "ECL_ALLOWANCE_STAGE3"
+            },
+            {
+              "kind": "metric",
+              "enum": "EPS"
+            },
+            {
+              "kind": "metric",
+              "enum": "EXTREMELY_LIQUID_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "FEE_AND_COMMISSION_EXPENSE"
+            },
+            {
+              "kind": "metric",
+              "enum": "FEE_AND_COMMISSION_INCOME"
+            },
+            {
+              "kind": "metric",
+              "enum": "FUNDS_FROM_CENTRAL_BANK"
+            },
+            {
+              "kind": "metric",
+              "enum": "GOODWILL"
+            },
+            {
+              "kind": "metric",
+              "enum": "GOVERNMENTAL_DEPOSITS"
+            },
+            {
+              "kind": "metric",
+              "enum": "INCOME_TAX"
+            },
+            {
+              "kind": "metric",
+              "enum": "INDIVIDUALS_DEPOSITS"
+            },
+            {
+              "kind": "metric",
+              "enum": "INDIVIDUALS_LOANS"
+            },
+            {
+              "kind": "metric",
+              "enum": "INSURANCE_EXPENSE"
+            },
+            {
+              "kind": "metric",
+              "enum": "INSURANCE_INCOME"
+            },
+            {
+              "kind": "metric",
+              "enum": "INSURANCE_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTANGIBLE_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTERBANK_DEPOSITS"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTERBANK_LOANS"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTEREST_BEARING_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTEREST_EARNING_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTEREST_EXPENSE_ER"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTEREST_INCOME_ER"
+            },
+            {
+              "kind": "metric",
+              "enum": "INTEREST_PAID"
+            },
+            {
+              "kind": "metric",
+              "enum": "JUNIOR_DEBT"
+            },
+            {
+              "kind": "metric",
+              "enum": "LOANS_STAGE1_GROSS"
+            },
+            {
+              "kind": "metric",
+              "enum": "LOANS_STAGE2_GROSS"
+            },
+            {
+              "kind": "metric",
+              "enum": "LOANS_STAGE3_GROSS"
+            },
+            {
+              "kind": "metric",
+              "enum": "LOANS_TO_DEPOSITS"
+            },
+            {
+              "kind": "metric",
+              "enum": "MODIFIED_AUDITORS_OPINION"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_COMMISSION_INCOME"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INCOME"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INSURANCE_INCOME"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INTEREST_INCOME"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INTEREST_MARGIN"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_INTEREST_PAID"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_OTHER_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_OTHER_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "NET_OTHER_RESERVES"
+            },
+            {
+              "kind": "metric",
+              "enum": "NON_CONSUMER_DEPOSITS"
+            },
+            {
+              "kind": "metric",
+              "enum": "NON_CONTROL_INTEREST"
+            },
+            {
+              "kind": "metric",
+              "enum": "NON_INTEREST_INCOME_BANKS"
+            },
+            {
+              "kind": "metric",
+              "enum": "NON_REGULAR_NET_INCOME"
+            },
+            {
+              "kind": "metric",
+              "enum": "OPERATING_EXPENSES_BANKS"
+            },
+            {
+              "kind": "metric",
+              "enum": "OPERATING_INCOME_BANKS"
+            },
+            {
+              "kind": "metric",
+              "enum": "OPERATING_INCOME_CIR"
+            },
+            {
+              "kind": "metric",
+              "enum": "OTHER_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "OTHER_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "OTHER_OPERATING_INCOME"
+            },
+            {
+              "kind": "metric",
+              "enum": "OTHER_OTHER_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "PERPETUAL_BONDS"
+            },
+            {
+              "kind": "metric",
+              "enum": "PPE"
+            },
+            {
+              "kind": "metric",
+              "enum": "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_CREDIT_ALLOWANCE"
+            },
+            {
+              "kind": "metric",
+              "enum": "REPO_PLEDGED_SECURITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "RETAIL_DEPOSIT_SHARE"
+            },
+            {
+              "kind": "metric",
+              "enum": "RETAINED_EARNINGS"
+            },
+            {
+              "kind": "metric",
+              "enum": "RIGHT_OF_USE_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "RISK_WEIGHTED_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "ROE"
+            },
+            {
+              "kind": "metric",
+              "enum": "RWA_DENSITY"
+            },
+            {
+              "kind": "metric",
+              "enum": "SECURITIES_AMORTISED_COST"
+            },
+            {
+              "kind": "metric",
+              "enum": "SECURITIES_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "SECURITIES_FVOCI"
+            },
+            {
+              "kind": "metric",
+              "enum": "SECURITIES_FVPL"
+            },
+            {
+              "kind": "metric",
+              "enum": "SECURITIES_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "SHARE_CAPITAL"
+            },
+            {
+              "kind": "metric",
+              "enum": "SHARE_PREMIUM"
+            },
+            {
+              "kind": "metric",
+              "enum": "STAGE3_COVERAGE"
+            },
+            {
+              "kind": "metric",
+              "enum": "STAGE3_RATIO"
+            },
+            {
+              "kind": "metric",
+              "enum": "TIER1_RATIO_DISCLOSED"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_ASSETS"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_ASSOCIATE_INVESTMENTS"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_EQUITY"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_LIABILITIES"
+            },
+            {
+              "kind": "metric",
+              "enum": "TOTAL_LOANS_TO_CLIENTS"
+            },
+            {
+              "kind": "metric",
+              "enum": "TREASURY_SHARES"
+            }
+          ]
+        }
+      }
+    },
+    "dgr": {
+      "label": "ДГР",
+      "formats": {
+        "bank": {
+          "format": "dgr",
+          "preserve_empty": true,
+          "rows": [
+            {
+              "kind": "dgr_row",
+              "label": "Наличие модифицированного мнения аудитора",
+              "enum": "MODIFIED_AUDITORS_OPINION",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "БАЛАНС",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": true
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Активы",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": true
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Денежные средства и их эквиваленты",
+              "enum": "CASH_EQUIVALENTS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Наличные деньги",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Счета Ностро и депозиты в банках и др. ФИ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Счета в Центральном банке (кроме обязательных резервов)",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резерв под ОКУ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Обратное РЕПО",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Прочие денежные средства и их эквиваленты",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Обязательные резервы на счетах в центральных банках",
+              "enum": "CASH_AND_CASH_BALANCES_WITH_CB",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Средства в банках",
+              "enum": "INTERBANK_DEPOSITS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Кредиты банкам брутто",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резерв под ОКУ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Обратное РЕПО",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Средства, предоставленные ЦБ",
+              "enum": "FUNDS_FROM_CENTRAL_BANK",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Кредиты",
+              "enum": "TOTAL_LOANS_TO_CLIENTS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "КРЕДИТЫ КЛИЕНТАМ БРУТТО (вкл. лизинг), включая:",
+              "enum": "GROSS_LOANS_TO_CUSTOMERS",
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Кредиты Stage 1 (валовые)",
+              "enum": "LOANS_STAGE1_GROSS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Кредиты Stage 2 (валовые)",
+              "enum": "LOANS_STAGE2_GROSS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Кредиты Stage 3 (валовые)",
+              "enum": "LOANS_STAGE3_GROSS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Кредиты брутто - Кредитно-обесцененные при первоначальном признании (КОПП)",
+              "enum": "POCI_LOANS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резерв под ОКУ (вкл. лизинг), включая:",
+              "enum": "TOTAL_CREDIT_ALLOWANCE",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резерв по розничным кредитам",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резерв по корпоративным кредитам (вкл. лизинг)",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резерв по кредитам МСП (вкл. лизинг)",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резерв ECL Stage 1",
+              "enum": "ECL_ALLOWANCE_STAGE1",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резерв ECL Stage 2",
+              "enum": "ECL_ALLOWANCE_STAGE2",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резерв ECL Stage 3",
+              "enum": "ECL_ALLOWANCE_STAGE3",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резерв под ОКУ по кредитам КОПП",
+              "enum": "LOAN_LOSS_ALLOWANCE_FOR_POCI_LOANS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Переводы из Stage 1 в Stage 2",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Переводы из Stage 1 в Stage 3",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Переводы из Stage 2 в Stage 1",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Переводы из Stage 2 в Stage 3",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Переводы из Stage 3 в Stage 1",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Переводы из Stage 3 в Stage 2",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Списания",
+              "enum": "CHARGE_OFFS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Чистые Розничные кредиты",
+              "enum": "NET_INDIVIDUALS_LOANS",
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Розничные кредиты",
+              "enum": "GROSS_INDIVIDUALS_LOANS",
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "вкл. Ипотечные кредиты",
+              "enum": "MORTGAGE_LOANS_GROSS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "вкл. потребительские кредиты",
+              "enum": "CONSUMER_LOANS_GROSS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "вкл. Кредитные карты",
+              "enum": "CREDIT_CARDS_GROSS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "вкл. Авто кредиты",
+              "enum": "AUTO_LOANS_GROSS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "вкл. Прочие розничные кредиты",
+              "enum": "OTHER_RETAIL_LOANS_GROSS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "NPL (Stage 3), Ипотечные кредиты",
+              "enum": "NPL_MORTGAGE_LOANS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "NPL (Stage 3), потребительские кредиты",
+              "enum": "NPL_CONSUMER_LOANS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "NPL (Stage 3), Кредитные карты",
+              "enum": "NPL_CREDIT_CARDS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "NPL (Stage 3), Авто кредиты",
+              "enum": "NPL_AUTO_LOANS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "NPL (Stage 3), Прочие розничные кредиты",
+              "enum": "NPL_OTHER_RETAIL_LOANS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резервы (Stage 3), Ипотечные кредиты",
+              "enum": "ALLOWANCE_STAGE3_MORTGAGE_LOANS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резервы (Stage 3), потребительские кредиты",
+              "enum": "ALLOWANCE_STAGE3_CONSUMER_LOANS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резервы (Stage 3), Кредитные карты",
+              "enum": "ALLOWANCE_STAGE3_CREDIT_CARDS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резервы (Stage 3), Авто кредиты",
+              "enum": "ALLOWANCE_STAGE3_AUTO_LOANS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резервы (Stage 3), Прочие розничные кредиты",
+              "enum": "ALLOWANCE_STAGE3_OTHER_RETAIL_LOANS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Чистые Корпоративные кредиты",
+              "enum": "NET_CORPORATE_LOANS",
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Корпоративные кредиты",
+              "enum": "GROSS_CORPORATE_LOANS",
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Крупнейшие пять отраслей в портфеле кредитов юридических лиц",
+              "enum": "TOP_INDUSTRIES",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Отрасль 1",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Отрасль 2",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Отрасль 3",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Отрасль 4",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Отрасль 5",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Кредиты строительной отрасли",
+              "enum": "CONSTRUCTION_INDUSTRY_LOANS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Кредиты крупнейшим клиентам в портфеле юридических лиц",
+              "enum": "TOP_CLIENTS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Кредиты МСП",
+              "enum": "SME_LOANS",
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Кредиты связанным сторонам",
+              "enum": "RELATED_PARTIES_LOANS",
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ИТОГО ЦЕННЫЕ БУМАГИ",
+              "enum": "SECURITIES_ASSETS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Ценные бумаги по справедливой стоимости через прибыль или убыток (FVPL)",
+              "enum": "SECURITIES_FVPL",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Долговые инструменты",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Правительственные облигации и облигации ЦБ (включая еврооблигации)",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Российские муниципальные и субфедеральные облигации",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Иностранные государственные и муниципальные облигации",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Муниципальные и облигации местных органов власти",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Корпоративные и ФИ облигации (включая еврооблигации)",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Ипотечные ценные бумаги",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Векселя",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Долговые инструменты, класс которых не раскрыт",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Долевые инструменты (включая акции и ПИФы)",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Ценные бумаги, класс которых не раскрыт",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Обремененные залогом",
+              "enum": "FVPL_REPO",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резерв по ценным бумагам FVPL",
+              "enum": "FVPL_ALLOWANCE",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Ценные бумаги по справедливой стоимости через прочий совокупный доход (FVOCI)",
+              "enum": "SECURITIES_FVOCI",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Долговые инструменты",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Правительственные облигации и облигации ЦБ (включая еврооблигации)",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Российские муниципальные и субфедеральные облигации",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Иностранные государственные и муниципальные облигации",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Муниципальные и облигации местных органов власти",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Корпоративные и ФИ облигации (включая еврооблигации)",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Ипотечные ценные бумаги",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Векселя",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Долговые инструменты, класс которых не раскрыт",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 2,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Долевые инструменты (включая акции и ПИФы)",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Ценные бумаги, класс которых не раскрыт",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Обремененные залогом",
+              "enum": "FVOCI_REPO",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резерв по ценным бумагам FVOCI",
+              "enum": "FVOCI_ALLOWANCE",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Ценные бумаги по амортизированной стоимости (AC)",
+              "enum": "SECURITIES_AMORTISED_COST",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Правительственные облигации и облигации ЦБ (включая еврооблигации)",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Российские муниципальные и субфедеральные облигации",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Иностранные государственные и муниципальные облигации",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Муниципальные и облигации местных органов власти",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Корпоративные и ФИ облигации (включая еврооблигации)",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Ипотечные ценные бумаги",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Векселя",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Долговые инструменты, класс которых не раскрыт",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Ценные бумаги, класс которых не раскрыт",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резерв под ОКУ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Обремененные залогом",
+              "enum": "AC_REPO",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Резерв по ценным бумагам AC",
+              "enum": "AC_ALLOWANCE",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Ценные бумаги, заложенные по договорам репо",
+              "enum": "REPO_PLEDGED_SECURITIES",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Производные финансовые инструменты",
+              "enum": "DERIVATIVES_ASSETS",
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Основные средства",
+              "enum": "PPE",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Здания и земля",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Прочие основные средства",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Активы в форме права пользования",
+              "enum": "RIGHT_OF_USE_ASSETS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Отложенные налоговые активы",
+              "enum": "DEFERRED_TAX_ASSETS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Нематериальные активы",
+              "enum": "INTANGIBLE_ASSETS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Гудвил",
+              "enum": "GOODWILL",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Прочие нематериальные активы",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Инвестиции в ассоциированные и совместные предприятия",
+              "enum": "TOTAL_ASSOCIATE_INVESTMENTS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Прочие активы",
+              "enum": "OTHER_ASSETS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Итого активы",
+              "enum": "TOTAL_ASSETS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Объязательства",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": true
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Средства, предоставленные ЦБ",
+              "enum": "FUNDS_FROM_CENTRAL_BANK",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "КРЕДИТЫ ЦЕНТРАЛЬНОГО БАНКА",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Средства банков",
+              "enum": "INTERBANK_LOANS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Корреспондентские счета банков, счета ЛОРО",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Договоры РЕПО",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Торговые обязательства",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Финансовые инструменты (Обязательства)",
+              "enum": "SECURITIES_LIABILITIES",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Облигации",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Прочие долговые бумаги",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Бессрочные облигации",
+              "enum": "PERPETUAL_BONDS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Субординированная задолженность",
+              "enum": "JUNIOR_DEBT",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "КРЕДИТОРСКАЯ ЗАДОЛЖЕННОСТЬ ПО БРОКЕРСКИМ ОПЕРАЦИЯМ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "СРЕДСТВА КЛИЕНТОВ",
+              "enum": "CLIENT_DEPOSITS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Крупнейшие вкладчики в депозитах",
+              "enum": "LARGEST_DEPOSITORS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Средства корпоративных клиентов",
+              "enum": "CORPORATE_DEPOSITS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Текущие счета",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Срочные депозиты",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Средства Физических лиц",
+              "enum": "INDIVIDUALS_DEPOSITS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Депозиты",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Текущие счета",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Средства государственных органов власти",
+              "enum": "GOVERNMENTAL_DEPOSITS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Обязательства перед связанными сторонами",
+              "enum": "RELATED_PARTIES",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Производные финансовые обязательства",
+              "enum": "DERIVATIVE_LIABILITIES",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Отложенные налоговые обязательства",
+              "enum": "DEFERRED_TAX_LIABILITIES",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Прочие обязательства",
+              "enum": "OTHER_LIABILITIES",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Прекращенные операции",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Страховые обязательства",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Налоговые обязательства",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Прочие обязательства",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Прочие резервы",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ВСЕГО ОБЯЗАТЕЛЬСТВ",
+              "enum": "TOTAL_LIABILITIES",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Капитал",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": true
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Эмиссионный доход",
+              "enum": "SHARE_PREMIUM",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Собственные акции, выкупленные у акционеров",
+              "enum": "TREASURY_SHARES",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Нераспределенная прибыль",
+              "enum": "RETAINED_EARNINGS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Основной капитал первого уровня",
+              "enum": "COMMON_EQUITY_TIER_ONE_CAPITAL",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Неконтрольные доли участия",
+              "enum": "NON_CONTROL_INTEREST",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Итого собственный капитал",
+              "enum": "TOTAL_EQUITY",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ОТЧЕТ О ПРИБЫЛЯХ И УБЫТКАХ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": true
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Процентные доходы, рассчитываемые по методу эффективной процентной ставки",
+              "enum": "INTEREST_INCOME_ER",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ОТ КРЕДИТОВ, ПРЕДОСТАВЛЕННЫХ КЛИЕНТАМ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ОТ МЕЖБАНКОВСКОГО КРЕДИТОВАНИЯ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ОТ ЦЕННЫХ БУМАГ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ПРОЧИЕ ПРОЦЕНТНЫЕ ДОХОДЫ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Процентные расходы, рассчитываемые по методу эффективной процентной ставки",
+              "enum": "INTEREST_EXPENSE_ER",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ПО ДЕПОЗИТАМ КЛИЕНТОВ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ПО МЕЖБАНКОВСКИМ ОБЯЗАТЕЛЬСТВАМ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ПО ВЫПУЩЕННЫМ ДОЛГОВЫМ БУМАГАМ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ПРОЧИЕ ПРОЦЕНТНЫЕ РАСХОДЫ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Чистый процентный доход",
+              "enum": "NET_INTEREST_INCOME",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Созданные резервы под кредитные убытки",
+              "enum": "CHANGE_IN_EXPECTED_CREDIT_LOSSES",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Доход от инвестиционно-банковского бизнеса",
+              "enum": "TOTAL_INVESTMENT_BANKING_FEES",
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Чистый комиссионный доход",
+              "enum": "NET_COMMISSION_INCOME",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Комиссионный доход",
+              "enum": "FEE_AND_COMMISSION_INCOME",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Комиссионный расход",
+              "enum": "FEE_AND_COMMISSION_EXPENSE",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Чистый доход от операций с иностранными валютами и драгоценными металлами",
+              "enum": "CURRENCY_METALS_INCOME",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Чистое восстановление прочих резервов",
+              "enum": "NET_OTHER_RESERVES",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ЧИСТЫЙ ТОРГОВЫЙ ДОХОД ОТ ОПЕРАЦИЙ С ЦЕННЫМИ БУМАГАМИ",
+              "enum": "NET_TRADING_INCOME",
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ЧИСТЫЙ ТОРГОВЫЙ ДОХОД/УБЫТОК ОТ ОПЕРАЦИЙ С ФИНАНСОВЫМИ АКТИВАМИ (ЦЕННЫМИ БУМАГАМИ) ПО ССЧПУ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ЧИСТЫЙ ТОРГОВЫЙ ДОХОД/УБЫТОК ОТ ОПЕРАЦИЙ С ФИНАНСОВЫМИ АКТИВАМИ ПО ССЧПСД",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ЧИСТЫЙ ТОРГОВЫЙ ДОХОД/УБЫТОК ПО ФИНАНСОВЫМ АКТИВАМ ПО АМОРТИЗИРОВАННОЙ СТОИМОСТИ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ЧИСТЫЙ ТОРГОВЫЙ ДОХОД/УБЫТОК ОТ ОПЕРАЦИЙ С ДЕРИВАТИВАМИ",
+              "enum": "DERIVATIVES_NET_RESULT",
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ЧИСТЫЙ ДОХОД ОТ ПЕРЕОЦЕНКИ ПО СПРАВЕДЛИВОЙ СТОИМОСТИ",
+              "enum": "NET_GAINS_INCOME",
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ЧИСТЫЙ ДОХОД ОТ ПЕРЕОЦЕНКИ ФИНАНСОВЫХ АКТИВОВ (ЦЕННЫХ БУМАГ) ПО ССЧПУ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ЧИСТЫЙ ДОХОД ОТ ПЕРЕОЦЕНКИ ФИНАНСОВЫМХ АКТИВОВ ПО ССЧПСД",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ЧИСТЫЙ ДОХОД ОТ ПЕРЕОЦЕНКИ ФИНАНСОВЫХ АКТИВОВ ПО АМОРТИЗИРОВАННОЙ СТОИМОСТИ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Прочие Операционные Доходы",
+              "enum": "OTHER_OPERATING_INCOME",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Чистый доход/убыток по операционному лизингу",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Чистый доход/убыток от страховой деятельности",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ДОХОД ОТ ИНВЕСТИЦИЙ В НЕДВИЖИМОСТЬ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Доля в прибыли/(убытке) ассоциированных компаний и совместных предприятий",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Прочий чистый операционный доход/(убыток)",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Операционные расходы банков",
+              "enum": "OPERATING_EXPENSES_BANKS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "РАСХОДЫ НА ПЕРСОНАЛ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ПРОЧИЕ АДМИНИСТРАТИВНЫЕ/ОПЕРАЦИОННЫЕ РАСХОДЫ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Нерегулярные доходы и расходы и/или доходы и расходы от неосновной деятельности",
+              "enum": "OTHER_NON_OPERATING_ITEMS",
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Обесценение goodwill и прочих нематериальных активов",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Отрицательная переоценка недвижимости",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ПРИБЫЛЬ/УБЫТОК ОТ ПРИОБРЕТЕНИЯ/ВЫБЫТИЯ ДОЧЕРНИХ КОМПАНИЙ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ПРИБЫЛЬ/УБЫТОК ОТ ПРЕКРАЩЕННЫХ ОПЕРАЦИЙ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ПРОЧИЕ ВНЕОПЕРАЦИОННЫЕ ДОХОДЫ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ПРОЧИЕ ВНЕОПЕРАЦИОННЫЕ РАСХОДЫ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Расход по налогу на прибыль",
+              "enum": "TOTAL_TAX_EXPENSE",
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Чистая прибыль",
+              "enum": "NET_INCOME",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ПРОЧИЙ СОВОКУПНЫЙ ДОХОД",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Влияние валютной переоценки",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Чистый результат по ценным бумагам по ССПСД",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Чистый результат по переоценке основных средств",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Чистый результат по прекращенной деятельности",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Прочие доходы/убытки",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ОБЩИЙ СОВОКУПНЫЙ ДОХОД",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "УСЛОВНЫЕ ОБЯЗАТЕЛЬСТВА",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ГАРАНТИИ И АККРЕДИТИВЫ, включая:",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ГАРАНТИИ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "АККРЕДИТИВЫ И ДОКУМЕНТАРНЫЕ ОБЯЗАТЕЛЬСТВА",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 1,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ОДОБРЕННЫЕ КРЕДИТНЫЕ ЛИНИИ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "СЕКЬЮРИТИЗИРОВАННЫЕ АКТИВЫ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ПРОЧАЯ СЕКЬЮРИТИЗАЦИЯ",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "ПРОЧИЕ УСЛОВНЫЕ ОБЯЗАТЕЛЬСТВА",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Дивиденды полученные",
+              "enum": "DIVIDENDS_RECEIVED",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Активы, взвешенные по риску (RWA)",
+              "enum": "RISK_WEIGHTED_ASSETS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Норматив Tier 1 (раскрываемый)",
+              "enum": "TIER1_RATIO_DISCLOSED",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Коэффициент совокупного капитала иностранные банки",
+              "enum": "TOTAL_CAPITAL_RATIO_INTERNATIONAL_BANKS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Коэффициент совокупного капитала рос.банки Н20.0",
+              "enum": "TOTAL_CAPITAL_RATIO_RUSSIAN_BANKS_H20_0",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Коэффициент совокупного капитала рос.банки Н1.0",
+              "enum": "TOTAL_CAPITAL_RATIO_RUSSIAN_BANKS_H1_0",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Коэффициент достаточности капитала 1-го уровня, иностранные банки",
+              "enum": "TIER1_RATIO_INTERNATIONAL_BANKS",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Коэффициент достаточности капитала 1-го уровня, рос.банки Н20.2",
+              "enum": "TIER1_RATIO_RUSSIAN_BANKS_H20_2",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Коэффициент достаточности капитала 1-го уровня, рос.банки Н1.2",
+              "enum": "TIER1_RATIO_RUSSIAN_BANKS_H1_2",
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Накопленная нетто-позиция по ликвидности в т.ч",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": true,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "До востребования и менее 1 месяца",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "От 1 до 3 месяцев",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "От 3 месяцев до 1 года",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "От 1 года до 5 лет",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "От 5 до 10 лет",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "",
+              "enum": null,
+              "is_available": false,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            },
+            {
+              "kind": "dgr_row",
+              "label": "Дивиденды уплаченные",
+              "enum": "DIVIDENDS",
+              "is_available": true,
+              "is_highlighted": false,
+              "indent": 0,
+              "bold": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "case_id": "cherkizovo-2021:analysis:01",
+  "company": "Cherkizovo",
+  "evidence_ids": [
+    "cherkizovo-2021:LONG_TERM_DEBT:01"
+  ],
+  "expected_explanation_covers": [
+    "LONG_TERM_DEBT",
+    "31.12.2021",
+    "RUB million",
+    "source evidence"
+  ],
+  "expected_judgment": {
+    "concept": "LONG_TERM_DEBT",
+    "verdict": "reported_as_disclosed"
+  },
+  "goal": "State the disclosed LONG_TERM_DEBT for 31.12.2021 and cite the supplied evidence. Do not add a recommendation.",
+  "rubric": {
+    "evidence_alignment": "required: every number traces to evidence_ids",
+    "factual_accuracy": "required: value, period, and unit match the evidence",
+    "logical_coherence": "required: no claim contradicts the evidence",
+    "no_recommendations": "required"
+  }
+}

@@ -1,0 +1,285 @@
+## SYSTEM
+You are a senior financial analyst working with us_gaap_en financial reports. Your task is to find and extract ordinary financial statement metrics, matching source rows strictly against each metric's registry description, aliases and hint. If a row is similar but broader, narrower, or includes extra components, do not use it. Return valid JSON only.
+
+## USER
+## Task
+Extract reported financial metric values from compressed evidence selected in stage 1.
+Company type: non_financial; reporting standard: us_gaap_en; language: en.
+Extract values for every metric listed in the metric metadata below.
+For each metric block, read the registry fields and evidence, then extract every value of that exact metric for every disclosed period.
+Return raw period headers and raw cell values literally as they appear in the report.
+
+
+## Metric Blocks
+[
+  {
+    "enum": "BANK_DEPOSITS",
+    "name_ru": "Банковские депозиты",
+    "name_en": "Bank deposits",
+    "description": "Денежные средства, размещённые в банках на срочной основе (обычно < 12 месяцев).",
+    "aliases_ru": [
+      "Депозиты",
+      "Срочные банковские депозиты",
+      "Краткосрочные депозиты",
+      "Краткосрочные финансовые вложения депозиты"
+    ],
+    "aliases_en": [
+      "Time deposits",
+      "Short-term bank deposits",
+      "Bank deposits",
+      "Short-term deposits"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Оборотные активы баланса или примечание к денежным средствам/краткосрочным инвестициям. Если строка баланса 'краткосрочные финансовые вложения' раскрыта в примечании как банковские/time deposits, бери эту строку. Не путай с cash equivalents и marketable securities.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "PPE",
+    "name_ru": "Основные средства",
+    "name_en": "Property, plant and equipment",
+    "description": "Долгосрочные материальные активы — здания, оборудование, транспорт.",
+    "aliases_ru": [
+      "Основные средства",
+      "ОС",
+      "Основные средства и оборудование",
+      "Здания, сооружения и оборудование"
+    ],
+    "aliases_en": [
+      "PP&E",
+      "Fixed assets",
+      "Property and equipment"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Внеоборотные активы баланса. Также детализация в Примечании 'Основные средства'.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "RIGHT_OF_USE_ASSETS",
+    "name_ru": "Активы в форме права пользования",
+    "name_en": "ROU",
+    "description": "Активы, признанные арендатором по МСФО 16 — это будущие платежи по аренде, дисконтированные на дату начала аренды.",
+    "aliases_ru": [
+      "Право пользования активами",
+      "Активы с правом пользования",
+      "Активы в форме права пользования"
+    ],
+    "aliases_en": [
+      "Right-of-use assets",
+      "ROU assets"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Баланс или примечание по аренде / активам в форме права пользования. Извлекай все явно раскрытые даты, не только даты баланса; включай сравнительные конечные остатки из примечания по аренде, если они прямо показаны.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "GROSS_PROFIT",
+    "name_ru": "Валовая прибыль",
+    "name_en": "Gross profit",
+    "description": "Выручка минус себестоимость продаж.",
+    "aliases_ru": [
+      "Валовая прибыль",
+      "Валовая маржа"
+    ],
+    "aliases_en": [
+      "Gross margin",
+      "Gross profit",
+      "Subtotal after cost of sales"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "P&L, строка после себестоимости. Если строка Gross profit не подписана, но есть очевидный subtotal после прямых costs of sales/products/services и перед operating expenses, можно брать этот subtotal. Не выводи gross profit, если есть только operating income без раскрытой себестоимости.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+    "name_ru": "Дивиденды, выплаченные держателям неконтролирующих долей",
+    "name_en": "Dividends paid to non-controlling interests",
+    "description": "Денежные выплаты дивидендов держателям неконтролирующих долей дочерних компаний.",
+    "aliases_ru": [
+      "Дивиденды",
+      "выплаченные неконтролирующим акционерам",
+      "Дивиденды",
+      "уплаченные акционерам с неконтролирующими долями участия"
+    ],
+    "aliases_en": [
+      "Dividends paid to minority interests",
+      "Dividends to non-controlling shareholders"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "ОДДС, раздел 'Финансовая деятельность' (отдельной строкой от дивидендов акционерам).",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "INTANGIBLE_ASSET_PURCHASES",
+    "name_ru": "Приобретение нематериальных активов",
+    "name_en": "Intangible asset purchases",
+    "description": "Денежные расходы на приобретение нематериальных активов за период.",
+    "aliases_ru": [
+      "Приобретение лицензий"
+    ],
+    "aliases_en": [
+      "Purchases of intangible assets",
+      "Acquisition of intangible assets"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "ОДДС, раздел 'Инвестиционная деятельность' (отдельной строкой от ОС). Если в отчёте объединено с ОС — null, см. COMBINED_ASSET_PURCHASES.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "EBITDA",
+    "name_ru": "Прибыль до вычета процентов, налогов, износа и амортизации",
+    "name_en": "EBITDA",
+    "description": "Операционная прибыль до амортизации (EBIT + D&A). Часто компании раскрывают как нефинансовую метрику.",
+    "aliases_ru": [
+      "EBITDA скорректированная",
+      "EBITDAC",
+      "EBITDA по сегменту"
+    ],
+    "aliases_en": [
+      "Adjusted EBITDA",
+      "Segment EBITDA",
+      "EBITDA total"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Сегментная отчётность или MD&A. Для main metric бери итог/Total по EBITDA, не отдельный сегмент, не elimination-only строку и не EBITDA before IFRS 16/adjusted subtotal, если раскрыт консолидированный total. Если строка 'EBITDA по сегменту' содержит сегменты, исключения/eliminations и затем итоговые значения в последних колонках или в конце строки, бери эти итоговые значения как main EBITDA. Возвращай null только если явной строки EBITDA/OIBDA нет.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "SECURITIES_LIABILITIES",
+    "name_ru": "Финансовые инструменты (Обязательства)",
+    "name_en": "Securities",
+    "description": "Облигации и прочие долговые ценные бумаги, выпущенные компанией.",
+    "aliases_ru": [
+      "Финансовые обязательства",
+      "Выпущенные долговые инструменты"
+    ],
+    "aliases_en": [
+      "Financial instruments",
+      "Financial liabilities",
+      "Debt instruments issued"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Балансовый отчёт. Детализация в Примечании 'Долговые ценные бумаги' / 'Облигационный заём'.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "RETAINED_EARNINGS",
+    "name_ru": "Нераспределенная прибыль",
+    "name_en": "Retained Earnings",
+    "description": "Накопленная чистая прибыль за все периоды за вычетом распределённых дивидендов.",
+    "aliases_ru": [
+      "Нераспределенная прибыль (непокрытый убыток)",
+      "Накопленная прибыль"
+    ],
+    "aliases_en": [
+      "Accumulated retained earnings",
+      "Accumulated deficit",
+      "Retained earnings balance"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Раздел капитала: retained earnings / accumulated deficit на конец периода. Не путай с net income за период.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "DIVIDENDS_RECEIVED",
+    "name_ru": "Дивиденды полученные",
+    "name_en": "Dividends received",
+    "description": "Денежные поступления дивидендов от ассоциированных и прочих компаний.",
+    "aliases_ru": [
+      "Полученные дивиденды"
+    ],
+    "aliases_en": [
+      "Cash dividends received"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "ОДДС, раздел 'Инвестиционная деятельность'.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  }
+]
+
+## Rules
+Return period keys in `values` literally as they appear in the visible table header; do not shorten or rephrase them. A table header may have two levels: a duration group such as 'Three Months Ended' on one level and the period-end date on another. Combine the applicable levels into one complete period key. When the same date appears under multiple duration groups, a bare date is invalid because it creates a duplicate JSON key; return the full wording for each group.
+
+Return each value exactly as it appears in the table cell. Do NOT convert units, do NOT normalize thousands separators, do NOT remove commas, spaces or parentheses. If the table says "25,785", return "25,785", not "25785" and not "25.785". If the table says "(4,190)", return "(4,190)"; parentheses are mandatory: "(465)" must stay "(465)", not "465". If a matching metric row uses a blank or dash-like cell as a displayed numeric placeholder, return "0" for that period, but only when that row separately and unambiguously matches the metric. A dash in a broader combined row does not prove that any component is zero. Otherwise use null when the row is absent or the value is not disclosed. Put the table/header unit literally into unit_text, for example "in millions" or "$ in millions". When the value comes from a narrative sentence in a note rather than from a table, take the unit from that same sentence, not from the document header: notes routinely name their own scale ("USD 12.0 billion") inside a report presented in millions, and the document header would shrink the number a thousandfold. Source (report in millions): "committed credit facilities of $12.0 billion" → {"values": {"27.09.2025": "12.0"}, "unit_text": "billion"}, not "in millions".
+
+## Actual values only
+Extract only actual historical/reported values from financial statements and notes for periods that have already ended. Do NOT extract forecasts, plans, budgets, targets, scenarios, sensitivity analysis, guidance, outlook, projections, projected/forecasted values or any other forward-looking amounts, even when the row label looks like a target metric. If a requested metric appears only in a forecast/outlook/guidance table or section, return null / an empty values object for it.
+Do not treat ordinary accounting estimates inside actual financial statements as forecasts: expected credit losses, provisions, deferred taxes and pension assumptions may be valid actual-period disclosures when they are reported in the statements or notes.
+The same applies to columns: a forecast period in the header (2026E, FY26F, "plan") does not belong in values.
+
+- Follow each metric registry entry strictly. A similar-looking row is not enough.
+- Before extracting a value, run a sanity check: the row label and nearby table context must match the metric name/aliases and satisfy the description and hint.
+- Perform a scope check against the registry definition: do not use a narrower component, subcategory or subtotal that is only part of the requested metric; do not use a broader or combined row that contains the requested metric together with other components. Use only the exact requested metric, or an aggregation explicitly permitted by that metric's registry hint.
+- Extract all periods disclosed in the selected evidence: all years, quarters, half-years/YTD periods, rolling or shifted periods, and comparative periods.
+- After you identify a row/table that matches a metric, scan all period columns in that row and all evidence tables/quotes for the same metric. Return every explicitly disclosed period for that metric, not only the current period or first matching table. If quarterly and YTD/half-year rows are both disclosed, return both sets.
+- Do not mix currencies, units, or scales. If a table has multiple column sets, choose one coherent set for the metric. Prefer the report's primary presentation/native currency columns over convenience translation columns when both are shown. Currency/unit/scale may be written in the caption, unit line, or directly near the period column headers; preserve the chosen unit/currency in unit_text and raw headers when present.
+- The registry is the definition, not a keyword list. Accept a row only when its full label, nearby context, description and hint agree; do not broaden a metric from a partial alias or a similar subtotal.
+- Do not calculate values, allocate totals, infer missing periods, or normalize signs/period labels yourself, unless the specific metric registry entry explicitly authorizes that derivation. For an authorized derivation, use only the stated method and operands explicitly present in this evidence.
+- If you are unsure whether the row matches the registry definition, prefer null over a bold guess.
+
+
+## Output Format
+Return exactly one valid JSON object only. No explanations, no markdown wrappers, no comments.
+A JSON object whose keys exactly match the metric metadata list below:
+
+{
+  "BANK_DEPOSITS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "PPE": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "RIGHT_OF_USE_ASSETS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "GROSS_PROFIT": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "INTANGIBLE_ASSET_PURCHASES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "EBITDA": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "SECURITIES_LIABILITIES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "RETAINED_EARNINGS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "DIVIDENDS_RECEIVED": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null}
+}

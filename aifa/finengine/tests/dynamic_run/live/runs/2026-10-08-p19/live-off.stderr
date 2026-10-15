@@ -1,0 +1,13 @@
+model_call_start role=intent index=1
+model_call_done role=intent index=1
+deterministic planning failed, starting dynamic run case=p6-p19-off-b8b25bb0b3 goal_type=custom_analysis: GoalType 'custom_analysis' не имеет производителя корня в детерминированном графе
+model_call_start role=planner index=2
+model_call_done role=planner index=2
+model_call_start role=planner index=3
+model_call_done role=planner index=3
+model_call_start role=planner index=4
+model_call_done role=planner index=4
+model_call_start role=planner index=5
+model_call_done role=planner index=5
+model_call_start role=planner index=6
+model_call_done role=planner index=6

@@ -1,0 +1,109 @@
+{
+  "company": "Kone",
+  "document_version": "17d2d566b9d1bf86c7aefbf0c894d5384f69b5be7067d1bc0c0c417d6dcc5772",
+  "facts": [
+    {
+      "basis": "IFRS",
+      "concept": "SALES_REVENUE",
+      "fact_id": "kone-Q3-2025:SALES_REVENUE:01",
+      "page": 21,
+      "period_ref": "Q3 2025",
+      "quote": "| Sales                                                                                     | 2,762.0  |      | 2,753.6  |      | 8,284.4  |      | 8,122.8  |      | 11,098.4  |      |",
+      "unit": "EUR million",
+      "value": 2762.0
+    },
+    {
+      "basis": "IFRS",
+      "concept": "COSTS_EXPENSES",
+      "fact_id": "kone-Q3-2025:COSTS_EXPENSES:02",
+      "page": 21,
+      "period_ref": "Q3 2025",
+      "quote": "| Costs and expenses                                                                        | -2,348.7 |      | -2,360.7 |      | -7,101.3 |      | -6,990.8 |      | -9,557.3  |      |",
+      "unit": "EUR million",
+      "value": -2348.7
+    },
+    {
+      "basis": "IFRS",
+      "concept": "DEPRECIATION_AMORTIZATION",
+      "fact_id": "kone-Q3-2025:DEPRECIATION_AMORTIZATION:03",
+      "page": 21,
+      "period_ref": "Q3 2025",
+      "quote": "| Depreciation and amortization                                                             | -78.9    |      | -73.5    |      | -234.1   |      | -215.5   |      | -292.2    |      |",
+      "unit": "EUR million",
+      "value": -78.9
+    },
+    {
+      "basis": "IFRS",
+      "concept": "OPERATING_PROFIT",
+      "fact_id": "kone-Q3-2025:OPERATING_PROFIT:04",
+      "page": 21,
+      "period_ref": "Q3 2025",
+      "quote": "| Operating income                                                                          | 334.4    | 12.1 | 319.4    | 11.6 | 949.0    | 11.5 | 916.5    | 11.3 | 1,249.0   | 11.3 |",
+      "unit": "EUR million",
+      "value": 334.4
+    },
+    {
+      "basis": "IFRS",
+      "concept": "FINANCIAL_INCOME",
+      "fact_id": "kone-Q3-2025:FINANCIAL_INCOME:05",
+      "page": 21,
+      "period_ref": "Q3 2025",
+      "quote": "| Financing income                                                                          | -15.5    |      | 10.8     |      | 32.9     |      | 34.5     |      | 48.3      |      |",
+      "unit": "EUR million",
+      "value": -15.5
+    },
+    {
+      "basis": "IFRS",
+      "concept": "FINANCIAL_EXPENSES",
+      "fact_id": "kone-Q3-2025:FINANCIAL_EXPENSES:06",
+      "page": 21,
+      "period_ref": "Q3 2025",
+      "quote": "| Financing expenses                                                                        | -11.9    |      | -8.1     |      | -35.7    |      | -26.4    |      | -43.1     |      |",
+      "unit": "EUR million",
+      "value": -11.9
+    },
+    {
+      "basis": "IFRS",
+      "concept": "EBT",
+      "fact_id": "kone-Q3-2025:EBT:07",
+      "page": 21,
+      "period_ref": "Q3 2025",
+      "quote": "| Income before taxes                                                                       | 306.9    | 11.1 | 322.1    | 11.7 | 946.2    | 11.4 | 924.6    | 11.4 | 1,254.1   | 11.3 |",
+      "unit": "EUR million",
+      "value": 306.9
+    },
+    {
+      "basis": "IFRS",
+      "concept": "INCOME_TAX",
+      "fact_id": "kone-Q3-2025:INCOME_TAX:08",
+      "page": 21,
+      "period_ref": "Q3 2025",
+      "quote": "| Taxes                                                                                     | -80.1    |      | -72.5    |      | -227.1   |      | -208.0   |      | -293.1    |      |",
+      "unit": "EUR million",
+      "value": -80.1
+    },
+    {
+      "basis": "IFRS",
+      "concept": "NET_INCOME",
+      "fact_id": "kone-Q3-2025:NET_INCOME:09",
+      "page": 21,
+      "period_ref": "Q3 2025",
+      "quote": "| Net income                                                                                | 226.9    | 8.2  | 249.6    | 9.1  | 719.1    | 8.7  | 716.6    | 8.8  | 961.0     | 8.7  |",
+      "unit": "EUR million",
+      "value": 226.9
+    },
+    {
+      "basis": "IFRS",
+      "concept": "EPS",
+      "fact_id": "kone-Q3-2025:EPS:10",
+      "page": 21,
+      "period_ref": "Q3 2025",
+      "quote": "| Basic earnings per share, EUR                                                             | 0.43     |      | 0.48     |      | 1.37     |      | 1.37     |      | 1.84      |      |",
+      "unit": "EUR",
+      "value": 0.43
+    }
+  ],
+  "language": "en",
+  "report_id": "kone-Q3-2025",
+  "source_url": "https://gitverse.ru/nero27/AIFA_RFA"
+}

@@ -1,0 +1,272 @@
+## SYSTEM
+You are a senior financial analyst working with us_gaap_en financial reports. Your task is to find and extract ordinary financial statement metrics, matching source rows strictly against each metric's registry description, aliases and hint. If a row is similar but broader, narrower, or includes extra components, do not use it. Return valid JSON only.
+
+## USER
+## Task
+Extract reported financial metric values from compressed evidence selected in stage 1.
+Company type: bank; reporting standard: us_gaap_en; language: en.
+Extract values for every metric listed in the metric metadata below.
+For each metric block, read the registry fields and evidence, then extract every value of that exact metric for every disclosed period.
+Return raw period headers and raw cell values literally as they appear in the report.
+
+
+## Metric Blocks
+[
+  {
+    "enum": "MODIFIED_AUDITORS_OPINION",
+    "name_ru": "Наличие модифицированного мнения аудитора",
+    "name_en": "Modified auditor's opinion",
+    "description": "Текстовая отметка: было ли в аудиторском заключении модифицированное мнение (да / нет).",
+    "aliases_ru": [
+      "Модифицированное мнение аудитора",
+      "Аудиторское заключение с оговоркой",
+      "Отказ от выражения мнения"
+    ],
+    "aliases_en": [
+      "Modified auditor's opinion",
+      "Qualified opinion"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Аудиторское заключение независимого аудитора (обычно в начале отчёта). Если 'Мнение не модифицировано' — значение = 0 (нет). Если есть оговорка / отказ / отрицательное мнение — 1 (да).",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "TOTAL_EQUITY",
+    "name_ru": "Итого собственный капитал",
+    "name_en": "Total equity",
+    "description": "Совокупная стоимость собственного капитала, включая капитал акционеров и неконтролирующие доли.",
+    "aliases_ru": [
+      "Итого капитал",
+      "Собственный капитал акционеров"
+    ],
+    "aliases_en": [
+      "Total shareholders' equity",
+      "Stockholders' equity"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Балансовый отчёт, итог раздела КАПИТАЛ. Иногда отдельно 'Капитал, приходящийся на акционеров материнской' + 'Неконтролирующие доли'.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [
+        {
+          "table_id": "0",
+          "page": 1,
+          "title": "Consolidated statement of financial position as at 31 December 2024 (RUB million)",
+          "location": "Unknown",
+          "context_before": "Consolidated statement of financial position\nas at 31 December 2024 (RUB million)",
+          "text": "| Metric | 2024 | 2023 |\n| Total assets | 1 000 | 900 |\n| Total equity | 400 | 350 |",
+          "context_after": ""
+        },
+        {
+          "table_id": "1",
+          "page": 2,
+          "title": "Statement of profit or loss for the year ended 31 December 2024",
+          "location": "",
+          "context_before": "Statement of profit or loss for the year ended 31 December 2024",
+          "text": "| Metric | 2024 | 2023 |\n| Revenue | 500 | 450 |\n| Net income | 50 | 40 |",
+          "context_after": ""
+        }
+      ],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "COMMON_EQUITY_TIER_ONE_CAPITAL",
+    "name_ru": "Основной капитал первого уровня",
+    "name_en": "Common equity tier 1 capital",
+    "description": "Базовый капитал первого уровня по Базель III.",
+    "aliases_ru": [
+      "Капитал первого уровня",
+      "CET1 капитал",
+      "Базовый капитал первого уровня"
+    ],
+    "aliases_en": [
+      "CET1 capital",
+      "Common equity Tier 1 capital ratio"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Примечание 'Достаточность капитала' / 'Управление капиталом'.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "OTHER_OPERATING_INCOME",
+    "name_ru": "Прочие Операционные Доходы",
+    "name_en": "Other operating income",
+    "description": "Прочие доходы от операционной деятельности банка.",
+    "aliases_ru": [
+      "Прочие доходы"
+    ],
+    "aliases_en": [
+      "Other income",
+      "Other revenues"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "P&L банка, в составе непроцентных доходов.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "TOTAL_ASSOCIATE_INVESTMENTS",
+    "name_ru": "Инвестиции в ассоциированные и совместные предприятия",
+    "name_en": "Associate investments",
+    "description": "Совокупные инвестиции в ассоциированные компании и совместные предприятия.",
+    "aliases_ru": [
+      "Вложения в ассоциированные и совместные предприятия",
+      "Инвестиции в компании по методу долевого участия"
+    ],
+    "aliases_en": [
+      "Investments in associates and joint ventures",
+      "Equity-accounted investments",
+      "Equity method investment",
+      "Investments in associates",
+      "Investments: equity method",
+      "Equity method investments"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Внеоборотные активы баланса: investments in associates/JVs/equity method investments на дату баланса. Не путай с purchases of strategic investments в ОДДС.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "SHARE_PREMIUM",
+    "name_ru": "Эмиссионный доход",
+    "name_en": "Share premium",
+    "description": "Превышение цены размещения акций над номинальной стоимостью.",
+    "aliases_ru": [
+      "Добавочный капитал",
+      "Дополнительный оплаченный капитал"
+    ],
+    "aliases_en": [
+      "Additional paid-in capital",
+      "Capital surplus",
+      "APIC"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Раздел капитала: share premium/additional paid-in capital на конец периода.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "INTEREST_INCOME_ER",
+    "name_ru": "Процентные доходы, рассчитываемые по методу эффективной процентной ставки",
+    "name_en": "Interest income, calculated on the basis of effective interest rate",
+    "description": "Процентные доходы, рассчитанные по методу эффективной процентной ставки.",
+    "aliases_ru": [
+      "Процентные доходы (по методу ЭПС)"
+    ],
+    "aliases_en": [
+      "Interest income calculated using the effective interest method",
+      "Interest income (EIR basis)"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "P&L банка, верхняя строка раздела процентных доходов. Детализация в Примечании 'Процентные доходы и расходы'.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "TIER1_RATIO_DISCLOSED",
+    "name_ru": "Норматив Tier 1 (раскрываемый)",
+    "name_en": "Tier 1 ratio (disclosed)",
+    "description": "Раскрываемый банком норматив достаточности капитала первого уровня (в процентах).",
+    "aliases_ru": [
+      "Tier 1 ratio",
+      "норматив Н 1.1",
+      "норматив Н 20.2"
+    ],
+    "aliases_en": [
+      "Tier 1 capital ratio"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Примечание 'Достаточность капитала'. Единица — проценты.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "EQUITY_SHAREHOLDERS",
+    "name_ru": "Капитал, приходящийся на акционеров материнской компании",
+    "name_en": "Equity attributable to owners of the parent",
+    "description": "Собственный капитал за вычетом неконтролирующих долей — часть капитала, принадлежащая акционерам материнской компании.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "Equity attributable to equity holders of the parent",
+      "Total shareholders' equity attributable to the parent",
+      "Equity attributable to owners of the Company"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Баланс, раздел КАПИТАЛ: «Итого капитал, приходящийся на акционеров материнской компании» — строка ДО «Неконтролирующие доли». НЕ путать с итогом капитала (тот включает неконтролирующие доли). Нет отдельной строки — значит неконтролирующих долей нет, бери итог капитала.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  }
+]
+
+## Rules
+Return period keys in `values` literally as they appear in the visible table header; do not shorten or rephrase them. A table header may have two levels: a duration group such as 'Three Months Ended' on one level and the period-end date on another. Combine the applicable levels into one complete period key. When the same date appears under multiple duration groups, a bare date is invalid because it creates a duplicate JSON key; return the full wording for each group.
+
+Return each value exactly as it appears in the table cell. Do NOT convert units, do NOT normalize thousands separators, do NOT remove commas, spaces or parentheses. If the table says "25,785", return "25,785", not "25785" and not "25.785". If the table says "(4,190)", return "(4,190)"; parentheses are mandatory: "(465)" must stay "(465)", not "465". If a matching metric row uses a blank or dash-like cell as a displayed numeric placeholder, return "0" for that period, but only when that row separately and unambiguously matches the metric. A dash in a broader combined row does not prove that any component is zero. Otherwise use null when the row is absent or the value is not disclosed. Put the table/header unit literally into unit_text, for example "in millions" or "$ in millions". When the value comes from a narrative sentence in a note rather than from a table, take the unit from that same sentence, not from the document header: notes routinely name their own scale ("USD 12.0 billion") inside a report presented in millions, and the document header would shrink the number a thousandfold. Source (report in millions): "committed credit facilities of $12.0 billion" → {"values": {"27.09.2025": "12.0"}, "unit_text": "billion"}, not "in millions".
+
+## Actual values only
+Extract only actual historical/reported values from financial statements and notes for periods that have already ended. Do NOT extract forecasts, plans, budgets, targets, scenarios, sensitivity analysis, guidance, outlook, projections, projected/forecasted values or any other forward-looking amounts, even when the row label looks like a target metric. If a requested metric appears only in a forecast/outlook/guidance table or section, return null / an empty values object for it.
+Do not treat ordinary accounting estimates inside actual financial statements as forecasts: expected credit losses, provisions, deferred taxes and pension assumptions may be valid actual-period disclosures when they are reported in the statements or notes.
+The same applies to columns: a forecast period in the header (2026E, FY26F, "plan") does not belong in values.
+
+- Follow each metric registry entry strictly. A similar-looking row is not enough.
+- Before extracting a value, run a sanity check: the row label and nearby table context must match the metric name/aliases and satisfy the description and hint.
+- Perform a scope check against the registry definition: do not use a narrower component, subcategory or subtotal that is only part of the requested metric; do not use a broader or combined row that contains the requested metric together with other components. Use only the exact requested metric, or an aggregation explicitly permitted by that metric's registry hint.
+- Extract all periods disclosed in the selected evidence: all years, quarters, half-years/YTD periods, rolling or shifted periods, and comparative periods.
+- After you identify a row/table that matches a metric, scan all period columns in that row and all evidence tables/quotes for the same metric. Return every explicitly disclosed period for that metric, not only the current period or first matching table. If quarterly and YTD/half-year rows are both disclosed, return both sets.
+- Do not mix currencies, units, or scales. If a table has multiple column sets, choose one coherent set for the metric. Prefer the report's primary presentation/native currency columns over convenience translation columns when both are shown. Currency/unit/scale may be written in the caption, unit line, or directly near the period column headers; preserve the chosen unit/currency in unit_text and raw headers when present.
+- The registry is the definition, not a keyword list. Accept a row only when its full label, nearby context, description and hint agree; do not broaden a metric from a partial alias or a similar subtotal.
+- Do not calculate values, allocate totals, infer missing periods, or normalize signs/period labels yourself, unless the specific metric registry entry explicitly authorizes that derivation. For an authorized derivation, use only the stated method and operands explicitly present in this evidence.
+- If you are unsure whether the row matches the registry definition, prefer null over a bold guess.
+
+
+## Output Format
+Return exactly one valid JSON object only. No explanations, no markdown wrappers, no comments.
+A JSON object whose keys exactly match the metric metadata list below:
+
+{
+  "MODIFIED_AUDITORS_OPINION": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "TOTAL_EQUITY": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "COMMON_EQUITY_TIER_ONE_CAPITAL": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "OTHER_OPERATING_INCOME": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "TOTAL_ASSOCIATE_INVESTMENTS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "SHARE_PREMIUM": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "INTEREST_INCOME_ER": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "TIER1_RATIO_DISCLOSED": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "EQUITY_SHAREHOLDERS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null}
+}

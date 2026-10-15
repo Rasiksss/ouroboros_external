@@ -1,0 +1,34 @@
+{
+  "scenario_id": "planner-04-classification-gated-expansion",
+  "description": "Состав зависимостей зависит от классификации (02-tekushee-sostoyanie, §3): сначала раскрывается и исполняется identify.classify, RunPassport фиксируется, и только потом граф продолжает раскрытие — для банка и нефинансовой компании набор extract-узлов разный.",
+  "target": {"target_id": "t-4", "concept": "CAPITAL_ADEQUACY", "period_ref": "p-2024-fy", "entity_ref": "unknown-bank-or-nf", "output_kind": "scalar"},
+  "plan_graph": {
+    "plan_id": "plan-04",
+    "root": {"atom_name": "extract.scalar", "atom_version": "1.0.0", "args_fingerprint": "concept=CAPITAL_ADEQUACY;profile=bank;period=p-2024-fy;entity=unknown-bank-or-nf"},
+    "nodes": [
+      {
+        "node_key": {"atom_name": "ingest.document", "atom_version": "1.0.0", "args_fingerprint": "entity=unknown-bank-or-nf;period=p-2024-fy"},
+        "requires": [],
+        "produces": ["document_text"],
+        "sandbox_profile": "document_read"
+      },
+      {
+        "node_key": {"atom_name": "identify.classify", "atom_version": "1.0.0", "args_fingerprint": "entity=unknown-bank-or-nf;period=p-2024-fy"},
+        "requires": [{"atom_name": "ingest.document", "atom_version": "1.0.0", "args_fingerprint": "entity=unknown-bank-or-nf;period=p-2024-fy"}],
+        "produces": ["ClassificationResult", "RunPassport"],
+        "sandbox_profile": "compute_no_network",
+        "note": "граница графа: до этого узла состав нижестоящих узлов НЕ раскрыт — раскрытие продолжается только после того, как этот узел исполнен и RunPassport зафиксирован"
+      },
+      {
+        "node_key": {"atom_name": "extract.scalar", "atom_version": "1.0.0", "args_fingerprint": "concept=CAPITAL_ADEQUACY;profile=bank;period=p-2024-fy;entity=unknown-bank-or-nf"},
+        "requires": [{"atom_name": "identify.classify", "atom_version": "1.0.0", "args_fingerprint": "entity=unknown-bank-or-nf;period=p-2024-fy"}],
+        "produces": ["CAPITAL_ADEQUACY"],
+        "sandbox_profile": "compute_no_network",
+        "note": "раскрыт только если ClassificationResult.company_type == 'bank' — для 'non_financial' этот узел планировщик не создаёт вовсе"
+      }
+    ],
+    "graph_hash": "sha256:manual-fixture-04"
+  },
+  "expected_feasibility": {"feasible": true, "unreachable_targets": [], "reason": null},
+  "notes": "Этот фикстур описывает намерение решения — сам PlanGraph контракт (Фаза 0) не проверяет условное раскрытие: это работа GraphPlanner в Срезе 3."
+}

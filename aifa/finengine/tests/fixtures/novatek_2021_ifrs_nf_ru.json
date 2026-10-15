@@ -1,0 +1,1025 @@
+{
+ "_ИСТОЧНИК": "ПАО «НОВАТЭК», консолидированная МСФО за 2021 г., стр. 10, 11, 13, 14. Числа сняты вручную с формы и сверены с ней построчно.",
+ "run": {
+  "cell": "ifrs_nf_ru",
+  "company_name": "ПАО «НОВАТЭК»",
+  "main_period": "FY 2021",
+  "prev_period": "FY 2020",
+  "scope": {
+   "read": [
+    "ACCOUNTS_PAYABLE",
+    "ACCOUNTS_RECEIVABLE",
+    "ASSET_PURCHASES",
+    "ASSET_SALES_PROCEEDS",
+    "ASSOCIATE_INCOMES",
+    "ASSOCIATE_INVESTMENTS",
+    "BANK_DEPOSITS",
+    "CASH_EQUIVALENTS",
+    "CHANGES_OCF_ASSETS_LIABILITIES",
+    "COSTS_EXPENSES",
+    "DEFERRED_TAX_LIABILITIES",
+    "DEPRECIATION_AMORTIZATION",
+    "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+    "DIVIDENDS_RECEIVED",
+    "DIVIDENDS_SHAREHOLDERS",
+    "EBT",
+    "EPS",
+    "EQUITY_SHAREHOLDERS",
+    "FINANCIAL_EXPENSES",
+    "FINANCIAL_INCOME",
+    "INCOME_TAX",
+    "INTANGIBLE_ASSET_PURCHASES",
+    "INTEREST_PAID",
+    "INTEREST_RECEIVED",
+    "INVENTORIES",
+    "LONG_TERM_DEBT",
+    "LONG_TERM_LEASE_LIABILITIES",
+    "MODIFIED_AUDITORS_OPINION",
+    "NET_INCOME",
+    "NET_INCOME_SHAREHOLDERS",
+    "NET_OPERATING_CASH_FLOW",
+    "NON_CONTROL_INTEREST",
+    "OPERATING_EXPENSES",
+    "OPERATING_PROFIT",
+    "PPE",
+    "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+    "RETAINED_EARNINGS",
+    "SALES_REVENUE",
+    "SHARES_BUYBACK",
+    "SHARE_CAPITAL",
+    "SHARE_PREMIUM",
+    "SHORT_TERM_BORROWINGS",
+    "SHORT_TERM_LEASE_LIABILITIES",
+    "TOTAL_ASSETS",
+    "TOTAL_CURRENT_ASSETS",
+    "TOTAL_CURRENT_LIABILITIES",
+    "TOTAL_EQUITY",
+    "TREASURY_SHARES"
+   ]
+  }
+ },
+ "metrics": [
+  {
+   "enum": "ACCOUNTS_PAYABLE",
+   "name_ru": "ACCOUNTS_PAYABLE",
+   "value_current": 246419.0,
+   "value_prev": 83995.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 246419.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 83995.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "ACCOUNTS_RECEIVABLE",
+   "name_ru": "ACCOUNTS_RECEIVABLE",
+   "value_current": 129499.0,
+   "value_prev": 71255.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 129499.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 71255.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "ASSET_PURCHASES",
+   "name_ru": "ASSET_PURCHASES",
+   "value_current": -171620.0,
+   "value_prev": -181195.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": -171620.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": -181195.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "ASSET_SALES_PROCEEDS",
+   "name_ru": "ASSET_SALES_PROCEEDS",
+   "value_current": 806.0,
+   "value_prev": 195479.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": 806.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": 195479.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "ASSOCIATE_INCOMES",
+   "name_ru": "ASSOCIATE_INCOMES",
+   "value_current": 232277.0,
+   "value_prev": -143981.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": 232277.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": -143981.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "ASSOCIATE_INVESTMENTS",
+   "name_ru": "ASSOCIATE_INVESTMENTS",
+   "value_current": 572184.0,
+   "value_prev": 450632.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 572184.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 450632.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "BANK_DEPOSITS",
+   "name_ru": "BANK_DEPOSITS",
+   "value_current": 60177.0,
+   "value_prev": 62876.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 60177.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 62876.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "CASH_EQUIVALENTS",
+   "name_ru": "CASH_EQUIVALENTS",
+   "value_current": 45920.0,
+   "value_prev": 119707.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 45920.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 119707.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "CHANGES_OCF_ASSETS_LIABILITIES",
+   "name_ru": "CHANGES_OCF_ASSETS_LIABILITIES",
+   "value_current": -24722.0,
+   "value_prev": -16889.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": -24722.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": -16889.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "COSTS_EXPENSES",
+   "name_ru": "COSTS_EXPENSES",
+   "value_current": -497282.0,
+   "value_prev": -235224.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": -497282.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": -235224.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "DEFERRED_TAX_LIABILITIES",
+   "name_ru": "DEFERRED_TAX_LIABILITIES",
+   "value_current": 69113.0,
+   "value_prev": 64132.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 69113.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 64132.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "DEPRECIATION_AMORTIZATION",
+   "name_ru": "DEPRECIATION_AMORTIZATION",
+   "value_current": 56599.0,
+   "value_prev": 39238.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": 56599.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": 39238.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+   "name_ru": "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+   "value_current": -19943.0,
+   "value_prev": -11858.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": -19943.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": -11858.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "DIVIDENDS_RECEIVED",
+   "name_ru": "DIVIDENDS_RECEIVED",
+   "value_current": 118786.0,
+   "value_prev": 11420.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": 118786.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": 11420.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "DIVIDENDS_SHAREHOLDERS",
+   "name_ru": "DIVIDENDS_SHAREHOLDERS",
+   "value_current": -154332.0,
+   "value_prev": -89857.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": -154332.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": -89857.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "EBT",
+   "name_ru": "EBT",
+   "value_current": 501204.0,
+   "value_prev": 129596.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": 501204.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": 129596.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "EPS",
+   "name_ru": "EPS",
+   "value_current": 144.23,
+   "value_prev": 22.58,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": 144.23,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": 22.58,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "EQUITY_SHAREHOLDERS",
+   "name_ru": "EQUITY_SHAREHOLDERS",
+   "value_current": 1894402.0,
+   "value_prev": 1619964.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 1894402.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 1619964.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "FINANCIAL_EXPENSES",
+   "name_ru": "FINANCIAL_EXPENSES",
+   "value_current": -8464.0,
+   "value_prev": -4939.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": -8464.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": -4939.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "FINANCIAL_INCOME",
+   "name_ru": "FINANCIAL_INCOME",
+   "value_current": 16000.0,
+   "value_prev": 25440.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": 16000.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": 25440.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "INCOME_TAX",
+   "name_ru": "INCOME_TAX",
+   "value_current": -49583.0,
+   "value_prev": -51010.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": -49583.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": -51010.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "INTANGIBLE_ASSET_PURCHASES",
+   "name_ru": "INTANGIBLE_ASSET_PURCHASES",
+   "value_current": -804.0,
+   "value_prev": -1264.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": -804.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": -1264.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "INTEREST_PAID",
+   "name_ru": "INTEREST_PAID",
+   "value_current": -2253.0,
+   "value_prev": -2402.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": -2253.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": -2402.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "INTEREST_RECEIVED",
+   "name_ru": "INTEREST_RECEIVED",
+   "value_current": 8832.0,
+   "value_prev": 8442.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": 8832.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": 8442.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "INVENTORIES",
+   "name_ru": "INVENTORIES",
+   "value_current": 17681.0,
+   "value_prev": 10723.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 17681.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 10723.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "LONG_TERM_DEBT",
+   "name_ru": "LONG_TERM_DEBT",
+   "value_current": 67014.0,
+   "value_prev": 168988.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 67014.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 168988.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "LONG_TERM_LEASE_LIABILITIES",
+   "name_ru": "LONG_TERM_LEASE_LIABILITIES",
+   "value_current": 3426.0,
+   "value_prev": 6670.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 3426.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 6670.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "MODIFIED_AUDITORS_OPINION",
+   "name_ru": "MODIFIED_AUDITORS_OPINION",
+   "value_current": null,
+   "value_prev": null,
+   "found": false,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": 0.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": 0.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "NET_INCOME",
+   "name_ru": "NET_INCOME",
+   "value_current": 451621.0,
+   "value_prev": 78586.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": 451621.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": 78586.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "NET_INCOME_SHAREHOLDERS",
+   "name_ru": "NET_INCOME_SHAREHOLDERS",
+   "value_current": 432927.0,
+   "value_prev": 67832.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": 432927.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": 67832.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "NET_OPERATING_CASH_FLOW",
+   "name_ru": "NET_OPERATING_CASH_FLOW",
+   "value_current": 419466.0,
+   "value_prev": 171896.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": 419466.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": 171896.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "NON_CONTROL_INTEREST",
+   "name_ru": "NON_CONTROL_INTEREST",
+   "value_current": 17067.0,
+   "value_prev": 18463.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 17067.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 18463.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "OPERATING_EXPENSES",
+   "name_ru": "OPERATING_EXPENSES",
+   "value_current": -875159.0,
+   "value_prev": -552062.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": -875159.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": -552062.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "OPERATING_PROFIT",
+   "name_ru": "OPERATING_PROFIT",
+   "value_current": 279046.0,
+   "value_prev": 113012.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": 279046.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": 113012.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "PPE",
+   "name_ru": "PPE",
+   "value_current": 870541.0,
+   "value_prev": 729407.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 870541.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 729407.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+   "name_ru": "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+   "value_current": -3687.0,
+   "value_prev": -4649.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": -3687.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": -4649.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "RETAINED_EARNINGS",
+   "name_ru": "RETAINED_EARNINGS",
+   "value_current": 1881186.0,
+   "value_prev": 1600391.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 1881186.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 1600391.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "SALES_REVENUE",
+   "name_ru": "SALES_REVENUE",
+   "value_current": 1156724.0,
+   "value_prev": 711812.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": 1156724.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": 711812.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "SHARES_BUYBACK",
+   "name_ru": "SHARES_BUYBACK",
+   "value_current": -12963.0,
+   "value_prev": -8271.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "FY 2021",
+     "value": -12963.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "FY 2020",
+     "value": -8271.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "SHARE_CAPITAL",
+   "name_ru": "SHARE_CAPITAL",
+   "value_current": 393.0,
+   "value_prev": 393.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 393.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 393.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "SHARE_PREMIUM",
+   "name_ru": "SHARE_PREMIUM",
+   "value_current": 31297.0,
+   "value_prev": 31297.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 31297.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 31297.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "SHORT_TERM_BORROWINGS",
+   "name_ru": "SHORT_TERM_BORROWINGS",
+   "value_current": 113029.0,
+   "value_prev": 53152.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 113029.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 53152.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "SHORT_TERM_LEASE_LIABILITIES",
+   "name_ru": "SHORT_TERM_LEASE_LIABILITIES",
+   "value_current": 3589.0,
+   "value_prev": 3798.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 3589.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 3798.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "TOTAL_ASSETS",
+   "name_ru": "TOTAL_ASSETS",
+   "value_current": 2457664.0,
+   "value_prev": 2059178.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 2457664.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 2059178.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "TOTAL_CURRENT_ASSETS",
+   "name_ru": "TOTAL_CURRENT_ASSETS",
+   "value_current": 577067.0,
+   "value_prev": 362934.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 577067.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 362934.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "TOTAL_CURRENT_LIABILITIES",
+   "name_ru": "TOTAL_CURRENT_LIABILITIES",
+   "value_current": 388783.0,
+   "value_prev": 159996.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 388783.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 159996.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "TOTAL_EQUITY",
+   "name_ru": "TOTAL_EQUITY",
+   "value_current": 1911469.0,
+   "value_prev": 1638427.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": 1911469.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": 1638427.0,
+     "unit": "млн. руб."
+    }
+   ]
+  },
+  {
+   "enum": "TREASURY_SHARES",
+   "name_ru": "TREASURY_SHARES",
+   "value_current": -33293.0,
+   "value_prev": -20386.0,
+   "found": true,
+   "is_calculated": false,
+   "period_values": [
+    {
+     "period": "31.12.2021",
+     "value": -33293.0,
+     "unit": "млн. руб."
+    },
+    {
+     "period": "31.12.2020",
+     "value": -20386.0,
+     "unit": "млн. руб."
+    }
+   ]
+  }
+ ],
+ "segments": [],
+ "group": []
+}

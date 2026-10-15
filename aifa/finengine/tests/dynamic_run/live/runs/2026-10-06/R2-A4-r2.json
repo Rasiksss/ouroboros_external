@@ -1,0 +1,1440 @@
+{
+ "label": "R2-A4-r2",
+ "query": "Извлеки выручку из отчёта и отдельно рассчитай, на сколько процентов изменилась среднегодовая цена нефти Brent в 2021 году по сравнению с 2020, по публичному CSV FRED https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU.",
+ "doc_id": "9dba0a66-a5a0-4012-8cd1-235ab8e25fe4",
+ "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+ "elapsed_s": 403.3,
+ "events": [
+  {
+   "schema_version": "1.0",
+   "event_id": "c9c20a21-d7c5-4d95-a2e2-6ed9a991e6f5",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 1,
+   "occurred_at": "2026-10-06T18:04:42.281064Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "session_id",
+    "session_id": "892c7ec7-ba49-40ca-b3d9-3e7ce40fc542"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "46947c0b-d0bb-4e3d-8031-251f48327f1e",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 2,
+   "occurred_at": "2026-10-06T18:04:42.281128Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "thinking",
+    "text": "Разбираю запрос…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "f235e000-76b8-4167-a080-98a61eb1c6b6",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 3,
+   "occurred_at": "2026-10-06T18:05:56.268599Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_call",
+    "name": "financial_pipeline",
+    "args_summary": "Извлеки выручку из отчёта и отдельно рассчитай, на скольк…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "bdd1ca6b-3969-4a59-8911-0fc798c30173",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 4,
+   "occurred_at": "2026-10-06T18:05:56.268753Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 1,
+    "status": "running",
+    "action": "execute",
+    "objective": "Извлечь выручку из отчёта и запустить сценарий расчёта изменения цены Brent.",
+    "reason": "Первая часть — извлечение выручки из отчёта. Вторая часть — стандартный сценарий расчёта изменения цены Brent по внешнему CSV.",
+    "scenarios": [
+     "Рассчитай, на сколько процентов изменилась среднегодовая цена нефти Brent в 2021 году по сравнению с 2020, по публичному CSV FRED https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU."
+    ],
+    "new_atoms": [],
+    "steps": [
+     {
+      "atom": "read.value",
+      "concept": "SALES_REVENUE",
+      "period_ref": null
+     }
+    ],
+    "outcome": "",
+    "details": ""
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "ad43a040-98d6-4bbe-a7c7-def2944a1978",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 5,
+   "occurred_at": "2026-10-06T18:06:09.858978Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "plan_graph",
+    "graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748"
+    },
+    "nodes": [
+     {
+      "node_key": {
+       "atom_name": "ingest.document",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "document_text"
+      ],
+      "requires": [],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "identify.classify",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "RunPassport"
+      ],
+      "requires": [
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "locate",
+       "atom_version": "1.0.2",
+       "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "CandidateLocator:SALES_REVENUE"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       },
+       {
+        "atom_name": "ingest.document",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "read.value",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "ExtractedMetric:SALES_REVENUE"
+      ],
+      "requires": [
+       {
+        "atom_name": "identify.classify",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       },
+       {
+        "atom_name": "locate",
+        "atom_version": "1.0.2",
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "document_read",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.unit",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "9597ff8ca60cb80998cdbdbd7302162c846f1c6e369aee6e9bac2923d03e0e43"
+      },
+      "produces": [
+       "Verified:unit"
+      ],
+      "requires": [
+       {
+        "atom_name": "read.value",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "norm.time",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "ae9ea712b3f45e4b58f86319208a6744db83d550859860444931e691b977590c"
+      },
+      "produces": [
+       "Verified:time"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.unit",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "9597ff8ca60cb80998cdbdbd7302162c846f1c6e369aee6e9bac2923d03e0e43"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     },
+     {
+      "node_key": {
+       "atom_name": "verify.bounds",
+       "atom_version": "1.0.0",
+       "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748"
+      },
+      "produces": [
+       "Verified:bounds"
+      ],
+      "requires": [
+       {
+        "atom_name": "norm.time",
+        "atom_version": "1.0.0",
+        "args_fingerprint": "ae9ea712b3f45e4b58f86319208a6744db83d550859860444931e691b977590c"
+       }
+      ],
+      "sandbox_profile": "compute_no_network",
+      "status": "pending",
+      "scenario_refs": []
+     }
+    ],
+    "scenarios": []
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "e3d71a91-b0d3-470b-9530-eab31da7ac3b",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 6,
+   "occurred_at": "2026-10-06T18:06:09.862273Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "c259603e-163c-4450-b7d9-0e4d962286d6",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "5635c878-eff2-422e-8120-7926ab4e5fd3",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 7,
+   "occurred_at": "2026-10-06T18:06:09.865186Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "271ce62d-63a1-4929-a7d8-d342f55070be",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "0af8a765-a355-4449-98a1-b82b6e86e66e",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 8,
+   "occurred_at": "2026-10-06T18:06:09.867643Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "c8b1f94c-fde5-4f25-8223-498c97339943",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "da2aeba0-d571-4514-9397-d545e483dee0",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 9,
+   "occurred_at": "2026-10-06T18:06:09.870536Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "3173f05a-4800-481e-b300-597ec458d002",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "planned",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "6785c956-af83-4963-a306-853381f7282b",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 10,
+   "occurred_at": "2026-10-06T18:06:09.875045Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "16c4767b-a8f2-4631-9fe2-9de2d3a8665d",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "9597ff8ca60cb80998cdbdbd7302162c846f1c6e369aee6e9bac2923d03e0e43"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "9e800ce2-13e0-4ecc-9081-ffaa3c5323f1",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 11,
+   "occurred_at": "2026-10-06T18:06:09.877412Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "c9413e7e-2c4c-4bb9-9d76-6dc7625e1619",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "ae9ea712b3f45e4b58f86319208a6744db83d550859860444931e691b977590c"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "a349309d-7bb6-4a48-ab1f-f6eded2b429a",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 12,
+   "occurred_at": "2026-10-06T18:06:09.880670Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "17633832-710c-47aa-8ed6-7f92a2b37020",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "planned",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "9751d997-c935-4586-ba48-8ebaad679e8d",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 13,
+   "occurred_at": "2026-10-06T18:06:09.889242Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "c259603e-163c-4450-b7d9-0e4d962286d6",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:06:09.878943Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "ddb5b08c-1c7b-4650-98a5-7777f18af746",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 14,
+   "occurred_at": "2026-10-06T18:06:09.900854Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "c259603e-163c-4450-b7d9-0e4d962286d6",
+    "node_key": {
+     "atom_name": "ingest.document",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "content:db7118e32b873b4aff36a9e6dd0a46f697414e6e6e9bd84da356c342e903effa"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:06:09.878943Z",
+    "finished_at": "2026-10-06T18:06:09.882091Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "4ace3106-03e2-4ca4-bee8-cfea80148797",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 15,
+   "occurred_at": "2026-10-06T18:06:10.139931Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "271ce62d-63a1-4929-a7d8-d342f55070be",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:06:09.939154Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "b89c6ba1-a0f8-49e0-9821-7995f6199932",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 16,
+   "occurred_at": "2026-10-06T18:06:10.794397Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "271ce62d-63a1-4929-a7d8-d342f55070be",
+    "node_key": {
+     "atom_name": "identify.classify",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "5e291b0f-6cf7-49df-9723-14f05a06b47e"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:06:09.939154Z",
+    "finished_at": "2026-10-06T18:06:10.787079Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "32713ce5-d764-4456-b470-734cd517c8fc",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 17,
+   "occurred_at": "2026-10-06T18:06:10.955408Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "c8b1f94c-fde5-4f25-8223-498c97339943",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:06:10.796739Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "317c0263-08d7-49ef-87f6-df724e338c95",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 18,
+   "occurred_at": "2026-10-06T18:06:13.771721Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "c8b1f94c-fde5-4f25-8223-498c97339943",
+    "node_key": {
+     "atom_name": "locate",
+     "atom_version": "1.0.2",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "7a79f4a6-fd90-4ba8-b33f-3bb47143c60a",
+     "492c48f4-e630-4245-bd9d-e1430aa1d3ab",
+     "cb650130-0ca3-404d-9e48-906d849193d9",
+     "eca1b05c-b72d-40d8-b2cb-e2a9b5ddd384",
+     "43237341-7a85-4199-b243-3393194cf7cb",
+     "88b14bba-0bd8-4b97-8801-cb3e870879ce",
+     "89902eb0-2dbe-43bc-8ad7-bba02c0c7061",
+     "3eeff7c2-9cc6-4b4a-a110-83124fd7a748",
+     "1f15af15-6177-4d07-b69a-de16a6ab2c4b",
+     "92051a44-687c-4fca-9a03-b61614d6118f",
+     "53b10694-f634-40f2-8135-26c084484a44",
+     "e565a32e-6fca-4756-93c6-4f9d604ef69a",
+     "d82c1a13-b072-48bf-81b1-93d0a580d90e",
+     "78d4cb60-eb7d-4b8c-be30-692713818a68",
+     "dd9c365e-e448-4656-a1af-3ee1a3a04688",
+     "bbfd912d-73bb-40db-bf17-71cc2b8d1810",
+     "7addec5c-d9e3-47ad-8eff-ec184c592ed4",
+     "9f3be27e-95a7-447c-a93e-b75cdb22f943"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:06:10.796739Z",
+    "finished_at": "2026-10-06T18:06:13.763546Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d29c3704-a53b-4921-9a95-b1038cbfbd57",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 19,
+   "occurred_at": "2026-10-06T18:06:13.914777Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "3173f05a-4800-481e-b300-597ec458d002",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "running",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:06:13.776750Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "ea4bb341-c757-4f47-a066-107fd22897ea",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 20,
+   "occurred_at": "2026-10-06T18:06:28.943681Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "3173f05a-4800-481e-b300-597ec458d002",
+    "node_key": {
+     "atom_name": "read.value",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "concept=SALES_REVENUE;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "succeeded",
+    "sandbox_profile": "document_read",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "bc276261-82de-4d50-8897-39e829a69be3",
+     "e9a29c8d-db6d-4cbd-9a39-f09a3cbe1f9d"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:06:13.776750Z",
+    "finished_at": "2026-10-06T18:06:28.936767Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "932dbeef-243f-40ec-a8ed-3ffc88a58c15",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 21,
+   "occurred_at": "2026-10-06T18:06:28.950681Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "16c4767b-a8f2-4631-9fe2-9de2d3a8665d",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "9597ff8ca60cb80998cdbdbd7302162c846f1c6e369aee6e9bac2923d03e0e43"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:06:28.944130Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "ce1c23c8-0a7a-4c1b-9eb0-f0fbca163f3d",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 22,
+   "occurred_at": "2026-10-06T18:06:28.953768Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "16c4767b-a8f2-4631-9fe2-9de2d3a8665d",
+    "node_key": {
+     "atom_name": "norm.unit",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "9597ff8ca60cb80998cdbdbd7302162c846f1c6e369aee6e9bac2923d03e0e43"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "daf8168e-a014-4c6d-8c35-536ff153d3d8",
+     "bc276261-82de-4d50-8897-39e829a69be3",
+     "d74c1d3e-fd52-4496-8619-584800293665",
+     "e9a29c8d-db6d-4cbd-9a39-f09a3cbe1f9d"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:06:28.944130Z",
+    "finished_at": "2026-10-06T18:06:28.947922Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d74450cc-4328-45a8-895d-a0b106a78b14",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 23,
+   "occurred_at": "2026-10-06T18:06:28.960262Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "c9413e7e-2c4c-4bb9-9d76-6dc7625e1619",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "ae9ea712b3f45e4b58f86319208a6744db83d550859860444931e691b977590c"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:06:28.954510Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "597e3999-3741-4c66-bcf6-c5d0232814ab",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 24,
+   "occurred_at": "2026-10-06T18:06:28.962512Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "c9413e7e-2c4c-4bb9-9d76-6dc7625e1619",
+    "node_key": {
+     "atom_name": "norm.time",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "ae9ea712b3f45e4b58f86319208a6744db83d550859860444931e691b977590c"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "3321c713-5cc3-47a4-b7b5-6c1228349d58",
+     "bc276261-82de-4d50-8897-39e829a69be3",
+     "279fed6b-90dc-4c6d-b20a-915158741269",
+     "e9a29c8d-db6d-4cbd-9a39-f09a3cbe1f9d"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:06:28.954510Z",
+    "finished_at": "2026-10-06T18:06:28.957803Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "3210b0ad-234a-4473-a71e-05deeee3e7cb",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 25,
+   "occurred_at": "2026-10-06T18:06:28.969101Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "17633832-710c-47aa-8ed6-7f92a2b37020",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "running",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:06:28.963885Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "865ee21f-05bb-4096-8334-85f827017ad1",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 26,
+   "occurred_at": "2026-10-06T18:06:28.971851Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:398a80f3a92a2b7d6d49b7f6fd5beee57f67208e684a02f682f490177bdc7c28",
+   "node_run": {
+    "node_run_id": "17633832-710c-47aa-8ed6-7f92a2b37020",
+    "node_key": {
+     "atom_name": "verify.bounds",
+     "atom_version": "1.0.0",
+     "args_fingerprint": "71af12d5c4738375dc142e5fc59b74caf7d3281247b2632ac99c9a6e18ce8748"
+    },
+    "run_id": "c1a9a930-dcb0-4104-86e5-22aeb7068fcd",
+    "status": "succeeded",
+    "sandbox_profile": "compute_no_network",
+    "attempt": 1,
+    "produced_evidence_ids": [
+     "0719f3bc-4ba1-450f-ac48-acbb2919ef43",
+     "bc276261-82de-4d50-8897-39e829a69be3",
+     "764741ff-78b6-42c5-8f6a-9759f26a9501",
+     "e9a29c8d-db6d-4cbd-9a39-f09a3cbe1f9d"
+    ],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:06:28.963885Z",
+    "finished_at": "2026-10-06T18:06:28.967346Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "3dbd5cb7-b5d6-4639-9077-3a7f7d857b0c",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 27,
+   "occurred_at": "2026-10-06T18:06:29.084096Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 1,
+    "status": "done",
+    "action": "execute",
+    "objective": "Извлечь выручку из отчёта и запустить сценарий расчёта изменения цены Brent.",
+    "reason": "Первая часть — извлечение выручки из отчёта. Вторая часть — стандартный сценарий расчёта изменения цены Brent по внешнему CSV.",
+    "scenarios": [
+     "Рассчитай, на сколько процентов изменилась среднегодовая цена нефти Brent в 2021 году по сравнению с 2020, по публичному CSV FRED https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU."
+    ],
+    "new_atoms": [],
+    "steps": [
+     {
+      "atom": "read.value",
+      "concept": "SALES_REVENUE",
+      "period_ref": null
+     }
+    ],
+    "outcome": "ход завершён с ошибками",
+    "details": "сценарий «Рассчитай, на сколько процентов изменилась среднегодовая цена нефти Brent в 2021 году по сравнению с 2020, по публичному CSV FRED https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU.»: ✗ scenario_not_deterministic: GoalType 'custom_analysis' не имеет производителя корня в детерминированном графе\n✓ ingest.document  → DocumentText (1)\n✓ identify.classify  → RunPassport (1)\n✓ locate SALES_REVENUE → CandidateLocator (18)\n✓ read.value SALES_REVENUE → ExtractedMetric (2); evidence_ids=bc276261-82de-4d50-8897-39e829a69be3, e9a29c8d-db6d-4cbd-9a39-f09a3cbe1f9d\n✓ norm.unit SALES_REVENUE → VerificationFinding, ExtractedMetric (4); evidence_ids=daf8168e-a014-4c6d-8c35-536ff153d3d8, bc276261-82de-4d50-8897-39e829a69be3, d74c1d3e-fd52-4496-8619-584800293665, e9a29c8d-db6d-4cbd-9a39-f09a3cbe1f9d\n✓ norm.time SALES_REVENUE → VerificationFinding, ExtractedMetric (4); evidence_ids=3321c713-5cc3-47a4-b7b5-6c1228349d58, bc276261-82de-4d50-8897-39e829a69be3, 279fed6b-90dc-4c6d-b20a-915158741269, e9a29c8d-db6d-4cbd-9a39-f09a3cbe1f9d\n✓ verify.bounds SALES_REVENUE → VerificationFinding, ExtractedMetric (4); evidence_ids=0719f3bc-4ba1-450f-ac48-acbb2919ef43, bc276261-82de-4d50-8897-39e829a69be3, 764741ff-78b6-42c5-8f6a-9759f26a9501, e9a29c8d-db6d-4cbd-9a39-f09a3cbe1f9d"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "d9045901-86aa-432f-94c9-33c72e6c4bc9",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 28,
+   "occurred_at": "2026-10-06T18:06:46.581553Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 2,
+    "status": "running",
+    "action": "execute",
+    "objective": "Скачать CSV-файл с ценами нефти Brent из FRED",
+    "reason": "Выручка извлечена. Для расчёта изменения цены Brent нужно скачать CSV FRED, затем создать атом для вычисления среднегодовых цен и их изменения. Сценарий не сработал, поэтому делаем шагами: сначала скачиваем CSV.",
+    "scenarios": [],
+    "new_atoms": [
+     {
+      "name": "eph.fetch_brent_csv",
+      "kind": "download",
+      "purpose": "Скачать CSV-файл с ежедневными ценами нефти Brent по указанному URL",
+      "output_type": "dyn:brent_csv",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU"
+     }
+    ],
+    "steps": [
+     {
+      "atom": "eph.fetch_brent_csv",
+      "concept": null,
+      "period_ref": null
+     }
+    ],
+    "outcome": "",
+    "details": ""
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "520c4227-ef7d-4e89-bb9b-df0368e07b1e",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 29,
+   "occurred_at": "2026-10-06T18:06:46.814806Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "plan_graph",
+    "graph_hash": "sha256:a99cd51b519e892307734a38c38c2d8d2d9a594eefb403455c11cec72e910ed5",
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+     "atom_name": "eph.fetch_brent_csv",
+     "atom_version": "9304989951cc",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "nodes": [
+     {
+      "node_key": {
+       "atom_name": "eph.fetch_brent_csv",
+       "atom_version": "9304989951cc",
+       "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "dyn:brent_csv"
+      ],
+      "requires": [],
+      "sandbox_profile": "download:fred.stlouisfed.org",
+      "status": "pending",
+      "scenario_refs": []
+     }
+    ],
+    "scenarios": []
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "87c9fc6a-67a9-40fe-9a1d-c7426e3a90a6",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 30,
+   "occurred_at": "2026-10-06T18:06:46.818161Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:a99cd51b519e892307734a38c38c2d8d2d9a594eefb403455c11cec72e910ed5",
+   "node_run": {
+    "node_run_id": "d6955b94-38af-495a-87d8-c06231ae0d6e",
+    "node_key": {
+     "atom_name": "eph.fetch_brent_csv",
+     "atom_version": "9304989951cc",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "1394e74f-13a2-424c-bfe0-a863ad9cc2bd",
+    "status": "planned",
+    "sandbox_profile": "download:fred.stlouisfed.org",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "775f607f-7503-47b2-b31e-e69c6c6ab2f8",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 31,
+   "occurred_at": "2026-10-06T18:06:46.877426Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:a99cd51b519e892307734a38c38c2d8d2d9a594eefb403455c11cec72e910ed5",
+   "node_run": {
+    "node_run_id": "d6955b94-38af-495a-87d8-c06231ae0d6e",
+    "node_key": {
+     "atom_name": "eph.fetch_brent_csv",
+     "atom_version": "9304989951cc",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "1394e74f-13a2-424c-bfe0-a863ad9cc2bd",
+    "status": "running",
+    "sandbox_profile": "download:fred.stlouisfed.org",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:06:46.814383Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "deee6293-92fa-43be-bf98-5c9662a8cf82",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 32,
+   "occurred_at": "2026-10-06T18:08:17.598201Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:a99cd51b519e892307734a38c38c2d8d2d9a594eefb403455c11cec72e910ed5",
+   "node_run": {
+    "node_run_id": "d6955b94-38af-495a-87d8-c06231ae0d6e",
+    "node_key": {
+     "atom_name": "eph.fetch_brent_csv",
+     "atom_version": "9304989951cc",
+     "args_fingerprint": "entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "1394e74f-13a2-424c-bfe0-a863ad9cc2bd",
+    "status": "failed",
+    "sandbox_profile": "download:fred.stlouisfed.org",
+    "attempt": 3,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU: сетевая ошибка ReadTimeout: ",
+    "started_at": "2026-10-06T18:06:46.814383Z",
+    "finished_at": "2026-10-06T18:08:17.591268Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "17656f1f-62ae-4b84-9631-a264156e30dc",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 33,
+   "occurred_at": "2026-10-06T18:08:17.644115Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 2,
+    "status": "done",
+    "action": "execute",
+    "objective": "Скачать CSV-файл с ценами нефти Brent из FRED",
+    "reason": "Выручка извлечена. Для расчёта изменения цены Brent нужно скачать CSV FRED, затем создать атом для вычисления среднегодовых цен и их изменения. Сценарий не сработал, поэтому делаем шагами: сначала скачиваем CSV.",
+    "scenarios": [],
+    "new_atoms": [
+     {
+      "name": "eph.fetch_brent_csv",
+      "kind": "download",
+      "purpose": "Скачать CSV-файл с ежедневными ценами нефти Brent по указанному URL",
+      "output_type": "dyn:brent_csv",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU"
+     }
+    ],
+    "steps": [
+     {
+      "atom": "eph.fetch_brent_csv",
+      "concept": null,
+      "period_ref": null
+     }
+    ],
+    "outcome": "ход завершён с ошибками",
+    "details": "✗ eph.fetch_brent_csv  → нет результата (0): https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU: сетевая ошибка ReadTimeout: "
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "0a66d980-f803-49aa-8ece-e41a20bbed77",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 34,
+   "occurred_at": "2026-10-06T18:08:31.097141Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 3,
+    "status": "rejected",
+    "action": "rejected",
+    "objective": "",
+    "reason": "",
+    "scenarios": [],
+    "new_atoms": [],
+    "steps": [],
+    "outcome": "",
+    "details": "ход точно повторяет тупиковое действие без новых результатов: eph.fetch_brent_csv. Смени путь, используй новые evidence либо заверши задачу."
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "b213fadc-baf4-4886-ae92-2679fe4ec6c7",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 35,
+   "occurred_at": "2026-10-06T18:08:48.248038Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 4,
+    "status": "running",
+    "action": "execute",
+    "objective": "Получить среднегодовые цены Brent 2020 и 2021 через внешний поиск, чтобы затем рассчитать процент изменения.",
+    "reason": "Выручка уже извлечена. Для расчёта изменения цены Brent нужен CSV FRED, но прямая загрузка дала ReadTimeout. Попробуем получить данные через внешний поиск — explain.external найдёт среднегодовые цены Brent 2020 и 2021 из открытых источников, а затем создадим атом для расчёта процента изменения.",
+    "scenarios": [
+     "Найди среднегодовую цену нефти Brent в 2020 и 2021 годах из открытых источников"
+    ],
+    "new_atoms": [],
+    "steps": [],
+    "outcome": "",
+    "details": ""
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "23de0d0d-1886-475c-bd50-43115c0568c4",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 36,
+   "occurred_at": "2026-10-06T18:09:00.672930Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 4,
+    "status": "done",
+    "action": "execute",
+    "objective": "Получить среднегодовые цены Brent 2020 и 2021 через внешний поиск, чтобы затем рассчитать процент изменения.",
+    "reason": "Выручка уже извлечена. Для расчёта изменения цены Brent нужен CSV FRED, но прямая загрузка дала ReadTimeout. Попробуем получить данные через внешний поиск — explain.external найдёт среднегодовые цены Brent 2020 и 2021 из открытых источников, а затем создадим атом для расчёта процента изменения.",
+    "scenarios": [
+     "Найди среднегодовую цену нефти Brent в 2020 и 2021 годах из открытых источников"
+    ],
+    "new_atoms": [],
+    "steps": [],
+    "outcome": "ход завершён с ошибками",
+    "details": "сценарий «Найди среднегодовую цену нефти Brent в 2020 и 2021 годах из открытых источников»: ✗ scenario_not_deterministic: GoalType 'custom_analysis' не имеет производителя корня в детерминированном графе"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "56e88c65-35fb-4e83-88b5-b23cef66480b",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 37,
+   "occurred_at": "2026-10-06T18:09:15.771016Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 5,
+    "status": "running",
+    "action": "execute",
+    "objective": "Скачать CSV-файл с ценами нефти Brent из FRED",
+    "reason": "Для расчёта среднегодовых цен Brent за 2020 и 2021 годы нужны исходные данные из CSV-файла FRED",
+    "scenarios": [],
+    "new_atoms": [],
+    "steps": [
+     {
+      "atom": "eph.fetch_brent_csv",
+      "concept": "dyn:brent_csv",
+      "period_ref": null
+     }
+    ],
+    "outcome": "",
+    "details": ""
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "94cc670a-f6cd-49b5-b89c-c141e1f34f80",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 38,
+   "occurred_at": "2026-10-06T18:09:15.901514Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "plan_graph",
+    "graph_hash": "sha256:292ff06ea97272c54dc47bc0dda895b38fa8a33ec5c369a49b32bd1677cf7610",
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+     "atom_name": "eph.fetch_brent_csv",
+     "atom_version": "9304989951cc",
+     "args_fingerprint": "concept=dyn:brent_csv;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "nodes": [
+     {
+      "node_key": {
+       "atom_name": "eph.fetch_brent_csv",
+       "atom_version": "9304989951cc",
+       "args_fingerprint": "concept=dyn:brent_csv;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+      },
+      "produces": [
+       "dyn:brent_csv"
+      ],
+      "requires": [],
+      "sandbox_profile": "download:fred.stlouisfed.org",
+      "status": "pending",
+      "scenario_refs": []
+     }
+    ],
+    "scenarios": []
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "7c188a99-581b-4e9c-92da-46402f6b3727",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 39,
+   "occurred_at": "2026-10-06T18:09:15.904448Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:292ff06ea97272c54dc47bc0dda895b38fa8a33ec5c369a49b32bd1677cf7610",
+   "node_run": {
+    "node_run_id": "6cc3fb43-3c3c-412c-9b77-60d3d85c72bf",
+    "node_key": {
+     "atom_name": "eph.fetch_brent_csv",
+     "atom_version": "9304989951cc",
+     "args_fingerprint": "concept=dyn:brent_csv;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "97e7c201-f018-4eb4-a868-b8fc61c01495",
+    "status": "planned",
+    "sandbox_profile": "download:fred.stlouisfed.org",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": null,
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "44271297-cd9e-423c-986e-4e69761c81bf",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 40,
+   "occurred_at": "2026-10-06T18:09:15.907230Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:292ff06ea97272c54dc47bc0dda895b38fa8a33ec5c369a49b32bd1677cf7610",
+   "node_run": {
+    "node_run_id": "6cc3fb43-3c3c-412c-9b77-60d3d85c72bf",
+    "node_key": {
+     "atom_name": "eph.fetch_brent_csv",
+     "atom_version": "9304989951cc",
+     "args_fingerprint": "concept=dyn:brent_csv;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "97e7c201-f018-4eb4-a868-b8fc61c01495",
+    "status": "running",
+    "sandbox_profile": "download:fred.stlouisfed.org",
+    "attempt": 1,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": null,
+    "started_at": "2026-10-06T18:09:15.902914Z",
+    "finished_at": null
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "72151151-b30f-486f-b281-09349033238d",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 41,
+   "occurred_at": "2026-10-06T18:10:46.448218Z",
+   "event_type": "node_run",
+   "plan_graph_hash": "sha256:292ff06ea97272c54dc47bc0dda895b38fa8a33ec5c369a49b32bd1677cf7610",
+   "node_run": {
+    "node_run_id": "6cc3fb43-3c3c-412c-9b77-60d3d85c72bf",
+    "node_key": {
+     "atom_name": "eph.fetch_brent_csv",
+     "atom_version": "9304989951cc",
+     "args_fingerprint": "concept=dyn:brent_csv;entity=ent-fd1cc82fa3fadc622e2fa3a7"
+    },
+    "run_id": "97e7c201-f018-4eb4-a868-b8fc61c01495",
+    "status": "failed",
+    "sandbox_profile": "download:fred.stlouisfed.org",
+    "attempt": 3,
+    "produced_evidence_ids": [],
+    "model_version": null,
+    "prompt_version": null,
+    "error": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU: сетевая ошибка ReadTimeout: ",
+    "started_at": "2026-10-06T18:09:15.902914Z",
+    "finished_at": "2026-10-06T18:10:46.442468Z"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "c21e4a3b-fbcf-4282-b2b9-3cd55d574add",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 42,
+   "occurred_at": "2026-10-06T18:10:46.490867Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 5,
+    "status": "done",
+    "action": "execute",
+    "objective": "Скачать CSV-файл с ценами нефти Brent из FRED",
+    "reason": "Для расчёта среднегодовых цен Brent за 2020 и 2021 годы нужны исходные данные из CSV-файла FRED",
+    "scenarios": [],
+    "new_atoms": [],
+    "steps": [
+     {
+      "atom": "eph.fetch_brent_csv",
+      "concept": "dyn:brent_csv",
+      "period_ref": null
+     }
+    ],
+    "outcome": "ход завершён с ошибками",
+    "details": "✗ eph.fetch_brent_csv  → нет результата (0): https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU: сетевая ошибка ReadTimeout: "
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "f6e1b6b7-2062-4673-8771-92e12206b12f",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 43,
+   "occurred_at": "2026-10-06T18:11:02.907225Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "dynamic_move",
+    "move": 6,
+    "status": "done",
+    "action": "finalize",
+    "objective": "Завершить задачу: выручка извлечена, данные Brent недоступны",
+    "reason": "Выручка получена, CSV FRED недоступен после двух попыток — нужно честно сообщить пользователю о частичном результате",
+    "scenarios": [],
+    "new_atoms": [],
+    "steps": [],
+    "outcome": "",
+    "details": "Выручка ПАО «НОВАТЭК» по МСФО:\n- 2021 год: 1 156 724 млн руб.\n- 2020 год: 711 812 млн руб.\n\nРассчитать изменение среднегодовой цены нефти Brent не удалось: публичный CSV-файл FRED (https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU) недоступен — двукратная попытка скачивания завершилась сетевой ошибкой ReadTimeout. Альтернативных источников данных в задаче не указано."
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "dd091487-e8fc-4a79-96eb-7acc3310263f",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 44,
+   "occurred_at": "2026-10-06T18:11:02.946403Z",
+   "event_type": "result",
+   "delivery_status": "complete",
+   "result": {
+    "schema_version": "1.0",
+    "output_type": "ExtractedMetric",
+    "status": "supported",
+    "metric_id": "bf6564a1-9a62-46be-bc79-2f2111323758",
+    "scalar_fact": {
+     "evidence_id": "bc276261-82de-4d50-8897-39e829a69be3",
+     "produced_by_atom": "read.value",
+     "produced_by_atom_version": "1.0.0",
+     "source_ref": "7a79f4a6-fd90-4ba8-b33f-3bb47143c60a",
+     "document_version": "sha256:0072d8b39d75e492d339026c977f23d0515f651f6fdec1ba3abf990dfc6b5ba0",
+     "concept": "SALES_REVENUE",
+     "period_ref": "FY 2021",
+     "basis": null,
+     "supersedes": null,
+     "created_at": "2026-10-06T18:06:28.936517Z",
+     "value": 1156724.0,
+     "unit": "млн. руб.",
+     "page": 11
+    },
+    "concept": "SALES_REVENUE",
+    "period_ref": "FY 2021",
+    "definition_origin": "registry"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "12e0adb5-4dbe-4321-b40d-2c7c45c4934c",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 45,
+   "occurred_at": "2026-10-06T18:11:02.946581Z",
+   "event_type": "result",
+   "delivery_status": "complete",
+   "result": {
+    "schema_version": "1.0",
+    "output_type": "ExtractedMetric",
+    "status": "supported",
+    "metric_id": "51784c1c-00c5-4aa1-a1b5-a95a53e3cd30",
+    "scalar_fact": {
+     "evidence_id": "e9a29c8d-db6d-4cbd-9a39-f09a3cbe1f9d",
+     "produced_by_atom": "read.value",
+     "produced_by_atom_version": "1.0.0",
+     "source_ref": "7a79f4a6-fd90-4ba8-b33f-3bb47143c60a",
+     "document_version": "sha256:0072d8b39d75e492d339026c977f23d0515f651f6fdec1ba3abf990dfc6b5ba0",
+     "concept": "SALES_REVENUE",
+     "period_ref": "FY 2020",
+     "basis": null,
+     "supersedes": null,
+     "created_at": "2026-10-06T18:06:28.936549Z",
+     "value": 711812.0,
+     "unit": "млн. руб.",
+     "page": 11
+    },
+    "concept": "SALES_REVENUE",
+    "period_ref": "FY 2020",
+    "definition_origin": "registry"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "75f3babb-f82b-47ff-8432-17a364dd6e55",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 46,
+   "occurred_at": "2026-10-06T18:11:02.959991Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "tool_output",
+    "name": "financial_pipeline",
+    "ok": true
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "e93e3940-cb1d-487e-81b1-4fbcf9d33334",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 47,
+   "occurred_at": "2026-10-06T18:11:02.960106Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "text_delta",
+    "text": "Выручка ПАО «НОВАТЭК» по МСФО:\n- 2021 год: 1 156 724 млн руб.\n- 2020 год: 711 812 млн руб.\n\nРассчитать изменение среднегодовой цены нефти Brent не удалось: публичный CSV-файл FRED (https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU) недоступен — двукратная попытка скачивания завершилась сетевой ошибкой ReadTimeout. Альтернативных источников данных в задаче не указано."
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "938dc542-ab44-4e00-a631-b09b77f6e05b",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 48,
+   "occurred_at": "2026-10-06T18:11:02.960145Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "sources",
+    "sources": [
+     {
+      "filename": "Novatek_FS_12m2021_RUS.pdf",
+      "company_name": "ПрайсвотерхаусКуперс Аудит"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "c83e99e7-d306-424d-81ef-5b53232777a0",
+   "run_id": "4540236c-c584-4080-9dfd-c56b5b8dd7b0",
+   "sequence": 49,
+   "occurred_at": "2026-10-06T18:11:02.960180Z",
+   "event_type": "completed",
+   "status": "succeeded"
+  }
+ ],
+ "session_id": "892c7ec7-ba49-40ca-b3d9-3e7ce40fc542",
+ "started_utc": "2026-10-06T18:11:04Z"
+}

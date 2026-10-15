@@ -1,0 +1,24 @@
+{
+  "case_id": "tatneft-Q3-2021:analysis:01",
+  "company": "Tatneft",
+  "evidence_ids": [
+    "tatneft-Q3-2021:CASH_EQUIVALENTS:01"
+  ],
+  "expected_explanation_covers": [
+    "CASH_EQUIVALENTS",
+    "30.09.2021",
+    "RUB million",
+    "source evidence"
+  ],
+  "expected_judgment": {
+    "concept": "CASH_EQUIVALENTS",
+    "verdict": "reported_as_disclosed"
+  },
+  "goal": "State the disclosed CASH_EQUIVALENTS for 30.09.2021 and cite the supplied evidence. Do not add a recommendation.",
+  "rubric": {
+    "evidence_alignment": "required: every number traces to evidence_ids",
+    "factual_accuracy": "required: value, period, and unit match the evidence",
+    "logical_coherence": "required: no claim contradicts the evidence",
+    "no_recommendations": "required"
+  }
+}

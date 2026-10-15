@@ -1,0 +1,294 @@
+## SYSTEM
+You are a senior financial analyst working with us_gaap_en financial reports. Your task is to find and extract ordinary financial statement metrics, matching source rows strictly against each metric's registry description, aliases and hint. If a row is similar but broader, narrower, or includes extra components, do not use it. Return valid JSON only.
+
+## USER
+## Task
+Extract reported financial metric values from compressed evidence selected in stage 1.
+Company type: bank; reporting standard: us_gaap_en; language: en.
+Extract values for every metric listed in the metric metadata below.
+For each metric block, read the registry fields and evidence, then extract every value of that exact metric for every disclosed period.
+Return raw period headers and raw cell values literally as they appear in the report.
+
+
+## Metric Blocks
+[
+  {
+    "enum": "TOTAL_ASSETS",
+    "name_ru": "Итого активы",
+    "name_en": "Total assets",
+    "description": "Total carrying amount of all assets at the reporting date.",
+    "aliases_ru": [
+      "ИТОГО АКТИВЫ",
+      "Итого по активам",
+      "Активы всего",
+      "Всего активов",
+      "Итого активов"
+    ],
+    "aliases_en": [
+      "total assets",
+      "assets total",
+      "total of assets",
+      "Sum of assets"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the Balance Sheet total assets line. It should reconcile to the sum of asset schedules, including cash and balances, investments, advances, fixed assets and other assets.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [
+        {
+          "table_id": "0",
+          "page": 1,
+          "title": "Consolidated statement of financial position as at 31 December 2024 (RUB million)",
+          "location": "Unknown",
+          "context_before": "Consolidated statement of financial position\nas at 31 December 2024 (RUB million)",
+          "text": "| Metric | 2024 | 2023 |\n| Total assets | 1 000 | 900 |\n| Total equity | 400 | 350 |",
+          "context_after": ""
+        },
+        {
+          "table_id": "1",
+          "page": 2,
+          "title": "Statement of profit or loss for the year ended 31 December 2024",
+          "location": "",
+          "context_before": "Statement of profit or loss for the year ended 31 December 2024",
+          "text": "| Metric | 2024 | 2023 |\n| Revenue | 500 | 450 |\n| Net income | 50 | 40 |",
+          "context_after": ""
+        }
+      ],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "OPERATING_EXPENSES_BANKS",
+    "name_ru": "Операционные расходы банков",
+    "name_en": "Operating expenses",
+    "description": "Total operating expenses of the bank, including employee costs and other operating expenses.",
+    "aliases_ru": [
+      "Непроцентные расходы",
+      "Операционные и административные расходы"
+    ],
+    "aliases_en": [
+      "operating expenses",
+      "total operating expenses",
+      "operating expenditure",
+      "payments to and provisions for employees",
+      "other operating expenses",
+      "Non-interest expenses"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use Schedule 16 'Operating Expenses' or the Profit and Loss Account total for operating expenses. Preserve expense sign if the source presents expenses as negative amounts.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "TOTAL_ASSOCIATE_INVESTMENTS",
+    "name_ru": "Инвестиции в ассоциированные и совместные предприятия",
+    "name_en": "Investments in associates and joint ventures",
+    "description": "Investments in associates, joint ventures or similar investees, as separately disclosed.",
+    "aliases_ru": [
+      "Вложения в ассоциированные и совместные предприятия",
+      "Инвестиции в компании по методу долевого участия"
+    ],
+    "aliases_en": [
+      "investments in associates",
+      "investments in joint ventures",
+      "investments in subsidiaries, associates and joint ventures",
+      "equity method investments",
+      "Investments in associates and joint ventures",
+      "Equity-accounted investments",
+      "Equity method investment",
+      "Investments: equity method"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use Schedule 8 'Investments' or the investments note. Take the separate line for subsidiaries, joint ventures and associates if disclosed. Do not include the full investments total.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "CASH_AND_CASH_BALANCES_WITH_CB",
+    "name_ru": "Обязательные резервы на счетах в центральных банках",
+    "name_en": "Cash and balances with central bank",
+    "description": "Cash in hand and balances maintained with the central bank.",
+    "aliases_ru": [
+      "Обязательные резервы на счетах в ЦБ РФ",
+      "Обязательные резервы на счетах в Центральном банке"
+    ],
+    "aliases_en": [
+      "cash and balances with Reserve Bank of India",
+      "cash in hand",
+      "balances with RBI",
+      "balances with central banks",
+      "cash and balances with central bank",
+      "Mandatory reserves with central bank",
+      "Reserve deposits with central bank"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "For Indian banks, use Schedule 6 'Cash and Balances with Reserve Bank of India'. Take the total schedule amount unless a narrower line is explicitly requested.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "DEBT_SECURITIES_ISSUED",
+    "name_ru": "Выпущенные долговые ценные бумаги",
+    "name_en": "Debt securities issued",
+    "description": "Debt instruments issued by the bank and outstanding at the reporting date.",
+    "aliases_ru": [
+      "Выпущенные облигации",
+      "Долговые ценные бумаги в обращении"
+    ],
+    "aliases_en": [
+      "debt securities issued",
+      "bonds issued",
+      "notes issued",
+      "certificates of deposit",
+      "debentures issued",
+      "debt instruments",
+      "Notes and bonds issued"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use Schedule 4 'Borrowings' or debt instruments notes. Include bonds, notes, debentures and certificates of deposit where they represent issued debt. Do not use investment securities held as assets.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "GROSS_NPA_RATIO_DISCLOSED",
+    "name_ru": "Раскрытый коэффициент валовых NPA",
+    "name_en": "Gross NPA ratio",
+    "description": "Disclosed ratio of gross NPAs to gross advances or equivalent denominator.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "gross NPA ratio",
+      "GNPA ratio",
+      "gross NPAs to gross advances",
+      "gross non-performing assets ratio",
+      "% gross NPAs to gross advances"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the disclosed asset-quality ratio. Unit is percent. Do not return the absolute gross NPA amount.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "OPERATING_PROFIT_BEFORE_PROVISIONS",
+    "name_ru": "Операционная прибыль до резервов",
+    "name_en": "Operating profit before provisions",
+    "description": "Profit before provisions and contingencies, usually after interest and operating expenses.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "operating profit",
+      "operating profit before provisions",
+      "pre-provision operating profit",
+      "PPOP",
+      "profit before provisions and contingencies"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the Profit and Loss Account subtotal before 'Provisions and Contingencies'. Do not use operating income/revenue; this is a profit subtotal after operating expenses.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "PROVISION_FOR_DEPRECIATION_ON_INVESTMENTS_CLOSING",
+    "name_ru": "Резерв под снижение стоимости инвестиций",
+    "name_en": "Provision for depreciation on investments",
+    "description": "Closing provision balance against investments due to depreciation or diminution in value.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "provision for depreciation on investments",
+      "investment depreciation provision",
+      "provision on investments",
+      "provision for diminution in value of investments"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use Schedule 8 'Investments' or the investment provision note. This is a closing balance, not the P&L charge for the period unless the source explicitly labels it as a movement/charge.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "PROFIT_LOSS_ON_EXCHANGE_TRANSACTIONS",
+    "name_ru": "Прибыль или убыток от обменных операций",
+    "name_en": "Profit or loss on exchange transactions",
+    "description": "Net result from foreign exchange / exchange transactions disclosed in other income.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "profit on exchange transactions",
+      "loss on exchange transactions",
+      "net profit on exchange transactions",
+      "net loss on exchange transactions",
+      "foreign exchange income",
+      "forex income"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use Schedule 14 'Other Income' or the FX trading note. Preserve the sign: profit is positive, loss is negative. Do not include broad trading income unless exchange transactions are separately identified.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  }
+]
+
+## Rules
+Return period keys in `values` literally as they appear in the visible table header; do not shorten or rephrase them. A table header may have two levels: a duration group such as 'Three Months Ended' on one level and the period-end date on another. Combine the applicable levels into one complete period key. When the same date appears under multiple duration groups, a bare date is invalid because it creates a duplicate JSON key; return the full wording for each group.
+
+Return each value exactly as it appears in the table cell. Do NOT convert units, do NOT normalize thousands separators, do NOT remove commas, spaces or parentheses. If the table says "25,785", return "25,785", not "25785" and not "25.785". If the table says "(4,190)", return "(4,190)"; parentheses are mandatory: "(465)" must stay "(465)", not "465". If a matching metric row uses a blank or dash-like cell as a displayed numeric placeholder, return "0" for that period, but only when that row separately and unambiguously matches the metric. A dash in a broader combined row does not prove that any component is zero. Otherwise use null when the row is absent or the value is not disclosed. Put the table/header unit literally into unit_text, for example "in millions" or "$ in millions". When the value comes from a narrative sentence in a note rather than from a table, take the unit from that same sentence, not from the document header: notes routinely name their own scale ("USD 12.0 billion") inside a report presented in millions, and the document header would shrink the number a thousandfold. Source (report in millions): "committed credit facilities of $12.0 billion" → {"values": {"27.09.2025": "12.0"}, "unit_text": "billion"}, not "in millions".
+
+## Actual values only
+Extract only actual historical/reported values from financial statements and notes for periods that have already ended. Do NOT extract forecasts, plans, budgets, targets, scenarios, sensitivity analysis, guidance, outlook, projections, projected/forecasted values or any other forward-looking amounts, even when the row label looks like a target metric. If a requested metric appears only in a forecast/outlook/guidance table or section, return null / an empty values object for it.
+Do not treat ordinary accounting estimates inside actual financial statements as forecasts: expected credit losses, provisions, deferred taxes and pension assumptions may be valid actual-period disclosures when they are reported in the statements or notes.
+The same applies to columns: a forecast period in the header (2026E, FY26F, "plan") does not belong in values.
+
+- Follow each metric registry entry strictly. A similar-looking row is not enough.
+- Before extracting a value, run a sanity check: the row label and nearby table context must match the metric name/aliases and satisfy the description and hint.
+- Perform a scope check against the registry definition: do not use a narrower component, subcategory or subtotal that is only part of the requested metric; do not use a broader or combined row that contains the requested metric together with other components. Use only the exact requested metric, or an aggregation explicitly permitted by that metric's registry hint.
+- Extract all periods disclosed in the selected evidence: all years, quarters, half-years/YTD periods, rolling or shifted periods, and comparative periods.
+- After you identify a row/table that matches a metric, scan all period columns in that row and all evidence tables/quotes for the same metric. Return every explicitly disclosed period for that metric, not only the current period or first matching table. If quarterly and YTD/half-year rows are both disclosed, return both sets.
+- Do not mix currencies, units, or scales. If a table has multiple column sets, choose one coherent set for the metric. Prefer the report's primary presentation/native currency columns over convenience translation columns when both are shown. Currency/unit/scale may be written in the caption, unit line, or directly near the period column headers; preserve the chosen unit/currency in unit_text and raw headers when present.
+- The registry is the definition, not a keyword list. Accept a row only when its full label, nearby context, description and hint agree; do not broaden a metric from a partial alias or a similar subtotal.
+- Do not calculate values, allocate totals, infer missing periods, or normalize signs/period labels yourself, unless the specific metric registry entry explicitly authorizes that derivation. For an authorized derivation, use only the stated method and operands explicitly present in this evidence.
+- If you are unsure whether the row matches the registry definition, prefer null over a bold guess.
+
+
+## Output Format
+Return exactly one valid JSON object only. No explanations, no markdown wrappers, no comments.
+A JSON object whose keys exactly match the metric metadata list below:
+
+{
+  "TOTAL_ASSETS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "OPERATING_EXPENSES_BANKS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "TOTAL_ASSOCIATE_INVESTMENTS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "CASH_AND_CASH_BALANCES_WITH_CB": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "DEBT_SECURITIES_ISSUED": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "GROSS_NPA_RATIO_DISCLOSED": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "OPERATING_PROFIT_BEFORE_PROVISIONS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "PROVISION_FOR_DEPRECIATION_ON_INVESTMENTS_CLOSING": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "PROFIT_LOSS_ON_EXCHANGE_TRANSACTIONS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null}
+}

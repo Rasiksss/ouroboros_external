@@ -1,0 +1,294 @@
+## SYSTEM
+You are a senior financial analyst working with us_gaap_en financial reports. Your task is to find and extract ordinary financial statement metrics, matching source rows strictly against each metric's registry description, aliases and hint. If a row is similar but broader, narrower, or includes extra components, do not use it. Return valid JSON only.
+
+## USER
+## Task
+Extract reported financial metric values from compressed evidence selected in stage 1.
+Company type: bank; reporting standard: us_gaap_en; language: en.
+Extract values for every metric listed in the metric metadata below.
+For each metric block, read the registry fields and evidence, then extract every value of that exact metric for every disclosed period.
+Return raw period headers and raw cell values literally as they appear in the report.
+
+
+## Metric Blocks
+[
+  {
+    "enum": "CASH_EQUIVALENTS",
+    "name_ru": "Денежные средства и их эквиваленты",
+    "name_en": "Cash and cash equivalents",
+    "description": "Касса, расчётные счета и краткосрочные высоколиквидные инвестиции (срок ≤ 3 мес.).",
+    "aliases_ru": [
+      "Денежные средства и эквиваленты денежных средств",
+      "Денежные средства и денежные эквиваленты",
+      "Денежные средства и их эквиваленты на конец периода"
+    ],
+    "aliases_en": [
+      "Cash and equivalents",
+      "Cash and cash equivalents at end of period"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Оборотные активы баланса или последняя строка ОДДС. Возвращай все явно раскрытые даты cash and cash equivalents at end of period, включая сравнительные даты, которых нет в балансе. Не путай с bank deposits/time deposits и marketable securities.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "NET_INCOME",
+    "name_ru": "Чистая прибыль",
+    "name_en": "Net income",
+    "description": "Финальный финансовый результат компании за период после налогов.",
+    "aliases_ru": [
+      "Чистая прибыль/(убыток)",
+      "Прибыль за период/год/квартал",
+      "Чистая прибыль собственников"
+    ],
+    "aliases_en": [
+      "Net earnings",
+      "Net profit",
+      "Profit for the period"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "P&L: бери общий Net income/Profit for the period после налогов, до распределения на attributable to parent и non-controlling interests. В interim-отчетах с колонками 3M/Q и 6M/YTD возвращай обе группы периодов. Если убыток — отрицательное число.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [
+        {
+          "table_id": "0",
+          "page": 1,
+          "title": "Consolidated statement of financial position as at 31 December 2024 (RUB million)",
+          "location": "",
+          "context_before": "Consolidated statement of financial position\nas at 31 December 2024 (RUB million)",
+          "text": "| Metric | 2024 | 2023 |\n| Total assets | 1 000 | 900 |\n| Total equity | 400 | 350 |",
+          "context_after": ""
+        },
+        {
+          "table_id": "1",
+          "page": 2,
+          "title": "Statement of profit or loss for the year ended 31 December 2024",
+          "location": "Unknown",
+          "context_before": "Statement of profit or loss for the year ended 31 December 2024",
+          "text": "| Metric | 2024 | 2023 |\n| Revenue | 500 | 450 |\n| Net income | 50 | 40 |",
+          "context_after": ""
+        }
+      ],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "NON_INTEREST_INCOME_BANKS",
+    "name_ru": "Непроцентный доход",
+    "name_en": "Non-interest income",
+    "description": "Совокупные непроцентные доходы (комиссии + торговые + прочие).",
+    "aliases_ru": [
+      "Комиссионные и прочие доходы"
+    ],
+    "aliases_en": [
+      "Non-interest revenue"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "P&L банка, в части после ЧПД. Если отдельной строкой нет — null.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "EBT",
+    "name_ru": "Прибыль до налогообложения",
+    "name_en": "EBT",
+    "description": "Прибыль до вычета налога на прибыль — финальная строка P&L перед налогом.",
+    "aliases_ru": [
+      "Прибыль до налога",
+      "Прибыль до налога на прибыль"
+    ],
+    "aliases_en": [
+      "Profit before tax",
+      "Income before income taxes",
+      "Pre-tax income"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "P&L банка, предпоследняя строка перед налогом на прибыль. Если у банка убыток, в источнике обычно стоят скобки или минус; сохраняй знак/скобки как в источнике.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "GOVERNMENTAL_DEPOSITS",
+    "name_ru": "Средства государственных органов власти",
+    "name_en": "Governmental deposits",
+    "description": "Депозиты госорганов и муниципальных образований.",
+    "aliases_ru": [
+      "Депозиты государственных органов",
+      "Средства государственных и муниципальных органов"
+    ],
+    "aliases_en": [
+      "Government deposits",
+      "Deposits from government entities"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Примечание 'Средства клиентов' — разбивка по сегментам.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "NON_CONTROL_INTEREST",
+    "name_ru": "Неконтрольные доли участия",
+    "name_en": "Non-controlling interest",
+    "description": "Доля капитала дочерних компаний, не принадлежащая материнской организации.",
+    "aliases_ru": [
+      "Неконтролирующие доли",
+      "Доля меньшинства"
+    ],
+    "aliases_en": [
+      "Minority interest",
+      "Non-controlling interests"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Раздел КАПИТАЛ баланса (отдельная подстрока). Может быть как положительной, так и отрицательной.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "FEE_AND_COMMISSION_EXPENSE",
+    "name_ru": "Комиссионный расход",
+    "name_en": "Fee and comission expense",
+    "description": "Расходы по комиссионным операциям (в т.ч. платежи системам, контрагентам).",
+    "aliases_ru": [
+      "Комиссионные расходы",
+      "Расходы по комиссиям"
+    ],
+    "aliases_en": [
+      "Fee expense",
+      "Commission expense"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "P&L банка, после комиссионных доходов. Бери строку комиссионных расходов и сохраняй знак/скобки как в источнике.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "ECL_ALLOWANCE_STAGE1",
+    "name_ru": "Резерв под обесценение кредитов Этап 1",
+    "name_en": "ECL allowance Stage 1",
+    "description": "Резерв под ожидаемые кредитные убытки на стадии 1 (12 месяцев).",
+    "aliases_ru": [
+      "Оценочный резерв под ожидаемые кредитные убытки Этап 1",
+      "ОКУ Этап 1",
+      "Оценочный резерв под кредитные убытки по кредитам",
+      "предоставленным клиентам Этап 1"
+    ],
+    "aliases_en": [
+      "Stage 1 ECL allowance"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Примечание 'Кредиты клиентам' / 'Резервы под обесценение'.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "CET1_RATIO_DISCLOSED",
+    "name_ru": "Норматив CET1 (раскрываемый)",
+    "name_en": "CET1 ratio (disclosed)",
+    "description": "Раскрываемый банком норматив достаточности базового капитала первого уровня.",
+    "aliases_ru": [
+      "CET1 ratio",
+      "норматив Н 1.0",
+      "норматив Н 20.1"
+    ],
+    "aliases_en": [
+      "CET1 capital ratio",
+      "Common equity Tier 1 ratio"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Примечание 'Достаточность капитала'. Единица — проценты.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "EQUITY_SHAREHOLDERS",
+    "name_ru": "Капитал, приходящийся на акционеров материнской компании",
+    "name_en": "Equity attributable to owners of the parent",
+    "description": "Собственный капитал за вычетом неконтролирующих долей — часть капитала, принадлежащая акционерам материнской компании.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "Equity attributable to equity holders of the parent",
+      "Total shareholders' equity attributable to the parent",
+      "Equity attributable to owners of the Company"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Баланс, раздел КАПИТАЛ: «Итого капитал, приходящийся на акционеров материнской компании» — строка ДО «Неконтролирующие доли». НЕ путать с итогом капитала (тот включает неконтролирующие доли). Нет отдельной строки — значит неконтролирующих долей нет, бери итог капитала.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  }
+]
+
+## Rules
+Return period keys in `values` literally as they appear in the visible table header; do not shorten or rephrase them. A table header may have two levels: a duration group such as 'Three Months Ended' on one level and the period-end date on another. Combine the applicable levels into one complete period key. When the same date appears under multiple duration groups, a bare date is invalid because it creates a duplicate JSON key; return the full wording for each group.
+
+Return each value exactly as it appears in the table cell. Do NOT convert units, do NOT normalize thousands separators, do NOT remove commas, spaces or parentheses. If the table says "25,785", return "25,785", not "25785" and not "25.785". If the table says "(4,190)", return "(4,190)"; parentheses are mandatory: "(465)" must stay "(465)", not "465". If a matching metric row uses a blank or dash-like cell as a displayed numeric placeholder, return "0" for that period, but only when that row separately and unambiguously matches the metric. A dash in a broader combined row does not prove that any component is zero. Otherwise use null when the row is absent or the value is not disclosed. Put the table/header unit literally into unit_text, for example "in millions" or "$ in millions". When the value comes from a narrative sentence in a note rather than from a table, take the unit from that same sentence, not from the document header: notes routinely name their own scale ("USD 12.0 billion") inside a report presented in millions, and the document header would shrink the number a thousandfold. Source (report in millions): "committed credit facilities of $12.0 billion" → {"values": {"27.09.2025": "12.0"}, "unit_text": "billion"}, not "in millions".
+
+## Actual values only
+Extract only actual historical/reported values from financial statements and notes for periods that have already ended. Do NOT extract forecasts, plans, budgets, targets, scenarios, sensitivity analysis, guidance, outlook, projections, projected/forecasted values or any other forward-looking amounts, even when the row label looks like a target metric. If a requested metric appears only in a forecast/outlook/guidance table or section, return null / an empty values object for it.
+Do not treat ordinary accounting estimates inside actual financial statements as forecasts: expected credit losses, provisions, deferred taxes and pension assumptions may be valid actual-period disclosures when they are reported in the statements or notes.
+The same applies to columns: a forecast period in the header (2026E, FY26F, "plan") does not belong in values.
+
+- Follow each metric registry entry strictly. A similar-looking row is not enough.
+- Before extracting a value, run a sanity check: the row label and nearby table context must match the metric name/aliases and satisfy the description and hint.
+- Perform a scope check against the registry definition: do not use a narrower component, subcategory or subtotal that is only part of the requested metric; do not use a broader or combined row that contains the requested metric together with other components. Use only the exact requested metric, or an aggregation explicitly permitted by that metric's registry hint.
+- Extract all periods disclosed in the selected evidence: all years, quarters, half-years/YTD periods, rolling or shifted periods, and comparative periods.
+- After you identify a row/table that matches a metric, scan all period columns in that row and all evidence tables/quotes for the same metric. Return every explicitly disclosed period for that metric, not only the current period or first matching table. If quarterly and YTD/half-year rows are both disclosed, return both sets.
+- Do not mix currencies, units, or scales. If a table has multiple column sets, choose one coherent set for the metric. Prefer the report's primary presentation/native currency columns over convenience translation columns when both are shown. Currency/unit/scale may be written in the caption, unit line, or directly near the period column headers; preserve the chosen unit/currency in unit_text and raw headers when present.
+- The registry is the definition, not a keyword list. Accept a row only when its full label, nearby context, description and hint agree; do not broaden a metric from a partial alias or a similar subtotal.
+- Do not calculate values, allocate totals, infer missing periods, or normalize signs/period labels yourself, unless the specific metric registry entry explicitly authorizes that derivation. For an authorized derivation, use only the stated method and operands explicitly present in this evidence.
+- If you are unsure whether the row matches the registry definition, prefer null over a bold guess.
+
+
+## Output Format
+Return exactly one valid JSON object only. No explanations, no markdown wrappers, no comments.
+A JSON object whose keys exactly match the metric metadata list below:
+
+{
+  "CASH_EQUIVALENTS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "NET_INCOME": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "NON_INTEREST_INCOME_BANKS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "EBT": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "GOVERNMENTAL_DEPOSITS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "NON_CONTROL_INTEREST": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "FEE_AND_COMMISSION_EXPENSE": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "ECL_ALLOWANCE_STAGE1": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "CET1_RATIO_DISCLOSED": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "EQUITY_SHAREHOLDERS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null}
+}

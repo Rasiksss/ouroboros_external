@@ -1,0 +1,83 @@
+// openclaw.example.json5 — ПРИМЕР конфига гейтвея для подключения агента AIFA CLAW.
+//
+// Рендерит необрендённый стаб из README.md (§ «Деплой (Фаза 3 — switchover)»):
+//   agents.list[fa-claw].skills += [aifa-finance, aifa-extract-metrics, …]
+//   mcp.servers.finengine       = { url, transport: "streamable-http" }
+//
+// Это ОБРАЗЕЦ, а не рабочий файл: host/token — плейсхолдеры (`<…>` и `${ENV}`),
+// секретов здесь нет и быть не должно. Скопируй нужные фрагменты в живой
+// openclaw.json гейтвея.
+//
+// ⚠️ Гейтвей ОБЩИЙ (на нём же банковский агент). Правки — точечные и обратимые:
+//    добавляй свой сервер и свои навыки, НЕ трогай чужие секции.
+{
+  mcp: {
+    servers: {
+      // Наш нативный MCP-сервер: раздаёт бизнес-инструменты finengine
+      // (fe_extract_metrics, fe_analyze, factor_analysis, daily_news_digest,
+      // ir_calendar_run, kb_*, tavily_search). Реестр фильтруется вайтлистом
+      // на стороне сервера — здесь инструменты перечислять не нужно.
+      finengine: {
+        // Long-running сервис (несёт FAISS + модель эмбеддингов + данные
+        // пользователей), поэтому streamable-http, а НЕ per-call stdio.
+        transport: "streamable-http",
+
+        // <gw-host> — как гейтвей достаёт сервер по приватной сети
+        // (loopback / docker-bridge). Порт 8848, mount `/mcp`.
+        // Прим.: сервер поднимается как `uvicorn finengine.mcp_server:app`.
+        // Примеры значений: 127.0.0.1 · 172.17.0.1 · имя docker-сервиса.
+        url: "http://<gw-host>:8848/mcp",
+
+        // TOKEN — плейсхолдер креденшела приватного хопа гейтвей → сервер.
+        // Держи реальное значение в окружении гейтвея (${FINENGINE_MCP_TOKEN}),
+        // НЕ инлайнь секрет в этот файл. Owner-scoping (кто пользователь)
+        // задаётся НЕ этим токеном, а identity-заголовками ниже.
+        headers: {
+          Authorization: "Bearer ${FINENGINE_MCP_TOKEN}",
+        },
+      },
+    },
+  },
+
+  agents: {
+    list: {
+      // Наш финансовый агент. `+=` из стаба = ДОБАВИТЬ навыки к тем,
+      // что у агента уже есть на гейтвее (ir-calendar, ir-daily-digest
+      // переиспользуются как есть) — не затирай их.
+      "fa-claw": {
+        skills: [
+          "aifa-finance",           // опер-процедура: намерение → инструмент, дефолты
+          "aifa-extract-metrics",   // fe_extract_metrics: сырые показатели
+          "aifa-analyze",           // fe_analyze: выводы (general / chains)
+          "aifa-factor-analysis",   // factor_analysis: план-факт по факторам
+          "aifa-knowledge-base",    // kb_add_url / kb_search: база знаний чата
+        ],
+      },
+    },
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Контракт интеграции (справочно — конфигурируется на стороне АДАПТЕРА
+  // гейтвея, а не этим файлом). Оставлено как памятка для того, кто заводит
+  // сервер на общем гейтвее.
+  // ─────────────────────────────────────────────────────────────────────────
+  //
+  // 1) Идентичность — инъекция per-request заголовков АДАПТЕРОМ.
+  //    Агент НИКОГДА не задаёт identity сам; адаптер подставляет её в каждый
+  //    вызов MCP (модель «adapter injects identity», как в банковском
+  //    Workstation-адаптере). Сервер читает их в `_ctx_from_request`:
+  //      x-aifa-user-id      → owner-scoping (чьи данные/индекс)
+  //      x-aifa-project-id   → проект/контейнер
+  //      x-aifa-session-id   → сессия чата
+  //      x-aifa-role         → роль вызывающего
+  //    Без этих заголовков сервер падает на dev-fallback из окружения
+  //    (FINENGINE_MCP_DEV_USER_ID / FINENGINE_MCP_DEV_PROJECT_ID) — только
+  //    для локальных смоук-тестов, НЕ для общего гейтвея.
+  //
+  // 2) FINENGINE_MCP_ALLOWED_HOSTS — окружение ПРОЦЕССА сервера (не гейтвея).
+  //    DNS-rebinding-защита MCP SDK по умолчанию пускает только localhost и
+  //    рубит запрос гейтвея через docker-bridge («Invalid Host header»).
+  //    CSV допустимых Host, напр.:  172.17.0.1:8848,localhost
+  //    Значение = набор хостов, с которых реально приходит гейтвей.
+  //    Пусто/не задано = проверка отключена (дефолт для dev).
+}

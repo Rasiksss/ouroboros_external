@@ -1,0 +1,273 @@
+## SYSTEM
+You are a senior financial analyst working with us_gaap_en financial reports. Your task is to find and extract ordinary financial statement metrics, matching source rows strictly against each metric's registry description, aliases and hint. If a row is similar but broader, narrower, or includes extra components, do not use it. Return valid JSON only.
+
+## USER
+## Task
+Extract reported financial metric values from compressed evidence selected in stage 1.
+Company type: bank; reporting standard: us_gaap_en; language: en.
+Extract values for every metric listed in the metric metadata below.
+For each metric block, read the registry fields and evidence, then extract every value of that exact metric for every disclosed period.
+Return raw period headers and raw cell values literally as they appear in the report.
+
+
+## Metric Blocks
+[
+  {
+    "enum": "DEFERRED_TAX_LIABILITIES",
+    "name_ru": "Отложенные налоговые обязательства",
+    "name_en": "Deferred tax liabilities",
+    "description": "Income tax liability arising from taxable temporary differences.",
+    "aliases_ru": [
+      "Обязательства по отложенному налогу на прибыль"
+    ],
+    "aliases_en": [
+      "deferred tax liabilities",
+      "net deferred tax liability",
+      "deferred tax liability",
+      "Deferred income tax liabilities"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the tax note or the balance sheet line if separately presented. Do not net with deferred tax assets unless the report presents only a net deferred tax liability.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "TOTAL_LOANS_TO_CLIENTS",
+    "name_ru": "Кредиты клиентам",
+    "name_en": "Loans to customers / net advances",
+    "description": "Net carrying amount of loans or advances to customers after related provisions or allowances.",
+    "aliases_ru": [
+      "Кредиты и авансы клиентам",
+      "Кредитный портфель (валовой)"
+    ],
+    "aliases_en": [
+      "loans to customers",
+      "loans and advances to customers",
+      "advances",
+      "net advances",
+      "advances net of provisions",
+      "loans and advances",
+      "advances to customers",
+      "net loans and advances",
+      "Gross loans"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "For Indian GAAP, use Balance Sheet Schedule 9 'Advances' and take the net advances amount after provisions. Treat 'advances' as the local statutory wording for customer loans. Do not use gross advances, NPA balances, or provision balances for this enum.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "INTERBANK_DEPOSITS",
+    "name_ru": "Средства в банках",
+    "name_en": "Balances with banks and money at call",
+    "description": "Amounts placed with other banks or available as money at call and short notice.",
+    "aliases_ru": [
+      "Депозиты в банках",
+      "Межбанковские депозиты"
+    ],
+    "aliases_en": [
+      "balances with banks",
+      "money at call",
+      "money at short notice",
+      "balances with banks and money at call and short notice",
+      "interbank placements",
+      "Due from banks",
+      "Deposits with banks"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use Schedule 7 'Balances with banks and money at call and short notice'. Take the relevant asset balance; do not use borrowings from other banks.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "RETAINED_EARNINGS",
+    "name_ru": "Нераспределенная прибыль",
+    "name_en": "Retained earnings",
+    "description": "Accumulated profits retained in equity after appropriations and distributions.",
+    "aliases_ru": [
+      "Нераспределенная прибыль (непокрытый убыток)",
+      "Накопленная прибыль"
+    ],
+    "aliases_en": [
+      "retained earnings",
+      "balance in profit and loss account",
+      "surplus in profit and loss account",
+      "accumulated surplus",
+      "accumulated deficit",
+      "Accumulated retained earnings",
+      "Retained earnings balance"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use Schedule 2 'Reserves and Surplus', especially the balance in the Profit and Loss Account / surplus line. Do not use net profit for the current period.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "TIER1_RATIO_DISCLOSED",
+    "name_ru": "Норматив Tier 1 (раскрываемый)",
+    "name_en": "Tier 1 capital ratio",
+    "description": "Disclosed Tier 1 capital adequacy ratio.",
+    "aliases_ru": [
+      "Tier 1 ratio",
+      "норматив Н 1.1",
+      "норматив Н 20.2"
+    ],
+    "aliases_en": [
+      "Tier 1 ratio",
+      "Tier I ratio",
+      "Tier 1 capital ratio",
+      "Tier I capital ratio"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the Basel III / capital adequacy disclosure. Unit is percent. Do not confuse with CET1 ratio or total CRAR/CAR.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "TOTAL_GROSS_LOANS_TO_CLIENTS",
+    "name_ru": "Валовые кредиты клиентам",
+    "name_en": "Gross loans to customers",
+    "description": "Gross amount of loans or advances to customers before provisions, allowances or impairment deductions.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "gross loans",
+      "gross customer loans",
+      "gross loans to customers",
+      "gross loans and advances",
+      "gross advances",
+      "advances before provisions",
+      "total advances before provisions",
+      "gross advances to customers"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Keep the metric conceptually tied to loans/credit exposure. For Indian GAAP, search asset-quality disclosures and Schedule 9 'Advances' notes for 'gross advances' or 'advances before provisions'. Do not use net advances, NPA balances, or provision balances. This enum is intended to remain reusable outside India, where the local wording may be gross loans rather than advances.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "INTEREST_EARNED_TOTAL",
+    "name_ru": "Процентные доходы",
+    "name_en": "Interest earned",
+    "description": "Total interest income earned by the bank during the period.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "interest earned",
+      "total interest earned",
+      "interest income",
+      "Schedule 13"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use Schedule 13 'Interest Earned'. Take the total schedule amount, not one component such as interest on advances or income on investments.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "PRIORITY_SECTOR_ADVANCES",
+    "name_ru": "Кредиты приоритетным секторам",
+    "name_en": "Priority sector advances",
+    "description": "Advances classified under the priority sector lending framework.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "priority sector advances",
+      "priority sector lending",
+      "PSL advances",
+      "advances to priority sector"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use priority sector lending disclosures or Schedule 9 category disclosures where present. Do not include all retail advances unless explicitly classified as priority sector.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "CONTINGENT_LIABILITIES_TOTAL",
+    "name_ru": "Условные обязательства",
+    "name_en": "Contingent liabilities",
+    "description": "Total off-balance sheet contingent liabilities disclosed by the bank.",
+    "aliases_ru": [],
+    "aliases_en": [
+      "contingent liabilities",
+      "total contingent liabilities",
+      "Schedule 12",
+      "claims against the bank not acknowledged as debts",
+      "guarantees",
+      "acceptances and endorsements"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use Schedule 12 'Contingent Liabilities'. Take the total schedule amount, not a single component such as guarantees or forward exchange contracts.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  }
+]
+
+## Rules
+Return period keys in `values` literally as they appear in the visible table header; do not shorten or rephrase them. A table header may have two levels: a duration group such as 'Three Months Ended' on one level and the period-end date on another. Combine the applicable levels into one complete period key. When the same date appears under multiple duration groups, a bare date is invalid because it creates a duplicate JSON key; return the full wording for each group.
+
+Return each value exactly as it appears in the table cell. Do NOT convert units, do NOT normalize thousands separators, do NOT remove commas, spaces or parentheses. If the table says "25,785", return "25,785", not "25785" and not "25.785". If the table says "(4,190)", return "(4,190)"; parentheses are mandatory: "(465)" must stay "(465)", not "465". If a matching metric row uses a blank or dash-like cell as a displayed numeric placeholder, return "0" for that period, but only when that row separately and unambiguously matches the metric. A dash in a broader combined row does not prove that any component is zero. Otherwise use null when the row is absent or the value is not disclosed. Put the table/header unit literally into unit_text, for example "in millions" or "$ in millions". When the value comes from a narrative sentence in a note rather than from a table, take the unit from that same sentence, not from the document header: notes routinely name their own scale ("USD 12.0 billion") inside a report presented in millions, and the document header would shrink the number a thousandfold. Source (report in millions): "committed credit facilities of $12.0 billion" → {"values": {"27.09.2025": "12.0"}, "unit_text": "billion"}, not "in millions".
+
+## Actual values only
+Extract only actual historical/reported values from financial statements and notes for periods that have already ended. Do NOT extract forecasts, plans, budgets, targets, scenarios, sensitivity analysis, guidance, outlook, projections, projected/forecasted values or any other forward-looking amounts, even when the row label looks like a target metric. If a requested metric appears only in a forecast/outlook/guidance table or section, return null / an empty values object for it.
+Do not treat ordinary accounting estimates inside actual financial statements as forecasts: expected credit losses, provisions, deferred taxes and pension assumptions may be valid actual-period disclosures when they are reported in the statements or notes.
+The same applies to columns: a forecast period in the header (2026E, FY26F, "plan") does not belong in values.
+
+- Follow each metric registry entry strictly. A similar-looking row is not enough.
+- Before extracting a value, run a sanity check: the row label and nearby table context must match the metric name/aliases and satisfy the description and hint.
+- Perform a scope check against the registry definition: do not use a narrower component, subcategory or subtotal that is only part of the requested metric; do not use a broader or combined row that contains the requested metric together with other components. Use only the exact requested metric, or an aggregation explicitly permitted by that metric's registry hint.
+- Extract all periods disclosed in the selected evidence: all years, quarters, half-years/YTD periods, rolling or shifted periods, and comparative periods.
+- After you identify a row/table that matches a metric, scan all period columns in that row and all evidence tables/quotes for the same metric. Return every explicitly disclosed period for that metric, not only the current period or first matching table. If quarterly and YTD/half-year rows are both disclosed, return both sets.
+- Do not mix currencies, units, or scales. If a table has multiple column sets, choose one coherent set for the metric. Prefer the report's primary presentation/native currency columns over convenience translation columns when both are shown. Currency/unit/scale may be written in the caption, unit line, or directly near the period column headers; preserve the chosen unit/currency in unit_text and raw headers when present.
+- The registry is the definition, not a keyword list. Accept a row only when its full label, nearby context, description and hint agree; do not broaden a metric from a partial alias or a similar subtotal.
+- Do not calculate values, allocate totals, infer missing periods, or normalize signs/period labels yourself, unless the specific metric registry entry explicitly authorizes that derivation. For an authorized derivation, use only the stated method and operands explicitly present in this evidence.
+- If you are unsure whether the row matches the registry definition, prefer null over a bold guess.
+
+
+## Output Format
+Return exactly one valid JSON object only. No explanations, no markdown wrappers, no comments.
+A JSON object whose keys exactly match the metric metadata list below:
+
+{
+  "DEFERRED_TAX_LIABILITIES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "TOTAL_LOANS_TO_CLIENTS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "INTERBANK_DEPOSITS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "RETAINED_EARNINGS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "TIER1_RATIO_DISCLOSED": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "TOTAL_GROSS_LOANS_TO_CLIENTS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "INTEREST_EARNED_TOTAL": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "PRIORITY_SECTOR_ADVANCES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "CONTINGENT_LIABILITIES_TOTAL": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null}
+}

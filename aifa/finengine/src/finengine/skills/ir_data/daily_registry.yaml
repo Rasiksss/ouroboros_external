@@ -1,0 +1,205 @@
+# Реестр IR Daily — заказчик (Sberbank IR team).
+# Источник: ./агент Daily.xlsx (Лист1) — НЕ ПЕРЕИМЕНОВЫВАТЬ полей без согласования.
+# Менять только через git review (агент НЕ редактирует этот файл).
+
+companies:
+  # Российские компании из списка заказчика.
+  ru:
+    - ВТБ
+    - Т-Технологии
+    - Совкомбанк
+    - МТС Банк
+    - Ozon
+    - Yandex
+    - VK
+    - Positive Technologies
+    - X5 Retail
+    - Lenta
+    - Magnit
+    - MTS
+
+  # Мировые (включая США/Китай/EU/Корея/Япония и Kaspi/Raiffeisen как
+  # формально нерезидентные).
+  world:
+    - JP Morgan
+    - Wells Fargo
+    - Citigroup
+    - Goldman Sachs
+    - Morgan Stanley
+    - Bank of America
+    - Raiffeisen
+    - ICBC
+    - Agricultural Bank Of China
+    - China Construction Bank
+    - Bank of China
+    - China Merchants Bank
+    - Kaspi
+    - Amazon
+    - Instacart
+    - Shopify
+    - Rakuten
+    - Alibaba
+    - JD.Com
+    - Meituan
+    - Tesla
+    - Meta
+    - IBM
+    - Microsoft
+    - Alphabet
+    - Apple
+    - Nvidia
+    - Lyft
+    - Huawei
+    - Tencent
+    - Baidu
+    - Xiaomi
+    - Naver
+    - Block (Square)
+    - Klarna
+    - Affirm
+    - PayPal
+    - PagSeguro
+    - Walmart
+    - Netflix
+    - Walt Disney
+    - Spotify
+    - Sea (+Shopee)
+    - Kakao Corp
+    - DoorDash
+    - Uber
+    - DeliveryHero
+    - Grab
+    - Just Eat Takeaway
+    - BYD
+    - PingAn
+    - Broadcom
+    - TSMC
+    - SMIC
+    - AMD
+    - ASML
+    - Pony AI
+    - Weride
+    - Oracle
+    - UBTech
+    - MiniMax
+    - Zhipu AI
+    - OpenAI
+    - Anthropic
+    - DeepSeek
+    - xAI
+    - ByteDance
+    - Palantir
+
+# Макропоказатели: что публикуется, по каким странам, с какой
+# периодичностью, в каком сравнении выводить значение.
+macro:
+  - name: Динамика ВВП
+    countries: [РФ, США, еврозона, Китай]
+    frequency: ежеквартально
+    comparison: кв/кв г/г
+
+  - name: Потребительская инфляция
+    countries: [РФ, США, еврозона, Китай]
+    frequency: еженедельно по РФ, ежемесячно по остальным странам
+    comparison: в РФ отдельно даются еженедельные принты и показатель в годовом выражении; г/г в США, еврозоне и Китае
+
+  - name: Промышленная инфляция
+    countries: [РФ, США, еврозона, Китай]
+    frequency: ежемесячно
+    comparison: г/г
+
+  - name: PMI Services
+    countries: [РФ, США, еврозона, Китай]
+    frequency: ежемесячно
+    comparison: м/м
+
+  - name: PMI Manufacturing
+    countries: [РФ, США, еврозона, Китай]
+    frequency: ежемесячно
+    comparison: м/м
+
+  - name: Промышленное производство
+    countries: [РФ, США, еврозона, Китай]
+    frequency: ежемесячно
+    comparison: м/м г/г
+
+  - name: Consumer Sentiment Index (Conference Board)
+    countries: [США]
+    frequency: ежемесячно
+    comparison: м/м
+
+  - name: Розничные продажи
+    countries: [США]
+    frequency: ежемесячно
+    comparison: м/м г/г
+
+  - name: Non-Farm Payrolls (изменение занятости вне с/х)
+    countries: [США]
+    frequency: ежемесячно
+    comparison: изм. за месяц
+
+  - name: Уровень безработицы
+    countries: [РФ, США, еврозона]
+    frequency: ежемесячно
+    comparison: м/м
+
+  - name: Запасы сырой нефти EIA
+    countries: [США]
+    frequency: еженедельно
+    comparison: изм. за неделю
+
+# Регуляторы, что в фокусе мониторинга.
+regulators:
+  - name: ЦБ РФ
+    country: РФ
+    focus: Решения по ставке, изменения макропрогнозов, решения по регулированию банковского сектора, публикация обзоров банковского сектора и финансовых рынков
+
+  - name: Минфин РФ
+    country: РФ
+    focus: Предложения по бюджетной и налоговой политике
+
+  - name: ФРС
+    country: США
+    focus: Решения по ставке, изменения макропрогнозов
+
+  - name: Минфин США
+    country: США
+    focus: Решения по санкциям против РФ
+
+  - name: ЕЦБ
+    country: еврозона
+    focus: Решения по ставке, изменения макропрогнозов
+
+  - name: Совет ЕС
+    country: ЕС
+    focus: Решения по санкциям против РФ
+
+  - name: НБК
+    country: Китай
+    focus: Решения по ставке
+
+# Согласованные источники СМИ. Официальные сайты компаний/регуляторов
+# подразумеваются как главные источники истины и не требуют allow-list.
+sources:
+  - name: CNBC
+    url: https://www.cnbc.com/world/?region=world
+  - name: FT
+    url: https://www.ft.com/
+  - name: WSJ
+    url: https://www.wsj.com/
+  - name: Reuters
+    url: https://www.reuters.com/
+  - name: Интерфакс
+    url: https://www.interfax.ru/business/
+  - name: Финмаркет
+    url: https://www.finmarket.ru/database/news/
+  - name: РБК
+    url: https://www.rbc.ru/
+  - name: Forbes
+    url: https://www.forbes.ru/
+  - name: Сигналы РЦБ
+    url: https://t.me/cbrstocks
+  - name: MarketTwits
+    url: https://t.me/markettwits
+  - name: Смартлаб Новости
+    url: https://t.me/newssmartlab

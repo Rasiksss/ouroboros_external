@@ -1,0 +1,51 @@
+{
+  "company": "Rzhd",
+  "page": 4,
+  "rows": [
+    {
+      "concept": "LONG_TERM_DEBT",
+      "period_ref": "30.09.2025",
+      "quote": "| Долгосрочные заемные средства                                                                                                                       | 6          | 1 848 363                              | 1 483 358                           |",
+      "unit": "RUB million",
+      "value": 1848363.0
+    },
+    {
+      "concept": "LONG_TERM_LEASE_LIABILITIES",
+      "period_ref": "30.09.2025",
+      "quote": "| Обязательства по аренде, за вычетом краткосрочной части                                                                                             |            | 45 577                                 | 45 574                              |",
+      "unit": "RUB million",
+      "value": 45577.0
+    },
+    {
+      "concept": "SHORT_TERM_BORROWINGS",
+      "period_ref": "30.09.2025",
+      "quote": "| Краткосрочные заемные средства                                                                                                                      | 6          | 1 642 601                              | 1 506 523                           |",
+      "unit": "RUB million",
+      "value": 1642601.0
+    },
+    {
+      "concept": "SHORT_TERM_LEASE_LIABILITIES",
+      "period_ref": "30.09.2025",
+      "quote": "| Обязательства по аренде, краткосрочная часть                                                                                                        |            | 14 506                                 | 14 963                              |",
+      "unit": "RUB million",
+      "value": 14506.0
+    },
+    {
+      "concept": "PERPETUAL_BONDS",
+      "period_ref": "30.09.2025",
+      "quote": "| Бессрочные финансовые инструменты                                                                                                                   | 11         | 372 684                                | 372 684                             |",
+      "unit": "RUB million",
+      "value": 372684.0
+    },
+    {
+      "concept": "ACCOUNTS_PAYABLE",
+      "period_ref": "30.09.2025",
+      "quote": "| Кредиторская и прочая задолженность                                                                                                                 |            | 300 020                                | 624 244                             |",
+      "unit": "RUB million",
+      "value": 300020.0
+    }
+  ],
+  "source_url": "https://gitverse.ru/nero27/AIFA_RFA",
+  "structure_id": "rzhd-Q3-2025:table:1",
+  "table_kind": "financial_statement"
+}

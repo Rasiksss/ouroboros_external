@@ -1,0 +1,2506 @@
+## SYSTEM
+You are a senior financial analyst working with us_gaap_en financial reports. Your task is to find and extract ordinary financial statement metrics, matching source rows strictly against each metric's registry description, aliases and hint. If a row is similar but broader, narrower, or includes extra components, do not use it. Return valid JSON only.
+
+## USER
+<task>
+You are doing recall-first context compression only. For each requested financial metric, find all exact source evidence that a later extraction step can read.
+Return up to 10 table ids and up to 10 exact non-table narrative quotes per metric. Prioritize full coverage: include every table or quote that discloses the exact metric for any period, including comparative periods, repeated statements, note tables, roll-forward/reconciliation tables, and adjacent fragments split across pages. Quotes must be short: 1-2 sentences copied from the report. Do not extract metric values yet.
+</task>
+
+<ocr_text>
+===PAGE 1===
+Consolidated statement of financial position
+as at 31 December 2024 (RUB million)
+| Metric | 2024 | 2023 |
+| Total assets | 1 000 | 900 |
+| Total equity | 400 | 350 |
+
+===PAGE 2===
+Statement of profit or loss for the year ended 31 December 2024
+| Metric | 2024 | 2023 |
+| Revenue | 500 | 450 |
+| Net income | 50 | 40 |
+
+</ocr_text>
+
+<ocr_tables>
+## table_id=0 | page=1
+title: Consolidated statement of financial position as at 31 December 2024 (RUB million)
+context_before:
+Consolidated statement of financial position
+as at 31 December 2024 (RUB million)
+table:
+| Metric | 2024 | 2023 |
+| Total assets | 1 000 | 900 |
+| Total equity | 400 | 350 |
+context_after:
+
+
+## table_id=1 | page=2
+title: Statement of profit or loss for the year ended 31 December 2024
+context_before:
+Statement of profit or loss for the year ended 31 December 2024
+table:
+| Metric | 2024 | 2023 |
+| Revenue | 500 | 450 |
+| Net income | 50 | 40 |
+context_after:
+
+</ocr_tables>
+
+<registry>
+[
+  {
+    "enum": "MODIFIED_AUDITORS_OPINION",
+    "name": "Modified auditor's opinion",
+    "name_ru": "Наличие модифицированного мнения аудитора",
+    "name_en": "Modified auditor's opinion",
+    "aliases": [
+      "modified opinion",
+      "qualified opinion",
+      "adverse opinion",
+      "disclaimer of opinion",
+      "independent auditor's report",
+      "Modified auditor's opinion",
+      "Модифицированное мнение аудитора",
+      "Аудиторское заключение с оговоркой",
+      "Отказ от выражения мнения",
+      "Наличие модифицированного мнения аудитора"
+    ],
+    "description": "Text flag indicating whether the auditor issued a modified opinion for the current reporting period.",
+    "hint": "Use the Independent Auditor's Report. Return 0 for an unmodified opinion and 1 for a qualified, adverse, or disclaimer opinion. Do not create comparative periods unless a separate auditor's opinion is disclosed for them.",
+    "period_type": "point"
+  },
+  {
+    "enum": "CASH_EQUIVALENTS",
+    "name": "Cash and cash equivalents",
+    "name_ru": "Денежные средства и их эквиваленты",
+    "name_en": "Cash and cash equivalents",
+    "aliases": [
+      "cash and cash equivalents",
+      "cash equivalents",
+      "cash and cash equivalents at end of year",
+      "cash and balances",
+      "cash and bank balances",
+      "Cash and equivalents",
+      "Cash and cash equivalents at end of period",
+      "Денежные средства и эквиваленты денежных средств",
+      "Денежные средства и денежные эквиваленты",
+      "Денежные средства и их эквиваленты на конец периода",
+      "Денежные средства и их эквиваленты",
+      "Cash and cash equivalents"
+    ],
+    "description": "Cash, current accounts and short-term highly liquid balances presented as cash and cash equivalents.",
+    "hint": "Use the Cash Flow Statement closing line if cash and cash equivalents are disclosed there. In Indian bank statements, also check Schedule 6 and Schedule 7, but do not confuse statutory cash/balances schedules with a broader cash-equivalent definition if the cash flow statement gives a narrower total.",
+    "period_type": "point"
+  },
+  {
+    "enum": "TOTAL_ASSETS",
+    "name": "Total assets",
+    "name_ru": "Итого активы",
+    "name_en": "Total assets",
+    "aliases": [
+      "total assets",
+      "assets total",
+      "total of assets",
+      "Sum of assets",
+      "ИТОГО АКТИВЫ",
+      "Итого по активам",
+      "Активы всего",
+      "Всего активов",
+      "Итого активов",
+      "Итого активы",
+      "Total assets"
+    ],
+    "description": "Total carrying amount of all assets at the reporting date.",
+    "hint": "Use the Balance Sheet total assets line. It should reconcile to the sum of asset schedules, including cash and balances, investments, advances, fixed assets and other assets.",
+    "period_type": "point"
+  },
+  {
+    "enum": "PPE",
+    "name": "Property, plant and equipment",
+    "name_ru": "Основные средства",
+    "name_en": "Property, plant and equipment",
+    "aliases": [
+      "fixed assets",
+      "property and equipment",
+      "premises",
+      "furniture and fixtures",
+      "other fixed assets",
+      "property, plant and equipment",
+      "PP&E",
+      "Основные средства",
+      "ОС",
+      "Основные средства и оборудование",
+      "Здания, сооружения и оборудование",
+      "Property, plant and equipment"
+    ],
+    "description": "Carrying amount of tangible fixed assets used by the bank.",
+    "hint": "Use Schedule 10 'Fixed Assets' or the fixed assets note. Take the net block / written-down value, not gross cost. Exclude intangible assets, goodwill and right-of-use assets if they are disclosed separately.",
+    "period_type": "point"
+  },
+  {
+    "enum": "DEFERRED_TAX_ASSETS",
+    "name": "Deferred tax assets",
+    "name_ru": "Отложенные налоговые активы",
+    "name_en": "Deferred tax assets",
+    "aliases": [
+      "deferred tax assets",
+      "net deferred tax asset",
+      "deferred tax asset",
+      "Deferred income tax assets",
+      "Активы по отложенному налогу на прибыль",
+      "Отложенные налоговые активы",
+      "Deferred tax assets"
+    ],
+    "description": "Income tax asset arising from deductible temporary differences and carried forward tax items.",
+    "hint": "Use the tax note or the balance sheet line if separately presented. Do not net with deferred tax liabilities unless the report presents only a net deferred tax asset.",
+    "period_type": "point"
+  },
+  {
+    "enum": "DEFERRED_TAX_LIABILITIES",
+    "name": "Deferred tax liabilities",
+    "name_ru": "Отложенные налоговые обязательства",
+    "name_en": "Deferred tax liabilities",
+    "aliases": [
+      "deferred tax liabilities",
+      "net deferred tax liability",
+      "deferred tax liability",
+      "Deferred income tax liabilities",
+      "Обязательства по отложенному налогу на прибыль",
+      "Отложенные налоговые обязательства",
+      "Deferred tax liabilities"
+    ],
+    "description": "Income tax liability arising from taxable temporary differences.",
+    "hint": "Use the tax note or the balance sheet line if separately presented. Do not net with deferred tax assets unless the report presents only a net deferred tax liability.",
+    "period_type": "point"
+  },
+  {
+    "enum": "INTANGIBLE_ASSETS",
+    "name": "Intangible assets",
+    "name_ru": "Нематериальные активы",
+    "name_en": "Intangible assets",
+    "aliases": [
+      "intangible assets",
+      "software",
+      "computer software",
+      "other intangible assets",
+      "Intangibles",
+      "Нематериальные активы",
+      "НМА",
+      "Прочие нематериальные активы",
+      "Нематериальные активы за вычетом гудвила",
+      "Intangible assets"
+    ],
+    "description": "Carrying amount of identifiable non-physical assets, excluding goodwill when goodwill is separately disclosed.",
+    "hint": "Use the intangible assets note or the relevant line within fixed assets / other assets. Exclude goodwill, tangible fixed assets and right-of-use assets if separately disclosed.",
+    "period_type": "point"
+  },
+  {
+    "enum": "GOODWILL",
+    "name": "Goodwill",
+    "name_ru": "Гудвил",
+    "name_en": "Goodwill",
+    "aliases": [
+      "goodwill",
+      "goodwill on consolidation",
+      "Деловая репутация",
+      "Гудвил",
+      "Goodwill"
+    ],
+    "description": "Goodwill arising on acquisition or consolidation.",
+    "hint": "Use the balance sheet or business combination / consolidation note. Do not include other intangible assets if goodwill is disclosed separately.",
+    "period_type": "point"
+  },
+  {
+    "enum": "TOTAL_EQUITY",
+    "name": "Total equity",
+    "name_ru": "Итого собственный капитал",
+    "name_en": "Total equity",
+    "aliases": [
+      "total equity",
+      "shareholders' funds",
+      "shareholders' equity",
+      "capital and reserves",
+      "net worth",
+      "Total shareholders' equity",
+      "Stockholders' equity",
+      "Итого капитал",
+      "Собственный капитал акционеров",
+      "Итого собственный капитал",
+      "Total equity"
+    ],
+    "description": "Total equity attributable to shareholders and, in consolidated statements, non-controlling interests where applicable.",
+    "hint": "Use the equity total in the Balance Sheet. For Indian bank statutory format, reconcile to Schedule 1 'Capital' plus Schedule 2 'Reserves and Surplus' and any consolidated non-controlling interest line.",
+    "period_type": "point"
+  },
+  {
+    "enum": "NET_INCOME",
+    "name": "Net income",
+    "name_ru": "Чистая прибыль",
+    "name_en": "Net income",
+    "aliases": [
+      "net profit",
+      "profit after tax",
+      "profit for the year",
+      "profit for the period",
+      "net profit after tax",
+      "Net earnings",
+      "Чистая прибыль/(убыток)",
+      "Прибыль за период/год/квартал",
+      "Чистая прибыль собственников",
+      "Чистая прибыль",
+      "Net income"
+    ],
+    "description": "Profit after tax for the reporting period before appropriation.",
+    "hint": "Use the Profit and Loss Account line after tax and before appropriations/transfers. In interim statements, preserve the exact period columns disclosed. Losses should retain the source sign.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "DIVIDENDS",
+    "name": "Dividends paid or proposed",
+    "name_ru": "Дивиденды",
+    "name_en": "Dividends paid or proposed",
+    "aliases": [
+      "dividends",
+      "dividend paid",
+      "proposed dividend",
+      "interim dividend",
+      "final dividend",
+      "Dividends paid",
+      "Дивиденды уплаченные",
+      "Дивиденды выплаченные",
+      "Дивиденды",
+      "Dividends paid or proposed"
+    ],
+    "description": "Dividend amount disclosed as paid, proposed or appropriated for the period.",
+    "hint": "Use the appropriations section of the Profit and Loss Account, statement of changes in equity or cash flow statement, depending on the report wording. Do not confuse dividend per share with total dividend amount.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "CHANGES_OCF_ASSETS_LIABILITIES",
+    "name": "Changes in operating assets and liabilities",
+    "name_ru": "Изменения в оборотном капитале",
+    "name_en": "Changes in operating assets and liabilities",
+    "aliases": [
+      "changes in operating assets and liabilities",
+      "working capital changes",
+      "adjustments for operating assets and liabilities",
+      "Working capital movements",
+      "Изменения в операционных активах и обязательствах",
+      "Изменения в оборотном капитале",
+      "Changes in operating assets and liabilities"
+    ],
+    "description": "Net cash-flow effect of changes in operating assets and liabilities.",
+    "hint": "Use the Cash Flow Statement subtotal if explicitly disclosed. If no subtotal is printed, derive only from adjacent cash flow subtotals; do not blindly sum all asset and liability movements across the statement.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "TOTAL_LOANS_TO_CLIENTS",
+    "name": "Loans to customers / net advances",
+    "name_ru": "Кредиты клиентам",
+    "name_en": "Loans to customers / net advances",
+    "aliases": [
+      "loans to customers",
+      "loans and advances to customers",
+      "advances",
+      "net advances",
+      "advances net of provisions",
+      "loans and advances",
+      "advances to customers",
+      "net loans and advances",
+      "Gross loans",
+      "Кредиты и авансы клиентам",
+      "Кредитный портфель (валовой)",
+      "Кредиты клиентам"
+    ],
+    "description": "Net carrying amount of loans or advances to customers after related provisions or allowances.",
+    "hint": "For Indian GAAP, use Balance Sheet Schedule 9 'Advances' and take the net advances amount after provisions. Treat 'advances' as the local statutory wording for customer loans. Do not use gross advances, NPA balances, or provision balances for this enum.",
+    "period_type": "point"
+  },
+  {
+    "enum": "CLIENT_DEPOSITS",
+    "name": "Customer deposits",
+    "name_ru": "Депозиты клиентов",
+    "name_en": "Customer deposits",
+    "aliases": [
+      "deposits",
+      "customer deposits",
+      "total deposits",
+      "deposits from customers",
+      "Due to customers",
+      "Средства клиентов",
+      "Депозиты",
+      "Депозиты клиентов",
+      "Customer deposits"
+    ],
+    "description": "Total deposits accepted by the bank from customers and other depositors.",
+    "hint": "Use Schedule 3 'Deposits'. Take the total deposits line, not one component such as demand deposits, savings deposits or term deposits.",
+    "period_type": "point"
+  },
+  {
+    "enum": "COMMON_EQUITY_TIER_ONE_CAPITAL",
+    "name": "Common Equity Tier 1 capital",
+    "name_ru": "Основной капитал первого уровня",
+    "name_en": "Common Equity Tier 1 capital",
+    "aliases": [
+      "Common Equity Tier 1 capital",
+      "CET1 capital",
+      "Common Equity Tier 1",
+      "Common equity Tier 1 capital ratio",
+      "Капитал первого уровня",
+      "CET1 капитал",
+      "Базовый капитал первого уровня",
+      "Основной капитал первого уровня"
+    ],
+    "description": "Absolute amount of Common Equity Tier 1 capital used for Basel/RBI capital adequacy purposes.",
+    "hint": "Use the Basel III / Pillar 3 / capital adequacy disclosure. Take the absolute CET1 capital amount, not the CET1 ratio percentage.",
+    "period_type": "point"
+  },
+  {
+    "enum": "OPERATING_EXPENSES_BANKS",
+    "name": "Operating expenses",
+    "name_ru": "Операционные расходы банков",
+    "name_en": "Operating expenses",
+    "aliases": [
+      "operating expenses",
+      "total operating expenses",
+      "operating expenditure",
+      "payments to and provisions for employees",
+      "other operating expenses",
+      "Non-interest expenses",
+      "Непроцентные расходы",
+      "Операционные и административные расходы",
+      "Операционные расходы банков",
+      "Operating expenses"
+    ],
+    "description": "Total operating expenses of the bank, including employee costs and other operating expenses.",
+    "hint": "Use Schedule 16 'Operating Expenses' or the Profit and Loss Account total for operating expenses. Preserve expense sign if the source presents expenses as negative amounts.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "INCOME_TAX",
+    "name": "Income tax expense",
+    "name_ru": "Расход по текущему налогу на прибыль",
+    "name_en": "Income tax expense",
+    "aliases": [
+      "tax expense",
+      "provision for tax",
+      "income tax",
+      "current tax",
+      "taxation",
+      "Provision for income taxes",
+      "Income tax provision (benefit)",
+      "Текущий налог на прибыль",
+      "Расход по текущему налогу на прибыль",
+      "Income tax expense"
+    ],
+    "description": "Income tax expense for the reporting period.",
+    "hint": "Use the Profit and Loss Account or tax note. Prefer the tax expense charged to profit for the period; if the report separates current and deferred tax, do not substitute one component for the total tax expense unless the enum is explicitly requested as current tax.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "EBT",
+    "name": "Profit before tax",
+    "name_ru": "Прибыль до налогообложения",
+    "name_en": "Profit before tax",
+    "aliases": [
+      "profit before tax",
+      "profit before taxation",
+      "PBT",
+      "earnings before tax",
+      "Income before income taxes",
+      "Pre-tax income",
+      "Прибыль до налога",
+      "Прибыль до налога на прибыль",
+      "Прибыль до налогообложения",
+      "Profit before tax"
+    ],
+    "description": "Profit before income tax for the reporting period.",
+    "hint": "Use the Profit and Loss Account line immediately before tax expense. Preserve losses as negative values.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "INTERBANK_DEPOSITS",
+    "name": "Balances with banks and money at call",
+    "name_ru": "Средства в банках",
+    "name_en": "Balances with banks and money at call",
+    "aliases": [
+      "balances with banks",
+      "money at call",
+      "money at short notice",
+      "balances with banks and money at call and short notice",
+      "interbank placements",
+      "Due from banks",
+      "Deposits with banks",
+      "Депозиты в банках",
+      "Межбанковские депозиты",
+      "Средства в банках",
+      "Balances with banks and money at call"
+    ],
+    "description": "Amounts placed with other banks or available as money at call and short notice.",
+    "hint": "Use Schedule 7 'Balances with banks and money at call and short notice'. Take the relevant asset balance; do not use borrowings from other banks.",
+    "period_type": "point"
+  },
+  {
+    "enum": "INTERBANK_LOANS",
+    "name": "Borrowings from banks",
+    "name_ru": "Средства банков",
+    "name_en": "Borrowings from banks",
+    "aliases": [
+      "borrowings from banks",
+      "inter-bank borrowings",
+      "borrowings from other banks",
+      "amounts due to banks",
+      "Due to banks",
+      "Interbank borrowings",
+      "Deposits from banks",
+      "Депозиты банков",
+      "Межбанковские привлечения",
+      "Средства банков",
+      "Borrowings from banks"
+    ],
+    "description": "Amounts borrowed from other banks or interbank counterparties.",
+    "hint": "Use Schedule 4 'Borrowings' and the component from other banks or interbank borrowings. Do not use deposits or balances placed with banks on the asset side.",
+    "period_type": "point"
+  },
+  {
+    "enum": "OTHER_ASSETS",
+    "name": "Other assets",
+    "name_ru": "Прочие активы",
+    "name_en": "Other assets",
+    "aliases": [
+      "other assets",
+      "Schedule 11",
+      "other asset items",
+      "miscellaneous assets",
+      "Prepaid expenses and other assets",
+      "Other current assets",
+      "Other long-term assets",
+      "Прочие активы",
+      "Прочие внеоборотные активы",
+      "Иные активы",
+      "Other assets"
+    ],
+    "description": "Assets not classified into the main banking balance sheet schedules.",
+    "hint": "Use Schedule 11 'Other Assets'. Take the total schedule amount, not changes in other assets from the cash flow statement.",
+    "period_type": "point"
+  },
+  {
+    "enum": "TOTAL_ASSOCIATE_INVESTMENTS",
+    "name": "Investments in associates and joint ventures",
+    "name_ru": "Инвестиции в ассоциированные и совместные предприятия",
+    "name_en": "Investments in associates and joint ventures",
+    "aliases": [
+      "investments in associates",
+      "investments in joint ventures",
+      "investments in subsidiaries, associates and joint ventures",
+      "equity method investments",
+      "Investments in associates and joint ventures",
+      "Equity-accounted investments",
+      "Equity method investment",
+      "Investments: equity method",
+      "Вложения в ассоциированные и совместные предприятия",
+      "Инвестиции в компании по методу долевого участия",
+      "Инвестиции в ассоциированные и совместные предприятия"
+    ],
+    "description": "Investments in associates, joint ventures or similar investees, as separately disclosed.",
+    "hint": "Use Schedule 8 'Investments' or the investments note. Take the separate line for subsidiaries, joint ventures and associates if disclosed. Do not include the full investments total.",
+    "period_type": "point"
+  },
+  {
+    "enum": "JUNIOR_DEBT",
+    "name": "Subordinated debt",
+    "name_ru": "Субординированная задолженность",
+    "name_en": "Subordinated debt",
+    "aliases": [
+      "subordinated debt",
+      "subordinated bonds",
+      "subordinated liabilities",
+      "Tier 2 bonds",
+      "lower Tier 2 bonds",
+      "Subordinated loans",
+      "Субординированные займы",
+      "Субординированный долг",
+      "Субординированная задолженность",
+      "Subordinated debt"
+    ],
+    "description": "Subordinated borrowings with lower repayment priority, often eligible for regulatory capital.",
+    "hint": "Use Schedule 4 'Borrowings', capital instruments notes, or Basel III capital disclosures. Do not include senior bonds or ordinary deposits.",
+    "period_type": "point"
+  },
+  {
+    "enum": "OTHER_LIABILITIES",
+    "name": "Other liabilities and provisions",
+    "name_ru": "Прочие обязательства",
+    "name_en": "Other liabilities and provisions",
+    "aliases": [
+      "other liabilities",
+      "other liabilities and provisions",
+      "Schedule 5",
+      "bills payable",
+      "inter-office adjustments",
+      "provisions",
+      "Accrued and other liabilities",
+      "Other current liabilities",
+      "Other long-term liabilities",
+      "Прочие обязательства",
+      "Прочие долгосрочные обязательства",
+      "Прочие краткосрочные обязательства"
+    ],
+    "description": "Liabilities and provisions not classified as deposits, borrowings or capital.",
+    "hint": "Use Schedule 5 'Other Liabilities and Provisions'. Take the total schedule amount unless a more specific enum is requested.",
+    "period_type": "point"
+  },
+  {
+    "enum": "SHARE_CAPITAL",
+    "name": "Share capital",
+    "name_ru": "Уставной капитал",
+    "name_en": "Share capital",
+    "aliases": [
+      "share capital",
+      "capital",
+      "paid-up capital",
+      "equity share capital",
+      "Common stock",
+      "Ordinary shares",
+      "Capital stock",
+      "Акционерный капитал",
+      "Обыкновенные акции (номинал)",
+      "Уставной капитал",
+      "Share capital"
+    ],
+    "description": "Paid-up nominal value of issued share capital.",
+    "hint": "Use Schedule 1 'Capital'. Do not use reserves, share premium or total equity.",
+    "period_type": "point"
+  },
+  {
+    "enum": "SHARE_PREMIUM",
+    "name": "Share premium",
+    "name_ru": "Эмиссионный доход",
+    "name_en": "Share premium",
+    "aliases": [
+      "share premium",
+      "securities premium",
+      "securities premium account",
+      "Additional paid-in capital",
+      "Capital surplus",
+      "APIC",
+      "Добавочный капитал",
+      "Дополнительный оплаченный капитал",
+      "Эмиссионный доход",
+      "Share premium"
+    ],
+    "description": "Premium received over the nominal value of issued shares.",
+    "hint": "Use Schedule 2 'Reserves and Surplus' and the securities premium / share premium line. Do not include share capital or retained earnings.",
+    "period_type": "point"
+  },
+  {
+    "enum": "RETAINED_EARNINGS",
+    "name": "Retained earnings",
+    "name_ru": "Нераспределенная прибыль",
+    "name_en": "Retained earnings",
+    "aliases": [
+      "retained earnings",
+      "balance in profit and loss account",
+      "surplus in profit and loss account",
+      "accumulated surplus",
+      "accumulated deficit",
+      "Accumulated retained earnings",
+      "Retained earnings balance",
+      "Нераспределенная прибыль (непокрытый убыток)",
+      "Накопленная прибыль",
+      "Нераспределенная прибыль",
+      "Retained earnings"
+    ],
+    "description": "Accumulated profits retained in equity after appropriations and distributions.",
+    "hint": "Use Schedule 2 'Reserves and Surplus', especially the balance in the Profit and Loss Account / surplus line. Do not use net profit for the current period.",
+    "period_type": "point"
+  },
+  {
+    "enum": "NON_CONTROL_INTEREST",
+    "name": "Non-controlling interest",
+    "name_ru": "Неконтрольные доли участия",
+    "name_en": "Non-controlling interest",
+    "aliases": [
+      "non-controlling interest",
+      "minority interest",
+      "NCI",
+      "Non-controlling interests",
+      "Неконтролирующие доли",
+      "Доля меньшинства",
+      "Неконтрольные доли участия",
+      "Non-controlling interest"
+    ],
+    "description": "Equity attributable to shareholders other than the parent company in consolidated statements.",
+    "hint": "Use the consolidated balance sheet equity section. This item may be absent in standalone bank statements; return null when not separately disclosed.",
+    "period_type": "point"
+  },
+  {
+    "enum": "DERIVATIVE_LIABILITIES",
+    "name": "Derivative liabilities",
+    "name_ru": "Производные финансовые обязательства",
+    "name_en": "Derivative liabilities",
+    "aliases": [
+      "derivative liabilities",
+      "derivative financial liabilities",
+      "negative fair value of derivatives",
+      "derivatives payable",
+      "Derivative financial instruments",
+      "Производные финансовые инструменты (обязательства)",
+      "Деривативы (обязательства)",
+      "Производные финансовые обязательства",
+      "Derivative liabilities"
+    ],
+    "description": "Fair value liability arising from derivative financial instruments.",
+    "hint": "Use financial instrument / derivative notes or balance sheet disclosures. Do not use notional amounts or contingent liability amounts for outstanding forward exchange contracts.",
+    "period_type": "point"
+  },
+  {
+    "enum": "CASH_AND_CASH_BALANCES_WITH_CB",
+    "name": "Cash and balances with central bank",
+    "name_ru": "Обязательные резервы на счетах в центральных банках",
+    "name_en": "Cash and balances with central bank",
+    "aliases": [
+      "cash and balances with Reserve Bank of India",
+      "cash in hand",
+      "balances with RBI",
+      "balances with central banks",
+      "cash and balances with central bank",
+      "Mandatory reserves with central bank",
+      "Reserve deposits with central bank",
+      "Обязательные резервы на счетах в ЦБ РФ",
+      "Обязательные резервы на счетах в Центральном банке",
+      "Обязательные резервы на счетах в центральных банках",
+      "Cash and balances with central bank"
+    ],
+    "description": "Cash in hand and balances maintained with the central bank.",
+    "hint": "For Indian banks, use Schedule 6 'Cash and Balances with Reserve Bank of India'. Take the total schedule amount unless a narrower line is explicitly requested.",
+    "period_type": "point"
+  },
+  {
+    "enum": "FUNDS_FROM_CENTRAL_BANK",
+    "name": "Borrowings from central bank",
+    "name_ru": "Средства, предоставленные ЦБ",
+    "name_en": "Borrowings from central bank",
+    "aliases": [
+      "borrowings from Reserve Bank of India",
+      "borrowings from RBI",
+      "refinance from RBI",
+      "funds from central bank",
+      "central bank borrowings",
+      "Loans from central bank",
+      "Borrowings from the central bank",
+      "Кредиты ЦБ",
+      "Рефинансирование от центрального банка",
+      "Средства, предоставленные ЦБ",
+      "Borrowings from central bank"
+    ],
+    "description": "Funding borrowed from the central bank.",
+    "hint": "Use Schedule 4 'Borrowings' and the component from Reserve Bank of India / central bank. Do not confuse with balances maintained with RBI on the asset side.",
+    "period_type": "point"
+  },
+  {
+    "enum": "REPO_PLEDGED_SECURITIES",
+    "name": "Securities pledged under repo",
+    "name_ru": "Ценные бумаги, заложенные по договорам репо",
+    "name_en": "Securities pledged under repo",
+    "aliases": [
+      "securities pledged under repo",
+      "securities sold under repurchase agreements",
+      "pledged securities",
+      "securities given as collateral",
+      "Ценные бумаги",
+      "заложенные по РЕПО",
+      "Переданные в обеспечение ценные бумаги",
+      "Ценные бумаги, заложенные по договорам репо",
+      "Securities pledged under repo"
+    ],
+    "description": "Securities transferred or pledged as collateral under repo or similar arrangements.",
+    "hint": "Use repo, collateral or investment notes. Take only securities pledged/transferred under repo; do not use repo borrowing liabilities or the full investments portfolio.",
+    "period_type": "point"
+  },
+  {
+    "enum": "RISK_WEIGHTED_ASSETS",
+    "name": "Risk-weighted assets",
+    "name_ru": "Активы, взвешенные по риску (RWA)",
+    "name_en": "Risk-weighted assets",
+    "aliases": [
+      "risk weighted assets",
+      "RWA",
+      "total RWA",
+      "credit risk weighted assets",
+      "market risk weighted assets",
+      "operational risk weighted assets",
+      "Risk-weighted assets",
+      "Активы, взвешенные по риску (RWA)"
+    ],
+    "description": "Total assets and exposures weighted for regulatory capital purposes.",
+    "hint": "Use the capital adequacy / Basel III disclosure. Take total RWA, not capital ratios or individual risk-type components unless total is absent and clearly derivable.",
+    "period_type": "point"
+  },
+  {
+    "enum": "CET1_RATIO_DISCLOSED",
+    "name": "Common Equity Tier 1 ratio",
+    "name_ru": "Норматив CET1 (раскрываемый)",
+    "name_en": "Common Equity Tier 1 ratio",
+    "aliases": [
+      "CET1 ratio",
+      "Common Equity Tier 1 ratio",
+      "Common Equity Tier 1 capital ratio",
+      "CET1 capital ratio",
+      "норматив Н 1.0",
+      "норматив Н 20.1",
+      "Норматив CET1 (раскрываемый)"
+    ],
+    "description": "Disclosed Common Equity Tier 1 capital ratio.",
+    "hint": "Use the Basel III / capital adequacy disclosure. Unit is percent. Do not use absolute CET1 capital.",
+    "period_type": "point"
+  },
+  {
+    "enum": "TIER1_RATIO_DISCLOSED",
+    "name": "Tier 1 capital ratio",
+    "name_ru": "Норматив Tier 1 (раскрываемый)",
+    "name_en": "Tier 1 capital ratio",
+    "aliases": [
+      "Tier 1 ratio",
+      "Tier I ratio",
+      "Tier 1 capital ratio",
+      "Tier I capital ratio",
+      "норматив Н 1.1",
+      "норматив Н 20.2",
+      "Норматив Tier 1 (раскрываемый)"
+    ],
+    "description": "Disclosed Tier 1 capital adequacy ratio.",
+    "hint": "Use the Basel III / capital adequacy disclosure. Unit is percent. Do not confuse with CET1 ratio or total CRAR/CAR.",
+    "period_type": "point"
+  },
+  {
+    "enum": "EPS",
+    "name": "Basic earnings per share",
+    "name_ru": "Прибыль на одну обыкновенную акцию",
+    "name_en": "Basic earnings per share",
+    "aliases": [
+      "basic earnings per share",
+      "earnings per share",
+      "EPS",
+      "basic EPS",
+      "Прибыль на акцию",
+      "Прибыль на одну обыкновенную акцию",
+      "Basic earnings per share"
+    ],
+    "description": "Basic earnings per ordinary equity share for the reporting period.",
+    "hint": "Use the Profit and Loss Account or EPS note. Prefer basic EPS over diluted EPS. Unit should be currency per share, not the report scaling used for balance sheet figures.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "DIVIDENDS_RECEIVED",
+    "name": "Dividends received",
+    "name_ru": "Дивиденды полученные",
+    "name_en": "Dividends received",
+    "aliases": [
+      "dividends received",
+      "dividend income",
+      "income from dividends",
+      "Cash dividends received",
+      "Полученные дивиденды",
+      "Дивиденды полученные",
+      "Dividends received"
+    ],
+    "description": "Dividends received or dividend income recognised during the period.",
+    "hint": "Use the Cash Flow Statement if the report explicitly presents dividends received. If only statutory P&L is available, use Schedule 13/14 investment income only when it is clearly identified as dividend income.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "DEBT_SECURITIES_ISSUED",
+    "name": "Debt securities issued",
+    "name_ru": "Выпущенные долговые ценные бумаги",
+    "name_en": "Debt securities issued",
+    "aliases": [
+      "debt securities issued",
+      "bonds issued",
+      "notes issued",
+      "certificates of deposit",
+      "debentures issued",
+      "debt instruments",
+      "Notes and bonds issued",
+      "Выпущенные облигации",
+      "Долговые ценные бумаги в обращении",
+      "Выпущенные долговые ценные бумаги",
+      "Debt securities issued"
+    ],
+    "description": "Debt instruments issued by the bank and outstanding at the reporting date.",
+    "hint": "Use Schedule 4 'Borrowings' or debt instruments notes. Include bonds, notes, debentures and certificates of deposit where they represent issued debt. Do not use investment securities held as assets.",
+    "period_type": "point"
+  },
+  {
+    "enum": "INDIVIDUALS_LOANS",
+    "name": "Retail loans",
+    "name_ru": "Розничные кредиты",
+    "name_en": "Retail loans",
+    "aliases": [
+      "retail loans",
+      "consumer loans",
+      "personal loans",
+      "housing loans",
+      "vehicle loans",
+      "loans to individuals",
+      "retail advances",
+      "Кредиты физическим лицам",
+      "Потребительские кредиты",
+      "Розничные кредиты",
+      "Retail loans"
+    ],
+    "description": "Gross or carrying amount of loans to individual / retail borrowers, depending on the report's segmentation basis.",
+    "hint": "Use loan/advance portfolio segmentation notes. In Indian reports, this may appear as retail advances. Do not use total advances or priority sector advances. Prefer gross exposure if the segmentation table is on a gross basis; otherwise preserve the disclosed basis.",
+    "period_type": "point"
+  },
+  {
+    "enum": "NET_INTEREST_INCOME",
+    "name": "Net interest income",
+    "name_ru": "Чистый процентный доход",
+    "name_en": "Net interest income",
+    "aliases": [
+      "net interest income",
+      "NII",
+      "interest earned less interest expended",
+      "Чистый процентный доход",
+      "ЧПД",
+      "Чистый процентный доход после резерва",
+      "Net interest income"
+    ],
+    "description": "Interest earned minus interest expended for the period.",
+    "hint": "Indian statutory P&L normally gives Schedule 13 'Interest Earned' and Schedule 15 'Interest Expended'. Use a disclosed net interest income subtotal if present; otherwise it can be calculated from those two native lines outside extraction.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "CORPORATE_LOANS",
+    "name": "Corporate loans",
+    "name_ru": "Корпоративные кредиты",
+    "name_en": "Corporate loans",
+    "aliases": [
+      "corporate loans",
+      "corporate advances",
+      "commercial loans",
+      "loans to corporates",
+      "advances to corporate borrowers",
+      "wholesale advances",
+      "Кредиты корпоративным клиентам",
+      "Кредиты юридическим лицам",
+      "Корпоративные кредиты",
+      "Corporate loans"
+    ],
+    "description": "Loans or advances to corporate / commercial borrowers.",
+    "hint": "Use loan/advance portfolio segmentation notes. Do not use total advances, retail advances, or priority sector advances unless the table explicitly identifies a corporate/wholesale borrower segment.",
+    "period_type": "point"
+  },
+  {
+    "enum": "PERPETUAL_BONDS",
+    "name": "Perpetual bonds / Additional Tier 1 instruments",
+    "name_ru": "Бессрочные облигации",
+    "name_en": "Perpetual bonds / Additional Tier 1 instruments",
+    "aliases": [
+      "perpetual bonds",
+      "perpetual debt instruments",
+      "Additional Tier 1 bonds",
+      "AT1 bonds",
+      "Basel III Additional Tier 1 instruments",
+      "perpetual non-cumulative preference shares",
+      "Perpetual notes",
+      "Hybrid capital notes",
+      "Облигации без срока погашения",
+      "Выпуск бессрочных облигаций",
+      "бессрочный субординированный займ",
+      "Бессрочные облигации"
+    ],
+    "description": "Perpetual capital instruments, typically eligible as Additional Tier 1 capital or similar regulatory capital.",
+    "hint": "Use capital instruments, borrowings or Basel III capital notes. Do not include ordinary term bonds, Tier 2 bonds, share capital or reserves.",
+    "period_type": "point"
+  },
+  {
+    "enum": "TOTAL_GROSS_LOANS_TO_CLIENTS",
+    "name": "Gross loans to customers",
+    "name_ru": "Валовые кредиты клиентам",
+    "name_en": "Gross loans to customers",
+    "aliases": [
+      "gross loans",
+      "gross customer loans",
+      "gross loans to customers",
+      "gross loans and advances",
+      "gross advances",
+      "advances before provisions",
+      "total advances before provisions",
+      "gross advances to customers",
+      "Валовые кредиты клиентам",
+      "Gross loans to customers"
+    ],
+    "description": "Gross amount of loans or advances to customers before provisions, allowances or impairment deductions.",
+    "hint": "Keep the metric conceptually tied to loans/credit exposure. For Indian GAAP, search asset-quality disclosures and Schedule 9 'Advances' notes for 'gross advances' or 'advances before provisions'. Do not use net advances, NPA balances, or provision balances. This enum is intended to remain reusable outside India, where the local wording may be gross loans rather than advances.",
+    "period_type": "point"
+  },
+  {
+    "enum": "GROSS_NPA",
+    "name": "Gross non-performing assets",
+    "name_ru": "Валовые необслуживаемые активы (NPA)",
+    "name_en": "Gross non-performing assets",
+    "aliases": [
+      "gross NPA",
+      "gross NPAs",
+      "gross non-performing assets",
+      "gross non-performing advances",
+      "GNPA",
+      "Валовые необслуживаемые активы (NPA)",
+      "Gross non-performing assets"
+    ],
+    "description": "Gross balance of non-performing assets or non-performing advances before provisions.",
+    "hint": "Use the asset quality / NPA disclosure. Do not substitute Stage 3 loans unless the report explicitly reconciles Stage 3 to NPA; Indian GAAP/RBI NPA classification is the native source.",
+    "period_type": "point"
+  },
+  {
+    "enum": "NET_NPA",
+    "name": "Net non-performing assets",
+    "name_ru": "Чистые необслуживаемые активы (NPA)",
+    "name_en": "Net non-performing assets",
+    "aliases": [
+      "net NPA",
+      "net NPAs",
+      "net non-performing assets",
+      "net non-performing advances",
+      "NNPA",
+      "Чистые необслуживаемые активы (NPA)",
+      "Net non-performing assets"
+    ],
+    "description": "Non-performing assets after deducting related provisions according to the bank's disclosed NPA framework.",
+    "hint": "Use the asset quality / NPA disclosure. Do not calculate from gross NPA and provisions unless the disclosed table clearly provides the required components and no direct net NPA line is available.",
+    "period_type": "point"
+  },
+  {
+    "enum": "GROSS_NPA_RATIO_DISCLOSED",
+    "name": "Gross NPA ratio",
+    "name_ru": "Раскрытый коэффициент валовых NPA",
+    "name_en": "Gross NPA ratio",
+    "aliases": [
+      "gross NPA ratio",
+      "GNPA ratio",
+      "gross NPAs to gross advances",
+      "gross non-performing assets ratio",
+      "% gross NPAs to gross advances",
+      "Раскрытый коэффициент валовых NPA",
+      "Gross NPA ratio"
+    ],
+    "description": "Disclosed ratio of gross NPAs to gross advances or equivalent denominator.",
+    "hint": "Use the disclosed asset-quality ratio. Unit is percent. Do not return the absolute gross NPA amount.",
+    "period_type": "point"
+  },
+  {
+    "enum": "NET_NPA_RATIO_DISCLOSED",
+    "name": "Net NPA ratio",
+    "name_ru": "Раскрытый коэффициент чистых NPA",
+    "name_en": "Net NPA ratio",
+    "aliases": [
+      "net NPA ratio",
+      "NNPA ratio",
+      "net NPAs to net advances",
+      "net non-performing assets ratio",
+      "% net NPAs to net advances",
+      "Раскрытый коэффициент чистых NPA",
+      "Net NPA ratio"
+    ],
+    "description": "Disclosed ratio of net NPAs to net advances or equivalent denominator.",
+    "hint": "Use the disclosed asset-quality ratio. Unit is percent. Do not return the absolute net NPA amount.",
+    "period_type": "point"
+  },
+  {
+    "enum": "PROVISION_COVERAGE_RATIO",
+    "name": "Provision coverage ratio",
+    "name_ru": "Коэффициент покрытия резервами",
+    "name_en": "Provision coverage ratio",
+    "aliases": [
+      "provision coverage ratio",
+      "PCR",
+      "NPA provision coverage ratio",
+      "provisions to gross NPAs",
+      "Коэффициент покрытия резервами",
+      "Provision coverage ratio"
+    ],
+    "description": "Disclosed coverage of NPAs by provisions.",
+    "hint": "Use the asset quality / NPA disclosure or key ratios table. Unit is percent. Do not confuse with capital adequacy or liquidity ratios.",
+    "period_type": "point"
+  },
+  {
+    "enum": "PROVISION_FOR_NPA",
+    "name": "Provision for non-performing assets",
+    "name_ru": "Резерв под необслуживаемые активы (NPA)",
+    "name_en": "Provision for non-performing assets",
+    "aliases": [
+      "provision for NPA",
+      "provisions for NPAs",
+      "provision for non-performing assets",
+      "NPA provisions",
+      "provision for non-performing advances",
+      "Резерв под необслуживаемые активы (NPA)",
+      "Provision for non-performing assets"
+    ],
+    "description": "Provision amount related to non-performing assets or non-performing advances.",
+    "hint": "Use the NPA disclosure, provisions note, or the relevant component within 'Provisions and contingencies'. Distinguish between a balance-sheet provision stock and a P&L charge if the table gives both; preserve the disclosed basis.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "PROVISIONS_AND_CONTINGENCIES",
+    "name": "Provisions and contingencies",
+    "name_ru": "Расходы на резервы и условные обязательства",
+    "name_en": "Provisions and contingencies",
+    "aliases": [
+      "provisions and contingencies",
+      "provisions & contingencies",
+      "provision and contingencies",
+      "provisions",
+      "Расходы на резервы и условные обязательства",
+      "Provisions and contingencies"
+    ],
+    "description": "Total P&L charge for provisions and contingencies in the statutory banking profit and loss statement.",
+    "hint": "Use the Profit and Loss Account line 'Provisions and Contingencies'. It usually appears after operating profit and before profit before tax. Do not replace it with IFRS ECL change or a closing allowance balance.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "INTEREST_EARNED_TOTAL",
+    "name": "Interest earned",
+    "name_ru": "Процентные доходы",
+    "name_en": "Interest earned",
+    "aliases": [
+      "interest earned",
+      "total interest earned",
+      "interest income",
+      "Schedule 13",
+      "Процентные доходы",
+      "Interest earned"
+    ],
+    "description": "Total interest income earned by the bank during the period.",
+    "hint": "Use Schedule 13 'Interest Earned'. Take the total schedule amount, not one component such as interest on advances or income on investments.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "INTEREST_EXPENDED_TOTAL",
+    "name": "Interest expended",
+    "name_ru": "Процентные расходы",
+    "name_en": "Interest expended",
+    "aliases": [
+      "interest expended",
+      "total interest expended",
+      "interest expense",
+      "Schedule 15",
+      "Процентные расходы",
+      "Interest expended"
+    ],
+    "description": "Total interest expense incurred by the bank during the period.",
+    "hint": "Use Schedule 15 'Interest Expended'. Take the total schedule amount, not one component such as interest on deposits or borrowings.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "OTHER_INCOME_TOTAL",
+    "name": "Other income",
+    "name_ru": "Прочие доходы",
+    "name_en": "Other income",
+    "aliases": [
+      "other income",
+      "total other income",
+      "Schedule 14",
+      "Прочие доходы",
+      "Other income"
+    ],
+    "description": "Total non-interest income presented in the statutory banking profit and loss statement.",
+    "hint": "Use Schedule 14 'Other Income'. Take the total schedule amount. Do not use only commission, exchange, brokerage, profit on sale of investments, or miscellaneous income unless the total is absent and explicitly derivable.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "OPERATING_PROFIT_BEFORE_PROVISIONS",
+    "name": "Operating profit before provisions",
+    "name_ru": "Операционная прибыль до резервов",
+    "name_en": "Operating profit before provisions",
+    "aliases": [
+      "operating profit",
+      "operating profit before provisions",
+      "pre-provision operating profit",
+      "PPOP",
+      "profit before provisions and contingencies",
+      "Операционная прибыль до резервов",
+      "Operating profit before provisions"
+    ],
+    "description": "Profit before provisions and contingencies, usually after interest and operating expenses.",
+    "hint": "Use the Profit and Loss Account subtotal before 'Provisions and Contingencies'. Do not use operating income/revenue; this is a profit subtotal after operating expenses.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "DEMAND_DEPOSITS",
+    "name": "Demand deposits",
+    "name_ru": "Депозиты до востребования",
+    "name_en": "Demand deposits",
+    "aliases": [
+      "demand deposits",
+      "deposits repayable on demand",
+      "current deposits",
+      "Депозиты до востребования",
+      "Demand deposits"
+    ],
+    "description": "Deposits repayable on demand.",
+    "hint": "Use Schedule 3 'Deposits' and take the demand deposits total. Do not include savings or term deposits unless the report aggregates them explicitly.",
+    "period_type": "point"
+  },
+  {
+    "enum": "SAVINGS_BANK_DEPOSITS",
+    "name": "Savings bank deposits",
+    "name_ru": "Сберегательные депозиты",
+    "name_en": "Savings bank deposits",
+    "aliases": [
+      "savings bank deposits",
+      "savings deposits",
+      "savings account deposits",
+      "Сберегательные депозиты",
+      "Savings bank deposits"
+    ],
+    "description": "Savings bank deposits accepted by the bank.",
+    "hint": "Use Schedule 3 'Deposits' and take the savings bank deposits line. Do not include demand/current deposits or term deposits.",
+    "period_type": "point"
+  },
+  {
+    "enum": "TERM_DEPOSITS",
+    "name": "Term deposits",
+    "name_ru": "Срочные депозиты",
+    "name_en": "Term deposits",
+    "aliases": [
+      "term deposits",
+      "time deposits",
+      "fixed deposits",
+      "Срочные депозиты",
+      "Term deposits"
+    ],
+    "description": "Deposits with contractual maturity or term.",
+    "hint": "Use Schedule 3 'Deposits' and take the term deposits total. Do not include demand or savings deposits.",
+    "period_type": "point"
+  },
+  {
+    "enum": "CASA_RATIO_DISCLOSED",
+    "name": "CASA ratio",
+    "name_ru": "Раскрытый коэффициент CASA",
+    "name_en": "CASA ratio",
+    "aliases": [
+      "CASA ratio",
+      "current and savings account ratio",
+      "current account savings account ratio",
+      "Раскрытый коэффициент CASA"
+    ],
+    "description": "Disclosed ratio of current and savings account deposits to total deposits.",
+    "hint": "Use the key ratios / management discussion / deposit profile disclosure. Unit is percent. Prefer a directly disclosed ratio; calculate outside extraction only if current/savings and total deposits are reliable.",
+    "period_type": "point"
+  },
+  {
+    "enum": "PRIORITY_SECTOR_ADVANCES",
+    "name": "Priority sector advances",
+    "name_ru": "Кредиты приоритетным секторам",
+    "name_en": "Priority sector advances",
+    "aliases": [
+      "priority sector advances",
+      "priority sector lending",
+      "PSL advances",
+      "advances to priority sector",
+      "Кредиты приоритетным секторам",
+      "Priority sector advances"
+    ],
+    "description": "Advances classified under the priority sector lending framework.",
+    "hint": "Use priority sector lending disclosures or Schedule 9 category disclosures where present. Do not include all retail advances unless explicitly classified as priority sector.",
+    "period_type": "point"
+  },
+  {
+    "enum": "GOVERNMENT_SECURITIES",
+    "name": "Government securities",
+    "name_ru": "Государственные ценные бумаги",
+    "name_en": "Government securities",
+    "aliases": [
+      "government securities",
+      "GOI securities",
+      "central government securities",
+      "state government securities",
+      "treasury bills",
+      "Государственные ценные бумаги",
+      "Government securities"
+    ],
+    "description": "Investments in government securities held by the bank.",
+    "hint": "Use Schedule 8 'Investments' and the government securities line. Do not use the full investments total or securities pledged under repo.",
+    "period_type": "point"
+  },
+  {
+    "enum": "NET_INVESTMENTS",
+    "name": "Net investments",
+    "name_ru": "Чистые инвестиции",
+    "name_en": "Net investments",
+    "aliases": [
+      "net investments",
+      "investments net of provisions",
+      "net value of investments",
+      "Schedule 8 net investments",
+      "Чистые инвестиции",
+      "Net investments"
+    ],
+    "description": "Carrying amount of investments after provision for depreciation / impairment where disclosed.",
+    "hint": "Use Schedule 8 'Investments'. Prefer the net investments figure after provision for depreciation. Do not use gross investments if a net figure is separately disclosed.",
+    "period_type": "point"
+  },
+  {
+    "enum": "PROVISION_FOR_DEPRECIATION_ON_INVESTMENTS_CLOSING",
+    "name": "Provision for depreciation on investments",
+    "name_ru": "Резерв под снижение стоимости инвестиций",
+    "name_en": "Provision for depreciation on investments",
+    "aliases": [
+      "provision for depreciation on investments",
+      "investment depreciation provision",
+      "provision on investments",
+      "provision for diminution in value of investments",
+      "Резерв под снижение стоимости инвестиций",
+      "Provision for depreciation on investments"
+    ],
+    "description": "Closing provision balance against investments due to depreciation or diminution in value.",
+    "hint": "Use Schedule 8 'Investments' or the investment provision note. This is a closing balance, not the P&L charge for the period unless the source explicitly labels it as a movement/charge.",
+    "period_type": "point"
+  },
+  {
+    "enum": "TIER1_CAPITAL",
+    "name": "Tier 1 capital",
+    "name_ru": "Капитал первого уровня",
+    "name_en": "Tier 1 capital",
+    "aliases": [
+      "Tier 1 capital",
+      "Tier I capital",
+      "total Tier 1 capital",
+      "Капитал первого уровня"
+    ],
+    "description": "Absolute amount of Tier 1 regulatory capital.",
+    "hint": "Use the capital adequacy / Basel III disclosure. Take the absolute Tier 1 capital amount, not the Tier 1 ratio percentage.",
+    "period_type": "point"
+  },
+  {
+    "enum": "TIER2_CAPITAL",
+    "name": "Tier 2 capital",
+    "name_ru": "Капитал второго уровня",
+    "name_en": "Tier 2 capital",
+    "aliases": [
+      "Tier 2 capital",
+      "Tier II capital",
+      "total Tier 2 capital",
+      "Капитал второго уровня"
+    ],
+    "description": "Absolute amount of Tier 2 regulatory capital.",
+    "hint": "Use the capital adequacy / Basel III disclosure. Take the absolute Tier 2 capital amount, not the Tier 2 ratio or subordinated debt balance unless clearly equal.",
+    "period_type": "point"
+  },
+  {
+    "enum": "CRAR_RATIO_DISCLOSED",
+    "name": "Capital to risk-weighted assets ratio",
+    "name_ru": "Раскрытый коэффициент достаточности капитала (CRAR)",
+    "name_en": "Capital to risk-weighted assets ratio",
+    "aliases": [
+      "CRAR",
+      "capital adequacy ratio",
+      "CAR",
+      "capital to risk weighted assets ratio",
+      "total capital ratio",
+      "Раскрытый коэффициент достаточности капитала (CRAR)",
+      "Capital to risk-weighted assets ratio"
+    ],
+    "description": "Disclosed total regulatory capital ratio to risk-weighted assets.",
+    "hint": "Use the capital adequacy / Basel III disclosure. Unit is percent. Do not confuse with CET1 ratio or Tier 1 ratio.",
+    "period_type": "point"
+  },
+  {
+    "enum": "LCR_DISCLOSED",
+    "name": "Liquidity coverage ratio",
+    "name_ru": "Раскрытый коэффициент покрытия ликвидностью (LCR)",
+    "name_en": "Liquidity coverage ratio",
+    "aliases": [
+      "liquidity coverage ratio",
+      "LCR",
+      "average LCR",
+      "Раскрытый коэффициент покрытия ликвидностью (LCR)",
+      "Liquidity coverage ratio"
+    ],
+    "description": "Disclosed liquidity coverage ratio.",
+    "hint": "Use the liquidity coverage / Basel III liquidity disclosure. Unit is percent. Prefer the disclosed average or period-end LCR according to the table label; do not use HQLA or net cash outflows for this enum.",
+    "period_type": "point"
+  },
+  {
+    "enum": "CONTINGENT_LIABILITIES_TOTAL",
+    "name": "Contingent liabilities",
+    "name_ru": "Условные обязательства",
+    "name_en": "Contingent liabilities",
+    "aliases": [
+      "contingent liabilities",
+      "total contingent liabilities",
+      "Schedule 12",
+      "claims against the bank not acknowledged as debts",
+      "guarantees",
+      "acceptances and endorsements",
+      "Условные обязательства",
+      "Contingent liabilities"
+    ],
+    "description": "Total off-balance sheet contingent liabilities disclosed by the bank.",
+    "hint": "Use Schedule 12 'Contingent Liabilities'. Take the total schedule amount, not a single component such as guarantees or forward exchange contracts.",
+    "period_type": "point"
+  },
+  {
+    "enum": "STATUTORY_RESERVE",
+    "name": "Statutory reserve",
+    "name_ru": "Обязательный резерв",
+    "name_en": "Statutory reserve",
+    "aliases": [
+      "statutory reserve",
+      "statutory reserves",
+      "reserve fund",
+      "Обязательный резерв",
+      "Statutory reserve"
+    ],
+    "description": "Statutory reserve balance within reserves and surplus.",
+    "hint": "Use Schedule 2 'Reserves and Surplus'. Take the statutory reserve / reserve fund closing balance. Do not use the current-period transfer to statutory reserve unless the enum explicitly asks for a transfer flow.",
+    "period_type": "point"
+  },
+  {
+    "enum": "COMMISSION_EXCHANGE_BROKERAGE",
+    "name": "Commission, exchange and brokerage",
+    "name_ru": "Комиссии, обменные операции и брокерские доходы",
+    "name_en": "Commission, exchange and brokerage",
+    "aliases": [
+      "commission exchange and brokerage",
+      "commission, exchange and brokerage",
+      "commission income",
+      "exchange income",
+      "brokerage income",
+      "Комиссии, обменные операции и брокерские доходы",
+      "Commission, exchange and brokerage"
+    ],
+    "description": "Income from commission, exchange and brokerage as a component of other income.",
+    "hint": "Use Schedule 14 'Other Income' and the line 'Commission, Exchange and Brokerage'. Do not use the full Other Income total.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "PROFIT_LOSS_ON_EXCHANGE_TRANSACTIONS",
+    "name": "Profit or loss on exchange transactions",
+    "name_ru": "Прибыль или убыток от обменных операций",
+    "name_en": "Profit or loss on exchange transactions",
+    "aliases": [
+      "profit on exchange transactions",
+      "loss on exchange transactions",
+      "net profit on exchange transactions",
+      "net loss on exchange transactions",
+      "foreign exchange income",
+      "forex income",
+      "Прибыль или убыток от обменных операций",
+      "Profit or loss on exchange transactions"
+    ],
+    "description": "Net result from foreign exchange / exchange transactions disclosed in other income.",
+    "hint": "Use Schedule 14 'Other Income' or the FX trading note. Preserve the sign: profit is positive, loss is negative. Do not include broad trading income unless exchange transactions are separately identified.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "NET_INCOME_SHAREHOLDERS",
+    "name": "Profit attributable to owners of the parent",
+    "name_ru": "Прибыль, приходящаяся на акционеров материнской компании",
+    "name_en": "Profit attributable to owners of the parent",
+    "aliases": [
+      "Profit attributable to equity holders of the parent",
+      "Net income attributable to shareholders of the parent",
+      "Profit for the year attributable to owners of the Company",
+      "Net income attributable to controlling interest",
+      "Прибыль, приходящаяся на акционеров материнской компании",
+      "Profit attributable to owners of the parent"
+    ],
+    "description": "Часть чистой прибыли за период, приходящаяся на акционеров материнской компании, БЕЗ неконтролирующих долей.",
+    "hint": "ОПУ, блок распределения прибыли в самом низу: «Прибыль, приходящаяся на: акционеров материнской компании / неконтролирующие доли» — бери ПЕРВУЮ строку. Если распределения нет (у группы нет дочерних с неконтролирующей долей), прибыль совпадает с чистой прибылью — бери её.",
+    "period_type": "duration"
+  },
+  {
+    "enum": "EQUITY_SHAREHOLDERS",
+    "name": "Equity attributable to owners of the parent",
+    "name_ru": "Капитал, приходящийся на акционеров материнской компании",
+    "name_en": "Equity attributable to owners of the parent",
+    "aliases": [
+      "Equity attributable to equity holders of the parent",
+      "Total shareholders' equity attributable to the parent",
+      "Equity attributable to owners of the Company",
+      "Капитал, приходящийся на акционеров материнской компании",
+      "Equity attributable to owners of the parent"
+    ],
+    "description": "Собственный капитал за вычетом неконтролирующих долей — часть капитала, принадлежащая акционерам материнской компании.",
+    "hint": "Баланс, раздел КАПИТАЛ: «Итого капитал, приходящийся на акционеров материнской компании» — строка ДО «Неконтролирующие доли». НЕ путать с итогом капитала (тот включает неконтролирующие доли). Нет отдельной строки — значит неконтролирующих долей нет, бери итог капитала.",
+    "period_type": "point"
+  },
+  {
+    "enum": "COST_TO_INCOME_RATIO",
+    "name": "Cost-to-income ratio",
+    "name_ru": "Коэффициент затрат к доходам",
+    "name_en": "Cost-to-income ratio",
+    "aliases": [
+      "CIR",
+      "Cost-to-Income Ratio",
+      "Cost / income ratio",
+      "Коэффициент затрат к доходам",
+      "Cost-to-income ratio"
+    ],
+    "description": "Bank-reported ratio of operating expenses to operating income for the period.",
+    "hint": "Extract only directly reported actual CIR. Do not calculate it from income and expenses or use a target or forecast ratio.",
+    "period_type": "duration"
+  }
+]
+</registry>
+
+<rules>
+- Optimize for evidence recall, not for choosing one best source. Missing a true source is worse than returning several exact source ids.
+- Select evidence for the exact metric described in the registry, not for a merely similar row.
+- Use numeric table ids exactly as shown in <ocr_tables>, for example 0.
+- A useful table may contain several requested metrics; include it for every matching metric.
+- Include all relevant repeated or adjacent table ids when the report splits one logical disclosure across periods, pages, statements, notes, or reconciliation tables.
+- For metrics disclosed in prose rather than tables, return exact quotes outside tables.
+- Prefer explicit metric sources. If none are explicit, include sources that help determine that the metric is absent, not separately disclosed, or should be null.
+- If neither explicit nor absence/null evidence exists, include the closest candidate tables or quotes so the next step can judge relevance.
+- Return empty arrays only when the report contains no useful explicit, absence/null, or candidate evidence for the metric.
+- Before returning JSON, silently do a final recall pass: for each metric, scan the table catalogue again for the metric name, aliases, and conceptually exact row labels in primary statements, notes, roll-forwards, and reconciliation tables. Add any missed exact table ids. Do not describe this check in the JSON.
+- Do not calculate, normalize periods, normalize signs, or copy numeric values as the final answer.
+</rules>
+
+<output_format>
+Return exactly one valid JSON object only. No markdown wrappers, comments, or trailing text.
+Schema:
+{
+  "metrics": {
+    "ENUM": {
+      "tables": [{"table_id": "0", "location": "Consolidated statement of financial position"}],
+      "quotes": [{"page": 12, "text": "A short exact quote copied from narrative text outside tables."}]
+    }
+  }
+}
+
+Use this prefilled JSON template and replace placeholders with real evidence or empty arrays:
+{
+  "metrics": {
+    "MODIFIED_AUDITORS_OPINION": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "CASH_EQUIVALENTS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "TOTAL_ASSETS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "PPE": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "DEFERRED_TAX_ASSETS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "DEFERRED_TAX_LIABILITIES": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "INTANGIBLE_ASSETS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "GOODWILL": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "TOTAL_EQUITY": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "NET_INCOME": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "DIVIDENDS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "CHANGES_OCF_ASSETS_LIABILITIES": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "TOTAL_LOANS_TO_CLIENTS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "CLIENT_DEPOSITS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "COMMON_EQUITY_TIER_ONE_CAPITAL": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "OPERATING_EXPENSES_BANKS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "INCOME_TAX": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "EBT": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "INTERBANK_DEPOSITS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "INTERBANK_LOANS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "OTHER_ASSETS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "TOTAL_ASSOCIATE_INVESTMENTS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "JUNIOR_DEBT": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "OTHER_LIABILITIES": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "SHARE_CAPITAL": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "SHARE_PREMIUM": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "RETAINED_EARNINGS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "NON_CONTROL_INTEREST": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "DERIVATIVE_LIABILITIES": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "CASH_AND_CASH_BALANCES_WITH_CB": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "FUNDS_FROM_CENTRAL_BANK": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "REPO_PLEDGED_SECURITIES": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "RISK_WEIGHTED_ASSETS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "CET1_RATIO_DISCLOSED": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "TIER1_RATIO_DISCLOSED": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "EPS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "DIVIDENDS_RECEIVED": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "DEBT_SECURITIES_ISSUED": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "INDIVIDUALS_LOANS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "NET_INTEREST_INCOME": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "CORPORATE_LOANS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "PERPETUAL_BONDS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "TOTAL_GROSS_LOANS_TO_CLIENTS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "GROSS_NPA": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "NET_NPA": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "GROSS_NPA_RATIO_DISCLOSED": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "NET_NPA_RATIO_DISCLOSED": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "PROVISION_COVERAGE_RATIO": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "PROVISION_FOR_NPA": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "PROVISIONS_AND_CONTINGENCIES": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "INTEREST_EARNED_TOTAL": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "INTEREST_EXPENDED_TOTAL": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "OTHER_INCOME_TOTAL": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "OPERATING_PROFIT_BEFORE_PROVISIONS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "DEMAND_DEPOSITS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "SAVINGS_BANK_DEPOSITS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "TERM_DEPOSITS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "CASA_RATIO_DISCLOSED": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "PRIORITY_SECTOR_ADVANCES": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "GOVERNMENT_SECURITIES": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "NET_INVESTMENTS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "PROVISION_FOR_DEPRECIATION_ON_INVESTMENTS_CLOSING": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "TIER1_CAPITAL": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "TIER2_CAPITAL": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "CRAR_RATIO_DISCLOSED": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "LCR_DISCLOSED": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "CONTINGENT_LIABILITIES_TOTAL": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "STATUTORY_RESERVE": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "COMMISSION_EXCHANGE_BROKERAGE": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "PROFIT_LOSS_ON_EXCHANGE_TRANSACTIONS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "NET_INCOME_SHAREHOLDERS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "EQUITY_SHAREHOLDERS": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    },
+    "COST_TO_INCOME_RATIO": {
+      "tables": [
+        {
+          "table_id": "0",
+          "location": "statement of cash flows / liquidity note / tax note"
+        }
+      ],
+      "quotes": [
+        {
+          "page": 1,
+          "text": "Exact 1-2 sentence narrative quote outside tables, only when it contains evidence for this metric."
+        }
+      ]
+    }
+  }
+}
+</output_format>

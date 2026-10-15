@@ -1,0 +1,24 @@
+{
+  "scenario_id": "planner-05-unreachable-target",
+  "description": "Запрошенный концепт не имеет ни одного атома-производителя в реестре — граф не может быть раскрыт до доступного листа.",
+  "target": {"target_id": "t-5", "concept": "BRAND_KARMA_SCORE", "period_ref": "p-2023-fy", "entity_ref": "unilever", "output_kind": "scalar"},
+  "plan_graph": {
+    "plan_id": "plan-05",
+    "root": {"atom_name": "extract.scalar", "atom_version": "1.0.0", "args_fingerprint": "concept=BRAND_KARMA_SCORE;period=p-2023-fy;entity=unilever"},
+    "nodes": [
+      {
+        "node_key": {"atom_name": "extract.scalar", "atom_version": "1.0.0", "args_fingerprint": "concept=BRAND_KARMA_SCORE;period=p-2023-fy;entity=unilever"},
+        "requires": [],
+        "produces": [],
+        "sandbox_profile": "compute_no_network",
+        "note": "узел заведён как корень, но у него нет ни одного зарегистрированного атома-производителя для BRAND_KARMA_SCORE — раскрытие requires обрывается здесь"
+      }
+    ],
+    "graph_hash": "sha256:manual-fixture-05"
+  },
+  "expected_feasibility": {
+    "feasible": false,
+    "unreachable_targets": ["t-5"],
+    "reason": "концепт BRAND_KARMA_SCORE не входит ни в один зарегистрированный реестр методик — соответствует категории intent 'unknown_concept' (см. tests/golden/intent/queries.json, intent-096)"
+  }
+}

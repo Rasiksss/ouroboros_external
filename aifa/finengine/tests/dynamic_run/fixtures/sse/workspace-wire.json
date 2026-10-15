@@ -1,0 +1,438 @@
+[
+  {
+    "event_type": "legacy",
+    "legacy_event": {
+      "action": "execute",
+      "details": "",
+      "goals": [],
+      "move": 1,
+      "new_atoms": [],
+      "objective": "",
+      "outcome": "",
+      "reason": "",
+      "scenarios": [],
+      "status": "running",
+      "steps": [],
+      "type": "dynamic_move"
+    },
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 1
+  },
+  {
+    "event_type": "legacy",
+    "legacy_event": {
+      "graph_hash": "wire-a",
+      "nodes": [
+        {
+          "node_key": {
+            "args_fingerprint": "stage-0",
+            "atom_name": "read.value.stage0",
+            "atom_version": "1.0.0"
+          },
+          "produces": [
+            "ExtractedMetric:VALUE"
+          ],
+          "requires": [],
+          "sandbox_profile": "document_read",
+          "scenario_refs": [],
+          "status": "pending"
+        },
+        {
+          "node_key": {
+            "args_fingerprint": "stage-1",
+            "atom_name": "read.value.stage1",
+            "atom_version": "1.0.0"
+          },
+          "produces": [
+            "ExtractedMetric:VALUE"
+          ],
+          "requires": [
+            {
+              "args_fingerprint": "stage-0",
+              "atom_name": "read.value.stage0",
+              "atom_version": "1.0.0"
+            }
+          ],
+          "sandbox_profile": "document_read",
+          "scenario_refs": [],
+          "status": "pending"
+        },
+        {
+          "node_key": {
+            "args_fingerprint": "same-key",
+            "atom_name": "read.value",
+            "atom_version": "1.0.0"
+          },
+          "produces": [
+            "ExtractedMetric:VALUE"
+          ],
+          "requires": [
+            {
+              "args_fingerprint": "stage-1",
+              "atom_name": "read.value.stage1",
+              "atom_version": "1.0.0"
+            }
+          ],
+          "sandbox_profile": "document_read",
+          "scenario_refs": [],
+          "status": "pending"
+        }
+      ],
+      "planner_version": "dynamic-1.0.0",
+      "root": {
+        "args_fingerprint": "same-key",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "scenarios": [],
+      "type": "plan_graph"
+    },
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 2
+  },
+  {
+    "event_type": "node_run",
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "finished_at": "2026-10-01T10:00:01.500000Z",
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "stage-0",
+        "atom_name": "read.value.stage0",
+        "atom_version": "1.0.0"
+      },
+      "node_run_id": "wire-wire-a-0",
+      "produced_evidence_ids": [
+        "ev-0"
+      ],
+      "prompt_version": null,
+      "run_id": "wire-run",
+      "sandbox_profile": "document_read",
+      "started_at": "2026-10-01T10:00:00Z",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "wire-a",
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 3
+  },
+  {
+    "event_type": "node_run",
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "finished_at": "2026-10-01T10:00:03.500000Z",
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "stage-1",
+        "atom_name": "read.value.stage1",
+        "atom_version": "1.0.0"
+      },
+      "node_run_id": "wire-wire-a-1",
+      "produced_evidence_ids": [
+        "ev-1"
+      ],
+      "prompt_version": null,
+      "run_id": "wire-run",
+      "sandbox_profile": "document_read",
+      "started_at": "2026-10-01T10:00:02Z",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "wire-a",
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 4
+  },
+  {
+    "event_type": "node_run",
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "finished_at": "2026-10-01T10:00:05.500000Z",
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "same-key",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "node_run_id": "wire-wire-a-2",
+      "produced_evidence_ids": [
+        "ev-2"
+      ],
+      "prompt_version": null,
+      "run_id": "wire-run",
+      "sandbox_profile": "document_read",
+      "started_at": "2026-10-01T10:00:04Z",
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "wire-a",
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 5
+  },
+  {
+    "event_type": "legacy",
+    "legacy_event": {
+      "action": "execute",
+      "details": "",
+      "goals": [],
+      "move": 1,
+      "new_atoms": [],
+      "objective": "",
+      "outcome": "",
+      "reason": "",
+      "scenarios": [],
+      "status": "done",
+      "steps": [],
+      "type": "dynamic_move"
+    },
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 6
+  },
+  {
+    "event_type": "legacy",
+    "legacy_event": {
+      "action": "execute",
+      "details": "",
+      "goals": [],
+      "move": 2,
+      "new_atoms": [],
+      "objective": "",
+      "outcome": "",
+      "reason": "",
+      "scenarios": [],
+      "status": "running",
+      "steps": [],
+      "type": "dynamic_move"
+    },
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 7
+  },
+  {
+    "event_type": "legacy",
+    "legacy_event": {
+      "graph_hash": "wire-b",
+      "nodes": [
+        {
+          "node_key": {
+            "args_fingerprint": "stage-0",
+            "atom_name": "read.value.stage0",
+            "atom_version": "1.0.0"
+          },
+          "produces": [
+            "ExtractedMetric:VALUE"
+          ],
+          "requires": [],
+          "sandbox_profile": "document_read",
+          "scenario_refs": [],
+          "status": "pending"
+        },
+        {
+          "node_key": {
+            "args_fingerprint": "same-key",
+            "atom_name": "read.value",
+            "atom_version": "1.0.0"
+          },
+          "produces": [
+            "ExtractedMetric:VALUE"
+          ],
+          "requires": [
+            {
+              "args_fingerprint": "stage-0",
+              "atom_name": "read.value.stage0",
+              "atom_version": "1.0.0"
+            }
+          ],
+          "sandbox_profile": "document_read",
+          "scenario_refs": [],
+          "status": "pending"
+        }
+      ],
+      "planner_version": "dynamic-1.0.0",
+      "root": {
+        "args_fingerprint": "same-key",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "scenarios": [],
+      "type": "plan_graph"
+    },
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 8
+  },
+  {
+    "event_type": "node_run",
+    "node_run": {
+      "attempt": 1,
+      "error": "нет источника",
+      "finished_at": "2026-10-01T10:00:01.500000Z",
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "stage-0",
+        "atom_name": "read.value.stage0",
+        "atom_version": "1.0.0"
+      },
+      "node_run_id": "wire-wire-b-0",
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "run_id": "wire-run",
+      "sandbox_profile": "document_read",
+      "started_at": "2026-10-01T10:00:00Z",
+      "status": "failed"
+    },
+    "plan_graph_hash": "wire-b",
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 9
+  },
+  {
+    "event_type": "node_run",
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "finished_at": "2026-10-01T10:00:03.500000Z",
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "same-key",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "node_run_id": "wire-wire-b-1",
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "run_id": "wire-run",
+      "sandbox_profile": "document_read",
+      "started_at": "2026-10-01T10:00:02Z",
+      "status": "blocked"
+    },
+    "plan_graph_hash": "wire-b",
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 10
+  },
+  {
+    "event_type": "legacy",
+    "legacy_event": {
+      "action": "execute",
+      "details": "",
+      "goals": [],
+      "move": 2,
+      "new_atoms": [],
+      "objective": "",
+      "outcome": "",
+      "reason": "",
+      "scenarios": [],
+      "status": "done",
+      "steps": [],
+      "type": "dynamic_move"
+    },
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 11
+  },
+  {
+    "event_type": "legacy",
+    "legacy_event": {
+      "action": "execute",
+      "details": "",
+      "goals": [],
+      "move": 3,
+      "new_atoms": [],
+      "objective": "",
+      "outcome": "",
+      "reason": "",
+      "scenarios": [],
+      "status": "running",
+      "steps": [],
+      "type": "dynamic_move"
+    },
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 12
+  },
+  {
+    "event_type": "legacy",
+    "legacy_event": {
+      "graph_hash": "wire-c",
+      "nodes": [
+        {
+          "node_key": {
+            "args_fingerprint": "same-key",
+            "atom_name": "read.value",
+            "atom_version": "1.0.0"
+          },
+          "produces": [
+            "ExtractedMetric:VALUE"
+          ],
+          "requires": [],
+          "sandbox_profile": "document_read",
+          "scenario_refs": [],
+          "status": "pending"
+        }
+      ],
+      "planner_version": "dynamic-1.0.0",
+      "root": {
+        "args_fingerprint": "same-key",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "scenarios": [],
+      "type": "plan_graph"
+    },
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 13
+  },
+  {
+    "event_type": "node_run",
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "finished_at": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "same-key",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "node_run_id": "wire-wire-c-0",
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "run_id": "wire-run",
+      "sandbox_profile": "document_read",
+      "started_at": "2026-10-01T10:00:00Z",
+      "status": "running"
+    },
+    "plan_graph_hash": "wire-c",
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 14
+  },
+  {
+    "error": {
+      "code": "dynamic_run_failed",
+      "details": {},
+      "message": "сбой цикла",
+      "node_key": null,
+      "retryable": false
+    },
+    "event_type": "error",
+    "partial_results": [],
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 15
+  },
+  {
+    "event_type": "completed",
+    "run_id": "wire-run",
+    "schema_version": "1.0",
+    "sequence": 16,
+    "status": "failed"
+  }
+]

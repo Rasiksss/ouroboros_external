@@ -1,0 +1,48 @@
+{
+  "scenario_id": "planner-03-form-output-dgr",
+  "description": "Запрос формы ДГР: один узел компоновки формы зависит от нескольких extract.scalar, включая показатель, которого в документе может не быть (пустая строка формы не выбрасывается — решение №8).",
+  "target": {"target_id": "t-3", "concept": "FORM_DGR", "period_ref": "p-2024-fy", "entity_ref": "polyus", "output_kind": "form"},
+  "plan_graph": {
+    "plan_id": "plan-03",
+    "root": {"atom_name": "compose.form", "atom_version": "1.0.0", "args_fingerprint": "role=dgr;entity=polyus;period=p-2024-fy"},
+    "nodes": [
+      {
+        "node_key": {"atom_name": "ingest.document", "atom_version": "1.0.0", "args_fingerprint": "entity=polyus;period=p-2024-fy"},
+        "requires": [],
+        "produces": ["document_text"],
+        "sandbox_profile": "document_read"
+      },
+      {
+        "node_key": {"atom_name": "extract.scalar", "atom_version": "1.0.0", "args_fingerprint": "concept=SALES_REVENUE;period=p-2024-fy;entity=polyus"},
+        "requires": [{"atom_name": "ingest.document", "atom_version": "1.0.0", "args_fingerprint": "entity=polyus;period=p-2024-fy"}],
+        "produces": ["SALES_REVENUE"],
+        "sandbox_profile": "compute_no_network"
+      },
+      {
+        "node_key": {"atom_name": "extract.scalar", "atom_version": "1.0.0", "args_fingerprint": "concept=RIGHT_OF_USE_ASSETS;period=p-2024-fy;entity=polyus"},
+        "requires": [{"atom_name": "ingest.document", "atom_version": "1.0.0", "args_fingerprint": "entity=polyus;period=p-2024-fy"}],
+        "produces": ["RIGHT_OF_USE_ASSETS"],
+        "sandbox_profile": "compute_no_network",
+        "note": "у горнодобывающей компании этой строки обычно нет в отчёте — узел обязан вернуть 'недоступно', а не провалить весь план"
+      },
+      {
+        "node_key": {"atom_name": "compose.form", "atom_version": "1.0.0", "args_fingerprint": "role=dgr;entity=polyus;period=p-2024-fy"},
+        "requires": [
+          {"atom_name": "extract.scalar", "atom_version": "1.0.0", "args_fingerprint": "concept=SALES_REVENUE;period=p-2024-fy;entity=polyus"},
+          {"atom_name": "extract.scalar", "atom_version": "1.0.0", "args_fingerprint": "concept=RIGHT_OF_USE_ASSETS;period=p-2024-fy;entity=polyus"}
+        ],
+        "produces": ["FormOutput:dgr"],
+        "sandbox_profile": "compute_no_network"
+      }
+    ],
+    "graph_hash": "sha256:manual-fixture-03"
+  },
+  "expected_feasibility": {"feasible": true, "unreachable_targets": [], "reason": null},
+  "expected_form_output": {
+    "role": "dgr",
+    "rows": [
+      {"kind": "metric", "enum": "SALES_REVENUE", "label": "Выручка", "value": 123.0, "available": true},
+      {"kind": "metric", "enum": "RIGHT_OF_USE_ASSETS", "label": "Активы в форме права пользования", "value": null, "available": false}
+    ]
+  }
+}

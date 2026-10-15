@@ -1,0 +1,340 @@
+{
+  "schema_version": "registry-layer/v1",
+  "layer_id": "language.ifrs_nf_en",
+  "version": "2026.09.22.1",
+  "kind": "language",
+  "priority": 300,
+  "selector": {
+    "standard": "ifrs",
+    "company_type": "non_financial",
+    "language": "en"
+  },
+  "metrics": {
+    "extractable": [
+      {
+        "enum": "ADJUSTMENTS_OPERATING_CASH_FLOWS",
+        "fields": {
+          "aliases_ru": [
+            "Поправки (для неденежных статей)"
+          ],
+          "aliases_en": [
+            "Non-cash adjustments",
+            "Adjustments for non-cash items",
+            "Adjustments",
+            "Adjustments to operating cash flows"
+          ],
+          "description": "Subtotal of non-cash/profit adjustments in the operating cash-flow section before working-capital movements.",
+          "hint": "IFRS cash-flow statement: subtotal the adjustment rows after profit for the period and before working-capital movements. If no named subtotal is printed, sum only that adjustments block. Exclude working-capital movements, interest, taxes and investing/financing cash-flow lines."
+        }
+      },
+      {
+        "enum": "ASSET_PURCHASES",
+        "fields": {
+          "aliases_en": [
+            "Purchases of property",
+            "plant and equipment",
+            "Additions to PP&E",
+            "Purchases of property, plant and equipment",
+            "Additions to properties, plant and equipment"
+          ]
+        }
+      },
+      {
+        "enum": "ASSET_SALES_PROCEEDS",
+        "fields": {
+          "aliases_ru": [
+            "Поступления от реализации основных средств",
+            "Поступления от выбытия основных средств и нематериальных активов"
+          ],
+          "aliases_en": [
+            "Proceeds from sale of PP&E",
+            "Proceeds from disposal of fixed assets",
+            "Proceeds from divestitures, net",
+            "Proceeds from dispositions",
+            "Proceeds from sale of intangible assets",
+            "Proceeds from sale of PPE"
+          ],
+          "hint": "Cash-flow statement, investing activities: cash proceeds from sale/disposal of non-current operating assets. If proceeds from sale of PPE and intangible assets are disclosed separately, sum the relevant rows; do not take only PPE when intangible proceeds are present."
+        }
+      },
+      {
+        "enum": "CASH_EQUIVALENTS",
+        "fields": {
+          "hint": "Balance sheet, cash-flow statement or cash note. Extract every clearly disclosed date for cash and cash equivalents, not only balance-sheet dates; include comparative beginning/end balances when they are explicitly shown. Do not confuse with bank deposits/time deposits or marketable securities."
+        }
+      },
+      {
+        "enum": "CHANGES_OCF_ASSETS_LIABILITIES",
+        "fields": {
+          "aliases_ru": [
+            "Изменения в операционных активах и обязательствах"
+          ],
+          "aliases_en": [
+            "Changes in operating assets and liabilities",
+            "Working capital movements",
+            "Changes in working capital"
+          ],
+          "description": "Subtotal of working-capital movements inside operating cash flow.",
+          "hint": "IFRS cash-flow statement: subtotal the working-capital block, usually named changes in operating assets and liabilities / changes in working capital. If no subtotal is printed, sum only rows in that block. Exclude non-cash adjustments, interest, taxes and investing/financing cash flows."
+        }
+      },
+      {
+        "enum": "DEPRECIATION_AMORTIZATION",
+        "fields": {
+          "aliases_ru": [
+            "Амортизация основных средств и нематериальных активов",
+            "Износ и амортизация основных средств и нематериальных активов"
+          ],
+          "hint": "ОДДС/примечания: если рядом раскрыты Depreciation and amortization и отдельная amortization of acquisition-related intangibles, общая D&A — их сумма. Не путай с ROU amortization."
+        }
+      },
+      {
+        "enum": "DIVIDENDS",
+        "fields": {
+          "aliases_ru": [
+            "Дивиденды уплаченные",
+            "Дивиденды выплаченные"
+          ],
+          "aliases_en": [
+            "Dividends paid",
+            "Cash dividends paid"
+          ],
+          "description": "All cash dividends paid by the group during the period.",
+          "hint": "Cash-flow statement: all cash dividends paid during the period. If dividends paid to parent shareholders and non-controlling interests are disclosed separately, sum them. Parent-only dividends belong to DIVIDENDS_SHAREHOLDERS."
+        }
+      },
+      {
+        "enum": "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+        "fields": {
+          "aliases_ru": [
+            "Дивиденды",
+            "выплаченные неконтролирующим акционерам",
+            "уплаченные акционерам с неконтролирующими долями участия"
+          ]
+        }
+      },
+      {
+        "enum": "EQUITY_SHAREHOLDERS",
+        "fields": {
+          "aliases_ru": [],
+          "aliases_en": [
+            "Equity attributable to equity holders of the parent",
+            "Total shareholders' equity attributable to the parent",
+            "Equity attributable to owners of the Company"
+          ]
+        }
+      },
+      {
+        "enum": "INCOME_TAX",
+        "fields": {
+          "aliases_ru": [
+            "Текущий налог на прибыль"
+          ],
+          "aliases_en": [
+            "Tax expense",
+            "Provision for income taxes",
+            "Income tax provision (benefit)",
+            "Current income tax expense",
+            "Current tax expense"
+          ],
+          "description": "Current income tax expense for the period, excluding deferred tax and one-off tax effects when separately disclosed.",
+          "hint": "IFRS P&L/tax note: take the current income tax expense line for the period. Do not replace it with the total income-tax benefit/expense line that combines current tax, deferred tax and one-off tax effects."
+        }
+      },
+      {
+        "enum": "LONG_TERM_DEBT",
+        "fields": {
+          "aliases_ru": [
+            "Долгосрочные заемные средства",
+            "Долгосрочные займы и кредиты"
+          ]
+        }
+      },
+      {
+        "enum": "NET_INCOME_SHAREHOLDERS",
+        "fields": {
+          "aliases_ru": [],
+          "aliases_en": [
+            "Profit attributable to equity holders of the parent",
+            "Net income attributable to shareholders of the parent",
+            "Profit for the year attributable to owners of the Company",
+            "Net income attributable to controlling interest"
+          ]
+        }
+      },
+      {
+        "enum": "OPERATING_EXPENSES",
+        "fields": {
+          "aliases_en": [
+            "SG&A",
+            "Selling",
+            "general and administrative expenses",
+            "General and administrative expense",
+            "Marketing, general and administrative",
+            "G&A",
+            "Operating expenses",
+            "Selling, general and administrative expenses",
+            "Selling, general and administrative"
+          ],
+          "hint": "P&L: expenses after gross profit and before operating profit. If there is no single operating-expenses line, sum operating expense rows in that bridge: SG&A/administrative/selling expenses, D&A shown there, LTIP, ECL and similar operating expense rows. Exclude cost of sales, other operating income and finance/tax lines."
+        }
+      },
+      {
+        "enum": "RIGHT_OF_USE_ASSETS",
+        "fields": {
+          "aliases_ru": [
+            "Право пользования активами",
+            "Активы с правом пользования"
+          ],
+          "aliases_en": [
+            "Right-of-use assets",
+            "ROU assets",
+            "Right-of-use asset closing balance"
+          ],
+          "hint": "Balance sheet or lease/right-of-use asset note. Extract every clearly disclosed date, not only balance-sheet dates; include comparative closing balances from the lease note when explicitly shown."
+        }
+      },
+      {
+        "enum": "SALES_REVENUE",
+        "fields": {
+          "hint": "P&L: first revenue line from ordinary activities. For segment-level SALES_REVENUE, prefer revenue/sales to external customers; do not include intersegment revenue when it is disclosed separately."
+        }
+      }
+    ],
+    "calculated": []
+  },
+  "orders": {
+    "extractable": [
+      "MODIFIED_AUDITORS_OPINION",
+      "LONG_TERM_DEBT",
+      "LONG_TERM_LEASE_LIABILITIES",
+      "SHORT_TERM_BORROWINGS",
+      "SHORT_TERM_LEASE_LIABILITIES",
+      "CASH_EQUIVALENTS",
+      "BANK_DEPOSITS",
+      "PERPETUAL_BONDS",
+      "ACCOUNTS_PAYABLE",
+      "ACCOUNTS_RECEIVABLE",
+      "INVENTORIES",
+      "TOTAL_CURRENT_ASSETS",
+      "TOTAL_CURRENT_LIABILITIES",
+      "TOTAL_ASSETS",
+      "PPE",
+      "DEFERRED_TAX_ASSETS",
+      "DEFERRED_TAX_LIABILITIES",
+      "INTANGIBLE_ASSETS",
+      "GOODWILL",
+      "TOTAL_EQUITY",
+      "RIGHT_OF_USE_ASSETS",
+      "SALES_REVENUE",
+      "OPERATING_PROFIT",
+      "COSTS_EXPENSES",
+      "NET_INCOME",
+      "EBT",
+      "CAPITALIZED_INTEREST",
+      "GROSS_PROFIT",
+      "OPERATING_EXPENSES",
+      "DEPRECIATION_AMORTIZATION",
+      "CAPEX",
+      "INTEREST_PAID",
+      "INTEREST_RECEIVED",
+      "DIVIDENDS_SHAREHOLDERS",
+      "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+      "DIVIDENDS",
+      "SHARES_BUYBACK",
+      "NET_OPERATING_CASH_FLOW",
+      "SUBSIDIARY_ACQUISITIONS",
+      "ASSOCIATE_INVESTMENTS",
+      "ASSOCIATE_INCOMES",
+      "ASSET_PURCHASES",
+      "INTANGIBLE_ASSET_PURCHASES",
+      "COMBINED_ASSET_PURCHASES",
+      "ASSET_SALES_PROCEEDS",
+      "FINANCIAL_INCOME",
+      "FINANCIAL_EXPENSES",
+      "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+      "ADJUSTMENTS_OPERATING_CASH_FLOWS",
+      "CHANGES_OCF_ASSETS_LIABILITIES",
+      "EBITDA",
+      "GUARANTEES",
+      "COMMITTED_CREDIT_FACILITIES",
+      "FUTURE_CAPEX_LIABILITIES",
+      "DOUBTFUL_ACCOUNTS_ALLOWANCE",
+      "INCOME_TAX",
+      "SECURITIES_ASSETS",
+      "TOTAL_ASSOCIATE_INVESTMENTS",
+      "SECURITIES_LIABILITIES",
+      "LONG_TERM_ROU",
+      "SHORT_TERM_ROU",
+      "ROU_DEPRECIATION",
+      "INTEREST_PAID_LEASE_LIABILITIES",
+      "SHARE_CAPITAL",
+      "SHARE_PREMIUM",
+      "TREASURY_SHARES",
+      "RETAINED_EARNINGS",
+      "NON_CONTROL_INTEREST",
+      "DERIVATIVE_LIABILITIES",
+      "INSURANCE_LIABILITIES",
+      "INSURANCE_INCOME",
+      "INSURANCE_EXPENSE",
+      "NET_OTHER_RESERVES",
+      "EPS",
+      "DIVIDENDS_RECEIVED",
+      "NET_INCOME_SHAREHOLDERS",
+      "EQUITY_SHAREHOLDERS"
+    ],
+    "calculated": [
+      "CAPEX",
+      "DIVIDENDS",
+      "TOTAL_DEBT",
+      "NET_DEBT",
+      "EBITDA",
+      "RATIO_NET_DEBT_EBITDA",
+      "NET_INTEREST_PAID",
+      "EBITDA_MARGIN",
+      "INVESTMENTS",
+      "FREE_CASH_FLOW",
+      "FREE_CASH_FLOW_FIRM",
+      "COMBINED_ASSET_PURCHASES",
+      "GROSS_PROFIT",
+      "EBIT_MARGIN",
+      "DEBT_TO_EQUITY_RATIO",
+      "ACCOUNTS_PAYABLE_TURNOVER",
+      "ACCOUNTS_RECEIVABLE_TURNOVER",
+      "INVENTORIES_TURNOVER",
+      "CASH_CONVERSION_CYCLE",
+      "CURRENT_RATIO",
+      "ROE",
+      "ASSETS_TO_EQUITY_RATIO",
+      "INTEREST_COVERAGE_RATIO",
+      "NET_INCOME_MARGIN",
+      "ASSET_TURNOVER",
+      "FIXED_ASSET_TURNOVER",
+      "ROA",
+      "TOTAL_CASH_EQUIVALENTS",
+      "RATIO_TOTAL_DEBT_NOCF",
+      "EBITDA_TO_INTEREST_PAID",
+      "FCF_TO_INTEREST_PAID",
+      "CASH_TO_SHORT_TERM_DEBT",
+      "SHORT_TERM_PORTION_OF_DEBT",
+      "RATIO_TOTAL_DEBT_EBITDA",
+      "TOTAL_LIABILITIES",
+      "CAPEX_TO_REVENUE",
+      "GROSS_MARGIN",
+      "DIVIDEND_PAYOUT_RATIO",
+      "RIGHT_OF_USE_ASSETS",
+      "NET_DEBT_IAS_17",
+      "TOTAL_DEBT_IAS_17",
+      "TAX_EXPENDITURE",
+      "FREE_CASH_FLOW_GEN",
+      "FREE_CASH_FLOW_DEBT",
+      "ADJ_OCF_TO_INTEREST_PAID",
+      "NET_INSURANCE_INCOME",
+      "FCF_TO_INTEREST_PAID_CIB",
+      "QUICK_RATIO",
+      "WORKING_CAPITAL",
+      "OCF_TO_EBITDA",
+      "ROE_SHAREHOLDERS"
+    ]
+  }
+}

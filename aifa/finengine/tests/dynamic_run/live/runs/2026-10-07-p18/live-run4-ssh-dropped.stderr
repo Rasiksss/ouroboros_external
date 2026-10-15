@@ -1,0 +1,18 @@
+model_call_start role=intent index=1
+model_call_done role=intent index=1
+model_call_start role=intent index=2
+model_call_done role=intent index=2
+deterministic planning failed, starting dynamic run case=p6-p18-goals4-0a5a5adf33 goal_type=calculate_registered_metric: составной запрос содержит GoalType без производителя корня в детерминированном графе: custom_analysis
+model_call_start role=planner index=3
+model_call_done role=planner index=3
+model_call_start role=planner index=4
+model_call_done role=planner index=4
+model_call_start role=planner index=5
+model_call_done role=planner index=5
+model_call_start role=planner index=6
+model_call_done role=planner index=6
+model_call_start role=author index=7
+model_call_done role=author index=7
+model_call_start role=author index=8
+Read from remote host 85.198.84.50: Connection reset by peer
+client_loop: send disconnect: Connection reset by peer

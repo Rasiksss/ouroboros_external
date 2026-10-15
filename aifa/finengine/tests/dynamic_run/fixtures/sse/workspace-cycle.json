@@ -1,0 +1,385 @@
+[
+  {
+    "action": "execute",
+    "details": "",
+    "goals": [],
+    "move": 1,
+    "new_atoms": [],
+    "objective": "",
+    "outcome": "",
+    "reason": "",
+    "scenarios": [],
+    "status": "running",
+    "steps": [
+      {
+        "atom": "read.value"
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "graph_hash": "graph-a",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "stage-0",
+          "atom_name": "read.value.stage0",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:VALUE"
+        ],
+        "requires": [],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "stage-1",
+          "atom_name": "read.value.stage1",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:VALUE"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "stage-0",
+            "atom_name": "read.value.stage0",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      },
+      {
+        "node_key": {
+          "args_fingerprint": "same-key",
+          "atom_name": "read.value",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:VALUE"
+        ],
+        "requires": [
+          {
+            "args_fingerprint": "stage-1",
+            "atom_name": "read.value.stage1",
+            "atom_version": "1.0.0"
+          }
+        ],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+      "args_fingerprint": "same-key",
+      "atom_name": "read.value",
+      "atom_version": "1.0.0"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "finished_at": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "same-key",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "node_run_id": "run-graph-a",
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "run_id": "workspace-contract",
+      "sandbox_profile": "document_read",
+      "started_at": null,
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "graph-a",
+    "type": "node_run"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "goals": [],
+    "move": 1,
+    "new_atoms": [],
+    "objective": "",
+    "outcome": "",
+    "reason": "",
+    "scenarios": [],
+    "status": "done",
+    "steps": [
+      {
+        "atom": "read.value"
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "goals": [],
+    "move": 2,
+    "new_atoms": [],
+    "objective": "",
+    "outcome": "",
+    "reason": "",
+    "scenarios": [
+      "A",
+      "B"
+    ],
+    "status": "running",
+    "steps": [],
+    "type": "dynamic_move"
+  },
+  {
+    "graph_hash": "graph-b",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "same-key",
+          "atom_name": "read.value",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:VALUE"
+        ],
+        "requires": [],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+      "args_fingerprint": "same-key",
+      "atom_name": "read.value",
+      "atom_version": "1.0.0"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "finished_at": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "same-key",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "node_run_id": "run-graph-b",
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "run_id": "workspace-contract",
+      "sandbox_profile": "document_read",
+      "started_at": null,
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "graph-b",
+    "type": "node_run"
+  },
+  {
+    "atom": "eph.value",
+    "attempt": 1,
+    "code": "def run(inputs): return inputs",
+    "error": null,
+    "move": 2,
+    "status": "ok",
+    "type": "author_attempt"
+  },
+  {
+    "graph_hash": "graph-c",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "same-key",
+          "atom_name": "read.value",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:VALUE"
+        ],
+        "requires": [],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+      "args_fingerprint": "same-key",
+      "atom_name": "read.value",
+      "atom_version": "1.0.0"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "finished_at": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "same-key",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "node_run_id": "run-graph-c",
+      "produced_evidence_ids": [
+        "evidence-from-case"
+      ],
+      "prompt_version": null,
+      "run_id": "workspace-contract",
+      "sandbox_profile": "document_read",
+      "started_at": null,
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "graph-c",
+    "type": "node_run"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "goals": [],
+    "move": 2,
+    "new_atoms": [],
+    "objective": "",
+    "outcome": "",
+    "reason": "",
+    "scenarios": [
+      "A",
+      "B"
+    ],
+    "status": "done",
+    "steps": [],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "goals": [],
+    "move": 3,
+    "new_atoms": [],
+    "objective": "",
+    "outcome": "",
+    "reason": "",
+    "scenarios": [],
+    "status": "running",
+    "steps": [
+      {
+        "atom": "read.value"
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "graph_hash": "graph-d",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "same-key",
+          "atom_name": "read.value",
+          "atom_version": "1.0.0"
+        },
+        "produces": [
+          "ExtractedMetric:VALUE"
+        ],
+        "requires": [],
+        "sandbox_profile": "document_read",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+      "args_fingerprint": "same-key",
+      "atom_name": "read.value",
+      "atom_version": "1.0.0"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "finished_at": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "same-key",
+        "atom_name": "read.value",
+        "atom_version": "1.0.0"
+      },
+      "node_run_id": "run-graph-d",
+      "produced_evidence_ids": [
+        "evidence-new"
+      ],
+      "prompt_version": null,
+      "run_id": "workspace-contract",
+      "sandbox_profile": "document_read",
+      "started_at": null,
+      "status": "succeeded"
+    },
+    "plan_graph_hash": "graph-d",
+    "type": "node_run"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "goals": [],
+    "move": 3,
+    "new_atoms": [],
+    "objective": "",
+    "outcome": "",
+    "reason": "",
+    "scenarios": [],
+    "status": "done",
+    "steps": [
+      {
+        "atom": "read.value"
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "goals": [],
+    "move": 4,
+    "new_atoms": [],
+    "objective": "",
+    "outcome": "",
+    "reason": "",
+    "scenarios": [],
+    "status": "running",
+    "steps": [],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "goals": [],
+    "move": 4,
+    "new_atoms": [],
+    "objective": "",
+    "outcome": "результатов нет",
+    "reason": "",
+    "scenarios": [],
+    "status": "done",
+    "steps": [],
+    "type": "dynamic_move"
+  }
+]

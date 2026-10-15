@@ -1,0 +1,168 @@
+[
+  {
+    "session_id": "<uuid-1>",
+    "type": "session_id"
+  },
+  {
+    "text": "Разбираю запрос…",
+    "type": "thinking"
+  },
+  {
+    "args_summary": "Сравни выручку за доступные периоды с внешним индексом из…",
+    "name": "financial_pipeline",
+    "type": "tool_call"
+  },
+  {
+    "action": "execute",
+    "details": "",
+    "move": 1,
+    "new_atoms": [],
+    "objective": "Загрузить CSV-файл с внешним индексом",
+    "outcome": "",
+    "reason": "Для сравнения выручки с внешним индексом необходимо сначала получить данные из CSV-файла",
+    "scenarios": [],
+    "status": "running",
+    "steps": [
+      {
+        "atom": "eph.external_index_csv",
+        "concept": null,
+        "period_ref": null
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "graph_hash": "sha256:416be21d7f928445a5f509c0e508a1615342d4d0a603c98e09c90a5f43051dec",
+    "nodes": [
+      {
+        "node_key": {
+          "args_fingerprint": "entity=ЛУКОЙЛ",
+          "atom_name": "eph.external_index_csv",
+          "atom_version": "7f58ae06db86"
+        },
+        "produces": [
+          "dyn:external_index_csv"
+        ],
+        "requires": [],
+        "sandbox_profile": "download:example.invalid",
+        "scenario_refs": [],
+        "status": "pending"
+      }
+    ],
+    "planner_version": "dynamic-1.0.0",
+    "root": {
+      "args_fingerprint": "entity=ЛУКОЙЛ",
+      "atom_name": "eph.external_index_csv",
+      "atom_version": "7f58ae06db86"
+    },
+    "scenarios": [],
+    "type": "plan_graph"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ЛУКОЙЛ",
+        "atom_name": "eph.external_index_csv",
+        "atom_version": "7f58ae06db86"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "download:example.invalid",
+      "status": "planned"
+    },
+    "plan_graph_hash": "sha256:416be21d7f928445a5f509c0e508a1615342d4d0a603c98e09c90a5f43051dec",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 1,
+      "error": null,
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ЛУКОЙЛ",
+        "atom_name": "eph.external_index_csv",
+        "atom_version": "7f58ae06db86"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "download:example.invalid",
+      "status": "running"
+    },
+    "plan_graph_hash": "sha256:416be21d7f928445a5f509c0e508a1615342d4d0a603c98e09c90a5f43051dec",
+    "type": "node_run"
+  },
+  {
+    "node_run": {
+      "attempt": 3,
+      "error": "хост 'example.invalid' не резолвится: [Errno -2] Name or service not known",
+      "model_version": null,
+      "node_key": {
+        "args_fingerprint": "entity=ЛУКОЙЛ",
+        "atom_name": "eph.external_index_csv",
+        "atom_version": "7f58ae06db86"
+      },
+      "produced_evidence_ids": [],
+      "prompt_version": null,
+      "sandbox_profile": "download:example.invalid",
+      "status": "failed"
+    },
+    "plan_graph_hash": "sha256:416be21d7f928445a5f509c0e508a1615342d4d0a603c98e09c90a5f43051dec",
+    "type": "node_run"
+  },
+  {
+    "action": "execute",
+    "details": "✗ eph.external_index_csv  → нет результата (0): хост 'example.invalid' не резолвится: [Errno -2] Name or service not known",
+    "move": 1,
+    "new_atoms": [],
+    "objective": "Загрузить CSV-файл с внешним индексом",
+    "outcome": "ход завершён с ошибками",
+    "reason": "Для сравнения выручки с внешним индексом необходимо сначала получить данные из CSV-файла",
+    "scenarios": [],
+    "status": "done",
+    "steps": [
+      {
+        "atom": "eph.external_index_csv",
+        "concept": null,
+        "period_ref": null
+      }
+    ],
+    "type": "dynamic_move"
+  },
+  {
+    "action": "give_up",
+    "details": "Не могу выполнить сравнение выручки с внешним индексом, так как указанный источник данных (https://example.invalid/aifa-planner-missing.csv) недоступен. При попытке загрузить файл возникла ошибка: хост 'example.invalid' не резолвится. Другие источники не предусмотрены задачей, поэтому завершаю работу.",
+    "move": 2,
+    "new_atoms": [],
+    "objective": "Завершить задачу честным отказом, так как внешний источник данных недоступен.",
+    "outcome": "",
+    "reason": "Пользователь явно указал: если источник недоступен, не подменять его другим и не выдумывать значения. Попытка загрузить CSV-файл провалилась из-за ошибки DNS-резолвинга хоста 'example.invalid'. Других источников для получения внешнего индекса нет.",
+    "scenarios": [],
+    "status": "done",
+    "steps": [],
+    "type": "dynamic_move"
+  },
+  {
+    "name": "financial_pipeline",
+    "ok": true,
+    "type": "tool_output"
+  },
+  {
+    "text": "Не могу выполнить сравнение выручки с внешним индексом, так как указанный источник данных (https://example.invalid/aifa-planner-missing.csv) недоступен. При попытке загрузить файл возникла ошибка: хост 'example.invalid' не резолвится. Другие источники не предусмотрены задачей, поэтому завершаю работу.",
+    "type": "text_delta"
+  },
+  {
+    "sources": [
+      {
+        "company_name": "ЛУКОЙЛ",
+        "filename": "Бухгалтерская отчетность на 30.06.2026.pdf"
+      }
+    ],
+    "type": "sources"
+  },
+  {
+    "type": "done"
+  }
+]

@@ -69,7 +69,8 @@
 │   ├── aifa-atom-author/      instruction: SKILL.md (промпт 7.1 плана 34, работа в Workstation, отчёты)
 │   └── aifa-engine/           extension: SKILL.md, plugin.py (тонкий клиент), tests/ (F4, F12)
 ├── aifa/
-│   ├── finengine/             служба: pyproject.toml, uv.lock, src/finengine/, tests/
+│   ├── finengine/             служба: pyproject.toml, uv.lock, src/finengine/, tests/, docs/;
+│   │                          временно (ADR-0032): station-skills/, agent-workspace/ — до шага 19; benchmarks/
 │   ├── web/                   фронтенд Next.js
 │   ├── contracts/             tools.snapshot.json, loop_rules.yaml, tool_names.json, events/*.schema.json, ws/*.json
 │   ├── tests/
@@ -87,9 +88,11 @@
 **Откуда берётся код AIFA.** Из `Krab_ext/AIFA-CLAW` ветки `feature/Claw-v2-1.0` @ `f4a12fc6`:
 `src/` и `tests/` → `aifa/finengine/`, `pyproject.toml` → `aifa/finengine/` (с uv-замком), `web/` →
 `aifa/web/`, нужные части `deploy/` → `aifa/deploy/dev/`, `docs/build-plan/34*.md` и
-`01-nerushimye-resheniya.md` → `aifa/finengine/docs/`. Корневые заметки AIFA (`Nedodelano.md`,
-`План_разработки.md`, выгрузки, мусор сессий) не переносятся. Сохранять ли историю git AIFA —
-открытый вопрос (§9).
+`01-nerushimye-resheniya.md` → `aifa/finengine/docs/`; `station-skills/`, `agent-workspace/`,
+`benchmarks/` (без LFS-эталонов) → `aifa/finengine/` (ADR-0032, нужны тестам службы). Корневые
+заметки AIFA (`Nedodelano.md`, `План_разработки.md`, выгрузки, мусор сессий) не переносятся.
+Перенос — снимком из коммита
+`f4a12fc6` без истории git; история остаётся в исходном репозитории (ADR-0031).
 
 **Сборка.**
 
@@ -106,7 +109,9 @@
 пути: при работе с `skills/aifa-*` читаются `.rules/skills.md` и инварианты (resolver
 `scripts/resolve_rules.py` выдаёт правило по пути `skills/**`). Его ворота — часть наших. Его
 `BACKLOG.md`, `HANDOFF.md`, OpenSpec не ведём: наши решения — ADR, незавершённое —
-`PROJECTS_STATE.md`. Корпоративная ветка подтягивается слиянием из `corp` (ADR-0019).
+`PROJECTS_STATE.md`. Репозиторий — `Rasiksss/ouroboros_external`, основная ветка `dev`, база
+ouroboros — снимок `17b3f93` (тег `base/ouroboros-1.5.1`); корпоративной истории и удалённого нет,
+обновление ouroboros — только новым снимком по ADR (ADR-0030).
 
 ---
 
@@ -352,7 +357,7 @@ sequenceDiagram
 
 | Шаг | Чем проверяется |
 |---|---|
-| 0.1 Ветка своего репозитория от `release/1.5.1` @ `ec596862`, тег `upstream/ouroboros-ec596862`; удалённый `corp` только на чтение; новый удалённый владельца — с его разрешения, без push | `git describe`, тег на месте |
+| 0.1 Тег `base/ouroboros-1.5.1` на `17b3f93` (`dev`); ветка шага `sym/01-…` от `dev`; push — только с разрешения владельца (ADR-0030) | `git rev-parse base/ouroboros-1.5.1` = `17b3f93…` |
 | 0.2 Перенос кода AIFA в `aifa/` (§3), без изменений содержимого | `aifa/finengine`: тесты службы зелёные относительно базовой линии AIFA (известные красные записаны); `npm test` фронтенда |
 | 0.3 Каркас проверок F1, F2, F9, F11, F13 и `aifa/scripts/check.sh` | каждая проверка падает на подложенном нарушении и зелёная на дереве |
 | 0.4 `aifa/deploy/dev/`: образы ouroboros, Workstation (база + слой комнаты); env.example | сборка локально или на dev; F9 зелёная |
@@ -418,10 +423,10 @@ sequenceDiagram
 
 | № | Вопрос | Когда нужен ответ | Предложение |
 |---|---|---|---|
-| О1 | Сохранять ли историю git AIFA при переносе в `aifa/` | этап 0.2 | сохранить: `git filter-repo` по нужным путям + слияние с `--allow-unrelated-histories` в `aifa/` — сохраняет `blame` 376 коммитов месяца |
+| О1 | ~~Сохранять ли историю git AIFA~~ — **решено** ADR-0031: снимок `f4a12fc6` без истории | — | — |
 | О2 | Где на dev PostgreSQL и S3 для ouroboros и базы службы | этап 0.6 | новые контейнеры в `aifa-sym` (изоляция от старого AIFA, который работает параллельно); память: ~5,9 ГБ всего, ~3,3 ГБ свободно — мерить после подъёма |
 | О3 | Кнопки с `pinned_tool` (детерминированный запуск без модели) — через ouroboros или внутри службы | этап 2.1 | внутри службы, как сейчас; в историю ouroboros такие ходы не попадают — описать в ADR после ответа |
 | О4 | Событие `usage`: показывать ли расход моделей ouroboros | этап 2 | показывать только расход службы; расход ouroboros — из его журнала, отдельной задачей |
-| О5 | Новый удалённый репозиторий владельца (адрес, видимость) и правила веток/коммитов (хук `commit-msg` ouroboros требует Jira+GitLab на `feature/*`) | этап 0.1 | ветки `sym/*` — хук не срабатывает; номера задач — по желанию владельца |
+| О5 | ~~Удалённый репозиторий и ветки~~ — **решено** ADR-0030: `Rasiksss/ouroboros_external`, ветка `dev`, ветки шагов `sym/NN-*` | — | — |
 | О6 | Как расширение получает адрес службы и токен | этап 0.7 | см. ADR-0027 |
 | О7 | Живые проверки ADR-0021 (финальный кадр корня несёт `task_id`; уведомления подзадачи — без него) | этап 2.1 | C2.3–C2.4; при расхождении — новая ADR с другим правилом опознания |

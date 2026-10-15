@@ -1,0 +1,21 @@
+model_call_start role=intent index=1
+model_call_done role=intent index=1
+model_call_start role=intent index=2
+model_call_done role=intent index=2
+deterministic planning failed, starting dynamic run case=p6-p18-goals3-8f151ef116 goal_type=custom_analysis: составной запрос содержит GoalType без производителя корня в детерминированном графе: custom_analysis
+model_call_start role=planner index=3
+model_call_done role=planner index=3
+model_call_start role=planner index=4
+model_call_done role=planner index=4
+model_call_start role=planner index=5
+model_call_done role=planner index=5
+model_call_start role=planner index=6
+model_call_done role=planner index=6
+model_call_start role=intent index=7
+model_call_done role=intent index=7
+model_call_start role=planner index=8
+model_call_done role=planner index=8
+model_call_start role=planner index=9
+model_call_done role=planner index=9
+model_call_start role=planner index=10
+model_call_done role=planner index=10

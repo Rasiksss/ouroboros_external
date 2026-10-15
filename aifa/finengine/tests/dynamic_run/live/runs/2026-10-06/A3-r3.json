@@ -1,0 +1,59 @@
+{
+ "label": "A3-r3",
+ "query": "Извлеки выручку и EBITDA и посчитай коэффициент вариации по каждому из двух показателей.",
+ "doc_id": "9dba0a66-a5a0-4012-8cd1-235ab8e25fe4",
+ "run_id": "eb6e943e-6f06-4ec4-951d-ff1a87a9efac",
+ "elapsed_s": 23.6,
+ "events": [
+  {
+   "schema_version": "1.0",
+   "event_id": "76f0a2a7-7112-46a2-91f9-6ce7c5d56b1f",
+   "run_id": "eb6e943e-6f06-4ec4-951d-ff1a87a9efac",
+   "sequence": 1,
+   "occurred_at": "2026-10-06T15:35:35.284802Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "session_id",
+    "session_id": "6337f5b3-04f1-4862-9643-0e8a19892d71"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "c62a1224-3c2b-4b9f-9ab7-2978351a32d4",
+   "run_id": "eb6e943e-6f06-4ec4-951d-ff1a87a9efac",
+   "sequence": 2,
+   "occurred_at": "2026-10-06T15:35:35.284830Z",
+   "event_type": "legacy",
+   "legacy_event": {
+    "type": "thinking",
+    "text": "Разбираю запрос…"
+   }
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "24015533-1db2-4218-b0f7-d117d2dde30c",
+   "run_id": "eb6e943e-6f06-4ec4-951d-ff1a87a9efac",
+   "sequence": 3,
+   "occurred_at": "2026-10-06T15:35:42.416588Z",
+   "event_type": "error",
+   "error": {
+    "code": "intent_parse_failed",
+    "message": "не удалось разобрать запрос; повторите его, пожалуйста",
+    "retryable": true,
+    "node_key": null,
+    "details": {}
+   },
+   "partial_results": []
+  },
+  {
+   "schema_version": "1.0",
+   "event_id": "f8d490c7-59cd-47d4-8523-7cb8a1742a66",
+   "run_id": "eb6e943e-6f06-4ec4-951d-ff1a87a9efac",
+   "sequence": 4,
+   "occurred_at": "2026-10-06T15:35:42.416722Z",
+   "event_type": "completed",
+   "status": "failed"
+  }
+ ],
+ "started_utc": "2026-10-06T15:35:43Z"
+}

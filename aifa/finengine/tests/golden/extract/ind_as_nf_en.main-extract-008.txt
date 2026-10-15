@@ -1,0 +1,293 @@
+## SYSTEM
+You are a senior financial analyst working with us_gaap_en financial reports. Your task is to find and extract ordinary financial statement metrics, matching source rows strictly against each metric's registry description, aliases and hint. If a row is similar but broader, narrower, or includes extra components, do not use it. Return valid JSON only.
+
+## USER
+## Task
+Extract reported financial metric values from compressed evidence selected in stage 1.
+Company type: non_financial; reporting standard: us_gaap_en; language: en.
+Extract values for every metric listed in the metric metadata below.
+For each metric block, read the registry fields and evidence, then extract every value of that exact metric for every disclosed period.
+Return raw period headers and raw cell values literally as they appear in the report.
+
+
+## Metric Blocks
+[
+  {
+    "enum": "PERPETUAL_BONDS",
+    "name_ru": "Бессрочные облигации",
+    "name_en": "Perpetual bonds",
+    "description": "Perpetual bonds or similar perpetual instruments disclosed in equity or borrowings depending on classification.",
+    "aliases_ru": [
+      "Облигации без срока погашения",
+      "Выпуск бессрочных облигаций",
+      "бессрочный субординированный займ"
+    ],
+    "aliases_en": [
+      "Perpetual bonds",
+      "perpetual debt instruments",
+      "perpetual securities",
+      "perpetual subordinated bonds",
+      "Perpetual notes",
+      "Hybrid capital notes"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use equity or borrowings notes. Extract only explicitly perpetual bonds or similar perpetual instruments. Do not use ordinary bonds or redeemable debentures.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "DEFERRED_TAX_ASSETS",
+    "name_ru": "Отложенные налоговые активы",
+    "name_en": "Deferred tax assets",
+    "description": "Deferred tax assets arising from deductible temporary differences, tax losses or tax credits.",
+    "aliases_ru": [
+      "Активы по отложенному налогу на прибыль"
+    ],
+    "aliases_en": [
+      "Deferred tax assets",
+      "deferred tax asset",
+      "DTA",
+      "Deferred income tax assets"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the Balance Sheet or tax note. Extract deferred tax assets. Do not net against deferred tax liabilities unless the statement presents only a net balance.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "OPERATING_PROFIT",
+    "name_ru": "Операционная прибыль",
+    "name_en": "Operating profit",
+    "description": "Profit from operations before finance income, finance costs and tax.",
+    "aliases_ru": [
+      "Прибыль от операционной деятельности",
+      "Прибыль от продаж",
+      "Прибыль от основной деятельности"
+    ],
+    "aliases_en": [
+      "Operating profit",
+      "profit from operations",
+      "earnings before finance costs and tax",
+      "EBIT",
+      "profit before finance costs and tax",
+      "Operating income",
+      "Income from operations"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the Statement of Profit and Loss or segment/MD&A tables. Take profit from operations or EBIT before finance income, finance costs and tax. Do not substitute profit before tax.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "OPERATING_EXPENSES",
+    "name_ru": "Операционные расходы",
+    "name_en": "Operating expenses",
+    "description": "Operating expenses other than cost of sales, such as employee benefits, selling, administrative and other operating expenses.",
+    "aliases_ru": [
+      "Коммерческие",
+      "общехозяйственные и административные расходы",
+      "Коммерческие и административные расходы"
+    ],
+    "aliases_en": [
+      "Operating expenses",
+      "employee benefits expense",
+      "other expenses",
+      "selling and distribution expenses",
+      "administrative expenses",
+      "total operating expenses",
+      "Selling, general and administrative expenses",
+      "Selling, general and administrative",
+      "SG&A",
+      "General and administrative expense",
+      "Marketing, general and administrative",
+      "G&A"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the Statement of Profit and Loss. If no single operating expenses line exists, sum relevant operating expense lines between gross profit and operating profit. Exclude finance costs, tax and cost of sales.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "DIVIDENDS",
+    "name_ru": "Дивиденды",
+    "name_en": "Dividends",
+    "description": "Total cash dividends paid by the group during the period.",
+    "aliases_ru": [
+      "Дивиденды уплаченные",
+      "Дивиденды выплаченные"
+    ],
+    "aliases_en": [
+      "Dividends",
+      "dividends paid",
+      "cash dividends paid",
+      "total dividends paid",
+      "dividend outflow"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the Cash Flow Statement. Extract total cash dividends paid. If dividends to owners and NCI are separately disclosed, sum only those dividend cash outflow lines.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "COMBINED_ASSET_PURCHASES",
+    "name_ru": "Приобретение основных средств и нематериальных активов",
+    "name_en": "Fixed asset and intangible asset purchases",
+    "description": "Combined cash outflow for purchase of property, plant and equipment and intangible assets where not split.",
+    "aliases_ru": [
+      "Приобретение основных средств и внеоборотных активов"
+    ],
+    "aliases_en": [
+      "Fixed asset and intangible asset purchases",
+      "purchase of property plant and equipment and intangible assets",
+      "payments for fixed assets",
+      "purchase of fixed assets",
+      "capital expenditure on tangible and intangible assets",
+      "Purchase of PP&E and intangible assets",
+      "Capital expenditures"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use only when the Cash Flow Statement presents one combined line for purchase of PPE and intangible/fixed assets. Do not duplicate separate PPE and intangible purchase lines.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "GUARANTEES",
+    "name_ru": "Гарантии, поручительства",
+    "name_en": "Guarantees",
+    "description": "Guarantees, financial guarantees or similar off-balance sheet commitments issued by the entity.",
+    "aliases_ru": [
+      "Гарантии",
+      "Поручительства",
+      "Выданные гарантии и обязательства по предоставлению кредитов"
+    ],
+    "aliases_en": [
+      "Guarantees",
+      "corporate guarantees",
+      "financial guarantees",
+      "guarantees issued",
+      "Bank guarantees",
+      "Contingent liabilities"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use commitments and contingent liabilities notes. Extract guarantees or financial guarantees issued. Do not include general legal claims unless included in the guarantees line.",
+    "period_type": "point",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "ROU_DEPRECIATION",
+    "name_ru": "Амортизация активов в форме права пользования",
+    "name_en": "Right-of-use asset depreciation",
+    "description": "Depreciation charge on right-of-use assets for the period.",
+    "aliases_ru": [
+      "Износ активов в форме права пользования",
+      "Амортизация права пользования активами"
+    ],
+    "aliases_en": [
+      "Right-of-use asset depreciation",
+      "depreciation of right-of-use assets",
+      "amortisation of right-of-use assets",
+      "ROU depreciation",
+      "depreciation on leased assets",
+      "ROU asset depreciation",
+      "Amortization of operating lease right-of-use assets"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use the lease note or depreciation note. Extract depreciation or amortisation of right-of-use assets only. Do not use total depreciation and amortisation.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  },
+  {
+    "enum": "INSURANCE_INCOME",
+    "name_ru": "Выручка по страховой деятельности",
+    "name_en": "Insurance service income",
+    "description": "Insurance revenue or insurance service income, only for entities with insurance operations.",
+    "aliases_ru": [
+      "Страховая премия",
+      "Заработанные страховые премии"
+    ],
+    "aliases_en": [
+      "Insurance service income",
+      "insurance revenue",
+      "insurance premium income",
+      "earned premium income",
+      "Net earned premiums"
+    ],
+    "exclusions_ru": [],
+    "exclusions_en": [],
+    "hint": "Use only if the entity has insurance operations. Extract insurance revenue/service income. Otherwise return null.",
+    "period_type": "duration",
+    "evidence": {
+      "tables": [],
+      "quotes": []
+    }
+  }
+]
+
+## Rules
+Return period keys in `values` literally as they appear in the visible table header; do not shorten or rephrase them. A table header may have two levels: a duration group such as 'Three Months Ended' on one level and the period-end date on another. Combine the applicable levels into one complete period key. When the same date appears under multiple duration groups, a bare date is invalid because it creates a duplicate JSON key; return the full wording for each group.
+
+Return each value exactly as it appears in the table cell. Do NOT convert units, do NOT normalize thousands separators, do NOT remove commas, spaces or parentheses. If the table says "25,785", return "25,785", not "25785" and not "25.785". If the table says "(4,190)", return "(4,190)"; parentheses are mandatory: "(465)" must stay "(465)", not "465". If a matching metric row uses a blank or dash-like cell as a displayed numeric placeholder, return "0" for that period, but only when that row separately and unambiguously matches the metric. A dash in a broader combined row does not prove that any component is zero. Otherwise use null when the row is absent or the value is not disclosed. Put the table/header unit literally into unit_text, for example "in millions" or "$ in millions". When the value comes from a narrative sentence in a note rather than from a table, take the unit from that same sentence, not from the document header: notes routinely name their own scale ("USD 12.0 billion") inside a report presented in millions, and the document header would shrink the number a thousandfold. Source (report in millions): "committed credit facilities of $12.0 billion" → {"values": {"27.09.2025": "12.0"}, "unit_text": "billion"}, not "in millions".
+
+## Actual values only
+Extract only actual historical/reported values from financial statements and notes for periods that have already ended. Do NOT extract forecasts, plans, budgets, targets, scenarios, sensitivity analysis, guidance, outlook, projections, projected/forecasted values or any other forward-looking amounts, even when the row label looks like a target metric. If a requested metric appears only in a forecast/outlook/guidance table or section, return null / an empty values object for it.
+Do not treat ordinary accounting estimates inside actual financial statements as forecasts: expected credit losses, provisions, deferred taxes and pension assumptions may be valid actual-period disclosures when they are reported in the statements or notes.
+The same applies to columns: a forecast period in the header (2026E, FY26F, "plan") does not belong in values.
+
+- Follow each metric registry entry strictly. A similar-looking row is not enough.
+- Before extracting a value, run a sanity check: the row label and nearby table context must match the metric name/aliases and satisfy the description and hint.
+- Perform a scope check against the registry definition: do not use a narrower component, subcategory or subtotal that is only part of the requested metric; do not use a broader or combined row that contains the requested metric together with other components. Use only the exact requested metric, or an aggregation explicitly permitted by that metric's registry hint.
+- Extract all periods disclosed in the selected evidence: all years, quarters, half-years/YTD periods, rolling or shifted periods, and comparative periods.
+- After you identify a row/table that matches a metric, scan all period columns in that row and all evidence tables/quotes for the same metric. Return every explicitly disclosed period for that metric, not only the current period or first matching table. If quarterly and YTD/half-year rows are both disclosed, return both sets.
+- Do not mix currencies, units, or scales. If a table has multiple column sets, choose one coherent set for the metric. Prefer the report's primary presentation/native currency columns over convenience translation columns when both are shown. Currency/unit/scale may be written in the caption, unit line, or directly near the period column headers; preserve the chosen unit/currency in unit_text and raw headers when present.
+- The registry is the definition, not a keyword list. Accept a row only when its full label, nearby context, description and hint agree; do not broaden a metric from a partial alias or a similar subtotal.
+- Do not calculate values, allocate totals, infer missing periods, or normalize signs/period labels yourself, unless the specific metric registry entry explicitly authorizes that derivation. For an authorized derivation, use only the stated method and operands explicitly present in this evidence.
+- If you are unsure whether the row matches the registry definition, prefer null over a bold guess.
+
+
+## Output Format
+Return exactly one valid JSON object only. No explanations, no markdown wrappers, no comments.
+A JSON object whose keys exactly match the metric metadata list below:
+
+{
+  "PERPETUAL_BONDS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "DEFERRED_TAX_ASSETS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "OPERATING_PROFIT": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "OPERATING_EXPENSES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "DIVIDENDS": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "COMBINED_ASSET_PURCHASES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "GUARANTEES": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "ROU_DEPRECIATION": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null},
+  "INSURANCE_INCOME": {"values": {"__RAW_PERIOD_HEADER__": "__RAW_CELL_VALUE_OR_NULL__"}, "unit_text": "__RAW_UNIT_TEXT__", "page": null}
+}

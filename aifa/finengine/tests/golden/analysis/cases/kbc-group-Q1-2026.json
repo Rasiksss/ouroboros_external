@@ -1,0 +1,24 @@
+{
+  "case_id": "kbc-group-Q1-2026:analysis:01",
+  "company": "Kbc Group",
+  "evidence_ids": [
+    "kbc-group-Q1-2026:NET_INTEREST_INCOME:01"
+  ],
+  "expected_explanation_covers": [
+    "NET_INTEREST_INCOME",
+    "Q1 2026",
+    "EUR million",
+    "source evidence"
+  ],
+  "expected_judgment": {
+    "concept": "NET_INTEREST_INCOME",
+    "verdict": "reported_as_disclosed"
+  },
+  "goal": "State the disclosed NET_INTEREST_INCOME for Q1 2026 and cite the supplied evidence. Do not add a recommendation.",
+  "rubric": {
+    "evidence_alignment": "required: every number traces to evidence_ids",
+    "factual_accuracy": "required: value, period, and unit match the evidence",
+    "logical_coherence": "required: no claim contradicts the evidence",
+    "no_recommendations": "required"
+  }
+}

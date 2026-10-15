@@ -1,0 +1,109 @@
+{
+  "company": "Bank Sankt Peterburg",
+  "document_version": "82f50259f10ccc48a54bbf7572316c7d3762420d2d228207a6392b7474ed1b8c",
+  "facts": [
+    {
+      "basis": "IFRS",
+      "concept": "CASH_AND_CASH_BALANCES_WITH_CB",
+      "fact_id": "bank-sankt-peterburg-Q2-2025:CASH_AND_CASH_BALANCES_WITH_CB:01",
+      "page": 5,
+      "period_ref": "30.06.2025",
+      "quote": "| Обязательные резервы на счетах в Центральном банке Российской Федерации     |       | 3 106                                | 2 903           |",
+      "unit": "RUB million",
+      "value": 3106.0
+    },
+    {
+      "basis": "IFRS",
+      "concept": "CASH_AND_CASH_BALANCES_WITH_CB",
+      "fact_id": "bank-sankt-peterburg-Q2-2025:CASH_AND_CASH_BALANCES_WITH_CB:02",
+      "page": 5,
+      "period_ref": "31.12.2024",
+      "quote": "| Обязательные резервы на счетах в Центральном банке Российской Федерации     |       | 3 106                                | 2 903           |",
+      "unit": "RUB million",
+      "value": 2903.0
+    },
+    {
+      "basis": "IFRS",
+      "concept": "CASH_EQUIVALENTS",
+      "fact_id": "bank-sankt-peterburg-Q2-2025:CASH_EQUIVALENTS:03",
+      "page": 5,
+      "period_ref": "30.06.2025",
+      "quote": "| Денежные средства и их эквиваленты                                          | 5     | 43 483                               | 53 996          |",
+      "unit": "RUB million",
+      "value": 43483.0
+    },
+    {
+      "basis": "IFRS",
+      "concept": "CASH_EQUIVALENTS",
+      "fact_id": "bank-sankt-peterburg-Q2-2025:CASH_EQUIVALENTS:04",
+      "page": 5,
+      "period_ref": "31.12.2024",
+      "quote": "| Денежные средства и их эквиваленты                                          | 5     | 43 483                               | 53 996          |",
+      "unit": "RUB million",
+      "value": 53996.0
+    },
+    {
+      "basis": "IFRS",
+      "concept": "CET1_RATIO_DISCLOSED",
+      "fact_id": "bank-sankt-peterburg-Q2-2025:CET1_RATIO_DISCLOSED:05",
+      "page": 52,
+      "period_ref": "30.06.2025",
+      "quote": "| Показатель достаточности базового капитала Н 20.1  | 16,66%                              | 20,47%          |",
+      "unit": "%",
+      "value": 16.66
+    },
+    {
+      "basis": "IFRS",
+      "concept": "CET1_RATIO_DISCLOSED",
+      "fact_id": "bank-sankt-peterburg-Q2-2025:CET1_RATIO_DISCLOSED:06",
+      "page": 52,
+      "period_ref": "31.12.2024",
+      "quote": "| Показатель достаточности базового капитала Н 20.1  | 16,66%                              | 20,47%          |",
+      "unit": "%",
+      "value": 20.47
+    },
+    {
+      "basis": "IFRS",
+      "concept": "CHANGE_IN_EXPECTED_CREDIT_LOSSES",
+      "fact_id": "bank-sankt-peterburg-Q2-2025:CHANGE_IN_EXPECTED_CREDIT_LOSSES:07",
+      "page": 6,
+      "period_ref": "6M 2024",
+      "quote": "| Создание резерва под ожидаемые кредитные убытки по долговым финансовым активам                                                                                    | 8,9,10 | (5 593)                              | (3 057)                              | (5 671)                              | (2 868)                              |",
+      "unit": "RUB million",
+      "value": -3057.0
+    },
+    {
+      "basis": "IFRS",
+      "concept": "CHANGE_IN_EXPECTED_CREDIT_LOSSES",
+      "fact_id": "bank-sankt-peterburg-Q2-2025:CHANGE_IN_EXPECTED_CREDIT_LOSSES:08",
+      "page": 6,
+      "period_ref": "6M 2025",
+      "quote": "| Создание резерва под ожидаемые кредитные убытки по долговым финансовым активам                                                                                    | 8,9,10 | (5 593)                              | (3 057)                              | (5 671)                              | (2 868)                              |",
+      "unit": "RUB million",
+      "value": -5593.0
+    },
+    {
+      "basis": "IFRS",
+      "concept": "CHANGE_IN_EXPECTED_CREDIT_LOSSES",
+      "fact_id": "bank-sankt-peterburg-Q2-2025:CHANGE_IN_EXPECTED_CREDIT_LOSSES:09",
+      "page": 6,
+      "period_ref": "Q2 2024",
+      "quote": "| Создание резерва под ожидаемые кредитные убытки по долговым финансовым активам                                                                                    | 8,9,10 | (5 593)                              | (3 057)                              | (5 671)                              | (2 868)                              |",
+      "unit": "RUB million",
+      "value": -2868.0
+    },
+    {
+      "basis": "IFRS",
+      "concept": "CHANGE_IN_EXPECTED_CREDIT_LOSSES",
+      "fact_id": "bank-sankt-peterburg-Q2-2025:CHANGE_IN_EXPECTED_CREDIT_LOSSES:10",
+      "page": 6,
+      "period_ref": "Q2 2025",
+      "quote": "| Создание резерва под ожидаемые кредитные убытки по долговым финансовым активам                                                                                    | 8,9,10 | (5 593)                              | (3 057)                              | (5 671)                              | (2 868)                              |",
+      "unit": "RUB million",
+      "value": -5671.0
+    }
+  ],
+  "language": "ru",
+  "report_id": "bank-sankt-peterburg-Q2-2025",
+  "source_url": "https://gitverse.ru/nero27/AIFA_RFA"
+}
