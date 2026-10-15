@@ -1,0 +1,7 @@
+# Рабочее состояние стенда и тестов — целиком (как в .gitignore AIFA). После прогона тестов
+# `data/` в этом каталоге появляется сам; корневой .gitignore ouroboros его не закрывает.
+data/
+# Встроенные слои реестра — исходники пакета, а не состояние.
+!src/finengine/data/
+!src/finengine/data/registry_layers/
+!src/finengine/data/registry_layers/*.json
