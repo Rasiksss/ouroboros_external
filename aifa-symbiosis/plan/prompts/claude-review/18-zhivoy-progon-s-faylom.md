@@ -7,8 +7,8 @@
 ## Вход (читать в этом порядке)
 1. `aifa-symbiosis/plan/prompts/claude-impl/18-zhivoy-progon-s-faylom.md` — **целиком**.
 2. `aifa-symbiosis/plan/PRINCIPLES.md`, `aifa-symbiosis/plan/REVIEW_GUIDE.md`.
-3. `aifa-symbiosis/plan/PROGRESS.md` — запись реализации шага 18; UI-тест 17.
-4. `aifa-symbiosis/plan/uitest/18-file-runs.md`; `CONTRACTS.md` §4, §5.
+3. `aifa-symbiosis/plan/PROGRESS.md` — запись реализации шага 18.
+4. `aifa-symbiosis/plan/reports/18-file-runs.md`; `CONTRACTS.md` §4, §5.
 
 ## Вертикальное ревью
 Сценарий с xlsx: обещание файла (`files` хода) → атом-код подзадачи → комната (`out/`) → проверка

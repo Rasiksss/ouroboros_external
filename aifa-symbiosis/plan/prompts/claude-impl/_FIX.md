@@ -1,10 +1,10 @@
-# Реализация · доработка шага NN по ревью / UI-тесту
+# Реализация · доработка шага NN по ревью
 
 > Шаблон. Перед запуском замени `NN` на номер шага и `<отчёт>` на файл, из-за которого доработка:
-> `reviews/NN.md` (или `NN-r2.md`) или `uitest/NN.md`.
+> `reviews/NN.md` (или `NN-r2.md`).
 
 Ты — кодовый агент симбиоза AIFA и ouroboros (Claude Code, Sonnet 5.5, усилие High). Эта сессия —
-доработка шага NN по замечаниям проверяющих. Рабочая папка — `C:\Users\magom\Desktop\ouroboros`.
+доработка шага NN по замечаниям ревью. Рабочая папка — `C:\Users\magom\Desktop\ouroboros`.
 
 ## Прочитай до работы
 1. `aifa/CLAUDE.md`; `aifa-symbiosis/plan/PRINCIPLES.md`.

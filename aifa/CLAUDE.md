@@ -10,8 +10,7 @@
 3. Разделы `aifa-symbiosis/architecture/ARCHITECTURE.md` и `CONTRACTS.md`, названные в промпте;
    строку своего этапа в `ARCHITECTURE.md` §8.
 4. `aifa-symbiosis/plan/PROGRESS.md` — предусловия, записи прошлых шагов, проблемы своего шага;
-   правила роли: реализация — `aifa-symbiosis/plan/PRINCIPLES.md`, ревью — `REVIEW_GUIDE.md`,
-   пользовательское тестирование — `UI_TEST_GUIDE.md`.
+   правила роли: реализация — `aifa-symbiosis/plan/PRINCIPLES.md`, ревью — `REVIEW_GUIDE.md`.
 5. Для правок в `skills/aifa-*`: `uv run python scripts/resolve_rules.py <файлы>` и названные им
    правила ouroboros (`.rules/skills.md`), `docs/INVARIANTS.md`.
 6. Для правок в `aifa/finengine`: `aifa/finengine/docs/build-plan/01-nerushimye-resheniya.md`; при
@@ -84,7 +83,7 @@
 - Репозиторий `Rasiksss/ouroboros_external` (`origin`), основная ветка `dev`; `main` — старая
   внешняя копия: не сливать в `dev`, не пушить (ADR-0030).
 - Ветки шагов `sym/NN-<кратко>` от актуального `dev`; в `dev` сливаются локально (`--no-ff`) после
-  ревью и UI-теста без блокеров. Файлы добавляются явно.
+  ревью без блокеров (ADR-0033). Файлы добавляются явно.
 - База ouroboros — тег `base/ouroboros-1.5.1` (= `17b3f93`); от него считают F1 и F11.
 - **Без push**, пока владелец явно не разрешит.
 - Коммит — шаг этапа и его тест; сообщение по-русски, первая строка — что изменилось.
