@@ -61,7 +61,12 @@ docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml --profile app build en
 docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml build workstation        # только на dev
 ```
 
-- `workstation` локально не собирается: базы `workstation-svc:local` нет нигде, кроме dev (P4).
+- Базы `workstation-svc:local` нет нигде, кроме dev (P4). Слой комнаты проверен на локальном
+  двойнике базы (UBI 8 + Python 3.12, пользователь `aef`, заглушки `ws-sandbox` и `busybox`):
+  `docker build -t workstation-svc:local` из такого `Dockerfile`, затем `build workstation`.
+  Двойник только для сборки слоя; настоящий Workstation — образ dev.
+- Образы собирались и контур поднимался (все сервисы `healthy`, ouroboros после `alembic upgrade head`
+  из `entrypoint.sh`) в Linux-VM с Docker Engine; Docker Desktop для этого не обязателен.
 - Образ ouroboros ставит зависимости не через `uv sync --frozen`, а через `uv export --frozen` и
   `uv pip install --require-hashes` из `pypi.org`: все 137 пакетов замка ссылаются на
   `nexus.genai.int` (ADR-0034, предложено). Версии и хэши — те же, что в замке.
@@ -93,6 +98,7 @@ docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml build workstation     
 | `deploy/demo/` (ручка `/demo/load`) | демо-снимки не нужны контуру симбиоза |
 | мост моделей, код службы в Workstation | ADR-0007: слой комнаты — только пакеты |
 | Redis | `FINENGINE_REDIS_URL` пуст — шина в процессе; один воркер |
+| MinIO | заменён SeaweedFS: образов `minio/minio` нет ни на Docker Hub, ни на quay.io (ADR-0035) |
 | Caddy, Dozzle | общий `finengine-caddy-1` не трогаем (ADR-0028) |
 
 ## Открытое

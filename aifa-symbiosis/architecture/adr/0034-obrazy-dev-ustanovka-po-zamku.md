@@ -44,6 +44,12 @@
    `/demo/load`) не переносится.
 5. Снимок F9 — `aifa/contracts/dev_config.snapshot.json`: изменение набора настроек ouroboros
    идёт через F13, то есть вместе с ADR (ADR-0027).
+6. Образ ouroboros запускается через `entrypoint.sh` ouroboros (`alembic upgrade head`, затем
+   команда): без актуальной схемы сервер отказывается стартовать (`assert_schema_at_head`),
+   `Dockerfile.local` этого не делает — проверено на живой базе.
+7. S3 контура — SeaweedFS (`chrislusf/seaweedfs`), бакеты создаёт `amazon/aws-cli`: образов
+   `minio/minio` в публичных реестрах больше нет (Docker Hub, quay.io — проверено 15.10.2026,
+   ADR-0035). Ouroboros и служба говорят с ним по S3 API, обе проверены на старте.
 
 ## Следствия
 - Установка ouroboros в образ зависит от доступности `pypi.org` в момент сборки, а не nexus;

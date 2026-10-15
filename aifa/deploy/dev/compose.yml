@@ -73,40 +73,44 @@ services:
     networks: [internal]
 
   # S3 для ouroboros (корзина `ouroboros`) и для хранилища блобов службы (корзина `finengine`).
-  # ADR-0013, до решения О2. Тег — тот, что стоит у AIFA на dev.
+  # ADR-0013, до решения О2. SeaweedFS вместо MinIO: образы minio/minio убраны с Docker Hub и
+  # quay.io (проверено 15.10.2026), из публичных реестров их больше не получить (ADR-0035).
+  # Ключ доступа берётся из окружения контейнера, как у AWS SDK.
   s3:
-    image: minio/minio:RELEASE.2024-09-22T00-33-43Z
+    image: chrislusf/seaweedfs:4.48
     restart: unless-stopped
-    command: server /data
+    command: [server, -dir=/data, -s3, -s3.port=8333, -master.volumeSizeLimitMB=512]
     environment:
-      MINIO_ROOT_USER: ${AIFA_SYM_S3_USER:-}
-      MINIO_ROOT_PASSWORD: ${AIFA_SYM_S3_PASSWORD:-}
+      AWS_ACCESS_KEY_ID: ${AIFA_SYM_S3_USER:-}
+      AWS_SECRET_ACCESS_KEY: ${AIFA_SYM_S3_PASSWORD:-}
     volumes:
       - s3-data:/data
     healthcheck:
-      test: [CMD, mc, ready, local]
+      test: [CMD-SHELL, "nc -z 127.0.0.1 8333"]
       interval: 5s
       timeout: 3s
-      retries: 20
+      retries: 30
+      start_period: 15s
     networks: [internal]
 
-  # Разовый: ouroboros корзину сам не создаёт и без неё не стартует. mc входит в образ minio
-  # (по нему же healthcheck выше).
+  # Разовый: ouroboros корзину сам не создаёт и без неё не стартует.
   s3-init:
-    image: minio/minio:RELEASE.2024-09-22T00-33-43Z
+    image: amazon/aws-cli:2.38.1
     restart: "no"
     depends_on:
       s3:
         condition: service_healthy
     environment:
-      MINIO_ROOT_USER: ${AIFA_SYM_S3_USER:-}
-      MINIO_ROOT_PASSWORD: ${AIFA_SYM_S3_PASSWORD:-}
+      AWS_ACCESS_KEY_ID: ${AIFA_SYM_S3_USER:-}
+      AWS_SECRET_ACCESS_KEY: ${AIFA_SYM_S3_PASSWORD:-}
+      AWS_DEFAULT_REGION: us-east-1
     entrypoint: [sh, -c]
     command:
       - >-
-        mc alias set s3 http://s3:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD" &&
-        mc mb --ignore-existing s3/ouroboros &&
-        mc mb --ignore-existing s3/finengine
+        for b in ouroboros finengine; do
+        aws --endpoint-url http://s3:8333 s3api head-bucket --bucket $$b 2>/dev/null ||
+        aws --endpoint-url http://s3:8333 s3 mb s3://$$b || exit 1;
+        done
     networks: [internal]
 
   # ADR-0007: свой Workstation контура. Портов нет вовсе (ADR-0028): к нему ходят ouroboros и служба

@@ -22,7 +22,7 @@ WORKDIR /app
 COPY --from=deps /opt/venv /opt/venv
 # Каталоги — те же, что копирует Dockerfile.local ouroboros: server.py импортирует их при старте.
 # Перечень явный: aifa/ и aifa-symbiosis/ не попадают в образ и без dockerignore.
-COPY server.py alembic.ini ./
+COPY server.py alembic.ini entrypoint.sh ./
 COPY config_registry ./config_registry
 COPY background_memory ./background_memory
 COPY infra ./infra
@@ -36,7 +36,7 @@ COPY skills ./skills
 COPY prompts ./prompts
 
 RUN groupadd -r ouroboros && useradd -r -g ouroboros -u 10001 ouroboros \
- && mkdir -p /data && chown -R ouroboros:ouroboros /data /app
+ && mkdir -p /data && chown -R ouroboros:ouroboros /data /app && sed -i 's/\r$//' /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
 # ADR-0019: навыки читаются из ${OUROBOROS_REPO_DIR}/skills.
 ENV PATH="/opt/venv/bin:${PATH}" \
@@ -44,4 +44,7 @@ ENV PATH="/opt/venv/bin:${PATH}" \
 
 USER ouroboros
 EXPOSE 8080
+# Схему базы сервер сам не поднимает и без актуальной отказывается стартовать (`assert_schema_at_head`):
+# entrypoint.sh ouroboros выполняет `alembic upgrade head` и запускает команду.
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["python", "server.py", "--host", "0.0.0.0", "--port", "8080"]
