@@ -112,6 +112,16 @@ def test_f1_allows_aifa_symbiosis_docs_and_aifa_skills(tmp_path: Path) -> None:
     assert core_freeze_violations(repo, {}) == []
 
 
+def test_f1_reads_non_ascii_paths_as_they_are(tmp_path: Path) -> None:
+    """F1: кириллица в пути не квотируется git и не даёт ложных нарушений."""
+    repo = make_repo(tmp_path, {"README.md": "r\n"})
+    ru_files = {"aifa/tests/test_яя_расчёт.py": "\n", "docs/заметка.md": "z\n"}
+    commit_files(repo, ru_files, "ru")
+    problems = core_freeze_violations(repo, {})
+    assert len(problems) == 1
+    assert "docs/заметка.md" in problems[0]
+
+
 def test_f1_exception_with_an_adr_lets_the_path_through(tmp_path: Path) -> None:
     """F1: путь из файла исключений не считается нарушением."""
     repo = make_repo(tmp_path, {".dockerignore": "a\n"})
