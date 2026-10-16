@@ -116,12 +116,17 @@ def typed_result_event(result: TypedResultModel) -> dict:
     }
 
 
+def source_file_id(object_store_location: str) -> str:
+    """Имя объекта без расширения: так его принимает `/projects/{project_id}/sources/{file_id}/file`
+    (ключ `<префикс>/<file_id>.<ext>`)."""
+    return object_store_location.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+
+
 def file_event(file: FileArtifact) -> dict:
-    """Кнопка скачивания в чате. `file_id` — имя объекта без расширения: так его принимает
-    `/projects/{project_id}/sources/{file_id}/file` (ключ `<префикс>/<file_id>.<ext>`)."""
-    name = file.object_store_location.rsplit("/", 1)[1]
+    """Кнопка скачивания в чате."""
     return {
-        "type": "file", "file_id": name.rsplit(".", 1)[0], "filename": file.filename, "kind": file.file_kind,
+        "type": "file", "file_id": source_file_id(file.object_store_location), "filename": file.filename,
+        "kind": file.file_kind,
     }
 
 
