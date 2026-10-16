@@ -110,7 +110,7 @@ docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml build workstation     
 
 ### Дымовые проверки (`smoke/`)
 
-`smoke/run.sh [1|2|3|4]` — одноразовые контейнеры из образа ouroboros в сети `aifa-sym-internal`;
+`smoke/run.sh [1|2|3|4|5]` — одноразовые контейнеры из образа ouroboros в сети `aifa-sym-internal`;
 секрет Workstation берётся из `.env` и не печатается. Повторяются шагом 12 и далее.
 
 | № | Что | Критерий |
@@ -119,6 +119,11 @@ docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml build workstation     
 | 2 | WS `ws://ouroboros:8080/ws` (`ws_chat.py`) | без `X-Ouroboros-Owner-Id` — рукопожатие отклонено; с `X-Ouroboros-Owner-Id: smoke`, `X-Ouroboros-Chat-Id: smoke-1` — ответ модели на «привет» |
 | 3 | `code_exec` в Workstation контура | ответ содержит «4», в логе ouroboros — `POST …/v1/sessions/<id>/exec:stream` к `workstation:8080` |
 | 4 | C5.2: разовая комната по протоколу `sealed_room` (`room.py`) | `numpy`, `pandas`, `openpyxl`, `pptx`, `docx` импортируются; сокет заблокирован; переменных окружения службы нет |
+| 5 | Пределы Workstation, ADR-0039 (`room.py --limits`, `docker inspect`) | у exec `RLIMIT_CPU` 300 с и `RLIMIT_AS` 1 ГиБ, 1,5 ГБ не выделяются, `timeoutSec` 301 отклонён; у контейнера память 1,5 ГБ без swap, 1,5 CPU, 256 процессов |
+
+Пределы Workstation (ADR-0039) держит контейнер, а не песочница: её cgroup-настройки
+(`SESSION_MEMORY_MAX` и др.) в контейнере не действуют, действуют только rlimit одного exec и
+потолок `EXEC_TIMEOUT_SEC`.
 
 ### Откат
 

@@ -38,12 +38,32 @@ except Exception as exc:
 print(json.dumps({"imports": mods, "socket": sock, "env": sorted(os.environ)}))
 """
 
+LIMITS_PROBE = r"""
+import json, resource, sys
+out = {name: resource.getrlimit(getattr(resource, name))[0] for name in ("RLIMIT_CPU", "RLIMIT_AS")}
+try:
+    block = bytearray(int(sys.argv[1]) * 1024 * 1024)
+    out["alloc"] = "ok"
+except MemoryError:
+    out["alloc"] = "MemoryError"
+print(json.dumps(out))
+"""
+
+# ADR-0039: пределы одного exec (compose.yml, сервис `workstation`).
+EXEC_TIMEOUT_SEC = 300
+RLIMIT_CPU_SEC = 300
+RLIMIT_AS = 1024**3
+OVER_AS_MB = 1536
+
 SERVICE_ENV_PREFIXES = (
     "FINENGINE_", "OUROBOROS_", "WORKSTATION_", "CLOUDRU_", "AWS_", "POSTGRES", "AIFA_SYM_",
 )
 
 
-def room(base_url: str, secret: str) -> dict[str, object]:
+def room(
+    base_url: str, secret: str, command: list[str], timeout_sec: int = 60
+) -> tuple[int, dict[str, object]]:
+    """Разовая комната: (код ответа exec, тело). Отказ exec не исключение — его проверяют пределы."""
     session_id = f"aifa-eph-{uuid.uuid4().hex[:16]}"
     stdin = base64.b64encode(b"{}").decode()
     with httpx.Client(base_url=base_url, timeout=75) as client:
@@ -64,19 +84,40 @@ def room(base_url: str, secret: str) -> dict[str, object]:
                 f"/v1/sessions/{session_id}/exec",
                 headers=auth,
                 json={
-                    "command": ["python3", "-I", "-c", PROBE],
+                    "command": command,
                     "cwd": "/workspace",
                     "env": {},
-                    "timeoutSec": 60,
+                    "timeoutSec": timeout_sec,
                     "stdin": stdin,
                     "stdinEncoding": "base64",
                 },
             )
-            done.raise_for_status()
             reply: dict[str, object] = done.json()
         finally:
             client.post(f"/v1/sessions/{session_id}:terminate", headers=auth)
-    return reply
+    return done.status_code, reply
+
+
+def limits_verdict(base_url: str, secret: str) -> list[str]:
+    """ADR-0039: rlimit exec равны заданным, сверх адресного пространства память не выделяется,
+    запрос дольше потолка по часам отклоняется."""
+    problems: list[str] = []
+    status, reply = room(base_url, secret, ["python3", "-I", "-c", LIMITS_PROBE, str(OVER_AS_MB)])
+    if status != 200 or reply.get("exitCode") != 0:
+        return [f"проба пределов: HTTP {status}, {str(reply)[-400:]}"]
+    probe = json.loads(str(reply.get("stdout") or "{}"))
+    print(f"пределы exec: {probe}")
+    if probe["RLIMIT_CPU"] != RLIMIT_CPU_SEC:
+        problems.append(f"RLIMIT_CPU={probe['RLIMIT_CPU']}, ждали {RLIMIT_CPU_SEC}")
+    if probe["RLIMIT_AS"] != RLIMIT_AS:
+        problems.append(f"RLIMIT_AS={probe['RLIMIT_AS']}, ждали {RLIMIT_AS}")
+    if probe["alloc"] != "MemoryError":
+        problems.append(f"{OVER_AS_MB} МБ выделились — адресное пространство не ограничено")
+    status, reply = room(base_url, secret, ["python3", "-I", "-c", "pass"], EXEC_TIMEOUT_SEC + 1)
+    print(f"timeoutSec={EXEC_TIMEOUT_SEC + 1}: HTTP {status}")
+    if status != 400:
+        problems.append(f"exec дольше {EXEC_TIMEOUT_SEC} с не отклонён (HTTP {status})")
+    return problems
 
 
 def verdict(reply: dict[str, object]) -> list[str]:
@@ -98,16 +139,23 @@ def verdict(reply: dict[str, object]) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-url", default="http://workstation:8080")
+    parser.add_argument("--limits", action="store_true", help="проверить пределы exec (ADR-0039)")
     args = parser.parse_args()
     secret = os.environ.get("AIFA_SYM_WORKSTATION_CREATE_SECRET", "")
     if not secret:
         print("FAIL нет AIFA_SYM_WORKSTATION_CREATE_SECRET в окружении контейнера")
         return 1
-    problems = verdict(room(args.base_url, secret))
+    if args.limits:
+        problems = limits_verdict(args.base_url, secret)
+        success = "OK ADR-0039: пределы exec действуют"
+    else:
+        status, reply = room(args.base_url, secret, ["python3", "-I", "-c", PROBE])
+        problems = verdict(reply) if status == 200 else [f"exec: HTTP {status}, {reply}"]
+        success = "OK C5.2: комната открыта, пакеты импортируются, сокета нет, окружения службы нет"
     for problem in problems:
         print(f"FAIL {problem}")
     if not problems:
-        print("OK C5.2: комната открыта, пакеты импортируются, сокета нет, окружения службы нет")
+        print(success)
     return 1 if problems else 0
 
 

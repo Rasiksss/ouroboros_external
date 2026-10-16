@@ -121,11 +121,23 @@ services:
       dockerfile: Dockerfile
     image: aifa-sym-workstation:dev
     restart: unless-stopped
+    # ADR-0039: исполняет код модели и атомов на хосте, общем с prod. cgroup-пределы песочницы
+    # (SESSION_MEMORY_MAX, SESSION_PIDS_MAX, SESSION_CPU_QUOTA_PCT) в контейнере не действуют —
+    # память, CPU и процессы держит сам контейнер; swap не даём.
+    mem_limit: 1536m
+    memswap_limit: 1536m
+    cpus: 1.5
+    pids_limit: 256
     environment:
       # ADR-0028: секрет создания сессии знают ouroboros (WORKSTATION_CREATE_SECRET) и служба.
       # Этот сервис Workstation секрет не проверяет (в app/ нет такой настройки, P4): защита — сеть
       # без опубликованных портов. Переменная оставлена: клиент ouroboros присылает заголовок.
       WORKSTATION_CREATE_SECRET: ${AIFA_SYM_WORKSTATION_CREATE_SECRET:-}
+      # ADR-0039, один exec: потолок по часам (= code_exec ouroboros; комната службы просит 60 с),
+      # процессорное время — как у старого workstation-svc, адресное пространство процесса — 1 ГиБ.
+      EXEC_TIMEOUT_SEC: "300"
+      SESSION_RLIMIT_CPU_SEC: "300"
+      SESSION_RLIMIT_AS: "1073741824"
     expose:
       - "8080"
     networks: [internal]

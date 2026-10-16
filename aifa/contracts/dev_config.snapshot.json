@@ -1,5 +1,5 @@
 {
-  "adr": "ADR-0027, ADR-0036, ADR-0038",
+  "adr": "ADR-0027, ADR-0036, ADR-0038, ADR-0039",
   "note": "Снимок F9 (aifa/tests/architecture/test_dev_config.py). Списки отключённых инструментов и навыков сверены с живым экземпляром на шаге 04 (P3, ADR-0036); изменение набора — новая ADR (F13).",
   "required": {
     "OUROBOROS_MULTIUSER": "true",
@@ -71,5 +71,18 @@
   "absent_prefixes": [
     "A2A_",
     "DIALOGS_"
-  ]
+  ],
+  "workstation_limits": {
+    "container": {
+      "mem_limit": "1536m",
+      "memswap_limit": "1536m",
+      "cpus": "1.5",
+      "pids_limit": 256
+    },
+    "environment": {
+      "EXEC_TIMEOUT_SEC": "300",
+      "SESSION_RLIMIT_CPU_SEC": "300",
+      "SESSION_RLIMIT_AS": "1073741824"
+    }
+  }
 }
