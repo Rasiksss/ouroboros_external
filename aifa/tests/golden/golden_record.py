@@ -174,8 +174,9 @@ def _read_turn(session: ApiSession, run_id: str, settings: ClientSettings) -> li
 
 
 def _closed_without_completed(events: Sequence[Mapping[str, Any]]) -> bool:
-    """Служба закрыла поток после сбоя или отмены (`_drive`: `error`, `done` нет) или после
-    `session_lost` из старого журнала. Как у экрана: журнал кончился — ход окончен."""
+    """Служба закрыла поток после сбоя или отмены (`_drive`: `error`, затем `close`, `done`
+    нет) или после `session_lost` из старого журнала. Признак — по службе: экран на `/events`
+    такой конец не узнаёт и переподключается (PROGRESS.md §4, P45)."""
     if not events:
         return False
     last = events[-1]
@@ -185,9 +186,11 @@ def _closed_without_completed(events: Sequence[Mapping[str, Any]]) -> bool:
 
 
 def _cancel(session: ApiSession, run_id: str) -> bool:
+    # 200 приходит и тогда, когда отменять нечего: отменён ли ход, говорит `cancelled`.
     try:
-        return session.request("POST", f"/chat/runs/{run_id}/cancel").status == 200
-    except (OSError, http.client.HTTPException):
+        reply = session.request("POST", f"/chat/runs/{run_id}/cancel")
+        return reply.status == 200 and reply.json().get("cancelled") is True
+    except (OSError, http.client.HTTPException, ValueError, AttributeError):
         return False
 
 

@@ -222,3 +222,17 @@ def test_two_files_with_one_name_are_not_merged() -> None:
     result = compare(old, recording(turn(ANSWER, files=(xlsx,))))
     assert not result.equal
     assert "r.xlsx" in result.report()
+
+
+def test_text_file_bytes_are_ignored_in_presence_mode_for_a_live_model() -> None:
+    """csv/md/txt пишет и модель: в режиме `presence` их байты, как и текст ответа, не сверяются."""
+    old = recording(turn(ANSWER, files=(FileRef("r.csv", 10, "aa" * 32),)))
+    new = recording(turn(ANSWER, files=(FileRef("r.csv", 12, "bb" * 32),)))
+    assert compare(old, new, text="presence").equal
+
+
+def test_a_json_result_file_is_not_compared_by_bytes() -> None:
+    """json — вся модель результата, в ней случайные `output_id` и `run_id`."""
+    old = recording(turn(ANSWER, files=(FileRef("r.json", 10, "aa" * 32),)))
+    new = recording(turn(ANSWER, files=(FileRef("r.json", 10, "bb" * 32),)))
+    assert compare(old, new).equal

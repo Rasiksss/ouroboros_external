@@ -8,8 +8,9 @@
 - `thinking` пропал, нарезка `text_delta` изменилась — ADR-0015;
 - XLS/DOC на новой системе отклоняются при загрузке — ADR-0026.
 
-Файлы-результаты сверяются по имени, числу и статусу скачивания; байты — только у текстовых
-форматов. Байты xlsx и pdf содержат время создания, их содержимое проверяют шаги 18 и 20.
+Файлы-результаты сверяются по имени, числу и статусу скачивания; байты — только у csv/md/txt
+и только в режиме `exact`. Байты xlsx и pdf содержат время создания, json — случайные id
+результата; их содержимое проверяют шаги 18 и 20.
 """
 
 from __future__ import annotations
@@ -29,8 +30,9 @@ PRESENT_TEXT = "<текст>"
 # ADR-0026: старые форматы Office принимает только старая система.
 REFUSED_FORMATS = (".xls", ".doc")
 REFUSED_FROM_STATUS = 400
-# Текстовые выгрузки не несут времени создания: другие байты — другой файл у пользователя.
-STABLE_BYTES_FORMATS = (".csv", ".json", ".md", ".txt")
+# Без времени создания и случайных id: другие байты — другой файл у пользователя. Текст в них
+# пишет и модель, поэтому сверяются, как и ответ, только в режиме `exact`.
+STABLE_BYTES_FORMATS = (".csv", ".md", ".txt")
 
 
 @dataclass(frozen=True)
@@ -126,7 +128,7 @@ def _compare_turn(
     answers = (_answer(one.answer, text), _answer(two.answer, text))
     if answers[0] != answers[1]:
         differences.append(Difference(where, "answer", "text", answers[0], answers[1]))
-    differences.extend(_compare_files(where, one.files, two.files))
+    differences.extend(_compare_files(where, one.files, two.files, text))
     return len(left.events)
 
 
@@ -210,7 +212,10 @@ def _field_diffs(was: Any, became: Any, path: str) -> list[tuple[str, Any, Any]]
     return [] if was == became else [(path, was, became)]
 
 
-def _compare_files(where: str, one: Sequence[FileRef], two: Sequence[FileRef]) -> list[Difference]:
+def _compare_files(
+    where: str, one: Sequence[FileRef], two: Sequence[FileRef], text: TextMode
+) -> list[Difference]:
+    by_bytes = text == "exact"
     first, second = _by_name(one), _by_name(two)
     found: list[Difference] = []
     for name in sorted(set(first) | set(second)):
@@ -221,7 +226,11 @@ def _compare_files(where: str, one: Sequence[FileRef], two: Sequence[FileRef]) -
         for old, new in zip(was, became, strict=True):
             if old.note != new.note:
                 found.append(Difference(where, "file", f"{name} · скачивание", old.note, new.note))
-            elif name.lower().endswith(STABLE_BYTES_FORMATS) and old.sha256 != new.sha256:
+            elif (
+                by_bytes
+                and name.lower().endswith(STABLE_BYTES_FORMATS)
+                and old.sha256 != new.sha256
+            ):
                 found.append(
                     Difference(where, "file", f"{name} · содержимое", old.sha256, new.sha256)
                 )

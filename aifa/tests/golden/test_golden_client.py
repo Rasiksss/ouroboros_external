@@ -34,7 +34,8 @@ COOKIE_VALUE = "SECRET-SESSION-TOKEN"
 RESULT_BYTES = b"xlsx-bytes"
 PDF_BYTES = b"%PDF-1.4 fake document body"
 # Байты `/chat/runs/{id}/events`, снятые настоящим кодом службы (`_typed_run_response` поверх
-# `run_orchestrator`): реплей, хвост, биения; конец штатный или сбой хода (PROGRESS.md, шаг 05).
+# `run_orchestrator`): реплей, хвост, биения; конец штатный или сбой хода. Как сняты —
+# PROGRESS.md §3, «05 · доработка В1–В4».
 REAL_SSE = Path(__file__).parent / "_selftest" / "sse"
 
 
@@ -44,7 +45,8 @@ class ServerState:
     uploads: list[str] = field(default_factory=list)
     drop_first_stream: bool = False
     stream_requests: list[str] = field(default_factory=list)
-    ending: str = "completed"  # completed | error | session_lost | silent
+    ending: str = "completed"  # completed | error | error_midway | session_lost | silent
+    cancel_reply: tuple[int, dict[str, Any]] = (200, {"cancelled": True})
     cut_mid_chunk: bool = False
     real_stream: bytes = b""  # отдать снятый поток службы вместо собранного вручную
     cancels: list[str] = field(default_factory=list)
@@ -78,6 +80,14 @@ def journal(turn_no: int, ending: str = "completed") -> list[dict[str, Any]]:
     if ending == "error":  # сбой или отмена хода: `_drive` пишет `error` и закрывает журнал
         failure = {"code": "legacy_error", "message": "run cancelled", "retryable": False}
         return [*head, envelope(7, "error", error=failure, partial_results=[])]
+    if ending == "error_midway":  # отказ шага посреди хода: ход идёт дальше
+        failure = {"code": "legacy_error", "message": "шаг не удался", "retryable": True}
+        return [
+            *head,
+            envelope(7, "error", error=failure, partial_results=[]),
+            envelope(8, "legacy", legacy_event={"type": "text_delta", "text": "Иначе."}),
+            envelope(9, "completed", status="succeeded"),
+        ]
     if ending == "session_lost":  # за потерей прогона в журнале идёт `done`
         lost = envelope(7, "legacy", legacy_event={"type": "session_lost", "message": "x"})
         return [*head, lost, envelope(8, "completed", status="failed")]
@@ -135,7 +145,7 @@ def handler_for(state: ServerState) -> type[BaseHTTPRequestHandler]:
                 self.send_json(200, {"run_id": "r1", "events_url": "/chat/runs/r1/events"})
             elif path == "/chat/runs/r1/cancel":
                 state.cancels.append("r1")
-                self.send_json(200, {"cancelled": True})
+                self.send_json(*state.cancel_reply)
             else:
                 self.send_json(404, {"detail": "no route"})
 
@@ -397,9 +407,30 @@ def test_a_turn_that_does_not_end_is_cancelled_on_the_stand(
         poll_interval_s=0.01,
         turn_timeout_s=turn_timeout_s,
     )
-    with pytest.raises(ClientError, match="отменён"):
+    with pytest.raises(ClientError, match="; ход r1 на стенде отменён$"):
         record_scenario(scenario(tmp_path, turns=1), slow)
     assert state.cancels == ["r1"]
+
+
+@pytest.mark.parametrize("reply", [(200, {"cancelled": False}), (404, {"detail": "Run not found"})])
+def test_a_cancel_that_did_not_stop_the_turn_is_reported_as_not_cancelled(
+    server: tuple[str, ServerState], tmp_path: Path, reply: tuple[int, dict[str, Any]]
+) -> None:
+    """Ручка отвечает 200 и тогда, когда отменять нечего: решает поле `cancelled`."""
+    base, state = server
+    state.ending = "silent"
+    state.cancel_reply = reply
+    with pytest.raises(ClientError, match="НЕ отменён — отменить вручную$"):
+        record_scenario(scenario(tmp_path, turns=1), settings(base))
+
+
+def test_an_error_in_the_middle_of_a_turn_does_not_end_the_recording(
+    server: tuple[str, ServerState], tmp_path: Path
+) -> None:
+    base, state = server
+    state.ending = "error_midway"
+    events = record_scenario(scenario(tmp_path, turns=1), settings(base)).turns[0].events
+    assert [e["event_type"] for e in events[-3:]] == ["error", "legacy", "completed"]
 
 
 def test_a_stream_cut_inside_a_chunk_is_resumed(
