@@ -233,6 +233,15 @@ def test_timestamps_durations_and_money_are_removed() -> None:
     assert usage["turn"]["tokens_in"] == "<n>"
 
 
+def test_a_project_id_chosen_by_the_client_does_not_make_two_runs_differ() -> None:
+    """Живая запись на dev: `usage.turn.project_id` — id проекта, который клиент выдумал сам."""
+
+    def run(project: str) -> list[Any]:
+        return normalized(stream({"type": "usage", "turn": {"project_id": project, "model": "m"}}))
+
+    assert run("qa-golden-s-aaaa1111") == run("qa-golden-s-bbbb2222")
+
+
 def test_progress_ticks_collapse_and_their_digits_are_masked() -> None:
     few = stream({"type": "tool_progress", "name": "t", "text": "Идёт расчёт, 12 с"}, DONE)
     many = stream(

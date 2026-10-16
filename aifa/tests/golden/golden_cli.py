@@ -85,4 +85,7 @@ def _parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
+    # Отчёт содержит «→»: консоль Windows (cp1251) его не печатает.
+    sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
+    sys.stderr.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
     raise SystemExit(main())

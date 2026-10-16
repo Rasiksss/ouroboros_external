@@ -7,6 +7,9 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -101,3 +104,20 @@ def test_record_refuses_a_foreign_address_without_touching_the_network(
 def test_a_written_recording_can_be_read_back(tmp_path: Path) -> None:
     path = write_recording(tmp_path / "a.json", "да")
     assert read(path).turns[0].answer == "да"
+
+
+def test_the_report_prints_on_a_console_that_cannot_encode_the_arrow(tmp_path: Path) -> None:
+    """Живой прогон на Windows: консоль cp1251 роняла отчёт на «→»."""
+    one, two = (
+        write_recording(tmp_path / "a.json", "да"),
+        write_recording(tmp_path / "b.json", "нет"),
+    )
+    script = Path(__file__).with_name("golden_cli.py")
+    env = {**os.environ, "PYTHONIOENCODING": "cp1251", "PYTHONUTF8": "0"}
+    done = subprocess.run(
+        [sys.executable, str(script), "compare", str(one), str(two)],
+        env=env,
+        capture_output=True,
+        check=False,
+    )
+    assert done.returncode == 1, done.stderr.decode("utf-8", "replace")
