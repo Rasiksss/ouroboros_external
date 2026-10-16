@@ -200,3 +200,25 @@ def test_snapshot_ids_do_not_matter_but_snapshot_values_do() -> None:
         recording(snapshot=snap(str(uuid.uuid4()), 2)),
     )
     assert not other.equal
+
+
+def test_a_text_result_file_with_other_bytes_is_a_difference() -> None:
+    """В csv/json/md/txt нет времени создания: другие байты — другой файл у пользователя."""
+    old = recording(turn(ANSWER, files=(FileRef("r.csv", 10, "aa" * 32),)))
+    new = recording(turn(ANSWER, files=(FileRef("r.csv", 10, "bb" * 32),)))
+    [diff] = compare(old, new).differences
+    assert "r.csv" in diff.field and "содержимое" in diff.field
+
+
+def test_an_xlsx_with_other_bytes_is_not_a_difference() -> None:
+    old = recording(turn(ANSWER, files=(FileRef("r.xlsx", 10, "aa" * 32),)))
+    new = recording(turn(ANSWER, files=(FileRef("r.xlsx", 11, "bb" * 32),)))
+    assert compare(old, new).equal
+
+
+def test_two_files_with_one_name_are_not_merged() -> None:
+    xlsx = FileRef("r.xlsx", 10, "aa" * 32)
+    old = recording(turn(ANSWER, files=(xlsx, xlsx)))
+    result = compare(old, recording(turn(ANSWER, files=(xlsx,))))
+    assert not result.equal
+    assert "r.xlsx" in result.report()

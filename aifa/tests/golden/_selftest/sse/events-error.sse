@@ -1,0 +1,30 @@
+id: 1
+event: run_event.v1
+data: {"schema_version":"1.0","event_id":"9af6c365-6735-4e8c-be96-5ee9a9097143","run_id":"04fbbc9d-26ff-4419-a3f1-c59ac3e73cd4","sequence":1,"occurred_at":"2026-10-16T12:03:46.294973Z","event_type":"legacy","legacy_event":{"type":"session_id","session_id":"sess-golden"}}
+
+id: 2
+event: run_event.v1
+data: {"schema_version":"1.0","event_id":"33e208f5-9b2c-43ed-9133-ad5c64eba929","run_id":"04fbbc9d-26ff-4419-a3f1-c59ac3e73cd4","sequence":2,"occurred_at":"2026-10-16T12:03:46.294973Z","event_type":"legacy","legacy_event":{"type":"thinking","text":"Думаю"}}
+
+id: 3
+event: run_event.v1
+data: {"schema_version":"1.0","event_id":"6f34ba8b-84a5-4f15-9230-7ab4c97d1a42","run_id":"04fbbc9d-26ff-4419-a3f1-c59ac3e73cd4","sequence":3,"occurred_at":"2026-10-16T12:03:46.294973Z","event_type":"legacy","legacy_event":{"type":"text_delta","text":"Смотрю отчёт. "}}
+
+id: 4
+event: run_event.v1
+data: {"schema_version":"1.0","event_id":"f70b31a3-9b04-4e5e-b0d9-c7d5395b08a6","run_id":"04fbbc9d-26ff-4419-a3f1-c59ac3e73cd4","sequence":4,"occurred_at":"2026-10-16T12:03:46.542321Z","event_type":"legacy","legacy_event":{"type":"tool_call","name":"calc"}}
+
+event: run_event.v1
+data: {"schema_version":"1.0","event_id":"2ebc5e0d-a98d-48f1-9d16-e5b1b27495f5","run_id":"04fbbc9d-26ff-4419-a3f1-c59ac3e73cd4","sequence":4,"occurred_at":"2026-10-16T12:03:46.843325Z","event_type":"heartbeat"}
+
+event: run_event.v1
+data: {"schema_version":"1.0","event_id":"3b2acc63-f0e7-4a66-8e35-9a083982c862","run_id":"04fbbc9d-26ff-4419-a3f1-c59ac3e73cd4","sequence":4,"occurred_at":"2026-10-16T12:03:47.166428Z","event_type":"heartbeat"}
+
+id: 5
+event: run_event.v1
+data: {"schema_version":"1.0","event_id":"13ac5fa4-06ee-44d1-9581-8e52ba67033c","run_id":"04fbbc9d-26ff-4419-a3f1-c59ac3e73cd4","sequence":5,"occurred_at":"2026-10-16T12:03:47.246662Z","event_type":"legacy","legacy_event":{"type":"text_delta","text":"Итог: рост выручки."}}
+
+id: 6
+event: run_event.v1
+data: {"schema_version":"1.0","event_id":"e6a9bfdb-6722-485e-be22-dcc8806c4572","run_id":"04fbbc9d-26ff-4419-a3f1-c59ac3e73cd4","sequence":6,"occurred_at":"2026-10-16T12:03:47.246662Z","event_type":"error","error":{"code":"legacy_error","message":"RuntimeError: станция недоступна","retryable":false,"node_key":null,"details":{}},"partial_results":[]}
+
