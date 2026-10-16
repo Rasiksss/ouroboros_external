@@ -68,7 +68,7 @@ for check in "${CHECKS[@]}"; do
       limits=$(docker inspect -f '{{.HostConfig.Memory}} {{.HostConfig.MemorySwap}} {{.HostConfig.NanoCpus}} {{.HostConfig.PidsLimit}}' \
         "${PROJECT}-workstation-1")
       echo "пределы контейнера workstation (память, память+swap, наноCPU, процессы): $limits"
-      [ "$rc" -eq 0 ] && [ "$limits" ="1610612736 1610612736 1500000000 256" ]
+      [ "$rc" -eq 0 ] && [ "$limits" = "1610612736 1610612736 1500000000 256" ]
       result 5 "ADR-0039: пределы Workstation (exec и контейнер)" $?
       ;;
     *) echo "неизвестная проверка: $check"; FAILED=1 ;;
