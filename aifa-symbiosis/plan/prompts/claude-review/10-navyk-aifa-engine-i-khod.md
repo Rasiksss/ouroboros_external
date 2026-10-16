@@ -11,7 +11,8 @@ ouroboros (инварианты, правила `.rules/`).
 1. `aifa-symbiosis/plan/prompts/claude-impl/10-navyk-aifa-engine-i-khod.md` — **целиком**.
 2. `aifa-symbiosis/plan/PRINCIPLES.md`, `aifa-symbiosis/plan/REVIEW_GUIDE.md`.
 3. `aifa-symbiosis/plan/PROGRESS.md` — §2 (О3, О4), запись реализации шага 10.
-4. ADR-0004, ADR-0016, ADR-0019, ADR-0021, ADR-0022, ADR-0027; `CONTRACTS.md` §1, §2.5, §3;
+4. ADR-0004, ADR-0016, ADR-0019, ADR-0021, ADR-0022, ADR-0027, ADR-0040, ADR-0042, ADR-0043;
+   `CONTRACTS.md` §1, §2.5, §3;
    `FITNESS.md` F4, F7, F9, F12.
 5. ouroboros: `docs/INVARIANTS.md`; `uv run python scripts/resolve_rules.py <изменённые файлы skills/>`
    и названные правила; `docs/DEVELOPMENT.md` §Coding Rules; `docs/CREATING_SKILLS.md`.
@@ -26,13 +27,15 @@ ouroboros (инварианты, правила `.rules/`).
 
 ## Горизонтальное ревью
 - `plugin.py`: только перенос; импорты — стандартная библиотека, `httpx`, `aef_tracing` (F2);
-  `safety_policy`, `capability_class`, `timeout_sec`, `result_limit` по ADR-0022; длинный опрос с
+  `safety_policy`, `timeout_sec`, `result_limit` по ADR-0022, `capability_class` по ADR-0042; длинный опрос с
   проверкой `ctx.stop_requested()`; сетевой сбой → `СБОЙ_СЛУЖБЫ`.
 - Инварианты ouroboros: 1 (в пакетах навыков нет документов разработки), 2 (нет инструментов
   самоизменения), 6 (`X-Trace-Id`/`X-Agent-Id` на каждом вызове), 7 (идентичность не берётся из
   аргументов/полезной нагрузки).
-- `SKILL.md`: `description` заставляет читать навык; правила не противоречат ADR-0004/0024; нет
-  обещаний, которых не держит код.
+- `SKILL.md`: `description` (≤ 260 знаков) заставляет корень читать навык, а подзадачу с заданием
+  «Навык: <id>. …» — не применять его (ADR-0043 п. 2); правила не противоречат ADR-0004/0024/0040;
+  нет обещаний, которых не держит код.
+- В отчёте есть черновые схемы всех восьми инструментов ADR-0042 и их бюджет.
 - Снимок схем — с **предложенной** ADR (F13); бюджет F4 посчитан как в `task_graph.py`.
 - `POST /chat/turns`: старый путь больше не вызывается; ветка `pinned_tool` — по решению О3; поля
   запроса фронтенда принимаются как раньше.
