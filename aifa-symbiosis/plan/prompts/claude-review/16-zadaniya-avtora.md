@@ -8,7 +8,7 @@
 1. `aifa-symbiosis/plan/prompts/claude-impl/16-zadaniya-avtora.md` — **целиком**.
 2. `aifa-symbiosis/plan/PRINCIPLES.md`, `aifa-symbiosis/plan/REVIEW_GUIDE.md`.
 3. `aifa-symbiosis/plan/PROGRESS.md` — запись реализации шага 16.
-4. ADR-0007, ADR-0021, ADR-0029, ADR-0040, ADR-0041, ADR-0042, ADR-0043; `CONTRACTS.md` §2.3, §2.5,
+4. ADR-0007, ADR-0021, ADR-0029, ADR-0040, ADR-0041, ADR-0042, ADR-0043, ADR-0044; `CONTRACTS.md` §2.3, §2.5,
    §3.0, §3.1 (`aifa_register_atom`, `aifa_report`, `aifa_wait`, `aifa_finish`), §4, §5;
    `ARCHITECTURE.md` §6.
 
@@ -28,8 +28,10 @@
 - Одно место проверки/регистрации атома — `atom_intake`; у `atom_author.py` и роута своей копии нет.
 - Ни одной ветки по имени навыка или тексту задания подзадачи (ADR-0041, C4.7); навык-фикстура не в
   `skills/`.
-- Счётчик попыток общий для `aifa_report` и `aifa_register_atom`; номера на экране не совпадают
-  (C4.4).
+- Счётчик попыток общий для `aifa_report` и `aifa_register_atom`, на пару (ход цикла, имя): номера
+  на экране не совпадают и равны нынешним 1..3 на запись (C4.4, ADR-0044 п. 1).
+- `schedule_task` убран из списка отключённых в этом шаге — в `.example`, снимке F9 и `ouroboros.env`
+  dev (ADR-0044 п. 3).
 - Привязка и роли: `task_depth`, `root_task_id` — из контекста вызова, не из аргументов.
 - `subtask_waits`: нет утечки ожиданий после конца хода; отмена хода прерывает ожидание; срок —
   настройкой `Settings`.

@@ -8,7 +8,7 @@
 1. `aifa-symbiosis/plan/prompts/claude-impl/08-klient-ouroboros-i-shlyuz-khoda.md` — **целиком**.
 2. `aifa-symbiosis/plan/PRINCIPLES.md`, `aifa-symbiosis/plan/REVIEW_GUIDE.md`.
 3. `aifa-symbiosis/plan/PROGRESS.md` — запись реализации шага 08, §4 (P1).
-4. ADR-0011, ADR-0014, ADR-0015, ADR-0021, ADR-0024 (п. 1), ADR-0040, ADR-0041 (п. 3); `CONTRACTS.md` §2 целиком;
+4. ADR-0011, ADR-0014, ADR-0015, ADR-0021, ADR-0024 (п. 1), ADR-0040, ADR-0041 (п. 3), ADR-0043 (п. 3), ADR-0044 (п. 9); `CONTRACTS.md` §2 целиком;
    `FITNESS.md` F6, F12.
 5. ouroboros: `transport/browser/ws.py` (`_frame`, `handle_outbound`, `ws_endpoint`), `chat.py`.
 

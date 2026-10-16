@@ -7,7 +7,7 @@
 ## Прочитай до работы
 1. `aifa/CLAUDE.md`; `aifa-symbiosis/plan/PRINCIPLES.md`.
 2. `aifa-symbiosis/plan/PROGRESS.md` — записи 14, 16, §4, §5.
-3. ADR-0036, ADR-0040, ADR-0041, ADR-0042, ADR-0043.
+3. ADR-0036, ADR-0040, ADR-0041, ADR-0042, ADR-0043, ADR-0044.
 4. `CONTRACTS.md` §3.1, §4.
 5. `aifa/finengine/docs/build-plan/34-gibridnyy-planirovshchik-dynamic-run.md` §7.1; текущий
    `atom_author.md` службы (найди поиском — он главнее §7.1).
@@ -23,7 +23,7 @@
 
 ## Описание
 - `skills/aifa-atom-author/SKILL.md` (`instruction`): `description` (≤ 260 знаков — каталог обрезает,
-  `context.py:62`) — когда планировщику звать этот навык (нужен атом, которого нет в каталоге). Порядок: прочитать задание → входы через
+  `_build_available_skills_section` в `ouroboros/agent/context.py`) — когда планировщику звать этот навык (нужен атом, которого нет в каталоге). Порядок: прочитать задание → входы через
   `aifa_state(artifact_ids)` (при нужде — `aifa_doc`) → написать `run(inputs) -> dict` по контракту
   → отладка в своей сессии Workstation (`file_write` входов, `code_exec`) → после каждого прогона
   `aifa_report(label=<имя атома>, status=ok|error, note, code)` → `aifa_register_atom`; на `ОТКАЗ` —
@@ -43,7 +43,7 @@
 - **Удаление** `atom_author.py`, его промпта, настроек модели автора (`Settings`), вызовов из
   `LoopSession`; атом с кодом в `new_atoms` `aifa_move` — `ОТКАЗ неверные_аргументы` с подсказкой
   «подзадача и `aifa_register_atom`»; тексты подсказок цикла («входов ещё нет»,
-  `dynamic_run.py:760-763`; файл не собран, `:883-886`) — вести к подзадаче и `aifa_register_atom`
+  и «пришли его описание с тем же name» — `_ensure_atom`; файл не собран — `_with_promised_files`) — вести к подзадаче и `aifa_register_atom`
   вместо `new_atoms` (ADR-0043 п. 6). Поиск ссылок по всему репозиторию (правила кода 5.2).
 - **Реплей**: записанные ответы автора (из журналов прогонов старого AIFA или тестов
   `tests/dynamic_run/`) → сценарии подставной модели для корня и подзадачи → корень выбирает навык,
