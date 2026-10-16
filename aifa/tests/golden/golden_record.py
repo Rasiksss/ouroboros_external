@@ -1,12 +1,14 @@
 """Запись сценария: вход → проект → документы → ходы → файлы → `Recording` (ADR-0005, F5).
 
 Ход проводится так же, как экран: `POST /chat/turns`, затем чтение `GET /chat/runs/{id}/events`
-до `completed`. Кадры-биения в запись не попадают: они не записи журнала и не нужны экрану.
+до `completed` или до закрытия потока после `error`. Кадры-биения в запись не попадают: они не
+записи журнала и не нужны экрану. Запись, оборванная отказом, отменяет свой ход на стенде.
 """
 
 from __future__ import annotations
 
 import hashlib
+import http.client
 import json
 import re
 import time
@@ -75,7 +77,7 @@ def record_scenario(scenario: Scenario, settings: ClientSettings) -> Recording:
                 user=text,
                 events=tuple(events),
                 answer=final_answer(events),
-                files=_download_files(session, events),
+                files=_download_files(session, project_id, events),
             )
         )
     meta = Meta(
@@ -137,7 +139,19 @@ def _run_turn(
     started = session.request("POST", "/chat/turns", json_body=body)
     if started.status != 200:
         raise ClientError(f"ход не начат: HTTP {started.status}: {started.detail()}")
-    run_id = started.json()["run_id"]
+    run_id = str(started.json()["run_id"])
+    try:
+        return _read_turn(session, run_id, settings)
+    except ClientError as exc:
+        # Брошенный ход работал бы на dev дальше, а повторный запуск добавил бы второй.
+        state = "отменён" if _cancel(session, run_id) else "НЕ отменён — отменить вручную"
+        raise ClientError(f"{exc}; ход {run_id} на стенде {state}") from exc
+    except BaseException:
+        _cancel(session, run_id)
+        raise
+
+
+def _read_turn(session: ApiSession, run_id: str, settings: ClientSettings) -> list[dict[str, Any]]:
     deadline = time.monotonic() + settings.turn_timeout_s
     events: list[dict[str, Any]] = []
     for _ in range(MAX_RESUMES + 1):
@@ -146,21 +160,38 @@ def _run_turn(
             for payload in session.stream_events(f"/chat/runs/{run_id}/events?after={last}"):
                 if payload.get("event_type") != "heartbeat":
                     events.append(payload)
-                if _is_terminal(payload):
+                if payload.get("event_type") == "completed":
                     return events
                 if time.monotonic() > deadline:
                     raise ClientError(f"ход не завершился за {settings.turn_timeout_s:.0f} с")
-        except OSError:
-            pass  # обрыв связи: дочитываем с последнего события, как экран при догоне
+        except (OSError, http.client.HTTPException):
+            pass  # обрыв связи, в том числе посреди куска: дочитываем с последнего события
+        else:
+            if _closed_without_completed(events):
+                return events
         time.sleep(settings.poll_interval_s)
     raise ClientError(f"поток хода {run_id} обрывается: {MAX_RESUMES} переподключений не хватило")
 
 
-def _is_terminal(payload: Mapping[str, Any]) -> bool:
-    if payload.get("event_type") == "completed":
-        return True
-    legacy = payload.get("legacy_event")
-    return isinstance(legacy, dict) and legacy.get("type") == "session_lost"
+def _closed_without_completed(events: Sequence[Mapping[str, Any]]) -> bool:
+    """Служба закрыла поток после сбоя или отмены (`_drive`: `error`, затем `close`, `done`
+    нет) или после `session_lost` из старого журнала. Признак — по службе: экран на `/events`
+    такой конец не узнаёт и переподключается (PROGRESS.md §4, P45)."""
+    if not events:
+        return False
+    last = events[-1]
+    legacy = last.get("legacy_event")
+    lost = isinstance(legacy, dict) and legacy.get("type") == "session_lost"
+    return last.get("event_type") == "error" or lost
+
+
+def _cancel(session: ApiSession, run_id: str) -> bool:
+    # 200 приходит и тогда, когда отменять нечего: отменён ли ход, говорит `cancelled`.
+    try:
+        reply = session.request("POST", f"/chat/runs/{run_id}/cancel")
+        return reply.status == 200 and reply.json().get("cancelled") is True
+    except (OSError, http.client.HTTPException, ValueError, AttributeError):
+        return False
 
 
 def _session_id(events: Sequence[Mapping[str, Any]]) -> str:
@@ -172,7 +203,7 @@ def _session_id(events: Sequence[Mapping[str, Any]]) -> str:
 
 
 def _download_files(
-    session: ApiSession, events: Sequence[Mapping[str, Any]]
+    session: ApiSession, project_id: str, events: Sequence[Mapping[str, Any]]
 ) -> tuple[FileRef, ...]:
     refs: list[FileRef] = []
     seen: set[str] = set()
@@ -183,7 +214,8 @@ def _download_files(
         file_id = str(event["file_id"])
         seen.add(file_id)
         name = str(event.get("filename", file_id))
-        reply = session.request("GET", f"/documents/{file_id}/file")
+        # Кнопка файла в чате — `projectSourceDownloadUrl` (api.ts), не `/documents`.
+        reply = session.request("GET", f"/projects/{project_id}/sources/{file_id}/file")
         if reply.status == 200:
             refs.append(FileRef(name, len(reply.body), hashlib.sha256(reply.body).hexdigest()))
         else:

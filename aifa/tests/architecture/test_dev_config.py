@@ -39,7 +39,7 @@ DB_URL_KEY = re.compile(r"^OUROBOROS_RUNTIME_DB_URL(_\d+)?$")
 GOLDEN_DIR = REPO_ROOT / "aifa" / "tests" / "golden"
 GOLDEN_HOSTS = frozenset({"finagent.homyakagent.ru", "127.0.0.1", "localhost"})
 RESERVED_HOSTS = frozenset({"example.org", "example.com"})  # RFC 2606: «чужой адрес» в тестах
-GOLDEN_SUFFIXES = frozenset({".py", ".json", ".md", ".txt", ".sh"})
+GOLDEN_SUFFIXES = frozenset({".py", ".json", ".md", ".txt", ".sh", ".sse"})
 URL_HOST = re.compile(r"https?://([A-Za-z0-9.-]+)")
 SECRET_SHAPE = re.compile(
     r"eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}|Bearer\s+\S{8,}|Set-Cookie|Authorization",
