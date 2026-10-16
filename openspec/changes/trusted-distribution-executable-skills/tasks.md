@@ -1,7 +1,7 @@
 ## 1. Failing tests first
 
-- [x] 1.1 `tests/new_core/skills/test_skill_surface.py`: with `executable_skills=False`, a named `distribution:` extension is visible and admitted when selected; an unnamed extension and a named id of another source stay hidden; the allowlist still narrows; the default is empty
-- [x] 1.2 `tests/ouroboros/skills/`: `build_skill_availability` carries `OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS`
+- [x] 1.1 `tests/new_core/skills/test_skill_surface.py`: with `executable_skills=False`, a named `distribution:` extension is visible and admitted when selected; an unnamed extension and a script stay hidden; the task selection still narrows; the default is empty
+- [x] 1.2 `tests/ouroboros/storage/settings/test_trusted_executable_skill_ids.py`: `build_skill_availability` carries `OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS`
 - [x] 1.3 Settings: `distribution:<skill>` accepted, JSON list and comma list accepted, any other source, empty entry or non-list refused
 - [x] 1.4 Run the new tests against the unchanged code and record that they fail
 
