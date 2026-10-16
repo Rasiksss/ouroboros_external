@@ -17,6 +17,8 @@ class SkillAvailability:
     defaults: frozenset[str] | None
     agents: tuple[tuple[str, frozenset[str] | None], ...]
     executable_skills: bool = True
+    #: Canonical ids the deployment names as trusted: visible even when ``executable_skills`` is off.
+    trusted_executable_skills: frozenset[str] = frozenset()
 
     @classmethod
     def from_values(
@@ -25,6 +27,7 @@ class SkillAvailability:
         defaults: object,
         agents: object,
         executable_skills: bool,
+        trusted_executable_skills: frozenset[str] = frozenset(),
     ) -> SkillAvailability:
         return cls(
             defaults=cls._string_list(defaults),
@@ -34,6 +37,7 @@ class SkillAvailability:
                 if isinstance(item, dict) and str(item.get("name") or "").strip()
             ),
             executable_skills=executable_skills,
+            trusted_executable_skills=trusted_executable_skills,
         )
 
     def for_agent(self, agent_name: str | None) -> frozenset[str] | None:
@@ -156,7 +160,11 @@ class SkillSurface:
         return self._availability.for_deployment()
 
     def _is_visible(self, skill: LoadedSkill) -> bool:
-        return self._availability.executable_skills or not skill.manifest.is_executable()
+        return (
+            self._availability.executable_skills
+            or not skill.manifest.is_executable()
+            or str(skill.skill_id) in self._availability.trusted_executable_skills
+        )
 
     def _is_selected(self, skill: LoadedSkill) -> bool:
         return self._task_selection is None or skill.skill_id in self._task_selection

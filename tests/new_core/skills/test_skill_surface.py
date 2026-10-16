@@ -355,3 +355,49 @@ def test_catalog_permission_checker_accepts_a_skill_allowed_to_a_configured_agen
     checker = CatalogSkillPermissionChecker(skill_surface=surface)
 
     assert checker.refusal(alpha.skill_id, "inject_chat") is None
+
+
+def _mode_surface(skills: Sequence[LoadedSkill], *, trusted: Sequence[str], selection=None) -> SkillSurface:
+    """A deployment surface under the multi-user ceiling with a named trusted list."""
+    catalog = SkillCatalog()
+    catalog.initialize([_Provider("distribution", skills)])
+    return SkillSurface(
+        snapshot=catalog.snapshot(),
+        availability=make_skill_availability(executable_skills=False, trusted_executable_skills=trusted),
+        task_selection=selection,
+    )
+
+
+def test_a_named_distribution_extension_is_visible_under_the_ceiling_and_nothing_else_executable_is() -> None:
+    engine = _skill("engine", skill_type="extension")
+    other = _skill("other", skill_type="extension")
+    runner = _skill("runner", skill_type="script")
+    doc = _skill("doc")
+    surface = _mode_surface([engine, other, runner, doc], trusted=["distribution:engine"])
+
+    assert {skill.skill_id for skill in surface.deployment_skills()} == {engine.skill_id, doc.skill_id}
+    assert surface.deployment_get(engine.skill_id) is not None
+    assert surface.deployment_get(other.skill_id) is None
+    assert surface.deployment_get(runner.skill_id) is None
+
+
+def test_the_trusted_list_is_empty_by_default_and_the_ceiling_hides_every_executable_skill() -> None:
+    engine = _skill("engine", skill_type="extension")
+    catalog = SkillCatalog()
+    catalog.initialize([_Provider("distribution", [engine])])
+    surface = SkillSurface(snapshot=catalog.snapshot(), availability=make_skill_availability(executable_skills=False))
+
+    assert surface.deployment_skills() == ()
+    assert surface.deployment_get(engine.skill_id) is None
+
+
+def test_a_trusted_extension_reaches_a_task_only_when_the_task_selection_names_it() -> None:
+    engine = _skill("engine", skill_type="extension")
+    doc = _skill("doc")
+    unselected = _mode_surface([engine, doc], trusted=["distribution:engine"], selection=frozenset({doc.skill_id}))
+    selected = _mode_surface(
+        [engine, doc], trusted=["distribution:engine"], selection=frozenset({engine.skill_id, doc.skill_id})
+    )
+
+    assert unselected.admitted_ids() == frozenset({doc.skill_id})
+    assert selected.admitted_ids() == frozenset({engine.skill_id, doc.skill_id})

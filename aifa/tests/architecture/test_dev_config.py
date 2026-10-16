@@ -229,6 +229,27 @@ def compose_violations(compose: Mapping[str, Any]) -> list[str]:
     return problems
 
 
+def workstation_limit_violations(
+    compose: Mapping[str, Any], snapshot: Mapping[str, Any]
+) -> list[str]:
+    """Пределы Workstation контура (ADR-0039): контейнер держит память, CPU и процессы (cgroup
+    песочницы в контейнере не действует), окружение — время и rlimit одного exec."""
+    service: Mapping[str, Any] = (compose.get("services") or {}).get("workstation") or {}
+    environment: Mapping[str, Any] = service.get("environment") or {}
+    limits = snapshot["workstation_limits"]
+    problems = [
+        f"F9 (ADR-0039): у `workstation` {key}={service.get(key)!r}, ждали {expected!r}"
+        for key, expected in limits["container"].items()
+        if str(service.get(key)) != str(expected)
+    ]
+    problems += [
+        f"F9 (ADR-0039): у `workstation` {key}={environment.get(key)!r}, ждали {expected!r}"
+        for key, expected in limits["environment"].items()
+        if str(environment.get(key)) != str(expected)
+    ]
+    return problems
+
+
 def dev_config_violations(dev: Path, snapshot: Mapping[str, Any]) -> list[str]:
     ouro = parse_env(dev / "ouroboros.env.example")
     engine = parse_env(dev / "engine.env.example")
@@ -241,6 +262,7 @@ def dev_config_violations(dev: Path, snapshot: Mapping[str, Any]) -> list[str]:
         *env_violations(ouro, engine, snapshot),
         *database_violations(ouro, engine),
         *compose_violations(compose),
+        *workstation_limit_violations(compose, snapshot),
     ]
 
 
@@ -282,6 +304,32 @@ def test_f9_catches_a_drifted_tool_list(tmp_path: Path) -> None:
     assert any("OUROBOROS_DISABLED_TOOLS" in p and "attachment_read" in p for p in problems)
 
 
+def test_f9_catches_a_missing_skill_admission(tmp_path: Path) -> None:
+    """F9: нарушитель — навык workstation не допущен владельцам (ADR-0036): в multiuser
+    встроенные code_exec и file_* без допуска недоступны, а список по умолчанию пуст."""
+    dev = _copy_dev(tmp_path)
+    _edit(
+        dev / "ouroboros.env.example",
+        "OUROBOROS_USER_ENABLED_SKILL_IDS=distribution:workstation",
+        "OUROBOROS_USER_ENABLED_SKILL_IDS=",
+    )
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("OUROBOROS_USER_ENABLED_SKILL_IDS" in p for p in problems)
+
+
+def test_f9_catches_a_missing_trusted_executable_skill(tmp_path: Path) -> None:
+    """F9: нарушитель — доверенный навык aifa-engine убран из списка (ADR-0038): в multiuser
+    без него инструменты плагина не доходят до задачи."""
+    dev = _copy_dev(tmp_path)
+    _edit(
+        dev / "ouroboros.env.example",
+        "OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS=distribution:aifa-engine",
+        "OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS=",
+    )
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS" in p for p in problems)
+
+
 def test_f9_catches_a_port_published_beyond_loopback(tmp_path: Path) -> None:
     """F9: нарушитель — порт ouroboros опубликован на все интерфейсы (ADR-0028)."""
     dev = _copy_dev(tmp_path)
@@ -298,6 +346,27 @@ def test_f9_catches_a_port_on_the_workstation(tmp_path: Path) -> None:
     (dev / "compose.yml").write_text(yaml.safe_dump(compose, allow_unicode=True), encoding="utf-8")
     problems = dev_config_violations(dev, load_snapshot())
     assert any("`workstation` публикует" in p for p in problems)
+
+
+def test_f9_catches_an_unlimited_workstation(tmp_path: Path) -> None:
+    """F9: нарушитель — у Workstation контура снят предел памяти контейнера (ADR-0039): код
+    модели забрал бы память хоста, общего с prod."""
+    dev = _copy_dev(tmp_path)
+    compose = yaml.safe_load((dev / "compose.yml").read_text(encoding="utf-8"))
+    del compose["services"]["workstation"]["mem_limit"]
+    (dev / "compose.yml").write_text(yaml.safe_dump(compose, allow_unicode=True), encoding="utf-8")
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("ADR-0039" in p and "mem_limit" in p for p in problems)
+
+
+def test_f9_catches_a_raised_exec_cpu_limit(tmp_path: Path) -> None:
+    """F9: нарушитель — предел процессорного времени exec поднят без ADR (ADR-0039)."""
+    dev = _copy_dev(tmp_path)
+    compose = yaml.safe_load((dev / "compose.yml").read_text(encoding="utf-8"))
+    compose["services"]["workstation"]["environment"]["SESSION_RLIMIT_CPU_SEC"] = "3600"
+    (dev / "compose.yml").write_text(yaml.safe_dump(compose, allow_unicode=True), encoding="utf-8")
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("ADR-0039" in p and "SESSION_RLIMIT_CPU_SEC" in p for p in problems)
 
 
 def test_f9_catches_prod_in_a_name_and_a_prod_target(tmp_path: Path) -> None:

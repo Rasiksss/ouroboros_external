@@ -1,7 +1,7 @@
 # Dev-контур симбиоза: образы и compose-проект `aifa-sym`
 
 Развёртывание dev как код (шаг 03 плана). Что именно выкатывать и когда — решает владелец
-(`aifa-symbiosis/plan/PROGRESS.md` §2); порядок выкатки наброском ниже, точный допишет шаг 04.
+(`aifa-symbiosis/plan/PROGRESS.md` §2); порядок выкатки — ниже, проверен шагом 04.
 Правила стенда — `aifa/CLAUDE.md` §10: только compose-проект `aifa-sym`, **prod не трогать**,
 старый AIFA на dev (`finengine-*`, `openclaw-dev`, `workstation-svc`) работает рядом до шага 21.
 
@@ -61,10 +61,11 @@ docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml --profile app build en
 docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml build workstation        # только на dev
 ```
 
-- Базы `workstation-svc:local` нет нигде, кроме dev (P4). Слой комнаты проверен на локальном
-  двойнике базы (UBI 8 + Python 3.12, пользователь `aef`, заглушки `ws-sandbox` и `busybox`):
-  `docker build -t workstation-svc:local` из такого `Dockerfile`, затем `build workstation`.
-  Двойник только для сборки слоя; настоящий Workstation — образ dev.
+- Базы `workstation-svc:local` нет нигде, кроме нижних слоёв `workstation-svc-aifa:local` на dev:
+  на dev её восстанавливает `workstation/restore_base.py` (порядок выкатки, п. 6). Локально слой
+  комнаты проверяют на двойнике базы (UBI 8 + Python 3.12, пользователь `aef`, заглушки `ws-sandbox` и
+  `busybox`) — `docker build -t workstation-svc:local` из такого `Dockerfile`. `entrypoint.sh` базы с CRLF:
+  слой комнаты нормализует его (`sed`), иначе контейнер падает `no such file or directory` (P4).
 - Образы собирались и контур поднимался (все сервисы `healthy`, ouroboros после `alembic upgrade head`
   из `entrypoint.sh`) в Linux-VM с Docker Engine; Docker Desktop для этого не обязателен.
 - Образ ouroboros ставит зависимости не через `uv sync --frozen`, а через `uv export --frozen` и
@@ -73,21 +74,68 @@ docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml build workstation     
 - Образу службы нужен доступ к `github.com` при сборке (`mmar-carl` стоит в её замке из git).
 - Проверка без docker: `aifa/scripts/check.sh` (F9: `test_dev_config.py`, `test_dev_images.py`).
 
-## Запуск (набросок; порядок выкатки допишет шаг 04)
+## Порядок выкатки на dev (шаг 04, проверен 15.10.2026)
 
-1. Сигнал владельца «выкатывай» записан в `PROGRESS.md` §2; цель — compose-проект `aifa-sym`, в
-   имени нет `prod`.
-2. На хосте свободно ≥ 3 ГБ (P17: сборка упёрлась в диск у 97 %) и памяти хватает рядом со
-   старым AIFA (P5: ~3,3 ГБ; потолки — `mem_limit` в `compose.yml`).
-3. Доставка исходников на dev — `git bundle` или `scp` нескольких файлов, не `tar | ssh`; серверное
-   дерево старого AIFA (`/opt/finagent`) не трогается — у `aifa-sym` своя копия.
-4. `build` → `up -d` → `curl -fsS http://127.0.0.1:18180/ready` на хосте; ouroboros стартует
-   только с базой и корзиной (без них падает первым — это ожидаемо).
-5. Профиль `app` — с шага 12.
+Хост `85.198.84.50`, `ssh rasul@…`, группа `docker`, `sudo` без пароля. Всё — только проект `aifa-sym`;
+перед каждой `docker`-операцией в имени цели нет `prod`. Длинное — под `nohup` с логом в файл.
 
-Старый AIFA на dev (сторож живого хода, бэкап `~/p1-backup-*`, накладывание поверх
-серверного состояния) выкатывается по разделу 7а `CLAUDE.md` AIFA-CLAW (в этот репозиторий не
-перенесён, ADR-0032 п. 3); для `aifa-sym` он не нужен: проект новый, чужого состояния в нём нет.
+1. **Сигнал и предусловия** — записаны в `PROGRESS.md` §2 (сигнал «выкатывай», О2, список чистки).
+2. **Снимок «до»** → `~/aifa-sym-before-<дата>.txt` на сервере: `docker ps -a`, `df -h /`, `free -m`,
+   `docker system df`, образы, время старта каждого контейнера (`docker inspect … State.StartedAt`).
+3. **Чистка** — строго по утверждённому списку (шаг 04: только кэш сборки, `docker builder prune`);
+   после — `df -h /`. Образов `finengine-backend` и каталогов `~/aifa-*` без отдельного слова не трогаем.
+4. **Код**: `git bundle create x.bundle sym/NN-…` → `scp` → `git clone -b sym/NN-… x.bundle ~/aifa-sym`;
+   дальнейшие правки — инкрементальный bundle (`<база>..<ветка>`) и `git pull x.bundle <ветка>`.
+   Не `tar | ssh`; `/opt/finagent*` не трогаем.
+5. **Секреты** — `aifa/deploy/dev/.env` и `ouroboros.env` из `*.example`, права 600, вне git; пароли и
+   ключ шифрования генерируются на сервере; ключ Cloud.ru вставляется владельцем (в шаге 04 — из `.env`
+   старого стенда ouroboros).
+6. **База Workstation** (на dev нет тега `workstation-svc:local`, только `workstation-svc-aifa:local` с
+   кодом finengine и мостом — как база он не годится):
+   ```bash
+   docker save workstation-svc-aifa:local -o ~/aifa-sym-room.tar
+   python3 aifa/deploy/dev/workstation/restore_base.py ~/aifa-sym-room.tar ~/aifa-sym-base.tar
+   docker load -i ~/aifa-sym-base.tar            # Loaded image ID: sha256:<id>
+   docker tag sha256:<id> workstation-svc:local
+   rm -f ~/aifa-sym-room.tar ~/aifa-sym-base.tar
+   ```
+   Образ комнаты старого AIFA не меняется: создаётся только новый тег на его нижние слои.
+7. **Сборка**: `docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml build workstation ouroboros`
+   и `pull s3 s3-init ouro-postgres` (≈1,7 ГБ новых образов: SeaweedFS 724 МБ, aws-cli 649 МБ).
+8. **Подъём без профиля `app`**: `docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml up -d --wait`.
+9. **Дымовые проверки**: `aifa/deploy/dev/smoke/run.sh` (ниже).
+10. **После**: `docker ps` prod-контейнеров и время их старта равны снимку «до»; `/health` старого AIFA.
+
+Профиль `app` (`engine`, `engine-postgres`, `frontend`) — с шага 12.
+
+### Дымовые проверки (`smoke/`)
+
+`smoke/run.sh [1|2|3|4|5]` — одноразовые контейнеры из образа ouroboros в сети `aifa-sym-internal`;
+секрет Workstation берётся из `.env` и не печатается. Повторяются шагом 12 и далее.
+
+| № | Что | Критерий |
+|---|---|---|
+| 1 | `/ready` ouroboros через `127.0.0.1:18180` | HTTP 200 |
+| 2 | WS `ws://ouroboros:8080/ws` (`ws_chat.py`) | без `X-Ouroboros-Owner-Id` — рукопожатие отклонено; с `X-Ouroboros-Owner-Id: smoke`, `X-Ouroboros-Chat-Id: smoke-1` — ответ модели на «привет» |
+| 3 | `code_exec` в Workstation контура | ответ содержит «4», в логе ouroboros — `POST …/v1/sessions/<id>/exec:stream` к `workstation:8080` |
+| 4 | C5.2: разовая комната по протоколу `sealed_room` (`room.py`) | `numpy`, `pandas`, `openpyxl`, `pptx`, `docx` импортируются; сокет заблокирован; переменных окружения службы нет |
+| 5 | Пределы Workstation, ADR-0039 (`room.py --limits`, `docker inspect`) | у exec `RLIMIT_CPU` 300 с и `RLIMIT_AS` 1 ГиБ, 1,5 ГБ не выделяются, `timeoutSec` 301 отклонён; у контейнера память 1,5 ГБ без swap, 1,5 CPU, 256 процессов |
+
+Пределы Workstation (ADR-0039) держит контейнер, а не песочница: её cgroup-настройки
+(`SESSION_MEMORY_MAX` и др.) в контейнере не действуют, действуют только rlimit одного exec и
+потолок `EXEC_TIMEOUT_SEC`.
+
+### Откат
+
+```bash
+cd ~/aifa-sym
+docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml down        # контейнеры и сеть; тома остаются
+```
+
+Тома `aifa-sym-*` (`ouro-data`, `ouro-pgdata`, `s3-data`) **без команды владельца не удаляются**
+(`down -v` — нельзя). Тег `workstation-svc:local` — только новая ссылка на слои старой комнаты, его
+удаление (`docker rmi workstation-svc:local`) старый AIFA не затрагивает. Чистка образов
+`aifa-sym-*`, `chrislusf/seaweedfs`, `amazon/aws-cli` — отдельным решением.
 
 ## Чем образы отличаются от образов AIFA
 
@@ -103,10 +151,12 @@ docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml build workstation     
 
 ## Открытое
 
-- О2 (где PostgreSQL и S3): здесь «новые контейнеры» — до решения владельца.
-- P3: списки инструментов и навыков черновые — уточняются по живому экземпляру в шаге 04.
-- P4: имя переменной секрета создания сессии на стороне сервиса Workstation и `ENTRYPOINT`/`CMD`
-  базы `workstation-svc:local` проверить на dev первой сборкой.
-- Версии пакетов комнаты (`numpy`, `pandas`, …) не закреплены, как и в слое AIFA; снять
-  `pip freeze` со старой комнаты и закрепить (P28).
+- **ADR-0037 (решение владельца)**: в `OUROBOROS_MULTIUSER=true` исполняемые навыки, в том числе
+  расширение `aifa-engine`, скрыты от задач. Контур годится для проверок 0.6, но не для хода через
+  `aifa-engine`, пока вариант не выбран.
+- ADR-0036 (предложено): допуск навыка `workstation` (`OUROBOROS_USER_ENABLED_SKILL_IDS`), подтверждённые
+  списки инструментов и навыков. Пока она не принята, значение стоит в `ouroboros.env` на dev.
+- Секрет создания сессии этим Workstation не проверяется (в `app/` нет такой настройки, P4);
+  защита контура — сеть без опубликованных портов (ADR-0028).
+- На dev свободно ≈2 ГБ (критерий 0.5 «≥ 8 ГБ» не достигнут: чистка ограничена кэшем сборки).
 - Адрес шлюза моделей службы (`FINENGINE_OPENROUTER_BASE_URL`) берётся из окружения старого dev.

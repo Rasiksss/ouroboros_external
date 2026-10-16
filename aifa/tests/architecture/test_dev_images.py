@@ -19,6 +19,8 @@ CORPORATE = ("nexus", "genai.int", "sbrf.ru", "sberosc")
 MIN_WHITELISTED_TOOLS = 15  # AIFA держит у себя 18: меньше 15 — читаем не тот файл
 # Код службы ищет deploy/ рядом с src/ (llm/tools.py, net/ru_gov_tls.py): и в чекауте, и в образе.
 ENGINE_DEPLOY = REPO_ROOT / "aifa" / "finengine" / "deploy"
+# ADR-0007: пакеты комнаты; без версии вычисления атомов расходятся с опорной записью (F5, P30).
+ROOM_PACKAGES = ("numpy", "pandas", "openpyxl", "python-pptx", "python-docx")
 
 
 def _instructions(dockerfile: Path) -> list[str]:
@@ -104,6 +106,18 @@ def image_violations(dev: Path, engine_deploy: Path = ENGINE_DEPLOY) -> list[str
             for word in ("finengine", "bridge", "infproxy")
             if word in text
         )
+        # P4: в базе entrypoint.sh с CRLF (`#!/bin/sh\r`), ядро отвечает «no such file»;
+        # старый AIFA обходит это своим start.sh, у контура его нет.
+        if "entrypoint.sh" not in text:
+            problems.append(
+                "F9 (P4): workstation/Dockerfile не нормализует /app/entrypoint.sh (CRLF базы)"
+            )
+        tokens = {t.rstrip("\\") for line in lines["workstation"] for t in line.split()}
+        problems.extend(
+            f"F9 (P30): пакет комнаты {name} без версии в workstation/Dockerfile"
+            for name in ROOM_PACKAGES
+            if name in tokens
+        )
     return problems
 
 
@@ -147,6 +161,25 @@ def test_f9_catches_finengine_in_the_workstation_layer(tmp_path: Path) -> None:
     with (dev / "workstation" / "Dockerfile").open("a", encoding="utf-8") as dockerfile:
         dockerfile.write("COPY finengine /usr/lib64/python3.12/site-packages/finengine\n")
     assert any("finengine" in p and "ADR-0007" in p for p in image_violations(dev))
+
+
+def test_f9_catches_an_unpinned_room_package(tmp_path: Path) -> None:
+    """F9: нарушитель — пакет комнаты без `==` (P30): версия поплывёт при пересборке."""
+    dev = _copy_dev(tmp_path)
+    path = dev / "workstation" / "Dockerfile"
+    path.write_text(
+        path.read_text(encoding="utf-8").replace("numpy==", "numpy #", 1), encoding="utf-8"
+    )
+    assert any("numpy" in p and "P30" in p for p in image_violations(dev))
+
+
+def test_f9_catches_a_workstation_entrypoint_left_with_crlf(tmp_path: Path) -> None:
+    """F9: нарушитель — слой Workstation не чинит CRLF в entrypoint.sh базы (P4)."""
+    dev = _copy_dev(tmp_path)
+    path = dev / "workstation" / "Dockerfile"
+    kept = [ln for ln in path.read_text(encoding="utf-8").splitlines() if "entrypoint.sh" not in ln]
+    path.write_text("\n".join(kept) + "\n", encoding="utf-8")
+    assert any("entrypoint.sh" in p and "P4" in p for p in image_violations(dev))
 
 
 def test_f9_catches_a_corporate_registry(tmp_path: Path) -> None:
