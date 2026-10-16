@@ -682,6 +682,9 @@ class AppSettings(BaseModel):
     MCP_ENABLED: bool = False
     MCP_SERVERS: list[McpServerEntry] = Field(default_factory=list)
     OUROBOROS_USER_ENABLED_SKILL_IDS: list[str] = Field(default_factory=list)
+    #: Distribution skills of an executable type the deployment trusts under ``OUROBOROS_MULTIUSER``;
+    #: the ceiling hides every other executable skill. Empty by default.
+    OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS: list[str] = Field(default_factory=list)
     MCP_TOOL_TIMEOUT_SEC: int = 60
     #: How long one JSON-RPC request to an MCP server may take — a property of *their* server. The
     #: connection's start-up budget is computed from this, so raising it raises that too.
@@ -1023,6 +1026,15 @@ class AppSettings(BaseModel):
     @classmethod
     def _validate_user_enabled_skill_ids(cls, value: Any) -> list[str]:
         return _coerce_user_enabled_skill_ids(value)
+
+    @field_validator("OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS", mode="before")
+    @classmethod
+    def _validate_trusted_executable_skill_ids(cls, value: Any) -> list[str]:
+        ids = _coerce_user_enabled_skill_ids(value)
+        foreign = [item for item in ids if not item.startswith("distribution:") or item == "distribution:"]
+        if foreign:
+            raise ValueError(f"trusted executable skill ids must be distribution:<skill> ids, got {foreign}")
+        return ids
 
     @field_validator("A2A_REMOTE_AGENTS", mode="before")
     @classmethod

@@ -44,7 +44,7 @@ def skill_test_settings():
     return load_settings()
 
 
-def make_skill_availability(*, defaults=None, agents=None, executable_skills=True):
+def make_skill_availability(*, defaults=None, agents=None, executable_skills=True, trusted_executable_skills=()):
     """Build normalized availability without a production test constructor."""
     from new_core.skills.surface import SkillAvailability
 
@@ -52,6 +52,7 @@ def make_skill_availability(*, defaults=None, agents=None, executable_skills=Tru
         defaults=defaults,
         agents=agents,
         executable_skills=executable_skills,
+        trusted_executable_skills=frozenset(trusted_executable_skills),
     )
 
 

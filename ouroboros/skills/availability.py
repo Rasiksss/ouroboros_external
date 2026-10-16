@@ -13,4 +13,5 @@ def build_skill_availability(settings: AppSettings) -> SkillAvailability:
         defaults=settings.get("agents.defaults.skills"),
         agents=settings.get("agents.list", []),
         executable_skills=not bool(settings.OUROBOROS_MULTIUSER),
+        trusted_executable_skills=frozenset(settings.OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS),
     )
