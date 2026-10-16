@@ -71,8 +71,10 @@ RULES: dict[str, Rule] = _rules(
     ),
     Rule(
         "sort_independent",
-        "Состояния разных узлов (`node_run`) и шагов разных линий (`plan_step`) экран держит "
-        "по ключу — порядок между ключами не виден; внутри одного ключа порядок сохраняется.",
+        "Состояния разных узлов (`node_run`) и разных шагов плана (`plan_step`) экран держит "
+        "по ключу — порядок между ключами не виден; внутри одного ключа порядок сохраняется. "
+        "Шаг плана — тот, в который отметку положит экран: `index < 0` — последний шаг линии, "
+        "линия, которой нет, — первая (`applyChatEvent`, `plan_step`).",
     ),
     Rule(
         "strip_time_fields",
@@ -106,7 +108,6 @@ ID_KEYS = frozenset(
         "node_run_id",
         "metric_id",
         "evidence_id",
-        "source_ref",
         "output_id",
         "args_fingerprint",
         "graph_hash",
@@ -245,23 +246,44 @@ def _collapse_progress(events: list[JsonObject]) -> list[JsonObject]:
 
 def _sort_independent(events: list[JsonObject]) -> list[JsonObject]:
     ordered: list[JsonObject] = []
-    window: list[JsonObject] = []
+    window: list[tuple[tuple[str, str, str], JsonObject]] = []
+    lanes: dict[str, int] = {}  # линия плана → число шагов, в порядке появления, как у экрана
     for event in events:
         if event.get("type") in INDEPENDENT_TYPES:
-            window.append(event)
+            window.append((_independent_key(event, lanes), event))
             continue
-        ordered.extend(sorted(window, key=_independent_key))  # sorted устойчива: порядок ключа цел
+        ordered.extend(_by_key(window))
         window = []
+        if event.get("type") == "plan":
+            lanes[str(event.get("name") or "ход")] = len(event.get("steps") or [])
         ordered.append(event)
-    ordered.extend(sorted(window, key=_independent_key))
+    ordered.extend(_by_key(window))
     return ordered
 
 
-def _independent_key(event: JsonObject) -> tuple[str, str, str]:
+def _by_key(window: list[tuple[tuple[str, str, str], JsonObject]]) -> list[JsonObject]:
+    # sorted устойчива: порядок внутри одного ключа цел
+    return [event for _, event in sorted(window, key=lambda item: item[0])]
+
+
+def _independent_key(event: JsonObject, lanes: Mapping[str, int]) -> tuple[str, str, str]:
     if event["type"] == "node_run":
         node = event.get("node_run", {}).get("node_key", {})
         return ("node_run", str(node.get("atom_name", "")), str(node.get("atom_version", "")))
-    return ("plan_step", str(event.get("name") or "ход"), str(event.get("index", "")))
+    return ("plan_step", *_plan_step_target(event, lanes))
+
+
+def _plan_step_target(event: JsonObject, lanes: Mapping[str, int]) -> tuple[str, str]:
+    """Линия и шаг, которые отметка изменит на экране; неразрешимую экран отбрасывает."""
+    name = str(event.get("name") or "ход")
+    lane = name if name in lanes else next(iter(lanes), None)
+    index = event.get("index")
+    if lane is None or not isinstance(index, int) or isinstance(index, bool):
+        return ("", "")  # шага нет — экран событие отбросит, порядок таких не виден
+    target = index if index >= 0 else lanes[lane] - 1
+    if not 0 <= target < lanes[lane]:
+        return ("", "")
+    return (lane, f"{target:06d}")
 
 
 def _clean_event(event: JsonObject, labels: IdLabels) -> JsonObject:

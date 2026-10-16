@@ -177,7 +177,38 @@ def test_node_runs_do_not_cross_a_barrier_event() -> None:
 def test_plan_steps_of_different_lanes_may_arrive_in_any_order() -> None:
     first = {"type": "plan_step", "name": "x", "index": 0, "status": "running"}
     second = {"type": "plan_step", "name": "y", "index": 0, "status": "running"}
-    assert normalized(stream(first, second)) == normalized(stream(second, first))
+    lanes = (
+        {"type": "plan", "name": "x", "steps": ["a"]},
+        {"type": "plan", "name": "y", "steps": ["a"]},
+    )
+    assert normalized(stream(*lanes, first, second)) == normalized(stream(*lanes, second, first))
+
+
+PLAN = {"type": "plan", "name": "p", "steps": ["a", "b", "c", "d"]}
+
+
+def plan_step(index: int, status: str, name: str = "p") -> dict[str, Any]:
+    return {"type": "plan_step", "name": name, "index": index, "status": status}
+
+
+def test_marks_of_one_step_addressed_as_last_keep_their_order() -> None:
+    """Экран: `index < 0` — последний шаг линии; две отметки одного шага не независимы."""
+    done_last = stream(PLAN, plan_step(3, "running"), plan_step(-1, "done"), DONE)
+    running_last = stream(PLAN, plan_step(-1, "done"), plan_step(3, "running"), DONE)
+    assert normalized(done_last) != normalized(running_last)
+
+
+def test_a_mark_with_an_unknown_lane_goes_to_the_first_lane_and_keeps_its_order() -> None:
+    """Экран: отметка линии, которой нет, адресована первой линии (`Math.max(0, findIndex)`)."""
+    done_last = stream(PLAN, plan_step(0, "running"), plan_step(0, "done", name="x"), DONE)
+    running_last = stream(PLAN, plan_step(0, "done", name="x"), plan_step(0, "running"), DONE)
+    assert normalized(done_last) != normalized(running_last)
+
+
+def test_marks_of_different_steps_of_one_lane_may_arrive_in_any_order() -> None:
+    one = stream(PLAN, plan_step(0, "done"), plan_step(-1, "running"), DONE)
+    other = stream(PLAN, plan_step(-1, "running"), plan_step(0, "done"), DONE)
+    assert normalized(one) == normalized(other)
 
 
 def test_the_same_identifier_gets_the_same_label_and_two_identifiers_two_labels() -> None:
@@ -204,6 +235,28 @@ def test_a_swapped_reference_between_two_identifiers_is_a_difference() -> None:
         {"type": "file", "file_id": a, "filename": "y"},
     )
     assert normalized(straight) != normalized(again)
+
+
+def typed_result(source_ref: str) -> dict[str, Any]:
+    fact = {"evidence_id": str(uuid.uuid4()), "source_ref": source_ref}
+    return {
+        "event_type": "result",
+        "delivery_status": "complete",
+        "result": {"output_type": "CalculatedMetric", "metric_id": str(uuid.uuid4()), **fact},
+    }
+
+
+def test_a_different_source_ref_shown_in_the_card_is_a_difference() -> None:
+    """Экран показывает `source_ref` в «Источники:»; бывает `formula_id` или `concept`."""
+    roe = stream(typed_result("formula.roe"), DONE)
+    roa = stream(typed_result("formula.roa"), DONE)
+    assert normalized(roe) != normalized(roa)
+
+
+def test_a_random_identifier_inside_a_source_ref_is_still_labelled() -> None:
+    first = stream(typed_result(f"{uuid.uuid4()},{uuid.uuid4()}"), DONE)
+    second = stream(typed_result(f"{uuid.uuid4()},{uuid.uuid4()}"), DONE)
+    assert normalized(first) == normalized(second)
 
 
 def test_labels_are_shared_across_turns_through_one_registry() -> None:
