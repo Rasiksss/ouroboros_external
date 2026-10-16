@@ -7,7 +7,7 @@
 ## Прочитай до работы
 1. `aifa/CLAUDE.md`; `aifa-symbiosis/plan/PRINCIPLES.md`.
 2. `aifa-symbiosis/plan/PROGRESS.md` — записи 15–17, §4.
-3. ADR-0007, ADR-0008, ADR-0012; `CONTRACTS.md` §4, §5 (пределы комнаты, порт `out/`).
+3. ADR-0007, ADR-0012, ADR-0041, ADR-0042; `CONTRACTS.md` §4, §5 (пределы комнаты, порт `out/`).
 4. `aifa/finengine/docs/build-plan/34-status.md` — «Часть 16», «Часть 16б» (файлы-результаты,
    открытые пункты про формулы xlsx и бюджет автора — поиск, только эти разделы).
 5. `skills/aifa-atom-author/`, `skills/aifa-planning/` — разделы о файлах.

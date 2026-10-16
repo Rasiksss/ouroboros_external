@@ -7,7 +7,7 @@
 ## Прочитай до работы
 1. `aifa/CLAUDE.md`; `aifa-symbiosis/plan/PRINCIPLES.md`.
 2. `aifa-symbiosis/plan/PROGRESS.md` — записи 06 (P6), 08–10.
-3. ADR-0007, ADR-0009, ADR-0011, ADR-0012, ADR-0020, ADR-0025, ADR-0026.
+3. ADR-0007, ADR-0009, ADR-0011, ADR-0012, ADR-0020, ADR-0026, ADR-0040.
 4. `CONTRACTS.md` §1 (таблица «Что меняется»), §2.6, §5, §6; C1.3, C1.4, C5.1, C6.1–C6.4;
    `FITNESS.md` F11.
 5. ouroboros (только чтение): `transport/browser/files.py` (`upload`, маршруты `/api/files*`),

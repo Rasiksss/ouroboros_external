@@ -20,12 +20,12 @@
 3. Фронтенд и его события не меняются; служба движка — единственный собеседник фронтенда (ADR-0015).
 4. Ход: служба открывает WebSocket браузерного транспорта ouroboros с заголовками владельца и чата,
    `client_message_id` = `run_id`; финальный ответ — непрогрессный кадр корневой задачи (ADR-0021).
-5. Ouroboros думает и решает; служба исполняет и проверяет: восемь инструментов `aifa-engine`,
-   у каждого правила цикла — код и тест в службе (ADR-0022, ADR-0023).
-6. Ouroboros не видит текста документа: оригиналы не прикладываются к сообщениям, инструменты
-   чтения файлов выключены, все ответы инструментов идут через один модуль `ouro_view` (ADR-0025).
-7. Автор кода — подзадача ouroboros в той же сессии Workstation; служба проверяет код в разовой
-   комнате и регистрирует атом (ADR-0008).
+5. Ouroboros думает и решает; служба исполняет граф и хранит данные: восемь инструментов
+   `aifa-engine`, у каждого правила цикла — код и тест в службе (ADR-0023, ADR-0042).
+6. На время MVP ouroboros видит распознанный текст документов и все артефакты — только через
+   инструменты `aifa-engine`; числа не обязаны идти из доказательной базы (ADR-0040).
+7. Навык подзадачи выбирает планировщик; служба навыков не знает и даёт всем подзадачам одни и те
+   же операции; новый атом проверяется в разовой комнате и регистрируется службой (ADR-0041).
 8. Тексты чатов и файлы — у ouroboros; `Case`, распознанный текст, журналы — у службы
    (ADR-0011, ADR-0012).
 9. Ouroboros настраивается только окружением; набор настроек зафиксирован снимком (ADR-0027).
@@ -182,9 +182,10 @@ C4Component
     Component(turn, "turn_gateway", "новый", "клиент WS хода: кадры в события, опознание финала, /stop, восстановление по истории")
     Component(ouroclient, "ouro_client", "новый", "единственное место заголовков владельца: WS, история, каталог файлов")
     Component(toolapi, "tool_api", "новый", "/internal/ouro/v1/*: токен, привязка к ходу, роли, задания и длинный опрос")
-    Component(view, "ouro_view", "новый", "единственный формирователь ответов инструментов, граница текста документа")
+    Component(view, "ouro_view", "новый", "единственный формирователь ответов инструментов: коды, части, предел")
     Component(loop, "loop_session", "из DynamicRun", "состояние цикла, move, finish, RunLimits, тупики, обещанные файлы")
-    Component(author, "author_jobs", "новый", "задания автора, бриф, попытки, проверка и регистрация атома")
+    Component(atoms, "atom_intake", "новый", "проверка и регистрация eph-атома, отчёты попыток")
+    Component(subtasks, "subtask_waits", "новый", "подзадачи хода: ожидание по кадру итога или aifa_report done")
     Component(pipeline, "конвейер", "есть", "intent, GraphPlanner, GraphExecutor, атомы, сценарии, Case")
     Component(room, "sealed_room", "есть, + заголовки", "разовая комната Workstation")
     Component(files, "doc_store", "переделка", "doc_id и file_id, распознавание, отказ XLS/DOC")
@@ -201,15 +202,18 @@ C4Component
   Rel(ouro, toolapi, "вызовы инструментов")
   Rel(toolapi, pipeline, "aifa_goal")
   Rel(toolapi, loop, "aifa_state, aifa_move, aifa_finish")
-  Rel(toolapi, author, "aifa_author_*, aifa_create_atom")
+  Rel(toolapi, atoms, "aifa_register_atom, aifa_report")
+  Rel(toolapi, subtasks, "aifa_wait task_id")
+  Rel(turn, subtasks, "кадр итога подзадачи")
+  Rel(toolapi, files, "aifa_doc: распознанный текст")
   Rel(toolapi, view, "текст ответа")
   Rel(loop, pipeline, "шаги, сценарии, части цели")
-  Rel(author, room, "проверка кода")
+  Rel(atoms, room, "проверка кода")
   Rel(pipeline, room, "атомы eph")
   Rel(room, ws, "HTTP")
   Rel(pipeline, runs, "события экрана")
   Rel(loop, runs, "dynamic_move")
-  Rel(author, runs, "author_attempt")
+  Rel(atoms, runs, "author_attempt")
   Rel(files, ouroclient, "оригиналы и результаты")
   Rel(pipeline, llm, "извлечение")
   Rel(pipeline, db, "Case")
@@ -226,7 +230,7 @@ C4Component
     Component(agent, "ouroboros/agent + new_core/loop", "task_graph", "цикл модель-инструменты до 200 кругов")
     Component(catalog, "tool catalog + extension runtime", "PluginAPI", "aifa-engine.*: 8 инструментов, safety skip")
     Component(skills, "skills", "instruction", "aifa-planning, aifa-atom-author, workstation")
-    Component(orch, "orchestration tools", "schedule_task, get_task_result, cancel_task", "подзадача-автор")
+    Component(orch, "orchestration tools", "schedule_task, get_task_result, cancel_task", "подзадачи по навыку, выбранному корнем")
     Component(wsclient, "egress/workstation", "клиент AEF WorkStation", "сессия на владельца, чат, агента")
     Component(fcat, "file catalog", "FileCatalog + S3", "оригиналы и результаты")
     Component(reg, "config_registry", "реестр агентов", "агент main по умолчанию")
@@ -289,50 +293,55 @@ sequenceDiagram
 
 ---
 
-## 6. Ход через цикл с автором кода (этап 4 и далее)
+## 6. Ход через цикл с подзадачей (этап 4 и далее)
+
+Навык подзадачи выбирает корень (ADR-0041); пример — автор кода.
 
 ```mermaid
 sequenceDiagram
   autonumber
   participant E as Служба движка
-  participant O as ouroboros, корень
-  participant A as ouroboros, подзадача-автор
+  participant O as ouroboros, корень (aifa-planning)
+  participant A as ouroboros, подзадача (навык по выбору корня)
   participant W as Workstation контура
   participant R as Разовая комната
   O->>E: aifa_goal
-  E-->>O: НУЖЕН_ЦИКЛ + состояние цикла
-  O->>E: aifa_move plan, scenarios, steps, new_atoms с кодом
-  E->>E: check_request, лимиты, исполнение шагов без нового атома
-  E-->>O: итог хода + АВТОР job=J1 + текст задания
-  O->>O: schedule_task(описание задания J1)
-  O->>E: aifa_wait J1
+  E-->>O: НУЖЕН_ЦИКЛ + состояние цикла (артефакты со значениями)
+  O->>E: aifa_move plan, files, steps
+  E-->>O: итог хода, артефакты, остаток лимитов
+  Note over O: шагу нужен новый атом — по каталогу навыков выбран aifa-atom-author
+  O->>O: schedule_task("Навык: aifa-atom-author. Атом … входы … выход …")
+  O->>E: aifa_wait task_id=T1
   Note over A: та же область и сессия W
-  A->>E: aifa_author_brief J1
-  E-->>A: контракт, формы входов, сокращённый вход
-  loop отладка, не более 10 отчётов
-    A->>W: file_write пример, code_exec
+  A->>A: skill_read aifa-atom-author
+  A->>E: aifa_state artifact_ids, aifa_doc
+  E-->>A: полные артефакты, текст страниц
+  loop отладка
+    A->>W: file_write входы, code_exec
     W-->>A: вывод или ошибка
-    A->>E: aifa_author_attempt J1 ok или error
+    A->>E: aifa_report label ok или error
     E-->>E: событие author_attempt на экран
   end
-  A->>E: aifa_create_atom J1 code
+  A->>E: aifa_register_atom контракт + code
   E->>R: sealed_room: код + входы из Case
   R-->>E: результат по схеме
   E->>E: регистрация eph-атома, версия = хэш
-  E-->>A: ГОТОВО
-  E-->>O: (aifa_wait) ГОТОВО атом создан
-  A-->>O: итог подзадачи в чат (служба не показывает)
+  E-->>A: ГОТОВО eph.name@версия
+  A->>E: aifa_report done, note = итог
+  E-->>O: (aifa_wait) итог подзадачи
   O->>E: aifa_move steps с eph-атомом
-  E-->>O: итог хода, артефакты
-  O->>E: aifa_finish finalize answer, evidence_ids, deliverables
-  E->>E: ссылки существуют, файлы собраны
-  E-->>O: ПРИНЯТО + канонический текст
-  O-->>E: chat assistant финал (текст = канонический)
-  E->>E: сверка текста, text_delta, done
+  E-->>O: итог хода, артефакты, файл
+  O->>E: aifa_finish finalize, deliverables
+  E->>E: обещанные файлы собраны, файлы на экран, ссылки — в журнал прогона
+  E-->>O: ПРИНЯТО
+  O-->>E: chat assistant финал (текст модели)
+  E->>E: text_delta, done
 ```
 
-Неудачная проверка кода: `aifa_create_atom` → `ОТКАЗ` с хвостом ошибки и остатком попыток; после
-трёх — задание закрыто, `aifa_wait` корня возвращает отказ, планировщик меняет путь.
+Неудачная регистрация: `aifa_register_atom` → `ОТКАЗ` с хвостом ошибки и остатком попыток;
+подзадача правит и сдаёт снова; после трёх неудач на имя — `лимит_попыток`, подзадача сообщает итог,
+планировщик меняет путь. Другие навыки (ресерчер, визуализатор) идут тем же потоком: навык выбирает
+планировщик, операции службы те же.
 
 ---
 
@@ -340,13 +349,14 @@ sequenceDiagram
 
 | Гарантия | Держит | Проверка |
 |---|---|---|
-| Числа только из доказательной базы | инструменты цикла отказывают без `НУЖЕН_ЦИКЛ`; `aifa_finish` проверяет ссылки и файлы | C3.1, F8 |
-| Ouroboros не видит текста документа | нет вложений в кадрах; инструменты чтения выключены; ответы — только `ouro_view` | F3, F6, F9 |
-| Код, видящий `Case`, без сети | исполнение только в разовой комнате W | C5.2 |
+| ~~Числа только из доказательной базы~~ — снята на MVP (ADR-0040); ссылки `aifa_finish` пишутся в журнал прогона для замера | `aifa_finish` | C3.7 |
+| ~~Ouroboros не видит текста документа~~ — снята на MVP (ADR-0040); документ приходит только инструментом `aifa_doc`, без вложений в кадрах | `aifa_doc`, клиент хода | C3.6, F6 |
+| Код, видящий `Case`, без сети | атомы графа и проверка регистрации — только в разовой комнате W; сессии W ouroboros — в контуре без сети | C5.2, C4.3 |
 | Один ход — один владелец | заголовки владельца ставит только `ouro_client`; привязка вызова к ходу | F12, C3.0 |
 | Экран не меняется | события пишут прежние эмиттеры; реплей опорной записи | F5 |
 | Ядро ouroboros не меняется | все правки в `aifa/`, `aifa-symbiosis/`, `skills/aifa-*` | F1 |
-| Цикл конечен | `RunLimits` в `loop_session`; 3 проверки автора; срок задания; `OUROBOROS_HARD_TIMEOUT_SEC` | C3.1, C4.3 |
+| Цикл конечен | `RunLimits` в `loop_session`; 3 неудачные регистрации на имя атома; пределы подзадач ouroboros; `OUROBOROS_HARD_TIMEOUT_SEC` | C3.1, C4.3 |
+| Служба не знает навыков | навык называет задание планировщика; операции службы общие | C4.7 |
 
 ---
 
@@ -380,7 +390,7 @@ sequenceDiagram
 | Шаг | Чем проверяется |
 |---|---|
 | 2.1 `ouro_client` и `turn_gateway` (§2 `CONTRACTS.md`) | C2.1–C2.8 на живом ouroboros + подставной модели |
-| 2.2 `tool_api` (токен, привязка, роли, задания, длинный опрос) + `ouro_view` | C3.0, C3.2, C3.4; F3 (а) |
+| 2.2 `tool_api` (токен, привязка, роли, задания, длинный опрос) + `ouro_view` | C3.0, C3.2, C3.4 |
 | 2.3 Навык `aifa-engine` с `aifa_goal`, `aifa_wait`; навык `aifa-planning` — минимальный (всегда `aifa_goal`, ответ по результатам) | F4, F12 (б); C3.3 |
 | 2.4 При сбое стандартного пути служба гонит нынешний `DynamicRun` внутри `aifa_goal` | тесты `tests/dynamic_run` зелёные без изменений |
 | 2.5 Файлы — каталог ouroboros; история — из ouroboros; XLS/DOC — отказ | C6.1–C6.4, C1.3, C1.4 |
@@ -391,19 +401,19 @@ sequenceDiagram
 
 | Шаг | Чем проверяется |
 |---|---|
-| 3.1 `loop_session` из `DynamicRun` (ADR-0023); `aifa_state`, `aifa_move`, `aifa_finish`; автор пока внутри службы | перенос `tests/dynamic_run` на API инструментов; C3.1 |
+| 3.1 `loop_session` из `DynamicRun` (ADR-0023); `aifa_state`, `aifa_doc`, `aifa_move`, `aifa_finish`; автор пока внутри службы | перенос `tests/dynamic_run` на API инструментов; C3.1, C3.6, C3.7 |
 | 3.2 Карта правил `loop_rules.yaml` | F8 зелёная — у каждого правила тест |
 | 3.3 Навык `aifa-planning`: промпт 6.1 плана 34 → `SKILL.md` + `references/` (каталог атомов, реестр — генерируются службой) | реплей записанных решений планировщика из опорной записи через ouroboros + подставную модель даёт те же ходы |
-| 3.4 Живое сравнение на А1–А8 (GLM-5.2) | F5 (б); число расхождений финального текста с каноническим (ADR-0024) записано |
+| 3.4 Живое сравнение на А1–А8 (GLM-5.2) | F5 (б); доля ответов со ссылками на `Case` (замер ADR-0040) записана |
 
 ### Этап 4. Навык написания кода: подзадача-автор
 
 | Шаг | Чем проверяется |
 |---|---|
-| 4.1 `author_jobs`; `aifa_author_brief`, `aifa_author_attempt`, `aifa_create_atom`; `aifa_move` отвечает `АВТОР job=…` | C4.1–C4.4 |
-| 4.2 Навык `aifa-atom-author` (промпт 7.1 плана 34 + работа в Workstation + отчёты) | реплей записанных ответов автора: атом принят со второй попытки после ошибки |
-| 4.3 Удалить `atom_author.py` и модель автора из службы | F2; тесты службы зелёные |
-| 4.4 Живой прогон с файлом (xlsx на двух листах с формулами) | файл в каталоге ouroboros, карточка и лента «Планировщик и автор» на экране; F3 (б) с автором |
+| 4.1 `atom_intake` и `subtask_waits`: `aifa_register_atom`, `aifa_report`, `aifa_wait(task_id)`; автор пока в службе — `atom_author.py` сдаёт код через тот же `atom_intake` | C4.1, C4.3–C4.7; C3.0 |
+| 4.2 Навык `aifa-atom-author` (промпт 7.1 плана 34 + работа в Workstation + отчёты); раздел «Делегирование» навыка `aifa-planning` (выбор навыка, текст задания, ожидание) | реплей записанных ответов: корень выбирает навык, атом принят со второй попытки после ошибки |
+| 4.3 Удалить `atom_author.py`, модель автора и атом с кодом в `new_atoms` `aifa_move` | F2; тесты службы зелёные |
+| 4.4 Живой прогон с файлом (xlsx на двух листах с формулами) | файл в каталоге ouroboros, карточка и лента «Планировщик и автор» на экране |
 
 ### Этап 5. Чистка
 
@@ -430,4 +440,4 @@ sequenceDiagram
 | О4 | Событие `usage`: показывать ли расход моделей ouroboros | этап 2 | показывать только расход службы; расход ouroboros — из его журнала, отдельной задачей |
 | О5 | ~~Удалённый репозиторий и ветки~~ — **решено** ADR-0030: `Rasiksss/ouroboros_external`, ветка `dev`, ветки шагов `sym/NN-*` | — | — |
 | О6 | Как расширение получает адрес службы и токен | этап 0.7 | см. ADR-0027 |
-| О7 | Живые проверки ADR-0021 (финальный кадр корня несёт `task_id`; уведомления подзадачи — без него) | этап 2.1 | C2.3–C2.4; при расхождении — новая ADR с другим правилом опознания |
+| О7 | Живые проверки ADR-0021 (финальный кадр корня несёт `task_id`; уведомления подзадачи — без него; итог подзадачи несёт её `task_id` — ADR-0041) | этап 2.1 | C2.3–C2.4; при расхождении — новая ADR с другим правилом опознания |
