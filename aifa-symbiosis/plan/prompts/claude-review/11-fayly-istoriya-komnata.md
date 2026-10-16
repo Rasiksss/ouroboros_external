@@ -8,7 +8,7 @@
 1. `aifa-symbiosis/plan/prompts/claude-impl/11-fayly-istoriya-komnata.md` — **целиком**.
 2. `aifa-symbiosis/plan/PRINCIPLES.md`, `aifa-symbiosis/plan/REVIEW_GUIDE.md`.
 3. `aifa-symbiosis/plan/PROGRESS.md` — запись реализации шага 11.
-4. ADR-0007, ADR-0009, ADR-0011, ADR-0012, ADR-0020, ADR-0025, ADR-0026; `CONTRACTS.md` §1, §2.6, §5, §6;
+4. ADR-0007, ADR-0009, ADR-0011, ADR-0012, ADR-0020, ADR-0026, ADR-0040; `CONTRACTS.md` §1, §2.6, §5, §6;
    `FITNESS.md` F2, F11.
 
 ## Вертикальное ревью
