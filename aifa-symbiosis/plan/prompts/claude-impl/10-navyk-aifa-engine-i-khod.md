@@ -7,7 +7,7 @@
 ## Прочитай до работы
 1. `aifa/CLAUDE.md`; `aifa-symbiosis/plan/PRINCIPLES.md`.
 2. `aifa-symbiosis/plan/PROGRESS.md` — записи 07–09, §2 (О3, О4), §4.
-3. ADR-0004, ADR-0016, ADR-0019, ADR-0021, ADR-0022, ADR-0027, ADR-0040, ADR-0042, ADR-0043.
+3. ADR-0004, ADR-0016, ADR-0019, ADR-0021, ADR-0022, ADR-0027, ADR-0040, ADR-0042, ADR-0043, ADR-0044.
 4. `CONTRACTS.md` §1 (строка `POST /chat/turns`), §2.5, §3.0–3.1; `FITNESS.md` F4, F7, F12 (б).
 5. ouroboros (только чтение, правила обязательны — это `skills/**`):
    `uv run python scripts/resolve_rules.py skills/aifa-engine/plugin.py skills/aifa-planning/SKILL.md`
@@ -38,7 +38,7 @@ ouroboros через `turn_gateway`.
   - в отчёт — черновые схемы всех восьми инструментов ADR-0042 и их бюджет по счёту `task_graph.py`
     (цель ≤ 7000): дальше снимок расширяют шаги 13 и 16.
 - `skills/aifa-planning/SKILL.md` (`type: instruction`): `description` (≤ 260 знаков — каталог
-  обрезает, `context.py:62`) такой, чтобы корень читал навык на каждом сообщении, а подзадача — нет;
+  обрезает, `_build_available_skills_section` в `ouroboros/agent/context.py`) такой, чтобы корень читал навык на каждом сообщении, а подзадача — нет;
   первое правило: «если задание начинается с «Навык: <id>.» — ты подзадача: читай названный навык,
   этот не применяй» (ADR-0043 п. 2); дальше — на любое сообщение пользователя сначала `aifa_goal`; `ЖДИ` → `aifa_wait`;
   `УТОЧНИ` → задать вопрос пользователю вариантами; `ГОТОВО` → ответ по результатам: числа — из

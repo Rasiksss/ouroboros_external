@@ -8,7 +8,7 @@
 1. `aifa-symbiosis/plan/prompts/claude-impl/13a-snyatie-pravil-zaversheniya.md` — **целиком**.
 2. `aifa-symbiosis/plan/PRINCIPLES.md`, `aifa-symbiosis/plan/REVIEW_GUIDE.md`.
 3. `aifa-symbiosis/plan/PROGRESS.md` — запись реализации шага 13a.
-4. ADR-0024, ADR-0029, ADR-0040, ADR-0043 (пп. 9–10); `CONTRACTS.md` §3.1 (`aifa_finish`), C3.7;
+4. ADR-0024, ADR-0029, ADR-0040, ADR-0043 (п. 10), ADR-0044 (пп. 2, 7); `CONTRACTS.md` §3.1 (`aifa_finish`), C3.7;
    `FITNESS.md` F5, F8.
 
 ## Вертикальное ревью
@@ -22,7 +22,7 @@
   на месте.
 - Снятые правила убраны из кода, тестов и `loop_rules.yaml` целиком, каждое названо в отчёте.
 - Сверка с каноническим текстом в `turn_gateway` удалена, если была.
-- Различия с опорной записью — только из ADR-0043 п. 9, каждое с номером пункта.
+- Различия с опорной записью — только из ADR-0044 п. 7, каждое с номером пункта.
 
 ## Связность тестов
 | Граница | Ожидаемый тест |

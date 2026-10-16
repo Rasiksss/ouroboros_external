@@ -7,7 +7,7 @@
 ## Прочитай до работы
 1. `aifa/CLAUDE.md`; `aifa-symbiosis/plan/PRINCIPLES.md`.
 2. `aifa-symbiosis/plan/PROGRESS.md` — записи 10, 13, §4, §5 (переключатель `loop_driver`).
-3. ADR-0004, ADR-0022, ADR-0024 (п. 1), ADR-0040, ADR-0041, ADR-0042, ADR-0043.
+3. ADR-0004, ADR-0022, ADR-0024 (п. 1), ADR-0040, ADR-0041, ADR-0042, ADR-0043, ADR-0044.
 4. `aifa/finengine/docs/build-plan/34-gibridnyy-planirovshchik-dynamic-run.md` §6.1 (промпт
    планировщика), §6.2 (сообщение хода); файл `dynamic_run_planner.md` в
    `aifa/finengine/src/finengine/` (найди поиском; текущая версия промпта главнее §6.1, если
