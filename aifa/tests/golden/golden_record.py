@@ -175,8 +175,10 @@ def _read_turn(session: ApiSession, run_id: str, settings: ClientSettings) -> li
 
 def _closed_without_completed(events: Sequence[Mapping[str, Any]]) -> bool:
     """Служба закрыла поток после сбоя или отмены (`_drive`: `error`, затем `close`, `done`
-    нет) или после `session_lost` из старого журнала. Признак — по службе: экран на `/events`
-    такой конец не узнаёт и переподключается (PROGRESS.md §4, P45)."""
+    нет) или после `session_lost` из старого журнала. Признак — по службе. Служба после правки
+    P45 дописывает `completed` и закрытому прогону с `error` в конце; эта ветка нужна стендам без
+    правки. Недостаток: промежуточный `error` у чужой реплики при отказе кэша принимается за конец
+    (PROGRESS.md §4, P45 б)."""
     if not events:
         return False
     last = events[-1]
