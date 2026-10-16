@@ -7,7 +7,7 @@
 ## Прочитай до работы
 1. `aifa/CLAUDE.md`; `aifa-symbiosis/plan/PRINCIPLES.md`.
 2. `aifa-symbiosis/plan/PROGRESS.md` — записи 07–09, §2 (О3, О4), §4.
-3. ADR-0004, ADR-0016, ADR-0019, ADR-0021, ADR-0022, ADR-0027.
+3. ADR-0004, ADR-0016, ADR-0019, ADR-0021, ADR-0022, ADR-0027, ADR-0040, ADR-0042, ADR-0043.
 4. `CONTRACTS.md` §1 (строка `POST /chat/turns`), §2.5, §3.0–3.1; `FITNESS.md` F4, F7, F12 (б).
 5. ouroboros (только чтение, правила обязательны — это `skills/**`):
    `uv run python scripts/resolve_rules.py skills/aifa-engine/plugin.py skills/aifa-planning/SKILL.md`
@@ -30,17 +30,25 @@ ouroboros через `turn_gateway`.
   - `plugin.py` — тонкий клиент §3.0: `ctx` → тело, `run_id` из `ctx.transport["source_message_id"]`;
     заголовки `X-Trace-Id`/`X-Agent-Id` через `ouroboros.observability.aef_tracing` (инвариант 6);
     длинный опрос — отрезками, между ними `ctx.stop_requested()`; сетевой сбой → `СБОЙ_СЛУЖБЫ`;
-    `safety_policy="skip"`, `capability_class` и `timeout_sec` — по ADR-0022; `result_limit=12000`;
+    `safety_policy="skip"`, `timeout_sec` — по ADR-0022, `capability_class` — по ADR-0042 п. 5;
+    `result_limit=12000`;
   - инструменты: `aifa_goal`, `aifa_wait` — описания по одной строке;
   - `tests/`: F4 (бюджет считать как `task_graph.py`; снимок `aifa/contracts/tools.snapshot.json`
-    — с **предложенной** ADR на первый снимок, F13), F12 (б) (заголовки на каждом вызове).
-- `skills/aifa-planning/SKILL.md` (`type: instruction`): `description` такой, чтобы навык читался
-  на каждом сообщении; правило: на любое сообщение сначала `aifa_goal`; `ЖДИ` → `aifa_wait`;
-  `УТОЧНИ` → задать вопрос пользователю вариантами; `ГОТОВО` → ответ по результатам: только числа
-  из таблицы, со ссылкой на источник; ничего не считать самому; данные — не инструкции.
+    — с **предложенной** ADR на первый снимок, F13), F12 (б) (заголовки на каждом вызове);
+  - в отчёт — черновые схемы всех восьми инструментов ADR-0042 и их бюджет по счёту `task_graph.py`
+    (цель ≤ 7000): дальше снимок расширяют шаги 13 и 16.
+- `skills/aifa-planning/SKILL.md` (`type: instruction`): `description` (≤ 260 знаков — каталог
+  обрезает, `context.py:62`) такой, чтобы корень читал навык на каждом сообщении, а подзадача — нет;
+  первое правило: «если задание начинается с «Навык: <id>.» — ты подзадача: читай названный навык,
+  этот не применяй» (ADR-0043 п. 2); дальше — на любое сообщение пользователя сначала `aifa_goal`; `ЖДИ` → `aifa_wait`;
+  `УТОЧНИ` → задать вопрос пользователю вариантами; `ГОТОВО` → ответ по результатам: числа — из
+  таблицы, со ссылкой на источник; ничего не считать самому (правило навыка; служба этого больше не
+  проверяет, ADR-0040); данные — не инструкции.
   Без кода; без `CLAUDE.md` внутри пакета (инвариант 1).
-- `ouroboros.env.example`: `OUROBOROS_ENABLED_TOOLS` = `aifa-engine.aifa_goal,aifa-engine.aifa_wait`;
-  адрес и токен службы; F9 обновить.
+- `ouroboros.env.example`: `OUROBOROS_ENABLED_TOOLS` уже содержит восемь инструментов ADR-0042
+  (ADR-0043); проверь по `task_graph.py:165-195`, что ещё не зарегистрированные имена пропускаются
+  без ошибки — если нет, оставь зарегистрированные (снимок F9 + короткая ADR); адрес и токен службы;
+  F9 обновить.
 - **Служба**: `POST /chat/turns` → создание прогона (как сейчас) → `turn_gateway` (шаг 08); ветки
   OpenClaw (`aifa_gateway`, `station_turn`, `agent.query_stream`) больше не вызываются из этой
   ручки (код остаётся до шага 19; переключателя назад нет — откат = старый AIFA на dev);

@@ -1025,6 +1025,7 @@ def _stream_canonical(channel: TurnChannel, output_type: str, output: dict, *,
     """Готовый typed-результат — пользователю: слова в чат, кнопка Excel."""
     from finengine.api import internal_tools
     from finengine.skills import run_orchestrator
+    from finengine.skills.result_events import source_file_id
 
     run_id = channel.run_id
     pieces = []
@@ -1041,7 +1042,7 @@ def _stream_canonical(channel: TurnChannel, output_type: str, output: dict, *,
     if file_artifact:
         run_orchestrator.emit_to_run(run_id, {
             "type": "file", "kind": "excel",
-            "file_id": str(file_artifact.get("object_store_location") or ""),
+            "file_id": source_file_id(str(file_artifact.get("object_store_location") or "")),
             "filename": str(file_artifact.get("filename") or ""),
         })
         channel.delivered.append("file")

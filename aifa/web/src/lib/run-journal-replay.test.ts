@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { chatRunStream, type ChatStreamEvent } from "@/lib/api";
 import { executionGraphsOf } from "@/lib/execution-graphs";
+import { createRunProbe } from "@/lib/run-recovery";
 import { summarizeProgress } from "@/lib/plan-graph-progress";
 import { applyChatEvent, resetForReplay, type TextMessage } from "@/lib/projects";
 
@@ -79,5 +80,40 @@ describe("replay of the run journal through the A11 envelope", () => {
 
     expect(twice.planGraphs).toEqual(once.planGraphs);
     expect(twice.dynamicTrace).toEqual(once.dynamicTrace);
+  });
+});
+
+// Конец хода, упавшего или отменённого («Стоп»): служба пишет в журнал `error` и закрывает
+// прогон (`_drive`), а на `/events` дописывает `completed` со статусом (P45).
+async function tailOf(frames: unknown[]): Promise<string> {
+  const body = frames.map((frame) => `data: ${JSON.stringify(frame)}
+
+`).join("");
+  vi.stubGlobal("fetch", async () => new Response(body, { status: 200 }));
+  const probe = createRunProbe();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  for await (const _event of probe.wrap(chatRunStream("failed-run"))) { /* прокачать поток */ }
+  return probe.tail().kind;
+}
+
+const ENVELOPE = { schema_version: "1.0" };
+const LEGACY_ERROR = {
+  ...ENVELOPE, event_type: "error", sequence: 2, partial_results: [],
+  error: { code: "legacy_error", message: "run cancelled" },
+};
+
+describe("the end of a failed or stopped turn on /events", () => {
+  it("is a finished turn when the service closes it with completed", async () => {
+    const tail = await tailOf([
+      { ...ENVELOPE, event_type: "legacy", sequence: 1, legacy_event: { type: "text_delta", text: "начало" } },
+      LEGACY_ERROR,
+      { ...ENVELOPE, event_type: "completed", sequence: 3, status: "cancelled" },
+    ]);
+
+    expect(tail).toBe("finished");
+  });
+
+  it("stays open on an error without completed: an error may sit in the middle of a turn", async () => {
+    expect(await tailOf([LEGACY_ERROR])).toBe("open");
   });
 });

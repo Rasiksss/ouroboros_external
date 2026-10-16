@@ -698,12 +698,14 @@ async def subscribe_versioned(
 
     durable_sequence = 0
     completion_status = "succeeded"
+    last_type: str | None = None
     async for event in subscribe(run_id, kind=kind, heartbeat_sec=heartbeat_sec):
         if event.get("type") == "ping":
             yield HeartbeatEvent(run_id=run_id, sequence=durable_sequence)
             continue
         durable_sequence += 1
         event_type = event.get("type")
+        last_type = event_type
         if event_type == "typed_result" and event.get("status") == "partial":
             completion_status = "partial"
         elif event_type == "typed_error":
@@ -721,6 +723,26 @@ async def subscribe_versioned(
             )
             continue
         yield envelope_legacy_event(event, run_id=run_id, sequence=durable_sequence)
+
+    # Упавший и отменённый («Стоп») прогон кончается в журнале на `error` без `done`
+    # (`_drive`: `error`, затем `close`). Конец ему — `completed` со статусом из того же
+    # `error`, как для `done`. Но только когда прогон ЗАКРЫТ: `error` бывает и посреди хода, а
+    # чужая реплика при отказе кэша закрывает поток у живого прогона.
+    if (
+        last_type in {"error", "typed_error"}
+        and durable_sequence + 1 > after_sequence
+        and _прогон_закрыт(run_id)
+    ):
+        yield CompletedEvent(run_id=run_id, sequence=durable_sequence + 1, status=completion_status)
+
+
+def _прогон_закрыт(run_id: str) -> bool:
+    """Прогон закрыт — по реестру этой реплики или по общему состоянию. Не прочитано — не закрыт."""
+    state = _runs.get(run_id)
+    if state is not None:
+        return state.finished
+    запись = состояние_прогона(run_id)
+    return bool(запись and запись.get("finished"))
 
 
 def _из_журнала(run_id: str, kind: str | None):

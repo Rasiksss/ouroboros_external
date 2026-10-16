@@ -75,7 +75,7 @@
 
 - **Без вложенных функций** (2.1): помощники — на уровне модуля; колбэк с состоянием — маленький
   frozen dataclass с `__call__`.
-- **Доменные имена** (2.9): `TurnGateway`, `LoopSession`, `AuthorJob` — да; `Manager`, `Handler`,
+- **Доменные имена** (2.9): `TurnGateway`, `LoopSession`, `AtomIntake` — да; `Manager`, `Handler`,
   `Helper`, `Utils` — нет.
 - **Данные** — `@dataclass(frozen=True)` или `Contract`/pydantic; функции без скрытого состояния.
 - **Ошибки** (2.7): бизнес-отказ — значение (код ответа инструмента, событие), системная ошибка —
