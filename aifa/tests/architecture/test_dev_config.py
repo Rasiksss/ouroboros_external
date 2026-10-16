@@ -295,6 +295,19 @@ def test_f9_catches_a_missing_skill_admission(tmp_path: Path) -> None:
     assert any("OUROBOROS_USER_ENABLED_SKILL_IDS" in p for p in problems)
 
 
+def test_f9_catches_a_missing_trusted_executable_skill(tmp_path: Path) -> None:
+    """F9: нарушитель — доверенный навык aifa-engine убран из списка (ADR-0038): в multiuser
+    без него инструменты плагина не доходят до задачи."""
+    dev = _copy_dev(tmp_path)
+    _edit(
+        dev / "ouroboros.env.example",
+        "OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS=distribution:aifa-engine",
+        "OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS=",
+    )
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS" in p for p in problems)
+
+
 def test_f9_catches_a_port_published_beyond_loopback(tmp_path: Path) -> None:
     """F9: нарушитель — порт ouroboros опубликован на все интерфейсы (ADR-0028)."""
     dev = _copy_dev(tmp_path)

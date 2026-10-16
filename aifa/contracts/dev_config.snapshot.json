@@ -1,5 +1,5 @@
 {
-  "adr": "ADR-0027, ADR-0036",
+  "adr": "ADR-0027, ADR-0036, ADR-0038",
   "note": "Снимок F9 (aifa/tests/architecture/test_dev_config.py). Списки отключённых инструментов и навыков сверены с живым экземпляром на шаге 04 (P3, ADR-0036); изменение набора — новая ADR (F13).",
   "required": {
     "OUROBOROS_MULTIUSER": "true",
@@ -63,6 +63,9 @@
     ],
     "OUROBOROS_USER_ENABLED_SKILL_IDS": [
       "distribution:workstation"
+    ],
+    "OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS": [
+      "distribution:aifa-engine"
     ]
   },
   "absent_prefixes": [

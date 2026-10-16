@@ -1,3 +1,16 @@
 # Исключения из F1 (test_core_freeze.py): путь ouroboros, который изменять разрешено, и ADR,
 # которая это разрешила. Формат строки: `путь ADR-NNNN`. Без номера записи строка — ошибка.
-# Исключение появляется только вместе с ADR (FITNESS.md, принципы); сейчас исключений нет.
+# Исключение появляется только вместе с ADR (FITNESS.md, принципы).
+# ADR-0038: именной допуск доверенных исполняемых навыков поставки в multiuser (код — три файла).
+ouroboros/storage/settings/schema.py ADR-0038
+new_core/skills/surface.py ADR-0038
+ouroboros/skills/availability.py ADR-0038
+# Документация, тесты и OpenSpec-изменение к той же правке.
+docs/SETTINGS.md ADR-0038
+tests/helpers/shared.py ADR-0038
+tests/new_core/skills/test_skill_surface.py ADR-0038
+tests/ouroboros/storage/settings/test_trusted_executable_skill_ids.py ADR-0038
+openspec/changes/trusted-distribution-executable-skills/proposal.md ADR-0038
+openspec/changes/trusted-distribution-executable-skills/design.md ADR-0038
+openspec/changes/trusted-distribution-executable-skills/tasks.md ADR-0038
+openspec/changes/trusted-distribution-executable-skills/specs/multiuser-mode/spec.md ADR-0038
