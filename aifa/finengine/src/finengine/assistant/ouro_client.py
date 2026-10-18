@@ -193,7 +193,7 @@ class OuroClient:
 
 @dataclass(frozen=True)
 class ChatPages:
-    """Страницы истории одного чата как `HistoryFetch` (`history.load_turn_messages`)."""
+    """Страницы истории одного чата как `HistoryFetch` (`history.session_messages`)."""
 
     client: OuroClient
     scope: ChatScope

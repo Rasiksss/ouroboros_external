@@ -503,7 +503,7 @@ def _parse_doc_in_background(
       "idp"     — IDP-OCR cloud (per-page PNG, strong tables, ~15× slower)
     """
     from finengine.store.blobs import document_file  # noqa: PLC0415
-    from finengine.store.originals import document_original  # noqa: PLC0415
+    from finengine.store import originals  # noqa: PLC0415
 
     # ⚠️ ExitStack, А НЕ `with` ВОКРУГ ТЕЛА, И ЭТО НЕ ЛЕНЬ. Обёртка `with`
     # потребовала бы переотступить сотню строк разбора — правку, в которой
@@ -516,7 +516,10 @@ def _parse_doc_in_background(
         if not meta:
             return
         # Оригинал загруженного документа — в каталоге ouroboros (ADR-0012); `file_ref` нужен документу без него.
-        opened = document_original(meta) if meta.catalog_file_id else document_file(file_ref)
+        opened = (
+            originals.document_original(meta, pauses=originals.PARSE_RETRY_PAUSES_SEC)
+            if meta.catalog_file_id else document_file(file_ref)
+        )
         file_path = стек.enter_context(opened)
         if filename.lower().endswith(".pdf"):
             if ocr_engine == "idp":
@@ -1534,6 +1537,7 @@ def _turn_started(run_id: str) -> dict:
 def _start_ouroboros_turn(request: QueryRequest, user: User, doc_ids: list[str], active_doc_id: str) -> dict:
     """Ход чата через ouroboros (шаг 10): прогон создаётся здесь, ведёт его `turn_gateway` (CONTRACTS.md §1)."""
     from finengine.assistant import composition
+    from finengine.assistant import session_turns
     from finengine.assistant.chat_turn import OuroTurn, chat_of
     from finengine.assistant.turn_record import TurnRecord, remember
     from finengine.skills import run_orchestrator
@@ -1560,6 +1564,8 @@ def _start_ouroboros_turn(request: QueryRequest, user: User, doc_ids: list[str],
         case_id=request.project_id or session_id, doc_ids=tuple(doc_ids), active_doc_id=active_doc_id,
         role=request.role or "", trace_id=trace_id,
     ))
+    # История сессии отбирается по её ходам (CONTRACTS.md §2.6): чат папки делят все её сессии.
+    session_turns.record_turn(str(user.id), session_id, run_id=run_id, chat_id=chat_id)
     # start_run только планирует таск — до первого await управление у нас, раннер прочтёт `run_id` заполненным.
     cell["run_id"] = run_id
     return _turn_started(run_id)
@@ -2706,33 +2712,31 @@ def log_client_event(ev: ClientEvent, user: User = Depends(get_current_user)) ->
     return {"ok": True}
 
 
-def _chat_of_session(user_id: int, session_id: str) -> str:
-    """Чат ouroboros для сессии экрана: проект, у которого она записана; хода без проекта чат — сама сессия."""
-    for project in get_dialog_store().load(user_id).get("projects") or []:
-        if isinstance(project, dict) and project.get("session_id") == session_id and project.get("id"):
-            return str(project["id"])
-    return session_id
-
-
 @app.get("/chat/history/{session_id}")
 async def get_chat_history(session_id: str, user: User = Depends(get_current_user)) -> dict:
     """История чата — сообщения ходов из ouroboros в прежнем формате `{role, content}` (ADR-0011, C1.3).
 
     Клиентская лента живёт в localStorage и может быть повреждена (гонки писателей, потерянная вкладка);
     по этой истории фронт восстанавливает пропавший тред. Источник текстов — ouroboros: реплика
-    пользователя и финал корня каждого хода, без прогресса, уведомлений и подзадач.
+    пользователя и финал корня каждого хода этой сессии, без прогресса, уведомлений, подзадач и ходов других
+    сессий того же чата (§2.6).
 
-    Скоуп владельца: чат запрашивается ТОЛЬКО у `user.id` — чужая сессия даёт пустую историю и 404.
+    Скоуп владельца: ходы сессии ищутся ТОЛЬКО у `user.id` (`session_turns`), чат — у него же в ouroboros;
+    чужая сессия — 404.
     """
     if not re.fullmatch(r"[0-9a-fA-F-]{8,64}", session_id):
         raise HTTPException(status_code=400, detail="bad session id")
-    from finengine.assistant import composition
-    from finengine.assistant.history import load_turn_messages
+    from finengine.assistant import composition, session_turns
+    from finengine.assistant.history import session_messages
     from finengine.assistant.ouro_client import ChatPages, ChatScope
 
-    chat_id = await asyncio.to_thread(_chat_of_session, user.id, session_id)
-    pages = ChatPages(composition.ouro_client(), ChatScope(str(user.id), chat_id))
-    history = await load_turn_messages(pages)
-    if not history:
+    owner_id = str(user.id)
+    turns = await asyncio.to_thread(session_turns.load, owner_id, session_id)
+    if not turns:
         raise HTTPException(status_code=404, detail="session not found")
-    return {"session_id": session_id, "history": history}
+    client = composition.ouro_client()
+    chats = [
+        (ChatPages(client, ChatScope(owner_id, chat_id)), roots)
+        for chat_id, roots in session_turns.by_chat(turns).items()
+    ]
+    return {"session_id": session_id, "history": await session_messages(chats)}

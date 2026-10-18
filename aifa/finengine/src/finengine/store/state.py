@@ -49,6 +49,8 @@ WATCHLIST = "watchlist"
 USER_STATE = "user_state"
 METHODOLOGY = "methodology"
 SOURCE_META = "source_meta"
+# Ходы сессии экрана через ouroboros: чат и корень каждого (`assistant/session_turns.py`, CONTRACTS.md §2.6).
+CHAT_SESSION = "chat_session"
 # Контекст хода гейтвей-петли: владелец, проект, прогон, признак
 # дословности. Владельца в ключе НЕТ намеренно — ключ и есть свежий
 # uuid хода, а сам владелец лежит ВНУТРИ записи и оттуда берётся для

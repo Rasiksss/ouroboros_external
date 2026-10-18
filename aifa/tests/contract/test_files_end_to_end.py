@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import uuid
 from collections.abc import Iterator
 from pathlib import Path
 from types import SimpleNamespace
@@ -24,6 +25,7 @@ import httpx
 import pipeline_fixture as fixture
 import pytest
 from engine_host import running_engine
+from finengine.assistant.ouro_client import ChatScope, OuroClient
 from finengine.assistant.ouro_files import CatalogFiles
 from finengine.contracts import NarrativeOutput
 from finengine.skills import result_events
@@ -38,6 +40,10 @@ pytestmark = [pytest.mark.contract, pytest.mark.asyncio]
 
 REPORT_NAME = "severstal-2024.txt"
 TEXT_WAIT_SEC = 30.0
+SUBTASK_WAIT_SEC = 60.0
+ROOT_ANSWER = "Подзадача запущена."  # scenarios/subtask.json
+SUBTASK_ANSWER = "Итог подзадачи."
+HELLO_ANSWER = "Здравствуйте! Это подставная модель."  # scenarios/hello.json
 
 
 async def no_card(_text: str) -> dict[str, Any]:
@@ -162,30 +168,52 @@ async def test_a_document_goes_through_the_catalog_to_an_answer_a_result_file_an
     assert engine.catalog.read(str(fixture.OWNER), meta.catalog_file_id) is None
 
 
-async def test_the_chat_history_comes_from_ouroboros_without_progress_and_subtasks(
-    engine: SimpleNamespace, stub: StubModelAdmin, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """C1.3 на живом ouroboros: после хода история чата проекта — реплика и финал корня."""
-    from finengine.api import main as app_main
+async def subtask_answered(stand: ContractStand, chat_id: str) -> None:
+    """Итог подзадачи приходит в чат после финала корня (ADR-0046): ждём его, чтобы история его
+    видела."""
+    client = OuroClient(stand.ouro_http_url, connect_timeout_sec=10.0, max_message_chars=8000)
+    async with asyncio.timeout(SUBTASK_WAIT_SEC):
+        while True:
+            page = await client.history(ChatScope(str(fixture.OWNER), chat_id))
+            if any(r.text == SUBTASK_ANSWER and r.task_id for r in page.records):
+                return
+            await asyncio.sleep(0.5)
 
-    session = "5f3c2a10-7d3e-4c1b-9a55-0e2f6d1b8a01"
-    monkeypatch.setattr(
-        app_main,
-        "get_dialog_store",
-        lambda: SimpleNamespace(
-            load=lambda uid: {"projects": [{"id": fixture.PROJECT, "session_id": session}]}
-        ),
-    )
-    doc_id = await upload(engine.base, fixture.document_text().encode())
-    engine.held["doc"] = doc_id
-    await wait_for_text(doc_id)
-    await answered_turn(engine, stub, doc_id, session_id=session)
 
+async def started_turn(base: str, **turn: str) -> list[dict[str, Any]]:
     async with httpx.AsyncClient(timeout=30.0) as client:
-        history = await client.get(f"{engine.base}/chat/history/{session}")
+        started = await client.post(f"{base}/chat/turns", json=turn)
+    assert started.status_code == 200, started.text
+    return await screen_events(base, started.json()["run_id"])
 
-    assert history.status_code == 200, history.text
-    messages = history.json()["history"]
-    assert messages[0] == {"role": "user", "content": fixture.QUESTION}
-    assert messages[-1]["role"] == "assistant" and messages[-1]["content"].startswith(ANSWER)
-    assert {m["role"] for m in messages} == {"user", "assistant"}
+
+async def history_of(base: str, session: str) -> list[dict[str, str]]:
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        got = await client.get(f"{base}/chat/history/{session}")
+    assert got.status_code == 200, got.text
+    return list(got.json()["history"])
+
+
+async def test_the_history_of_a_chat_in_a_folder_is_its_own_turns_without_the_subtask(
+    engine: SimpleNamespace, stand: ContractStand, stub: StubModelAdmin
+) -> None:
+    """C1.3 на живом ouroboros, с настоящей подзадачей: два чата одной папки пишут в один чат
+    ouroboros (`project_id` = папка); история каждой сессии — её реплика и финал корня, без
+    «Scheduled task», итога подзадачи и ходов соседа (§2.6; ревью шага 11, Б1 и В2)."""
+    folder = f"folder-{uuid.uuid4().hex[:8]}"
+    first, second = str(uuid.uuid4()), str(uuid.uuid4())
+
+    stub.use_scenario(SCENARIOS / "subtask.json")
+    await started_turn(engine.base, message="ход с подзадачей", project_id=folder, session_id=first)
+    await subtask_answered(stand, folder)
+    stub.use_scenario(SCENARIOS / "hello.json")
+    await started_turn(engine.base, message="привет", project_id=folder, session_id=second)
+
+    assert await history_of(engine.base, first) == [
+        {"role": "user", "content": "ход с подзадачей"},
+        {"role": "assistant", "content": ROOT_ANSWER},
+    ]
+    assert await history_of(engine.base, second) == [
+        {"role": "user", "content": "привет"},
+        {"role": "assistant", "content": HELLO_ANSWER},
+    ]

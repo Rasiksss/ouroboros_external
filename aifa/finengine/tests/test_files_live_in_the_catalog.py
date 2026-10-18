@@ -153,6 +153,40 @@ class TestDocuments:
         assert document_text(doc_id) == "текст отчёта"
         assert any(path.endswith("/content") for path in catalog.asked("GET")), "текст взят не из каталога"
 
+    def test_parsing_waits_out_a_catalog_that_is_restarting(self, client, catalog, monkeypatch):
+        """Ревью шага 11, В3: короткий сбой каталога не оставляет документ без текста — разбор повторяет чтение."""
+        async def no_card(_text):
+            return {}
+
+        monkeypatch.setattr("finengine.skills.meta_card.build", no_card)
+        monkeypatch.setattr("finengine.store.originals.PARSE_RETRY_PAUSES_SEC", (0.0, 0.0))
+        doc_id = upload_document(client, "заметки.txt", "текст отчёта".encode()).json()["doc_id"]
+        catalog.failing_reads = 2
+
+        client.post(f"/documents/{doc_id}/parse")
+
+        assert document_text(doc_id) == "текст отчёта"
+
+    def test_a_catalog_that_stays_down_leaves_the_document_to_the_next_parse(self, client, catalog, monkeypatch):
+        """Попытки кончились — текста нет, документ цел; ход снова просит разбор (`/parse`) и получает текст."""
+        async def no_card(_text):
+            return {}
+
+        monkeypatch.setattr("finengine.skills.meta_card.build", no_card)
+        monkeypatch.setattr("finengine.store.originals.PARSE_RETRY_PAUSES_SEC", (0.0, 0.0))
+        doc_id = upload_document(client, "заметки.txt", "текст отчёта".encode()).json()["doc_id"]
+        catalog.failing_reads = 3
+
+        client.post(f"/documents/{doc_id}/parse")
+
+        assert document_text(doc_id) is None
+        assert len([p for p in catalog.asked("GET") if p.endswith("/content")]) == 3
+        assert client.get(f"/documents/{doc_id}/status").json()["processing"] is True
+
+        client.post(f"/documents/{doc_id}/parse")
+
+        assert document_text(doc_id) == "текст отчёта"
+
     def test_the_document_of_another_user_is_not_served(self, client, catalog):
         doc_id = upload_document(client).json()["doc_id"]
         m.app.dependency_overrides[get_current_user] = lambda: User(id=OWNER + 1, username="other")

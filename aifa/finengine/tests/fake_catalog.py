@@ -37,7 +37,7 @@ class FakeCatalog:
     """`files` — что лежит в каталоге; `requests` — `(метод, путь, владелец)` каждого обращения по порядку.
 
     `down` — каталог отвечает 503 на всё (лежит); `refuse_with` — следующий `POST /api/files` отвечает этим
-    `(код HTTP, код отказа)`.
+    `(код HTTP, код отказа)`; `failing_reads` — столько следующих `GET` отвечают 503 (каталог перезапускается).
     """
 
     files: dict[str, StoredBlob] = field(default_factory=dict)
@@ -45,6 +45,7 @@ class FakeCatalog:
     requests: list[tuple[str, str, str]] = field(default_factory=list)
     down: bool = False
     refuse_with: tuple[int, str] | None = None
+    failing_reads: int = 0
     _server: ThreadingHTTPServer | None = None
     _thread: threading.Thread | None = None
 
@@ -106,6 +107,10 @@ class FakeCatalog:
 
             def do_GET(self) -> None:
                 if not self._gate():
+                    return
+                if catalog.failing_reads > 0:
+                    catalog.failing_reads -= 1
+                    self._json(503, {"ok": False, "code": "file_storage_unavailable", "retryable": True})
                     return
                 match = re.fullmatch(r"/api/files/([0-9a-f]{32})(/content)?", self.path.partition("?")[0])
                 blob = self._mine(match.group(1)) if match else None

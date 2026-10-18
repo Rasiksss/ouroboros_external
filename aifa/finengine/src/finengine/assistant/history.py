@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-import re
-from collections.abc import Awaitable, Callable, Sequence
+from collections.abc import Awaitable, Callable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -79,50 +78,64 @@ async def find_final(
     return None
 
 
-# Идентификатор хода — uuid4 (`run_orchestrator.start_run`): реплику хода отличает от команды (`<run_id>-stop`).
-_RUN_ID = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
-MESSAGE_LIMIT = 200       # сколько последних сообщений отдаёт история, как прежняя серверная сессия
+# Сколько последних сообщений отдаёт история, как прежняя серверная сессия.
+MESSAGE_LIMIT = 200
 CONTENT_LIMIT = 20_000
-SCAN_PAGES = 20           # страниц истории ouroboros за один запрос: прогресс и уведомления занимают места
+SCAN_PAGES = 20           # страниц одного чата за запрос: прогресс и уведомления занимают места
 
 
-def turn_messages(records: Sequence[HistoryRecord]) -> list[dict[str, str]]:
-    """Реплики ходов и финалы их корней в порядке времени, формат экрана `{role, content}` (§2.6, ADR-0011).
+@dataclass(frozen=True)
+class TurnMessage:
+    ts: str
+    role: str
+    content: str
 
-    `records` — по возрастанию времени. Реплика хода — запись пользователя с `client_message_id == run_id`.
-    Финал корня — первая непрогрессная запись ассистента с `task_id` и тем же `client_message_id`: подзадача
-    стартует после корня (ADR-0046), её итог приходит позже и в историю хода не входит. Прогресс,
-    уведомления и записи чужих ходов отбрасываются.
+
+def turn_messages(records: Sequence[HistoryRecord], roots: Mapping[str, str]) -> list[TurnMessage]:
+    """Реплики ходов `roots` и финалы их корней по порядку времени (§2.6, ADR-0011).
+
+    `roots` — `run_id` ходов сессии → корень (`""` — не назван). Реплика хода — запись пользователя с
+    `client_message_id == run_id`, финал — запись корня (`_is_final`); корень не назван (ход оборвался до
+    финала) — первая непрогрессная запись ассистента с `task_id`, как у `find_final`. Прогресс, уведомления,
+    итоги подзадач и записи чужих ходов отбрасываются.
     """
-    runs = {r.client_message_id for r in records if r.role == "user" and _RUN_ID.fullmatch(r.client_message_id)}
     answered: set[str] = set()
-    messages: list[dict[str, str]] = []
+    messages: list[TurnMessage] = []
     for record in records:
-        if record.client_message_id not in runs:
+        root = roots.get(record.client_message_id)
+        if root is None:
             continue
         if record.role == "user":
-            messages.append({"role": "user", "content": record.text[:CONTENT_LIMIT]})
-        elif (
-            record.role == "assistant"
-            and not record.is_progress
-            and record.task_id
-            and record.client_message_id not in answered
-        ):
+            messages.append(TurnMessage(record.ts, "user", record.text[:CONTENT_LIMIT]))
+        elif record.client_message_id not in answered and _is_final(record, root):
             answered.add(record.client_message_id)
-            messages.append({"role": "assistant", "content": record.text[:CONTENT_LIMIT]})
+            messages.append(TurnMessage(record.ts, "assistant", record.text[:CONTENT_LIMIT]))
     return messages
 
 
-async def load_turn_messages(fetch: HistoryFetch) -> list[dict[str, str]]:
-    """Последние сообщения ходов чата: страницы истории от новых к старым, пока их не хватит."""
+async def chat_turn_messages(fetch: HistoryFetch, roots: Mapping[str, str]) -> list[TurnMessage]:
+    """Сообщения ходов `roots` из одного чата: страницы от новых к старым, пока не найдены реплики всех
+    этих ходов, не набралось сообщений или история не кончилась."""
     pages: list[tuple[HistoryRecord, ...]] = []
+    messages: list[TurnMessage] = []
     before_ts = ""
     for _ in range(SCAN_PAGES):
         page = await fetch(before_ts)
         pages.append(page.records)
         ordered = [r for older in reversed(pages) for r in older]
-        messages = turn_messages(ordered)
-        if len(messages) >= MESSAGE_LIMIT or not page.next_before_ts:
-            return messages[-MESSAGE_LIMIT:]
+        messages = turn_messages(ordered, roots)
+        asked = {r.client_message_id for r in ordered if r.role == "user"}
+        if len(messages) >= MESSAGE_LIMIT or roots.keys() <= asked or not page.next_before_ts:
+            break
         before_ts = page.next_before_ts
-    return messages[-MESSAGE_LIMIT:]
+    return messages
+
+
+async def session_messages(chats: Sequence[tuple[HistoryFetch, Mapping[str, str]]]) -> list[dict[str, str]]:
+    """История сессии в формате экрана `{role, content}`: ходы из всех её чатов, по времени, последние
+    `MESSAGE_LIMIT`. `chats` — страницы чата и ходы сессии в нём (`run_id` → корень)."""
+    found: list[TurnMessage] = []
+    for fetch, roots in chats:
+        found += await chat_turn_messages(fetch, roots)
+    found.sort(key=lambda message: message.ts)
+    return [{"role": m.role, "content": m.content} for m in found[-MESSAGE_LIMIT:]]

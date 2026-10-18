@@ -17,7 +17,7 @@ from dataclasses import asdict, dataclass, replace
 from functools import partial
 from pathlib import Path
 from time import monotonic
-from typing import Literal, Protocol
+from typing import Literal, Protocol, TypedDict
 
 from pydantic import BaseModel
 
@@ -216,6 +216,14 @@ _PLANNER_RESPONSE_FORMAT = {
         },
     },
 }
+
+
+class _AuthorExtras(TypedDict, total=False):
+    """Что `AtomAuthor.write` принимает сверх общего протокола автора."""
+
+    on_attempt: Callable[[int, str, str | None, str], None]
+    expected_files: tuple[FileSpec, ...]
+    trace_id: str
 
 
 @dataclass(frozen=True)
@@ -765,7 +773,7 @@ class DynamicRun:
                     f"входов атома {request.name} в Case ещё нет (нужны: {needs}) — получи их "
                     "сценарием или шагом, а атом с кодом опиши следующим ходом"
                 )
-            observer = (
+            observer: _AuthorExtras = (
                 {
                     "on_attempt": partial(self._report_author_attempt, request.name),
                     "expected_files": self.expected_files,
