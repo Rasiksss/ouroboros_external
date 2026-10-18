@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "error": {
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "details": {
+          "properties": {},
+          "type": "object"
+        },
+        "message": {
+          "type": "string"
+        },
+        "node_key": {
+          "type": "null"
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "details",
+        "message",
+        "node_key",
+        "retryable"
+      ],
+      "type": "object"
+    },
+    "event_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "const": "error"
+    },
+    "occurred_at": {
+      "type": "string"
+    },
+    "partial_results": {
+      "type": "array"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0"
+    },
+    "sequence": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "error",
+    "event_id",
+    "event_type",
+    "occurred_at",
+    "partial_results",
+    "run_id",
+    "schema_version",
+    "sequence"
+  ],
+  "title": "error",
+  "type": "object",
+  "x-samples": 8
+}

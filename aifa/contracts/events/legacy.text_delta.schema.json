@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "const": "legacy"
+    },
+    "legacy_event": {
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "type": {
+          "const": "text_delta"
+        }
+      },
+      "required": [
+        "text",
+        "type"
+      ],
+      "type": "object"
+    },
+    "occurred_at": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0"
+    },
+    "sequence": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "legacy_event",
+    "occurred_at",
+    "run_id",
+    "schema_version",
+    "sequence"
+  ],
+  "title": "legacy.text_delta",
+  "type": "object",
+  "x-samples": 46
+}

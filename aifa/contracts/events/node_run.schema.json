@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "const": "node_run"
+    },
+    "node_run": {
+      "properties": {
+        "attempt": {
+          "type": "integer"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "finished_at": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "model_version": {
+          "type": "null"
+        },
+        "node_key": {
+          "properties": {
+            "args_fingerprint": {
+              "type": "string"
+            },
+            "atom_name": {
+              "type": "string"
+            },
+            "atom_version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "args_fingerprint",
+            "atom_name",
+            "atom_version"
+          ],
+          "type": "object"
+        },
+        "node_run_id": {
+          "type": "string"
+        },
+        "produced_evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "prompt_version": {
+          "type": "null"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "sandbox_profile": {
+          "type": "string"
+        },
+        "started_at": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "attempt",
+        "error",
+        "finished_at",
+        "model_version",
+        "node_key",
+        "node_run_id",
+        "produced_evidence_ids",
+        "prompt_version",
+        "run_id",
+        "sandbox_profile",
+        "started_at",
+        "status"
+      ],
+      "type": "object"
+    },
+    "occurred_at": {
+      "type": "string"
+    },
+    "plan_graph_hash": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0"
+    },
+    "sequence": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "node_run",
+    "occurred_at",
+    "plan_graph_hash",
+    "run_id",
+    "schema_version",
+    "sequence"
+  ],
+  "title": "node_run",
+  "type": "object",
+  "x-samples": 2401
+}

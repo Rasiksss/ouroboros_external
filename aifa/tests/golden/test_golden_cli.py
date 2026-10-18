@@ -121,3 +121,24 @@ def test_the_report_prints_on_a_console_that_cannot_encode_the_arrow(tmp_path: P
         check=False,
     )
     assert done.returncode == 1, done.stderr.decode("utf-8", "replace")
+
+
+def test_schemas_derives_a_file_per_event_type_from_recordings(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """F5 (а): `schemas` пишет `<тип>.schema.json` для каждого типа события в записях."""
+    one = write_recording(tmp_path / "a.json", "да")
+    two = write_recording(tmp_path / "b.json", "нет")
+    out = tmp_path / "events"
+    assert main(["schemas", "--out", str(out), str(one), str(two)]) == 0
+    assert sorted(path.name for path in out.iterdir()) == [
+        "completed.schema.json",
+        "legacy.text_delta.schema.json",
+    ]
+    assert "2 типа" in capsys.readouterr().out
+
+
+def test_schemas_exits_two_for_a_file_without_events(tmp_path: Path) -> None:
+    other = tmp_path / "other.json"
+    other.write_text("{}", encoding="utf-8")
+    assert main(["schemas", "--out", str(tmp_path / "events"), str(other)]) == 2

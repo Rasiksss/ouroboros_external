@@ -1,0 +1,385 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "delivery_status": {
+      "type": "string"
+    },
+    "event_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "const": "result"
+    },
+    "occurred_at": {
+      "type": "string"
+    },
+    "result": {
+      "properties": {
+        "concept": {
+          "type": "string"
+        },
+        "definition_origin": {
+          "type": "string"
+        },
+        "derived_fact": {
+          "properties": {
+            "basis": {
+              "type": "null"
+            },
+            "concept": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "document_version": {
+              "type": "null"
+            },
+            "evidence_id": {
+              "type": "string"
+            },
+            "expression": {
+              "type": "string"
+            },
+            "formula_id": {
+              "type": "string"
+            },
+            "formula_version": {
+              "type": "string"
+            },
+            "inputs": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "period_ref": {
+              "type": "string"
+            },
+            "produced_by_atom": {
+              "type": "string"
+            },
+            "produced_by_atom_version": {
+              "type": "string"
+            },
+            "source_ref": {
+              "type": "string"
+            },
+            "supersedes": {
+              "type": "null"
+            },
+            "unit": {
+              "type": "string"
+            },
+            "value": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "basis",
+            "concept",
+            "created_at",
+            "document_version",
+            "evidence_id",
+            "expression",
+            "formula_id",
+            "formula_version",
+            "inputs",
+            "period_ref",
+            "produced_by_atom",
+            "produced_by_atom_version",
+            "source_ref",
+            "supersedes",
+            "unit",
+            "value"
+          ],
+          "type": "object"
+        },
+        "gaps": {
+          "items": {
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "concept": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "required": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "code",
+              "concept",
+              "message",
+              "required"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "layout_id": {
+          "type": "string"
+        },
+        "layout_version": {
+          "type": "string"
+        },
+        "metric_id": {
+          "type": "string"
+        },
+        "output_id": {
+          "type": "string"
+        },
+        "output_type": {
+          "type": "string"
+        },
+        "period_ref": {
+          "type": "string"
+        },
+        "preserve_empty": {
+          "type": "boolean"
+        },
+        "role": {
+          "type": "string"
+        },
+        "rows": {
+          "items": {
+            "properties": {
+              "display_value": {
+                "type": "null"
+              },
+              "enum": {
+                "type": "string"
+              },
+              "evidence_refs": {
+                "items": {
+                  "properties": {
+                    "concept": {
+                      "type": "string"
+                    },
+                    "document_version": {
+                      "type": "string"
+                    },
+                    "evidence_id": {
+                      "type": "string"
+                    },
+                    "period_ref": {
+                      "type": "string"
+                    },
+                    "source_ref": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "concept",
+                    "document_version",
+                    "evidence_id",
+                    "period_ref",
+                    "source_ref"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "missing_reason": {
+                "type": "string"
+              },
+              "order": {
+                "type": "integer"
+              },
+              "row_id": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "display_value",
+              "enum",
+              "evidence_refs",
+              "kind",
+              "label",
+              "missing_reason",
+              "order",
+              "row_id",
+              "status",
+              "value"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "run_metadata": {
+          "properties": {
+            "entity_id": {
+              "type": "string"
+            },
+            "evidence_version": {
+              "type": "string"
+            },
+            "goal_ir_id": {
+              "type": "string"
+            },
+            "methodology_version": {
+              "type": "string"
+            },
+            "model_version": {
+              "type": "string"
+            },
+            "plan_graph_hash": {
+              "type": "null"
+            },
+            "produced_at": {
+              "type": "string"
+            },
+            "prompt_version": {
+              "type": "string"
+            },
+            "registry_version": {
+              "type": "string"
+            },
+            "run_id": {
+              "type": "string"
+            },
+            "sandbox_image_version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "entity_id",
+            "evidence_version",
+            "goal_ir_id",
+            "methodology_version",
+            "model_version",
+            "plan_graph_hash",
+            "produced_at",
+            "prompt_version",
+            "registry_version",
+            "run_id",
+            "sandbox_image_version"
+          ],
+          "type": "object"
+        },
+        "scalar_fact": {
+          "properties": {
+            "basis": {
+              "type": "null"
+            },
+            "concept": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "document_version": {
+              "type": "string"
+            },
+            "evidence_id": {
+              "type": "string"
+            },
+            "page": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "period_ref": {
+              "type": "string"
+            },
+            "produced_by_atom": {
+              "type": "string"
+            },
+            "produced_by_atom_version": {
+              "type": "string"
+            },
+            "source_ref": {
+              "type": "string"
+            },
+            "supersedes": {
+              "type": "null"
+            },
+            "unit": {
+              "type": "string"
+            },
+            "value": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "basis",
+            "concept",
+            "created_at",
+            "document_version",
+            "evidence_id",
+            "page",
+            "period_ref",
+            "produced_by_atom",
+            "produced_by_atom_version",
+            "source_ref",
+            "supersedes",
+            "unit",
+            "value"
+          ],
+          "type": "object"
+        },
+        "schema_version": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "warnings": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "output_type",
+        "schema_version",
+        "status"
+      ],
+      "type": "object"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0"
+    },
+    "sequence": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "delivery_status",
+    "event_id",
+    "event_type",
+    "occurred_at",
+    "result",
+    "run_id",
+    "schema_version",
+    "sequence"
+  ],
+  "title": "result",
+  "type": "object",
+  "x-samples": 72
+}

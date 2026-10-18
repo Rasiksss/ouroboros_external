@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "const": "legacy"
+    },
+    "legacy_event": {
+      "properties": {
+        "graph_hash": {
+          "type": "string"
+        },
+        "nodes": {
+          "items": {
+            "properties": {
+              "node_key": {
+                "properties": {
+                  "args_fingerprint": {
+                    "type": "string"
+                  },
+                  "atom_name": {
+                    "type": "string"
+                  },
+                  "atom_version": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "args_fingerprint",
+                  "atom_name",
+                  "atom_version"
+                ],
+                "type": "object"
+              },
+              "produces": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "requires": {
+                "items": {
+                  "properties": {
+                    "args_fingerprint": {
+                      "type": "string"
+                    },
+                    "atom_name": {
+                      "type": "string"
+                    },
+                    "atom_version": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "args_fingerprint",
+                    "atom_name",
+                    "atom_version"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "sandbox_profile": {
+                "type": "string"
+              },
+              "scenario_refs": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "status": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "node_key",
+              "produces",
+              "requires",
+              "sandbox_profile",
+              "scenario_refs",
+              "status"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "planner_version": {
+          "type": "string"
+        },
+        "root": {
+          "properties": {
+            "args_fingerprint": {
+              "type": "string"
+            },
+            "atom_name": {
+              "type": "string"
+            },
+            "atom_version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "args_fingerprint",
+            "atom_name",
+            "atom_version"
+          ],
+          "type": "object"
+        },
+        "scenarios": {
+          "items": {
+            "properties": {
+              "depends_on": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "goal_ref": {
+                "type": "string"
+              },
+              "goal_type": {
+                "type": "string"
+              },
+              "root": {
+                "properties": {
+                  "args_fingerprint": {
+                    "type": "string"
+                  },
+                  "atom_name": {
+                    "type": "string"
+                  },
+                  "atom_version": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "args_fingerprint",
+                  "atom_name",
+                  "atom_version"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "depends_on",
+              "goal_ref",
+              "goal_type",
+              "root"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "type": {
+          "const": "plan_graph"
+        }
+      },
+      "required": [
+        "graph_hash",
+        "nodes",
+        "planner_version",
+        "root",
+        "scenarios",
+        "type"
+      ],
+      "type": "object"
+    },
+    "occurred_at": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0"
+    },
+    "sequence": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "legacy_event",
+    "occurred_at",
+    "run_id",
+    "schema_version",
+    "sequence"
+  ],
+  "title": "legacy.plan_graph",
+  "type": "object",
+  "x-samples": 100
+}

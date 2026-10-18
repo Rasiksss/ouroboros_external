@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "const": "legacy"
+    },
+    "legacy_event": {
+      "properties": {
+        "project_total": {
+          "properties": {
+            "by_kind": {
+              "properties": {
+                "chat": {
+                  "properties": {
+                    "calls": {
+                      "type": "integer"
+                    },
+                    "cost_usd": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "calls",
+                    "cost_usd"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "chat"
+              ],
+              "type": "object"
+            },
+            "cost_usd": {
+              "type": "number"
+            },
+            "tokens_cached": {
+              "type": "integer"
+            },
+            "tokens_in": {
+              "type": "integer"
+            },
+            "tokens_out": {
+              "type": "integer"
+            },
+            "turns_total": {
+              "type": "integer"
+            },
+            "user_turns": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "by_kind",
+            "cost_usd",
+            "tokens_cached",
+            "tokens_in",
+            "tokens_out",
+            "turns_total",
+            "user_turns"
+          ],
+          "type": "object"
+        },
+        "turn": {
+          "properties": {
+            "cost_usd": {
+              "type": "number"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "project_id": {
+              "type": "string"
+            },
+            "session_id": {
+              "type": "string"
+            },
+            "tokens_cached": {
+              "type": "integer"
+            },
+            "tokens_in": {
+              "type": "integer"
+            },
+            "tokens_out": {
+              "type": "integer"
+            },
+            "ts": {
+              "type": "number"
+            },
+            "turns": {
+              "type": "integer"
+            },
+            "user_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "cost_usd",
+            "kind",
+            "model",
+            "project_id",
+            "session_id",
+            "tokens_cached",
+            "tokens_in",
+            "tokens_out",
+            "ts",
+            "turns",
+            "user_id"
+          ],
+          "type": "object"
+        },
+        "type": {
+          "const": "usage"
+        }
+      },
+      "required": [
+        "project_total",
+        "turn",
+        "type"
+      ],
+      "type": "object"
+    },
+    "occurred_at": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0"
+    },
+    "sequence": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "legacy_event",
+    "occurred_at",
+    "run_id",
+    "schema_version",
+    "sequence"
+  ],
+  "title": "legacy.usage",
+  "type": "object",
+  "x-samples": 2
+}

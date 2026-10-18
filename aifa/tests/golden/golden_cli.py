@@ -7,8 +7,11 @@
     python aifa/tests/golden/golden_cli.py record SCENARIO.json --out OUT.json
     python aifa/tests/golden/golden_cli.py compare A.json B.json [--text presence]
     python aifa/tests/golden/golden_cli.py stability SCENARIO.json --out-dir DIR [--text presence]
+    python aifa/tests/golden/golden_cli.py schemas --out aifa/contracts/events ЗАПИСЬ.json...
 
-`stability` пишет сценарий дважды и сравнивает записи — проверка самого инструмента. Сценарий —
+`stability` пишет сценарий дважды и сравнивает записи — проверка самого инструмента. `schemas`
+выводит из записей JSON Schema каждого типа события (`golden_schema.py`, F5 (а)); новые схемы
+принимает владелец ADR-ом (F13). Сценарий —
 JSON: `{"scenario": "имя", "documents": ["файл.pdf"], "turns": ["реплика", ...]}`, пути —
 относительно файла сценария. `--text presence` — для живой модели, чей текст каждый раз иной.
 
@@ -27,6 +30,7 @@ from golden_client import ClientError, ClientSettings
 from golden_compare import TextMode, compare
 from golden_format import RecordingError, read, write
 from golden_record import load_scenario, record_scenario
+from golden_schema import derive, read_events, write_schemas
 
 
 def main(argv: Sequence[str] | None = None, env: Mapping[str, str] | None = None) -> int:
@@ -35,6 +39,8 @@ def main(argv: Sequence[str] | None = None, env: Mapping[str, str] | None = None
     try:
         if args.command == "compare":
             return _compare(Path(args.first), Path(args.second), args.text)
+        if args.command == "schemas":
+            return _schemas(Path(args.out), [Path(name) for name in args.sources])
         if args.command == "record":
             return _record(Path(args.scenario), Path(args.out), environment)
         return _stability(Path(args.scenario), Path(args.out_dir), args.text, environment)
@@ -57,6 +63,17 @@ def _record(scenario: Path, out: Path, env: Mapping[str, str]) -> int:
     return 0
 
 
+def _schemas(out: Path, sources: list[Path]) -> int:
+    schemas = derive(event for source in sources for event in read_events(source))
+    write_schemas(schemas, out)
+    print(f"схемы записаны: {out} ({_types(len(schemas))})")
+    return 0
+
+
+def _types(count: int) -> str:
+    return f"{count} тип" if count == 1 else f"{count} типа" if count < 5 else f"{count} типов"
+
+
 def _stability(scenario: Path, out_dir: Path, text: TextMode, env: Mapping[str, str]) -> int:
     settings = ClientSettings.from_env(env)
     loaded = load_scenario(scenario)
@@ -77,6 +94,9 @@ def _parser() -> argparse.ArgumentParser:
     cmp.add_argument("first")
     cmp.add_argument("second")
     cmp.add_argument("--text", choices=("exact", "presence"), default="exact")
+    schemas = commands.add_parser("schemas", help="вывести схемы событий из записей")
+    schemas.add_argument("--out", required=True)
+    schemas.add_argument("sources", nargs="+")
     stability = commands.add_parser("stability", help="записать дважды и сравнить")
     stability.add_argument("scenario")
     stability.add_argument("--out-dir", required=True)
