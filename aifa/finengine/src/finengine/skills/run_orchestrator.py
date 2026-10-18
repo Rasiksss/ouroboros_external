@@ -699,6 +699,7 @@ async def subscribe_versioned(
     durable_sequence = 0
     completion_status = "succeeded"
     last_type: str | None = None
+    done_seen = False
     async for event in subscribe(run_id, kind=kind, heartbeat_sec=heartbeat_sec):
         if event.get("type") == "ping":
             yield HeartbeatEvent(run_id=run_id, sequence=durable_sequence)
@@ -713,6 +714,7 @@ async def subscribe_versioned(
         elif event_type == "error":
             message = str(event.get("message") or event.get("error") or "")
             completion_status = "cancelled" if "cancel" in message.lower() else "failed"
+        done_seen = done_seen or event_type == "done"
         if durable_sequence <= after_sequence:
             continue
         if event_type == "done":
@@ -727,9 +729,11 @@ async def subscribe_versioned(
     # Упавший и отменённый («Стоп») прогон кончается в журнале на `error` без `done`
     # (`_drive`: `error`, затем `close`). Конец ему — `completed` со статусом из того же
     # `error`, как для `done`. Но только когда прогон ЗАКРЫТ: `error` бывает и посреди хода, а
-    # чужая реплика при отказе кэша закрывает поток у живого прогона.
+    # чужая реплика при отказе кэша закрывает поток у живого прогона. После `done` итог уже выдан:
+    # исключение позади него (`[…, done, error]`) второго `completed` не порождает.
     if (
-        last_type in {"error", "typed_error"}
+        not done_seen
+        and last_type in {"error", "typed_error"}
         and durable_sequence + 1 > after_sequence
         and _прогон_закрыт(run_id)
     ):

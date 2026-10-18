@@ -213,3 +213,47 @@ async def test_the_wire_frames_of_a_failed_turn_end_with_completed() -> None:
 class _Request:
     headers: dict[str, str] = {}
     query_params: dict[str, str] = {}
+
+
+@pytest.mark.asyncio
+async def test_an_error_after_done_does_not_add_a_second_completed() -> None:
+    """Исключение после `done` (например, в `finally` раннера чата): итог хода уже выдан."""
+
+    async def runner():
+        yield {"type": "text_delta", "text": "ответ"}
+        yield {"type": "done"}
+        raise RuntimeError("сбой после ответа")
+
+    run_id = ro.start_run(runner, kind="chat", meta={})
+    await asyncio.sleep(0.05)
+
+    events = await _read(run_id)
+
+    assert _types(events) == ["legacy", "completed", "error"]
+    assert events[1].status == "succeeded"
+    assert [e.event_type for e in await _read(run_id, after_sequence=2)] == ["error"]
+
+
+@pytest.mark.asyncio
+async def test_a_typed_error_without_done_ends_with_completed_failed() -> None:
+    """Терминальный `typed_error` (журнал кончился на нём) закрывается так же, как `error`."""
+    failure = {
+        "code": "dynamic_run_failed",
+        "message": "сбой",
+        "retryable": False,
+        "node_key": None,
+        "details": {},
+    }
+
+    async def runner():
+        yield {"type": "text_delta", "text": "начало"}
+        yield {"type": "typed_error", "error": failure, "partial_results": []}
+
+    run_id = ro.start_run(runner, kind="chat", meta={})
+    await asyncio.sleep(0.05)
+
+    events = await _read(run_id)
+
+    assert _types(events) == ["legacy", "error", "completed"]
+    assert events[2].status == "failed"
+    assert events[2].sequence == 3
