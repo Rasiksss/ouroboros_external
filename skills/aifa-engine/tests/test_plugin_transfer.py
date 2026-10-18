@@ -1,12 +1,9 @@
-"""Плагин `aifa-engine` — тонкий клиент: переносит вызов в службу и её текст — модели (CONTRACTS.md §3.0, C3.0).
-
-Что плагин делает сам, проверяется здесь целиком: тело `{ctx, args}`, путь, перенос ответа без
-изменений, `СБОЙ_СЛУЖБЫ` при сетевом сбое и остановка длинного ожидания. Всё остальное — в службе.
-"""
+"""Плагин `aifa-engine` переносит вызов в службу и её текст — модели (CONTRACTS.md §3.0, C3.0)."""
 
 from __future__ import annotations
 
 import asyncio
+import inspect
 import json
 
 import httpx
@@ -123,7 +120,7 @@ def test_a_missing_address_or_token_is_a_service_fault_not_a_crash(
 
 
 def test_a_stop_during_a_long_wait_drops_the_request_and_says_so() -> None:
-    """ADR-0022 п. 3, P61: службе уходит один запрос на весь срок; плагин между опросами смотрит `stop_requested()`."""
+    """ADR-0047 п. 4: службе уходит один запрос на весь срок; плагин между опросами смотрит `stop_requested()`."""
 
     async def hang(request: httpx.Request) -> httpx.Response:
         await asyncio.sleep(30)
@@ -147,8 +144,6 @@ def test_an_answer_that_arrives_before_the_stop_is_returned_as_it_is() -> None:
 
 def test_the_handler_is_what_the_dispatcher_calls_with_a_leading_context() -> None:
     """Диспетчер ядра зовёт `handler(ctx, **args)` и ждёт корутину; форма вызова — часть регистрации."""
-    import inspect
-
     for name, tool in registered_tools().items():
         parameters = list(inspect.signature(tool.handler).parameters)
         assert parameters[0] == "ctx", name

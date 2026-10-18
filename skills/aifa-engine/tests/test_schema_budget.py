@@ -1,9 +1,4 @@
-"""F4: схемы инструментов `aifa-engine` помещаются в первый запрос и равны снимку (ADR-0022, ADR-0042).
-
-Бюджет считается как в `ouroboros/agent/task_graph.py`: сумма длин `json.dumps(schema, ensure_ascii=False,
-default=str)` не больше `OUROBOROS_INITIAL_EXTENSION_SCHEMA_BUDGET`, остальное молча пропускается.
-Снимок `aifa/contracts/tools.snapshot.json` меняется только вместе с ADR (F13).
-"""
+"""F4: схемы инструментов `aifa-engine` помещаются в первый запрос и равны снимку (ADR-0047 п. 1)."""
 
 from __future__ import annotations
 

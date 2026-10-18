@@ -1,8 +1,4 @@
-"""Общее для тестов навыка aifa-engine: загрузка `plugin.py` по пути и запись регистраций.
-
-Каталоги тестов не пакеты, поэтому имя модуля уникально среди `skills/*/tests` (pytest не терпит
-двух одноимённых файлов без `__init__.py`).
-"""
+"""Общее для тестов aifa-engine; имя уникально среди `skills/*/tests` — там нет `__init__.py`."""
 # ruff: noqa: RUF003
 
 from __future__ import annotations
@@ -68,12 +64,7 @@ def registered_tools() -> dict[str, Registered]:
 
 
 def schema_chars(tool: Registered) -> int:
-    """Знаки схемы так, как их считает `ouroboros/agent/task_graph.py` (`_initial_tool_schemas`).
-
-    Тот же вызов `json.dumps(..., ensure_ascii=False, default=str)` над `ToolSchema` с именем,
-    которое присваивает загрузчик расширений: схема-датакласс json не знает, и считается её
-    `str(...)`, поэтому длина — не длина «чистого» JSON.
-    """
+    """Знаки схемы тем же выражением, что `task_graph.py` (`_initial_tool_schemas`, ADR-0047 п. 1)."""
     schema = ToolSchema(
         name=extension_surface_name(SKILL_NAME, tool.name),
         description=tool.description,

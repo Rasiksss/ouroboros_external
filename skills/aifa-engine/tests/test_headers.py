@@ -1,8 +1,4 @@
-"""F12 (б): каждый вызов плагина несёт `X-Trace-Id` и `X-Agent-Id` (инвариант 6 ouroboros, ADR-0022).
-
-Заголовки ставит `ouroboros.observability.aef_tracing`, плагин заголовки сам не чеканит. Транспорт
-подставной (`httpx.MockTransport`), так что видно то, что ушло бы в службу.
-"""
+"""F12 (б): каждый вызов плагина несёт `X-Trace-Id` и `X-Agent-Id` (инвариант 6 ouroboros)."""
 
 from __future__ import annotations
 

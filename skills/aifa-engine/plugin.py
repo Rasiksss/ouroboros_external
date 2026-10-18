@@ -1,8 +1,6 @@
-"""Навык aifa-engine: тонкий клиент внутреннего API службы движка (CONTRACTS.md §3.0, ADR-0022).
+"""Навык aifa-engine: тонкий клиент внутреннего API службы движка (CONTRACTS.md §3.0, ADR-0022 п. 2).
 
-Здесь только перенос: контекст и аргументы вызова уходят службе, её текст возвращается модели без
-изменений. Правил, разбора и форматирования ответа нет — они в службе (`ouro_view`), иначе их
-пришлось бы держать в двух местах (F2).
+Только перенос; правила, разбор и форматирование ответа — в службе (`ouro_view`, F2).
 """
 # ruff: noqa: RUF001, RUF002, RUF003
 
@@ -11,7 +9,7 @@ from __future__ import annotations
 import asyncio
 import os
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TypedDict
 
 import httpx
 
@@ -19,7 +17,7 @@ from ouroboros.observability.aef_tracing import with_agent_header, with_trace_he
 
 URL_ENV = "AIFA_ENGINE_URL"
 TOKEN_ENV = "AIFA_ENGINE_TOKEN"
-# ADR-0022 п. 3: служба держит вызов до 240 с (P61); предел инструмента и запроса — с запасом над ним.
+# ADR-0047 п. 4: служба держит вызов до 240 с; предел инструмента и запроса — с запасом над ним.
 TIMEOUT_SEC = 300
 RESULT_LIMIT = 12_000
 STOP_POLL_SEC = 1.0
@@ -63,8 +61,19 @@ def service_fault(why: str) -> str:
     return f"СБОЙ_СЛУЖБЫ: {why}; повтори вызов"
 
 
-def context_of(ctx: Any) -> dict[str, Any]:
+class EngineContext(TypedDict):
     """Поля `ToolContext`, которые служба сверяет с ходом (§3.0); `run_id` — ключ хода службы (ADR-0021 п. 2)."""
+
+    owner_id: str
+    agent_id: str
+    chat_id: str
+    task_id: str
+    root_task_id: str
+    task_depth: int
+    run_id: str
+
+
+def context_of(ctx: Any) -> EngineContext:
     return {
         "owner_id": ctx.scope.owner_id,
         "agent_id": ctx.scope.agent_id,
@@ -104,7 +113,7 @@ class EngineCall:
             return service_fault(f"служба не ответила ({type(failure).__name__})")
 
     async def _until_answered_or_stopped(self, request: asyncio.Future[httpx.Response], ctx: Any) -> str:
-        """Один запрос на весь срок; между опросами — `ctx.stop_requested()` (ADR-0022 п. 3)."""
+        """Один запрос на весь срок; между опросами — `ctx.stop_requested()` (ADR-0047 п. 4)."""
         try:
             while not request.done():
                 if ctx.stop_requested():
