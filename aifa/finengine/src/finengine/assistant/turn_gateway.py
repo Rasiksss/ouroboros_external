@@ -10,7 +10,7 @@ import asyncio
 import logging
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Any, Protocol
 
 from finengine.assistant import messages
 from finengine.assistant.events import (
@@ -34,8 +34,11 @@ from finengine.assistant.ouro_client import (
     TurnSocket,
 )
 from finengine.config import Settings
+from finengine.skills import run_orchestrator
 
 log = logging.getLogger(__name__)
+
+ROOT_COMMAND = "root"
 
 # После крайнего срока ouroboros сам прерывает задачу (HARD_TIMEOUT) и отвечает; запас — на это ответ.
 DEADLINE_GRACE_SEC = 60.0
@@ -104,11 +107,27 @@ class TurnGateway:
     async def events(self, request: TurnRequest) -> AsyncIterator[Event]:
         turn = _Turn(self._client, self._timings, self._subtasks, request)
         self._live[request.run_id] = turn
+        run = run_orchestrator.get_run(request.run_id)
+        if run is not None:
+            # P52: вызов инструмента может прийти на другую реплику — она назовёт корень каналом управления.
+            run.commands[ROOT_COMMAND] = NameRoot(turn)
         try:
             async for event in turn.events():
                 yield event
         finally:
             del self._live[request.run_id]
+
+
+@dataclass(frozen=True)
+class NameRoot:
+    """Команда `root` владельцу прогона: корень хода назван вызовом инструмента (CONTRACTS.md §3.0)."""
+
+    turn: _Turn
+
+    def __call__(self, message: dict[str, Any]) -> None:
+        task_id = str(message.get("task_id") or "")
+        if task_id:
+            self.turn.know_root(task_id)
 
 
 class _Turn:

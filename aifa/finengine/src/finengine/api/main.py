@@ -131,6 +131,10 @@ app.include_router(_internal_methodology_router)
 from finengine.api.internal_tools import router as _internal_tools_router  # noqa: E402
 app.include_router(_internal_tools_router)
 
+# Инструменты `aifa-engine` для ouroboros (CONTRACTS.md §3, ADR-0028): токен, привязка к ходу.
+from finengine.assistant.tool_api import router as _ouro_tools_router  # noqa: E402
+app.include_router(_ouro_tools_router)
+
 # Кэш первой стадии извлечения: комната запечатана и живёт 18 минут, поэтому
 # помнит за неё бэкенд (см. шапку модуля — там же, почему ключ по отпечатку
 # промпта, а не по документу).
@@ -1691,6 +1695,15 @@ async def chat_turn_start(request: QueryRequest, user: User = Depends(get_curren
         meta={"user_id": user.id, "project_id": request.project_id or "",
               "session_id": request.session_id or ""},
     )
+    # Исходное сообщение и документы хода — для инструментов ouroboros (CONTRACTS.md §3.0): цель
+    # `aifa_goal` берётся отсюда, а не из аргументов модели. Запись общая для реплик.
+    from finengine.assistant.turn_record import TurnRecord, remember
+    remember(TurnRecord(
+        run_id=run_id, owner_id=str(user.id), chat_id=request.project_id or "",
+        message=request.message, user_id=user.id,
+        case_id=request.project_id or request.session_id or "",
+        doc_ids=tuple(_owned_doc_ids), active_doc_id=_owned_active, role=request.role or "",
+    ))
     # start_run только планирует таск — до первого await управление у нас,
     # так что gen() прочитает run_id из ячейки гарантированно заполненным.
     _run_cell["run_id"] = run_id

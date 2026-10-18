@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import Any
 
 
 class Verdict(StrEnum):
@@ -19,4 +20,4 @@ class GoalResult:
 
     verdict: Verdict
     note: str = ""
-    rows: tuple[dict, ...] = ()
+    rows: tuple[dict[str, Any], ...] = ()

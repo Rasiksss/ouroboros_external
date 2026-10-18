@@ -7,11 +7,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 from finengine.assistant import messages
 
 Event = dict[str, Any]
+Emit = Callable[[Event], None]  # куда конвейер пишет события хода
 
 SERVICE_EVENT = "ouro_service"
 
