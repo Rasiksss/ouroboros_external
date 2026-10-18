@@ -96,7 +96,7 @@ fi
 # 3. проверки симбиоза (окружение службы, только стандартная библиотека + pytest)
 stage "3a симбиоз: ruff check" service ruff check ../tests
 stage "3b симбиоз: ruff format --check" service ruff format --check ../tests
-stage "3c симбиоз: mypy --strict" service_mypy mypy --config-file "$MYPY_CONFIG" --strict ../tests/architecture
+stage "3c симбиоз: mypy --strict" service_mypy mypy --config-file "$MYPY_CONFIG" --strict ../tests/architecture ../tests/golden
 stage "3d симбиоз: pytest aifa/tests" service pytest ../tests -q
 
 # 4. фронтенд

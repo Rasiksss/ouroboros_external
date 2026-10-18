@@ -1,0 +1,167 @@
+{
+ "format": "aifa-golden-recording/1",
+ "meta": {
+  "scenario": "selftest-hello",
+  "stand": "finagent.homyakagent.ru",
+  "build": "dev-old-unknown",
+  "recorded_at": "2026-10-16T08:26:43Z"
+ },
+ "documents": [],
+ "turns": [
+  {
+   "user": "Привет",
+   "events": [
+    {
+     "schema_version": "1.0",
+     "event_id": "d9c333b9-d031-4858-aec3-3a22522f7135",
+     "run_id": "eeb4e983-a0de-4ee4-81ff-3cf43325329d",
+     "sequence": 1,
+     "occurred_at": "2026-10-16T08:26:21.810816Z",
+     "event_type": "legacy",
+     "legacy_event": {
+      "type": "session_id",
+      "session_id": "868b2acd-e0f9-483e-8e69-337022dd6001"
+     }
+    },
+    {
+     "schema_version": "1.0",
+     "event_id": "cb1b6b3f-dbf1-4bc2-aa8a-9449a169c705",
+     "run_id": "eeb4e983-a0de-4ee4-81ff-3cf43325329d",
+     "sequence": 2,
+     "occurred_at": "2026-10-16T08:26:21.812181Z",
+     "event_type": "legacy",
+     "legacy_event": {
+      "type": "thinking",
+      "text": "Разбираю запрос…"
+     }
+    },
+    {
+     "schema_version": "1.0",
+     "event_id": "5716b624-1152-425a-8cdc-5f429e7adb38",
+     "run_id": "eeb4e983-a0de-4ee4-81ff-3cf43325329d",
+     "sequence": 3,
+     "occurred_at": "2026-10-16T08:26:36.124810Z",
+     "event_type": "legacy",
+     "legacy_event": {
+      "type": "thinking",
+      "text": "Думаю…"
+     }
+    },
+    {
+     "schema_version": "1.0",
+     "event_id": "df7acf4a-1fcc-49d4-ad11-a5c9d44c9edf",
+     "run_id": "eeb4e983-a0de-4ee4-81ff-3cf43325329d",
+     "sequence": 4,
+     "occurred_at": "2026-10-16T08:26:44.117666Z",
+     "event_type": "legacy",
+     "legacy_event": {
+      "type": "text_delta",
+      "text": "Привет. Я AIFA, финансовый "
+     }
+    },
+    {
+     "schema_version": "1.0",
+     "event_id": "96185d64-384c-402f-87e2-4cd80d0b508e",
+     "run_id": "eeb4e983-a0de-4ee4-81ff-3cf43325329d",
+     "sequence": 5,
+     "occurred_at": "2026-10-16T08:26:44.117765Z",
+     "event_type": "legacy",
+     "legacy_event": {
+      "type": "text_delta",
+      "text": "аналитик. С чем "
+     }
+    },
+    {
+     "schema_version": "1.0",
+     "event_id": "c4dd9a37-c296-4944-8564-4c8d3455251f",
+     "run_id": "eeb4e983-a0de-4ee4-81ff-3cf43325329d",
+     "sequence": 6,
+     "occurred_at": "2026-10-16T08:26:44.117795Z",
+     "event_type": "legacy",
+     "legacy_event": {
+      "type": "text_delta",
+      "text": "работаем "
+     }
+    },
+    {
+     "schema_version": "1.0",
+     "event_id": "6f2f3864-f07d-4378-8225-7c323b7d962f",
+     "run_id": "eeb4e983-a0de-4ee4-81ff-3cf43325329d",
+     "sequence": 7,
+     "occurred_at": "2026-10-16T08:26:44.298613Z",
+     "event_type": "legacy",
+     "legacy_event": {
+      "type": "text_segment_end"
+     }
+    },
+    {
+     "schema_version": "1.0",
+     "event_id": "a287334b-4b65-4dd0-bc47-28cbe770f14f",
+     "run_id": "eeb4e983-a0de-4ee4-81ff-3cf43325329d",
+     "sequence": 8,
+     "occurred_at": "2026-10-16T08:26:44.298752Z",
+     "event_type": "legacy",
+     "legacy_event": {
+      "type": "text_delta",
+      "text": "сегодня?"
+     }
+    },
+    {
+     "schema_version": "1.0",
+     "event_id": "36603809-813e-4626-94ef-659d8dd974da",
+     "run_id": "eeb4e983-a0de-4ee4-81ff-3cf43325329d",
+     "sequence": 9,
+     "occurred_at": "2026-10-16T08:26:44.492878Z",
+     "event_type": "legacy",
+     "legacy_event": {
+      "type": "usage",
+      "turn": {
+       "ts": 1792139204.3029382,
+       "user_id": "1",
+       "project_id": "qa-golden-selftest-hello-a098889d",
+       "session_id": "868b2acd-e0f9-483e-8e69-337022dd6001",
+       "kind": "chat",
+       "model": "openclaw/default",
+       "turns": 1,
+       "tokens_in": 19671,
+       "tokens_out": 91,
+       "tokens_cached": 0,
+       "cost_usd": 0.01203
+      },
+      "project_total": {
+       "tokens_in": 19671,
+       "tokens_out": 91,
+       "tokens_cached": 0,
+       "cost_usd": 0.01203,
+       "turns_total": 1,
+       "user_turns": 1,
+       "by_kind": {
+        "chat": {
+         "calls": 1,
+         "cost_usd": 0.01203
+        }
+       }
+      }
+     }
+    },
+    {
+     "schema_version": "1.0",
+     "event_id": "de9a431f-af5a-4eec-a608-765007feff69",
+     "run_id": "eeb4e983-a0de-4ee4-81ff-3cf43325329d",
+     "sequence": 10,
+     "occurred_at": "2026-10-16T08:26:44.493027Z",
+     "event_type": "completed",
+     "status": "succeeded"
+    }
+   ],
+   "answer": "Привет. Я AIFA, финансовый аналитик. С чем работаем сегодня?",
+   "files": []
+  }
+ ],
+ "snapshot": {
+  "case": "нет: в API службы нет ручки Case; доступны только артефакты проекта",
+  "artifacts": {
+   "artifacts": []
+  }
+ }
+}
