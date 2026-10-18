@@ -7,4 +7,4 @@ target-version = "py312"
 select = ["E", "F", "I", "B", "UP"]
 
 [lint.isort]
-known-first-party = ["arch_support"]
+known-first-party = ["arch_support", "stub_model", "ouro_ws", "stand"]
