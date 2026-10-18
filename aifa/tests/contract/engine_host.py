@@ -15,11 +15,12 @@ from __future__ import annotations
 import os
 import threading
 import time
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
 import httpx
+import pipeline_fixture
 import pytest
 
 from stand import ContractStand
@@ -35,10 +36,14 @@ START_TIMEOUT_SEC = 20.0
 
 @contextmanager
 def running_engine(
-    stand: ContractStand, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    stand: ContractStand,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    doc: Callable[[], str] = pipeline_fixture.fixture_doc,
+    real_documents: bool = False,
 ) -> Iterator[str]:
     """Приложение службы с фикстурным конвейером; отдаёт базовый адрес `http://127.0.0.1:<порт>`."""
-    import pipeline_fixture
     import uvicorn
     from finengine.api import main as app_main
     from finengine.assistant import composition
@@ -46,7 +51,7 @@ def running_engine(
     from finengine.auth.dependencies import get_current_user
     from finengine.config import settings
 
-    pipeline_fixture.install(monkeypatch, tmp_path)
+    pipeline_fixture.install(monkeypatch, tmp_path, doc=doc, real_documents=real_documents)
     monkeypatch.setattr(settings, "ouroboros_url", stand.ouro_http_url)
     monkeypatch.setattr(settings, "aifa_engine_token", ENGINE_TOKEN)
     composition.turn_gateway.cache_clear()

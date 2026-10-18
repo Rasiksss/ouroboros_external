@@ -6,6 +6,7 @@ ouroboros — `aifa/tests/contract/test_turn_contract.py`.
 from __future__ import annotations
 
 import asyncio
+from dataclasses import dataclass, field
 
 from fake_ouroboros import FakeOuroboros, assistant, echo
 from turn_harness import NameRootOnDelivery, Subtasks, drain, gateway_of, request_of, shape
@@ -131,6 +132,35 @@ async def test_a_subtask_answer_before_the_final_goes_to_the_extension_point_not
     kinds = shape(events)
     assert kinds.count("subtask_result") == 2
     assert kinds.index("subtask_result") < kinds.index("text_delta")
+
+
+@dataclass
+class Roots:
+    told: list[tuple[str, str]] = field(default_factory=list)
+
+    def __call__(self, run_id: str, task_id: str) -> None:
+        self.told.append((run_id, task_id))
+
+
+async def test_the_root_of_a_finished_turn_is_told_once_even_when_a_subtask_answered_first() -> None:
+    """§2.6: по этому корню история отбирает финал хода — не по порядку записей (ревью шага 11, В2)."""
+    roots = Roots()
+    async with FakeOuroboros(subtask_answers_first) as server:
+        gateway = gateway_of(server, Subtasks())
+        watch = NameRootOnDelivery(gateway, "run-1", ROOT)
+        async for event in gateway.events(request_of(), on_root=roots):
+            watch(event)
+
+    assert roots.told == [("run-1", ROOT)]
+
+
+async def test_a_turn_that_never_got_a_root_tells_nothing() -> None:
+    roots = Roots()
+    async with FakeOuroboros(answers, refuse_handshake=True) as server:
+        async for _event in gateway_of(server).events(request_of(), on_root=roots):
+            pass
+
+    assert roots.told == []
 
 
 async def test_without_the_root_named_the_first_task_frame_is_the_final() -> None:

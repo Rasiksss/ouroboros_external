@@ -1,10 +1,12 @@
 """Источники проекта: файлы, которые пользователь приложил к проекту.
 
-Три предмета на источник, и это не изменилось при переезде:
+Два предмета источника живут в хранилище объектов службы, третий — в каталоге ouroboros (ADR-0012):
 
-    <file_id>.meta.json  — {file_id, filename, content_type, size, uploaded_at, text_status}
-    <file_id>.<ext>      — байты оригинала
+    <file_id>.meta.json  — {file_id, filename, content_type, size, uploaded_at, text_status,
+                            catalog_file_id, sha256}
     <file_id>.txt        — извлечённый текст (best-effort, для тула read_source)
+    байты оригинала      — файл каталога ouroboros `catalog_file_id` (CONTRACTS.md §6); `file_id` остаётся
+                           идентификатором службы, его знает экран
 
 `file_id` — uuid4; исходное имя лежит в карточке. Разделение имени и ключа
 хранения снимает и совпадения имён, и странные символы в пути.
@@ -30,21 +32,26 @@ MD). Отказ попадает в `text_status`, чтобы агент мог 
 """
 from __future__ import annotations
 
+import asyncio
 import dataclasses
 import json
 import logging
 import re
+import tempfile
 import time
 import uuid
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 
+from finengine.assistant.ouro_files import FileRefused, FileStream, StoredFile, catalog, legacy_office_refusal
 from finengine.contracts.results import EXECUTABLE_FILE_KINDS
 from finengine.store import blobs
 
 log = logging.getLogger(__name__)
 
 # Whitelist of file extensions we'll accept. Others get a 400. PPTX deferred.
-ALLOWED_EXT = {".pdf", ".xlsx", ".xls", ".csv", ".txt", ".md", ".json"}
+ALLOWED_EXT = {".pdf", ".xlsx", ".csv", ".txt", ".md", ".json"}
 
 # Max upload size — 50MB per the existing /documents/upload conventions.
 MAX_BYTES = 50 * 1024 * 1024
@@ -58,6 +65,8 @@ class SourceMeta:
     size: int
     uploaded_at: float      # unix seconds
     text_status: str = ""   # "ok" | "failed: <reason>" | "" (not attempted)
+    catalog_file_id: str = ""   # файл оригинала в каталоге ouroboros
+    sha256: str = ""            # sha256 байтов оригинала: запись службы о том, что она отдала каталогу
 
     def to_dict(self) -> dict:
         return dataclasses.asdict(self)
@@ -91,43 +100,53 @@ async def save_upload(
     content: bytes,
     content_type: str = "",
 ) -> SourceMeta:
-    """Persist an uploaded file + meta + extract text. Raises on
-    bad extension or oversize."""
+    """Persist an uploaded file + meta + extract text. Raises ValueError on a refused file (XLS/DOC, bad
+    extension, oversize, the catalog's refusal) — its text is what the user is told."""
     if len(content) > MAX_BYTES:
         raise ValueError(f"file too large: {len(content)} > {MAX_BYTES}")
+    refusal = legacy_office_refusal(filename)
+    if refusal is not None:
+        raise ValueError(refusal.text)
     ext = _safe_ext(filename)
     if ext not in ALLOWED_EXT:
         raise ValueError(f"extension {ext!r} not allowed; whitelist={sorted(ALLOWED_EXT)}")
 
     file_id = uuid.uuid4().hex
     префикс = _префикс(user_id, project_id)
-    store = blobs.get_blob_store()
-    store.put(f"{префикс}{file_id}{ext}", content)
-
-    # Разбор требует пути на диске — кладём объект во временный файл и убираем
-    # за собой. См. шапку: без пары materialize/release правило «никогда на
-    # диск» превращается в «на диск, но тайком».
-    временный = store.materialize(f"{префикс}{file_id}{ext}")
+    # Клиент каталога синхронный: до 50 МБ по сети не держим цикл событий.
+    stored = await asyncio.to_thread(_put_in_catalog, user_id, filename, content)
     try:
-        text, text_status = _extract_text(временный, ext)
-    finally:
-        store.release(временный)
-    if text:
-        store.put(f"{префикс}{file_id}.txt", text.encode("utf-8"))
-
-    meta = SourceMeta(
-        file_id=file_id,
-        filename=filename,
-        content_type=content_type or _guess_ct(ext),
-        size=len(content),
-        uploaded_at=time.time(),
-        text_status=text_status,
-    )
-    store.put(f"{префикс}{file_id}.meta.json",
-              json.dumps(meta.to_dict(), ensure_ascii=False, indent=2).encode("utf-8"))
+        text, text_status = _extract_text_of(content, ext)
+        store = blobs.get_blob_store()
+        if text:
+            store.put(f"{префикс}{file_id}.txt", text.encode("utf-8"))
+        meta = SourceMeta(
+            file_id=file_id,
+            filename=filename,
+            content_type=content_type or _guess_ct(ext),
+            size=len(content),
+            uploaded_at=time.time(),
+            text_status=text_status,
+            catalog_file_id=stored.file_id,
+            sha256=stored.sha256,
+        )
+        store.put(f"{префикс}{file_id}.meta.json",
+                  json.dumps(meta.to_dict(), ensure_ascii=False, indent=2).encode("utf-8"))
+    except Exception:
+        # Карточка не записалась — файл в каталоге остался бы без хозяина и занимал бы квоту владельца.
+        catalog().delete(str(user_id), stored.file_id)
+        raise
     log.info("источник сохранён: user=%s project=%s file=%s (%d байт, текст=%s)",
              user_id, project_id, file_id, len(content), text_status)
     return meta
+
+
+def _put_in_catalog(user_id: int | str, filename: str, content: bytes) -> StoredFile:
+    """Оригинал — в каталог ouroboros. Отказ каталога по файлу — `ValueError` с текстом для пользователя."""
+    result = catalog().upload(str(user_id), filename, content)
+    if isinstance(result, FileRefused):
+        raise ValueError(result.text)
+    return result
 
 
 def save_generated_bytes(
@@ -150,9 +169,10 @@ def save_generated_bytes(
     ext = _generated_ext(filename)
     file_id = uuid.uuid4().hex
     prefix = _префикс(user_id, project_id)
+    # Ключ — адрес файла в раскладке службы: по нему экран получает `file_id` (`result_events.source_file_id`),
+    # байты лежат в каталоге ouroboros.
     object_key = f"{prefix}{file_id}{ext}"
-    store = blobs.get_blob_store()
-    store.put(object_key, content)
+    stored = _put_in_catalog(user_id, filename, content)
     meta = SourceMeta(
         file_id=file_id,
         filename=filename,
@@ -160,8 +180,10 @@ def save_generated_bytes(
         size=len(content),
         uploaded_at=time.time(),
         text_status="not_applicable: generated artifact",
+        catalog_file_id=stored.file_id,
+        sha256=stored.sha256,
     )
-    store.put(
+    blobs.get_blob_store().put(
         f"{prefix}{file_id}.meta.json",
         json.dumps(meta.to_dict(), ensure_ascii=False, indent=2).encode("utf-8"),
     )
@@ -220,26 +242,52 @@ def read_source_text(user_id: int | str, project_id: str, file_id: str, max_char
 
 
 def read_source_bytes(user_id: int | str, project_id: str, file_id: str) -> tuple[bytes, SourceMeta] | None:
-    """Return original file bytes + meta. Used by the /sources/{id}/file
-    endpoint for download/preview in the frontend."""
+    """Return original file bytes + meta (из каталога). Used for the sheet preview in the frontend."""
     meta = get_source_meta(user_id, project_id, file_id)
     if not meta:
         return None
-    ключ = f"{_префикс(user_id, project_id)}{file_id}{_safe_ext(meta.filename)}"
-    store = blobs.get_blob_store()
-    if not store.exists(ключ):
+    content = catalog().read(str(user_id), meta.catalog_file_id)
+    return (content, meta) if content is not None else None
+
+
+def open_source(user_id: int | str, project_id: str, file_id: str) -> tuple[FileStream, SourceMeta] | None:
+    """Original file as a stream from the catalog + meta; the caller closes the stream. For `/sources/{id}/file`."""
+    meta = get_source_meta(user_id, project_id, file_id)
+    if not meta:
         return None
-    return store.get(ключ), meta
+    stream = catalog().open(str(user_id), meta.catalog_file_id)
+    return (stream, meta) if stream is not None else None
+
+
+@contextmanager
+def source_path(user_id: int | str, project_id: str, file_id: str) -> Iterator[Path | None]:
+    """Путь к оригиналу источника на время разбора (библиотекам нужен файл, не поток); `None` — источника нет.
+
+    Временная копия убирается на любом выходе (`store/blobs.py`: `materialize`/`release`).
+    """
+    found = read_source_bytes(user_id, project_id, file_id)
+    if found is None:
+        yield None
+        return
+    content, meta = found
+    with tempfile.TemporaryDirectory(prefix="source-") as directory:
+        path = Path(directory) / f"source{_safe_ext(meta.filename)}"
+        path.write_bytes(content)
+        yield path
 
 
 def delete_source(user_id: int | str, project_id: str, file_id: str) -> bool:
-    """Убрать все три предмета источника. `False` — такого источника не было."""
+    """Убрать источник: файл в каталоге, текст и карточку. `False` — такого источника не было.
+
+    Каталог первым: если он недоступен, карточка остаётся и удаление можно повторить.
+    """
     meta = get_source_meta(user_id, project_id, file_id)
     if not meta:
         return False
+    catalog().delete(str(user_id), meta.catalog_file_id)
     префикс = _префикс(user_id, project_id)
     store = blobs.get_blob_store()
-    for хвост in (_safe_ext(meta.filename), ".txt", ".meta.json"):
+    for хвост in (".txt", ".meta.json"):
         store.delete(f"{префикс}{file_id}{хвост}")
     return True
 
@@ -247,12 +295,20 @@ def delete_source(user_id: int | str, project_id: str, file_id: str) -> bool:
 # ─────────────────── text extraction ──────────────────
 
 
+def _extract_text_of(content: bytes, ext: str) -> tuple[str, str]:
+    """Разбор требует пути на диске: байты кладутся во временный каталог и убираются за разбором."""
+    with tempfile.TemporaryDirectory(prefix="source-") as directory:
+        path = Path(directory) / f"source{ext}"
+        path.write_bytes(content)
+        return _extract_text(path, ext)
+
+
 def _extract_text(path: Path, ext: str) -> tuple[str, str]:
     """Best-effort text extraction. Returns (text, status)."""
     try:
         if ext == ".pdf":
             return _extract_pdf(path), "ok"
-        if ext in (".xlsx", ".xls"):
+        if ext == ".xlsx":
             return _extract_xlsx(path), "ok"
         if ext in (".txt", ".md", ".csv", ".json"):
             return path.read_text(encoding="utf-8", errors="replace"), "ok"
@@ -297,7 +353,6 @@ def _guess_ct(ext: str) -> str:
     return {
         ".pdf": "application/pdf",
         ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        ".xls": "application/vnd.ms-excel",
         ".csv": "text/csv",
         ".txt": "text/plain",
         ".md": "text/markdown",

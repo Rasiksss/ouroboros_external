@@ -90,6 +90,12 @@ class SubtaskSink(Protocol):
     def subtask_finished(self, result: SubtaskResult) -> None: ...
 
 
+class RootSink(Protocol):
+    """Кому сказать корень хода, когда ход закончен: история отбирает финал по нему (§2.6)."""
+
+    def __call__(self, run_id: str, task_id: str) -> None: ...
+
+
 class TurnGateway:
     def __init__(
         self, client: OuroClient, timings: TurnTimings, subtasks: SubtaskSink | None = None
@@ -104,7 +110,7 @@ class TurnGateway:
         turn = self._live.get(run_id)
         return turn is not None and turn.know_root(task_id)
 
-    async def events(self, request: TurnRequest) -> AsyncIterator[Event]:
+    async def events(self, request: TurnRequest, *, on_root: RootSink | None = None) -> AsyncIterator[Event]:
         turn = _Turn(self._client, self._timings, self._subtasks, request)
         self._live[request.run_id] = turn
         run = run_orchestrator.get_run(request.run_id)
@@ -116,6 +122,8 @@ class TurnGateway:
                 yield event
         finally:
             del self._live[request.run_id]
+            if on_root is not None and turn.root_task_id:
+                on_root(request.run_id, turn.root_task_id)
 
 
 @dataclass(frozen=True)
@@ -148,6 +156,10 @@ class _Turn:
         self._finished = False
         self._stop_needed = False
         self._deadline = asyncio.get_running_loop().time() + timings.deadline_sec
+
+    @property
+    def root_task_id(self) -> str:
+        return self._root_task_id
 
     def know_root(self, task_id: str) -> bool:
         if self._root_task_id and self._root_task_id != task_id:

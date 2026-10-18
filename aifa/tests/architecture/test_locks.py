@@ -1,12 +1,15 @@
-"""F11 (первая половина) — замок окружения ouroboros не менялся (ADR-0020, ADR-0030).
+"""F11 — замки окружений (ADR-0020, ADR-0030, ADR-0009).
 
-Корневой `uv.lock` равен версии на теге `base/ouroboros-1.5.1`: окружения раздельны, общий замок
-связал бы обновления двух продуктов. Новый снимок ouroboros — только по ADR и строкой `uv.lock
-ADR-NNNN` в `core_freeze_exceptions.txt`. Вторая половина (в замке службы нет `mcp`) — этап 5.
+Первая половина: корневой `uv.lock` равен версии на теге `base/ouroboros-1.5.1`: окружения
+раздельны, общий замок связал бы обновления двух продуктов. Новый снимок ouroboros — только по ADR и
+строкой `uv.lock ADR-NNNN` в `core_freeze_exceptions.txt`. Вторая половина (шаг 11): в замке службы
+нет `mcp` — MCP-сервер движка удалён (ADR-0009), а `mcp>=2` ouroboros с `mcp<2` службы в один замок
+не разрешались.
 """
 
 from __future__ import annotations
 
+import tomllib
 from pathlib import Path
 
 from arch_support import (
@@ -22,6 +25,8 @@ from arch_support import (
 )
 
 LOCK = "uv.lock"
+SERVICE_LOCK = "aifa/finengine/uv.lock"
+SERVICE_PROJECT = "aifa/finengine/pyproject.toml"
 
 
 def root_lock_violations(repo: Path, exceptions: dict[str, str], base: str = BASE_TAG) -> list[str]:
@@ -87,3 +92,56 @@ def test_f11_fails_loudly_when_the_base_tag_is_missing(tmp_path: Path) -> None:
     problems = root_lock_violations(repo, {})
     assert len(problems) == 1
     assert BASE_TAG in problems[0]
+
+
+def service_mcp_violations(root: Path) -> list[str]:
+    """Замок службы и её зависимости не называют `mcp` ни как пакет, ни как требование."""
+    lock = tomllib.loads((root / SERVICE_LOCK).read_text(encoding="utf-8"))
+    packages = {package["name"] for package in lock.get("package", [])}
+    project = tomllib.loads((root / SERVICE_PROJECT).read_text(encoding="utf-8"))["project"]
+    problems = []
+    if "mcp" in packages:
+        problems.append(f"{SERVICE_LOCK}: пакет `mcp` в замке")
+    for item in project["dependencies"]:
+        if item.split("[")[0].strip().lower().startswith("mcp"):
+            problems.append(f"{SERVICE_PROJECT}: зависимость `{item}`")
+    return [
+        f"F11 (ADR-0009, ADR-0020): {problem}. MCP-сервер движка удалён, `mcp` в службу не "
+        "возвращается."
+        for problem in problems
+    ]
+
+
+def test_the_service_lock_has_no_mcp() -> None:
+    """F11 (вторая половина): в замке службы нет `mcp`."""
+    problems = service_mcp_violations(REPO_ROOT)
+    assert not problems, "\n".join(problems)
+
+
+def test_f11_catches_mcp_coming_back_into_the_service(tmp_path: Path) -> None:
+    """F11: нарушитель — `mcp` в замке или среди зависимостей службы."""
+    write_files(
+        tmp_path,
+        {
+            SERVICE_LOCK: 'version = 1\n[[package]]\nname = "httpx"\n[[package]]\nname = "mcp"\n',
+            SERVICE_PROJECT: (
+                '[project]\nname = "finengine"\ndependencies = ["httpx", "mcp>=1.28"]\n'
+            ),
+        },
+    )
+
+    problems = service_mcp_violations(tmp_path)
+
+    assert len(problems) == 2 and all("ADR-0009" in problem for problem in problems)
+
+
+def test_f11_accepts_a_service_without_mcp(tmp_path: Path) -> None:
+    write_files(
+        tmp_path,
+        {
+            SERVICE_LOCK: 'version = 1\n[[package]]\nname = "httpx"\n',
+            SERVICE_PROJECT: '[project]\nname = "finengine"\ndependencies = ["httpx"]\n',
+        },
+    )
+
+    assert service_mcp_violations(tmp_path) == []

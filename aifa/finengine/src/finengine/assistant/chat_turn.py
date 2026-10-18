@@ -11,6 +11,7 @@ from collections.abc import AsyncGenerator
 from dataclasses import dataclass
 
 from finengine.assistant.events import Event
+from finengine.assistant.session_turns import RootRecorder
 from finengine.assistant.turn_gateway import TurnGateway, TurnRequest
 
 ARCH = "ouroboros"
@@ -48,7 +49,8 @@ class OuroTurn:
         yield {"type": "session_id", "session_id": self.session_id}
         try:
             request = TurnRequest(self.run["run_id"], self.owner_id, self.chat_id, self.message, self.trace_id)
-            async for event in self.gateway.events(request):
+            on_root = RootRecorder(self.owner_id, self.session_id)
+            async for event in self.gateway.events(request, on_root=on_root):
                 if event.get("type") == "text_delta":
                     answer.append(str(event.get("text") or ""))
                 elif event.get("type") == "error":

@@ -1,4 +1,4 @@
-"""Источники проекта: байты, текст и карточка — объектами, а не файлами.
+"""Источники проекта: текст и карточка — объектами хранилища службы, байты оригинала — в каталоге ouroboros.
 
 🔴 ЗАЧЕМ. `docs/rules/architecture.md` 3.1 (MUST) называет этот случай прямее
 всех: «загрузки/скачивания — в объектное хранилище через стриминг, никогда на
@@ -12,6 +12,8 @@
 from __future__ import annotations
 
 import json
+import tempfile
+from pathlib import Path
 
 import pytest
 
@@ -20,7 +22,7 @@ from finengine.store import blobs
 
 
 @pytest.fixture(autouse=True)
-def на_томе(tmp_path, monkeypatch):
+def на_томе(tmp_path, monkeypatch, catalog):
     from finengine.config import settings
 
     monkeypatch.setattr(settings, "data_dir", tmp_path)
@@ -46,18 +48,19 @@ async def test_an_uploaded_source_comes_back(на_томе):
 
 
 @pytest.mark.asyncio
-async def test_the_key_layout_matches_the_old_file_layout(на_томе):
-    """🔴 РАСКЛАДКА ТА ЖЕ — переезд это копирование, а не пересборка.
+async def test_the_text_and_the_card_keep_the_old_key_layout_and_the_original_is_not_in_the_store(на_томе, catalog):
+    """🔴 РАСКЛАДКА КЛЮЧЕЙ ТА ЖЕ — текст и карточка лежат там, где лежали; оригинала в хранилище службы нет.
 
-    Мутация: изменить префикс в `sources._префикс` — тест краснеет. Без этого
-    свойства старые загрузки пришлось бы переименовывать поштучно, и заметно
-    это стало бы у пользователя пустой панелью «Источники».
+    Мутация: изменить префикс в `sources._префикс` — тест краснеет. Оригинал живёт в каталоге ouroboros
+    (ADR-0012): два источника правды о байтах — дефект, поэтому ключа `<file_id>.txt`-соседа с байтами нет.
     """
     meta = await _положить()
 
-    ключи = set(blobs.get_blob_store().iter_keys("users/7/projects/p/sources/"))
-    assert f"users/7/projects/p/sources/{meta.file_id}.txt" in ключи
-    assert f"users/7/projects/p/sources/{meta.file_id}.meta.json" in ключи
+    store = blobs.get_blob_store()
+    ключ = f"users/7/projects/p/sources/{meta.file_id}"
+    assert store.exists(f"{ключ}.txt") and store.exists(f"{ключ}.meta.json")
+    assert not store.exists(f"{ключ}.txt.orig") and not store.exists(f"{ключ}.csv")
+    assert [b.content for b in catalog.files.values()] == [b"a;b\n1;2\n"]
 
 
 @pytest.mark.asyncio
@@ -87,51 +90,37 @@ async def test_the_list_is_newest_first(на_томе):
 
 
 @pytest.mark.asyncio
-async def test_deleting_removes_all_three_pieces(на_томе):
+async def test_deleting_removes_the_file_in_the_catalog_the_text_and_the_card(на_томе, catalog):
     meta = await _положить()
 
     assert sources.delete_source(7, "p", meta.file_id) is True
     assert sources.get_source_meta(7, "p", meta.file_id) is None
-    assert list(blobs.get_blob_store().iter_keys("users/7/projects/p/sources/")) == []
+    assert catalog.files == {}
+    assert not blobs.get_blob_store().exists(f"users/7/projects/p/sources/{meta.file_id}.txt")
     assert sources.delete_source(7, "p", meta.file_id) is False
 
 
 @pytest.mark.asyncio
-async def test_every_materialize_is_paired_with_a_release(на_томе, monkeypatch):
-    """⚠️ Уборку временного файла разбора обязаны ЗВАТЬ.
+async def test_the_temporary_copy_made_for_parsing_is_removed(на_томе, monkeypatch):
+    """⚠️ Уборку временной копии для разбора обязаны ЗВАТЬ: правило «никогда на диск» без неё — «на диск, но тайком».
 
-    🔴 ПЕРВАЯ РЕДАКЦИЯ ЭТОГО ТЕСТА НИЧЕГО НЕ ПРОВЕРЯЛА, и это стоит записать.
-    Она сравнивала содержимое системного каталога временных файлов до и после
-    загрузки — и мутация «убрать `release`» её не покраснила. Причина в том,
-    что у ЛОКАЛЬНОЙ ветки `materialize` отдаёт путь ОРИГИНАЛА, а `release` —
-    пустой: временного файла там не возникает вовсе. Временный файл появляется
-    только у S3-ветки, а она в тестах не поднимается (нужна сеть).
-
-    Значит проверять надо не следствие, а сам договор: сколько раз попросили
-    файл — столько раз и вернули. Это видно на любой реализации и краснеет от
-    снятия `release`. Без парности правило «никогда на диск» превращается в
-    «на диск, но тайком», и на S3 временные файлы копятся до заполнения тома.
+    Оригинал приходит из каталога байтами, парсеры берут путь: копия ложится во временный каталог и
+    должна исчезнуть после разбора. Проверяется договор, а не следствие: каталог создан и убран.
     """
-    настоящее = blobs.get_blob_store()
-    счёт = {"materialize": 0, "release": 0}
+    created: list[str] = []
+    real = tempfile.TemporaryDirectory
 
-    class Считающее:
-        def __getattr__(self, имя):
-            return getattr(настоящее, имя)
+    class Recording(real):  # type: ignore[type-arg, misc]
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            created.append(self.name)
 
-        def materialize(self, key):
-            счёт["materialize"] += 1
-            return настоящее.materialize(key)
+    monkeypatch.setattr(sources.tempfile, "TemporaryDirectory", Recording)
 
-        def release(self, path):
-            счёт["release"] += 1
-            return настоящее.release(path)
-
-    monkeypatch.setattr(blobs, "get_blob_store", lambda: Считающее())
     await _положить()
 
-    assert счёт["materialize"] >= 1, "разбор перестал брать файл — тест устарел"
-    assert счёт["release"] == счёт["materialize"]
+    assert created, "разбор перестал класть копию во временный каталог — тест устарел"
+    assert not any(Path(name).exists() for name in created)
 
 
 @pytest.mark.asyncio

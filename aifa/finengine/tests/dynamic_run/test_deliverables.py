@@ -39,7 +39,7 @@ REQUEST = AtomRequest(
 
 
 @pytest.fixture(autouse=True)
-def _local_blobs(tmp_path, monkeypatch):
+def _local_blobs(tmp_path, monkeypatch, catalog):  # оригиналы файлов — в подставном каталоге ouroboros (шаг 11)
     monkeypatch.setattr(settings, "s3_endpoint", "")
     monkeypatch.setattr(settings, "data_dir", tmp_path)
 

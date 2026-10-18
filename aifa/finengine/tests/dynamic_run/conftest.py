@@ -35,7 +35,7 @@ def run_entry(request: dict, *, cwd: str | None = None) -> subprocess.CompletedP
 
 
 def local_run_code(code: str, inputs: dict, *, timeout: int = sealed_room.TIMEOUT_SECONDS,
-                   transport=None, collect_files: bool = False) -> sealed_room.CodeRun:
+                   transport=None, collect_files: bool = False, trace_id: str = "") -> sealed_room.CodeRun:
     """Подмена `sealed_room.run_code`: та же точка входа, тот же разбор ответа. Рабочий каталог — временный,
     как `/workspace` комнаты: файлы из его `out/` отдаются при `collect_files` с теми же пределами."""
     with tempfile.TemporaryDirectory() as workdir:

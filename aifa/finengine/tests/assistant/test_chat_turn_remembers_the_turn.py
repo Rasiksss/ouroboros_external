@@ -29,7 +29,7 @@ class Store:
 class NoTurn:
     """Шлюз хода, которому нечего сказать: тест смотрит на запись хода, а не на сам ход."""
 
-    async def events(self, request: Any):
+    async def events(self, request: Any, *, on_root: Any = None):
         return
         yield
 
@@ -52,6 +52,8 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClie
     monkeypatch.setattr(settings, "docs_dir", tmp_path)
     monkeypatch.setattr(settings, "data_dir", tmp_path)
     monkeypatch.setattr(settings, "redis_url", "")
+    # Ход пишет свои ходы сессии в общее состояние (`session_turns`): SQLite — у файлового на Windows нет flock.
+    monkeypatch.setattr(settings, "state_database_url", f"sqlite:///{tmp_path / 'state.db'}")
     B.reset_bus()
     C._cached = None
     monkeypatch.setattr(composition, "turn_gateway", lambda: NoTurn())

@@ -132,6 +132,7 @@ class StandardPath:
             document_text=text,
             goal=goal,
             allow_dynamic=allow_dynamic,
+            trace_id=record.trace_id,
             cancel_kw="is_cancelled",
         ):
             if kind == "event":

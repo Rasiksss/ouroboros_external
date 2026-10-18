@@ -1,5 +1,8 @@
 // openclaw.example.json5 — ПРИМЕР конфига гейтвея для подключения агента AIFA CLAW.
 //
+// ⚠️ История OpenClaw-пути: MCP-сервер движка (`finengine.mcp_server`, порт 8848) удалён шагом 11
+// плана симбиоза (ADR-0009); пример описывает подключение, которого больше нет, и уйдёт на шаге 19.
+//
 // Рендерит необрендённый стаб из README.md (§ «Деплой (Фаза 3 — switchover)»):
 //   agents.list[fa-claw].skills += [aifa-finance, aifa-extract-metrics, …]
 //   mcp.servers.finengine       = { url, transport: "streamable-http" }

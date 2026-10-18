@@ -253,8 +253,7 @@ def test_the_registry_tool_is_no_longer_offered_to_the_model():
     остаётся намеренно — «каталог это история того, что проходило проверку».
     По коду это неверно, и неверно дорого: каталог одобрения — фильтр показа
     (`tools.py` `all_definitions`), ВХОД генератора плагина
-    (`gen_fe_tools.py`) и источник имён для MCP
-    (`mcp_server.enabled_tool_names`). Имя, оставленное в `enabled`,
+    (`gen_fe_tools.py`). Имя, оставленное в `enabled`,
     возвращает тул в манифест при первом же прогоне генератора — и модель
     снова называет его посреди фразы (жалоба владельца 19.08). История места
     не в списке `enabled`, а строкой-комментарием рядом — как сделано для
@@ -262,9 +261,7 @@ def test_the_registry_tool_is_no_longer_offered_to_the_model():
 
     Поэтому мест ПЯТЬ, и проверяются все: каталог одобрения, `contracts.tools`
     манифеста, `toolMetadata` манифеста, сгенерированный `index.ts` и шаблон
-    конфига гейтвея. Шестое, `enabled_tool_names()` MCP-сервера, выводится из
-    каталога — проверяем его отдельно, чтобы вывод был предъявлен, а не
-    обещан.
+    конфига гейтвея. (Шестое место — имена MCP-сервера — ушло вместе с сервером, ADR-0009.)
 
     ⚠️ Каталог читаем РАЗОБРАННЫМ yaml, а не текстом файла: строка-история
     содержит то же имя в комментарии, и поиск по тексту краснел бы на ней.
@@ -272,8 +269,6 @@ def test_the_registry_tool_is_no_longer_offered_to_the_model():
     import json
 
     import yaml
-
-    from finengine.mcp_server import enabled_tool_names
 
     TOOL = "fe_registry_find"
 
@@ -302,8 +297,6 @@ def test_the_registry_tool_is_no_longer_offered_to_the_model():
     assert TOOL not in json.dumps(gw, ensure_ascii=False), (
         "тул снова предложен модели: он дублирует справочник, а мост «слова → "
         "имена» и так встроен в движок (skills/requested_metrics)")
-
-    assert TOOL not in enabled_tool_names(), "тул остался на MCP-поверхности"
 
 
 def test_the_registry_tool_is_gone_from_the_code_not_just_from_the_catalogue():

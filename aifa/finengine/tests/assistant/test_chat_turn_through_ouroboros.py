@@ -17,6 +17,8 @@ from fake_ouroboros import FakeOuroboros, assistant, echo
 from turn_harness import gateway_of
 from websockets.asyncio.server import ServerConnection
 
+from finengine.assistant import session_turns
+from finengine.assistant.session_turns import SessionTurn
 from finengine.assistant.turn_record import recall
 from finengine.config import settings
 from finengine.contracts.transport import CompletedEvent, LegacyCompatibilityEvent
@@ -70,6 +72,8 @@ async def chat(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(settings, "docs_dir", tmp_path)
     monkeypatch.setattr(settings, "data_dir", tmp_path)
     monkeypatch.setattr(settings, "redis_url", "")
+    # Ход пишет свои ходы сессии в общее состояние (`session_turns`): SQLite — у файлового на Windows нет flock.
+    monkeypatch.setattr(settings, "state_database_url", f"sqlite:///{tmp_path / 'state.db'}")
     B.reset_bus()
     C._cached = None
     agent, stubs = OldChat(), []
@@ -129,6 +133,19 @@ async def test_the_chat_in_ouroboros_is_the_project_of_the_user(chat) -> None:
     assert (handshake["x-ouroboros-owner-id"], handshake["x-ouroboros-chat-id"]) == (str(USER), "project-9")
     record = recall(response.json()["run_id"])
     assert record is not None and (record.owner_id, record.chat_id) == (str(USER), "project-9")
+
+
+async def test_the_session_remembers_the_chat_and_the_root_of_its_turn(chat) -> None:
+    """§2.6: история сессии отбирается по её ходам — служба помнит чат хода (у чата в папке — чат папки)
+    и корень, которым ouroboros ответил."""
+    response = await chat.client.post(
+        "/chat/turns", json={"message": "привет", "project_id": "folder-1", "session_id": "sess-1"}
+    )
+    run_id = response.json()["run_id"]
+    await journal_of(run_id)
+
+    assert session_turns.load(str(USER), "sess-1") == (SessionTurn(run_id, "folder-1", "r00t"),)
+    assert session_turns.load(str(USER + 1), "sess-1") == ()
 
 
 async def test_a_turn_without_a_project_gets_a_chat_of_its_session_not_an_empty_chat(chat) -> None:

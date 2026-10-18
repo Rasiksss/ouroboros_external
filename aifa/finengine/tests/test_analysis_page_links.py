@@ -206,7 +206,7 @@ def test_idp_ocr_fills_total_pages():
 
     saved: dict = {}
     meta = SimpleNamespace(doc_id="doc-idp", filename="о.pdf", company_name="ПАО «Пример»",
-                           total_pages=0, ocr_engine="")
+                           total_pages=0, ocr_engine="", catalog_file_id="")
 
     class _Index:
         def get_document(self, _doc_id):

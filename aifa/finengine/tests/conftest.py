@@ -237,3 +237,25 @@ def бд_хранилищ(бд, monkeypatch):
     D.reset_store()
     yield бд
     D.reset_store()
+
+
+@pytest.fixture
+def catalog():
+    """Подставной каталог файлов ouroboros; служба смотрит на него через `ouroboros_url`.
+
+    Каталог — внешняя граница (CONTRACTS.md §6): подменяется он, а не клиент службы. Кеш клиента
+    сбрасывается до и после, чтобы адрес прошлого теста не пережил его.
+    """
+    from finengine.assistant import ouro_files
+    from finengine.config import settings
+    from tests.fake_catalog import FakeCatalog
+
+    original = settings.ouroboros_url
+    with FakeCatalog() as fake:
+        settings.ouroboros_url = fake.url
+        ouro_files.catalog.cache_clear()
+        try:
+            yield fake
+        finally:
+            settings.ouroboros_url = original
+            ouro_files.catalog.cache_clear()

@@ -139,7 +139,9 @@ def _execute(atom: EphemeralAtom, args: NodeArgs, ctx) -> list[DynamicArtifact |
     # документа) не передаётся: атом не может достать число из отчёта в обход
     # read.value и гейтов.
     evidence = ctx.dependencies()
-    result = sealed_room.run_code(atom.code, group_inputs(evidence), collect_files=True)
+    result = sealed_room.run_code(
+        atom.code, group_inputs(evidence), collect_files=True, trace_id=ctx.inputs.extra.get("trace_id", ""),
+    )
     if result.error:
         raise RuntimeError(f"{STATION_FAULT_PREFIX}{result.error}" if result.station_fault else result.error)
     problem = schema_problem(result.output, atom.request.output_schema)

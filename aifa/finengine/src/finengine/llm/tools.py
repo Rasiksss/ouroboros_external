@@ -304,44 +304,15 @@ async def _h_factor_analysis(args: dict, ctx: ToolContext) -> str:
     if plan_id not in by_id or fact_id not in by_id:
         return json.dumps({"error": "указанный file_id не найден в sources"}, ensure_ascii=False)
 
-    # Разбор книг требует ПУТИ на диске (openpyxl берёт файл, не поток), а
-    # источники живут объектами. Пара materialize/release кладёт объект во
-    # временный файл на время разбора и убирает его — правило architecture.md
-    # 3.1: «парсинг — materialize(key)->Path + release».
+    # Разбор книг требует ПУТИ на диске (openpyxl берёт файл, не поток), а оригиналы источников лежат в
+    # каталоге ouroboros (ADR-0012): `source_path` кладёт байты во временный каталог на время разбора и
+    # убирает его на любом выходе.
     from contextlib import ExitStack  # noqa: PLC0415
-    from pathlib import Path  # noqa: PLC0415
-
-    from finengine.skills import sources as _src  # noqa: PLC0415
-    from finengine.store import blobs as _blobs  # noqa: PLC0415
-
-    _store = _blobs.get_blob_store()
-    _префикс = _src._префикс(uid, pid)
-
-    def _ключ(file_id: str) -> str | None:
-        """Ключ книги источника. Расширение берём из карточки, а не перебором.
-
-        Прежде здесь был перебор `.xlsx`/`.xls` и glob по каталогу — он нужен
-        был только потому, что расширение не спрашивали у карточки. Она его
-        знает: имя файла лежит в ней с загрузки.
-        """
-        meta = by_id.get(file_id)
-        if meta is None:
-            return None
-        ключ = f"{_префикс}{file_id}{_src._safe_ext(meta.filename)}"
-        return ключ if _store.exists(ключ) else None
 
     with ExitStack() as _уборка:
-        def _путь(file_id: str) -> Path | None:
-            ключ = _ключ(file_id)
-            if ключ is None:
-                return None
-            p = _store.materialize(ключ)
-            _уборка.callback(_store.release, p)
-            return p
-
-        plan_path = _путь(plan_id)
-        fact_path = _путь(fact_id)
-        nom_path = _путь(nom_id) if nom_id else None
+        plan_path = _уборка.enter_context(_sources.source_path(uid, pid, plan_id))
+        fact_path = _уборка.enter_context(_sources.source_path(uid, pid, fact_id))
+        nom_path = _уборка.enter_context(_sources.source_path(uid, pid, nom_id)) if nom_id else None
         if plan_path is None or fact_path is None:
             return json.dumps({"error": "xlsx файл не найден в хранилище"},
                               ensure_ascii=False)
@@ -1047,13 +1018,14 @@ async def _h_fe_idp_ocr(args: dict, ctx: ToolContext) -> str:
     # «source PDF not found» на существующий отчёт.
     from contextlib import ExitStack  # noqa: PLC0415
 
-    from finengine.store.blobs import document_file, document_idp_sink  # noqa: PLC0415
+    from finengine.store.blobs import document_idp_sink  # noqa: PLC0415
+    from finengine.store.originals import document_original  # noqa: PLC0415
 
     try:
         if ctx.progress is not None:
             ctx.progress.put_nowait("IDP-OCR: распознавание страниц…")
         with ExitStack() as стек:
-            pdf_path = стек.enter_context(document_file(doc.file_path))
+            pdf_path = стек.enter_context(document_original(doc))
             raw_path = стек.enter_context(document_idp_sink(doc.doc_id))
             ocr = await call_idp_ocr(pdf_path, save_raw_to=raw_path,
                                      parallel=settings.idp_ocr_parallel)
