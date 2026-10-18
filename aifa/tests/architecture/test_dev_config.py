@@ -38,7 +38,9 @@ DB_URL_KEY = re.compile(r"^OUROBOROS_RUNTIME_DB_URL(_\d+)?$")
 # Опорная запись (шаг 05): ходит на старый dev и loopback; адрес prod нигде не появляется.
 GOLDEN_DIR = REPO_ROOT / "aifa" / "tests" / "golden"
 GOLDEN_HOSTS = frozenset({"finagent.homyakagent.ru", "127.0.0.1", "localhost"})
-RESERVED_HOSTS = frozenset({"example.org", "example.com"})  # RFC 2606: «чужой адрес» в тестах
+RESERVED_HOSTS = frozenset({"example.org", "example.com", "example.invalid"})  # RFC 2606
+# Публичный источник, который называет набор приёмки (А4: цена Brent, 34-status.md).
+PUBLIC_DATA_HOSTS = frozenset({"fred.stlouisfed.org"})
 GOLDEN_SUFFIXES = frozenset({".py", ".json", ".md", ".txt", ".sh", ".sse"})
 URL_HOST = re.compile(r"https?://([A-Za-z0-9.-]+)")
 SECRET_SHAPE = re.compile(
@@ -286,7 +288,8 @@ def golden_violations(root: Path) -> list[str]:
             continue
         text = path.read_text(encoding="utf-8")
         name = path.relative_to(root).as_posix()
-        for host in sorted(set(URL_HOST.findall(text)) - GOLDEN_HOSTS - RESERVED_HOSTS):
+        known = GOLDEN_HOSTS | RESERVED_HOSTS | PUBLIC_DATA_HOSTS
+        for host in sorted(set(URL_HOST.findall(text)) - known):
             problems.append(f"F9 (ADR-0018): {name} называет адрес {host!r} вне списка стендов")
         problems.extend(
             f"F9 (ADR-0018): {name} ссылается на {target!r}"

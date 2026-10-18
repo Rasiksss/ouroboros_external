@@ -1,0 +1,11 @@
+{
+  "scenario": "S5",
+  "documents": [
+    "../documents/lukoil_2026-06-30.pdf"
+  ],
+  "turns": [
+    "Извлеки выручку SALES_REVENUE за 6M 2026 и 6M 2025.",
+    "Покажи только уже извлечённую выручку SALES_REVENUE за 6M 2026 и 6M 2025 без новых вычислений и без поиска новых данных."
+  ],
+  "web_search": false
+}

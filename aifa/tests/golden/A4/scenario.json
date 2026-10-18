@@ -1,0 +1,10 @@
+{
+  "scenario": "A4",
+  "documents": [
+    "../documents/Novatek_FS_12m2021_RUS.pdf"
+  ],
+  "turns": [
+    "Извлеки выручку из отчёта и отдельно рассчитай, на сколько процентов изменилась среднегодовая цена нефти Brent в 2021 году по сравнению с 2020, по публичному CSV FRED https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU."
+  ],
+  "web_search": false
+}
