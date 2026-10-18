@@ -1226,6 +1226,16 @@ def _parse_step(index: int, item: dict, registry: AtomRegistry) -> AtomStep:
     )
 
 
+def case_rows(store, owner_id, case_id: str) -> list[dict]:
+    """Артефакты Case без исходников временных атомов — то, из чего строится таблица результатов."""
+    return [row for row in store.list_artifacts(owner_id, case_id) if row["output_type"] != _SOURCE_OUTPUT_TYPE]
+
+
+def artifacts_table(rows: list[dict]) -> str:
+    """Строки «Полученные артефакты» для планировщика и для ouroboros (`ouro_view`): одна таблица на обоих."""
+    return "\n".join(_state_table(rows)) or "—"
+
+
 def render_state(run: DynamicRun, feedback: str) -> str:
     goal = run.goal
     profile = "не зафиксирован"
@@ -1235,15 +1245,12 @@ def render_state(run: DynamicRun, feedback: str) -> str:
             f"стандарт={classification.standard}; тип компании={classification.company_type}; "
             f"язык={classification.language}"
         )
-    rows = [
-        row for row in run.runtime.store.list_artifacts(run.owner_id, run.case_id)
-        if row["output_type"] != _SOURCE_OUTPUT_TYPE
-    ]
+    rows = case_rows(run.runtime.store, run.owner_id, run.case_id)
     produced_types = {row["output_type"] for row in rows}
     atoms = "\n".join(
         _describe_atom(atom, ran=atom.request.output_type in produced_types) for atom in run.atoms.values()
     ) or "—"
-    artifacts = "\n".join(_state_table(rows)) or "—"
+    artifacts = artifacts_table(rows)
     journal = "\n".join(
         f"{index}. {entry.objective} — {entry.outcome}"
         for index, entry in enumerate(run.journal, 1)
@@ -1569,7 +1576,7 @@ def save_source(store, owner_id, case_id: str, atom: EphemeralAtom) -> None:
 
 __all__ = [
     "Decision", "DynamicRun", "DynamicRunResult", "InvalidSteps", "JournalEntry", "MoveOutcome",
-    "GOAL_OBTAINED", "GoalRunner", "RunLimits", "ScenarioResult", "ScenarioRunner", "complete_plan",
-    "describe_clause", "describe_execution", "load_case_atoms",
+    "GOAL_OBTAINED", "GoalRunner", "RunLimits", "ScenarioResult", "ScenarioRunner", "artifacts_table",
+    "case_rows", "complete_plan", "describe_clause", "describe_execution", "load_case_atoms",
     "parse_decision", "parse_steps", "render_state", "save_source",
 ]
