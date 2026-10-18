@@ -60,7 +60,7 @@ class Settings(BaseSettings):
 
     # Внутренний API инструментов (CONTRACTS.md §3, ADR-0028): ouroboros ходит с этим токеном; имя
     # окружения общее с ouroboros и плагином. Пусто — API закрыто целиком (503), а не открыто.
-    aifa_engine_token: str = Field("", alias="AIFA_ENGINE_TOKEN", validation_alias="AIFA_ENGINE_TOKEN")
+    aifa_engine_token: str = Field(default="", validation_alias="AIFA_ENGINE_TOKEN")
     # Предел ответа инструмента в знаках (§3.0); длинное отдаётся частями.
     ouroboros_result_limit: int = 12_000
     # Один HTTP-вызов инструмента держится не дольше (плагин между вызовами проверяет остановку, §3.1);

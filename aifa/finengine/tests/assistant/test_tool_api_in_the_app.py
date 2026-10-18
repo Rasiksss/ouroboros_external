@@ -51,3 +51,15 @@ def test_one_gateway_and_one_tool_api_per_process() -> None:
     assert composition.turn_gateway() is composition.turn_gateway()
     composition.tool_api.cache_clear()
     composition.turn_gateway.cache_clear()
+
+
+def test_the_token_and_limits_come_from_the_settings(monkeypatch: pytest.MonkeyPatch) -> None:
+    """ADR-0028: секрет — `AIFA_ENGINE_TOKEN`, то же имя у ouroboros; пределы §3.0–§3.1 — поля `Settings`."""
+    from finengine.config import Settings
+
+    monkeypatch.setenv("AIFA_ENGINE_TOKEN", "from-the-environment")
+
+    fresh = Settings()
+
+    assert fresh.aifa_engine_token == "from-the-environment"
+    assert (fresh.ouroboros_result_limit, fresh.ouroboros_tool_segment_sec) == (12_000, 20.0)
