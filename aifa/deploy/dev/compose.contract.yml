@@ -1,6 +1,11 @@
 # Контрактный профиль `contract` (шаг 07; ARCHITECTURE.md §2, PRINCIPLES.md §Б.4): настоящий
 # ouroboros с теми же настройками, что на dev (читает ouroboros.env.example), но модель — подставной
-# сервер aifa/tests/stub_model. Без Workstation (тесты с ним — живые) и без службы.
+# сервер aifa/tests/stub_model. Без Workstation (тесты с ним — живые).
+#
+# Службы расчётов в профиле нет как контейнера: сквозной тест шага 10 поднимает её сам, в своём процессе,
+# с фикстурным документом и подставным разбором цели (эти подмены живут в процессе службы), а ouroboros
+# ходит к ней по сети — на хост через `host.docker.internal` (порт `AIFA_ENGINE_URL` ниже). Контейнерная
+# служба на dev — шаг 12.
 #
 # Только локально: отдельный compose-проект и свои тома, контейнеры dev-контура `aifa-sym` не
 # затрагиваются; на общий dev этот файл не выкатывается. Секреты ниже — заглушки на время теста:
@@ -41,9 +46,14 @@ services:
       # 64 нулевых байта в base64: заглушка, настоящих учётных данных в этих томах нет.
       OUROBOROS_CREDENTIALS_ENCRYPTION_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
       WORKSTATION_CREATE_SECRET: contract
+      # Служба расчётов — процесс сквозного теста на хосте (aifa/tests/contract/engine_host.py); секрет — заглушка.
+      AIFA_ENGINE_URL: http://host.docker.internal:18183
+      AIFA_ENGINE_TOKEN: contract-engine-token
       # C2.4 нужна подзадача, а на dev `schedule_task` выключен до шага 16 (ADR-0044 п. 3). Список —
       # пример без этого имени; `test_contract_compose.py` держит их равными.
       OUROBOROS_DISABLED_TOOLS: attachment_read,vlm_query,data_read,data_list,data_write,send_file,send_image,send_photo,send_user_message,gigasearch,browse_page,browser_action,image_generate,memory_save,memory_read,memory_list,memory_delete,create_scheduled_task,create_reminder,list_schedules,edit_schedule,cancel_schedule,pause_schedule,resume_schedule,confirm_schedule,move_schedule_here
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "127.0.0.1:18181:8080"
     volumes:
