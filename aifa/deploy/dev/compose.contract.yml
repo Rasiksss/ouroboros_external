@@ -41,6 +41,9 @@ services:
       # 64 нулевых байта в base64: заглушка, настоящих учётных данных в этих томах нет.
       OUROBOROS_CREDENTIALS_ENCRYPTION_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
       WORKSTATION_CREATE_SECRET: contract
+      # C2.4 нужна подзадача, а на dev `schedule_task` выключен до шага 16 (ADR-0044 п. 3). Список —
+      # пример без этого имени; `test_contract_compose.py` держит их равными.
+      OUROBOROS_DISABLED_TOOLS: attachment_read,vlm_query,data_read,data_list,data_write,send_file,send_image,send_photo,send_user_message,gigasearch,browse_page,browser_action,image_generate,memory_save,memory_read,memory_list,memory_delete,create_scheduled_task,create_reminder,list_schedules,edit_schedule,cancel_schedule,pause_schedule,resume_schedule,confirm_schedule,move_schedule_here
     ports:
       - "127.0.0.1:18181:8080"
     volumes:
