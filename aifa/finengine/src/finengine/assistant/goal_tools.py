@@ -1,8 +1,8 @@
 """Инструменты `aifa_goal` и `aifa_wait` (CONTRACTS.md §3.1, ADR-0042 п. 1).
 
-Длинное — фоном: инструмент держит вызов не дольше отрезка (`ouroboros_tool_segment_sec`), затем
-отвечает `ЖДИ job=<id>`; дальше — `aifa_wait`. 240 с складывает плагин из таких отрезков и между ними
-проверяет остановку (ADR-0022 п. 3).
+Длинное — фоном: `aifa_goal` держит вызов до `ouroboros_goal_wait_sec` (240 с), затем отвечает
+`ЖДИ job=<id>`; дальше — `aifa_wait`, который держит запрос столько, сколько просили (`wait_sec`).
+Срок держит служба; плагин ждёт один запрос и между опросами проверяет остановку (ADR-0022 п. 3, P61).
 """
 
 from __future__ import annotations
@@ -65,7 +65,7 @@ class GoalTool:
         job = self._board.of_kind(run_id, GOAL_KIND)
         if job is None:
             job = self._board.start(run_id, GOAL_KIND, self._goal(call.record, RunEmitter(run_id)))
-        return await reply_of(self._board, job, settings.ouroboros_tool_segment_sec)
+        return await reply_of(self._board, job, settings.ouroboros_goal_wait_sec)
 
 
 class WaitTool:

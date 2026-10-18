@@ -1,0 +1,24 @@
+{
+  "snapshot_version": 1,
+  "adr": "ADR-0047",
+  "note": "Снимок схем инструментов навыка aifa-engine, зарегистрированных шагом 10 (F4). Шаги 13 и 16 расширяют его вместе с ADR.",
+  "budget_chars": 584,
+  "tools": {
+    "aifa_goal": {
+      "arguments": [],
+      "required": [],
+      "safety_policy": "skip",
+      "capability_class": "mutative",
+      "timeout_sec": 300,
+      "result_limit": 12000
+    },
+    "aifa_wait": {
+      "arguments": ["job_id", "wait_sec"],
+      "required": ["job_id", "wait_sec"],
+      "safety_policy": "skip",
+      "capability_class": "read_only",
+      "timeout_sec": 300,
+      "result_limit": 12000
+    }
+  }
+}

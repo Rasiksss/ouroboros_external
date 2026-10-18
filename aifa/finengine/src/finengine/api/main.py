@@ -1508,6 +1508,48 @@ async def extract_run_events(
 # остаётся как запасной путь (откат = переключение фронта).
 
 
+def _turn_started(run_id: str) -> dict:
+    return {
+        "schema_version": "1.0",
+        "event_schema_version": "1.0",
+        "run_id": run_id,
+        "events_url": f"/chat/runs/{run_id}/events",
+    }
+
+
+def _start_ouroboros_turn(request: QueryRequest, user: User, doc_ids: list[str], active_doc_id: str) -> dict:
+    """Ход чата через ouroboros (шаг 10): прогон создаётся здесь, ведёт его `turn_gateway` (CONTRACTS.md §1)."""
+    from finengine.assistant import composition
+    from finengine.assistant.chat_turn import OuroTurn, chat_of
+    from finengine.assistant.turn_record import TurnRecord, remember
+    from finengine.skills import run_orchestrator
+
+    session_id = request.session_id or str(uuid.uuid4())
+    chat_id = chat_of(request.project_id, session_id)
+    cell: dict[str, str] = {}
+    turn = OuroTurn(
+        gateway=composition.turn_gateway(), run=cell, owner_id=str(user.id), chat_id=chat_id,
+        session_id=session_id, trace_id=str(uuid.uuid4()), message=request.message, user_id=user.id,
+        username=user.username, project_id=request.project_id or "", doc_ids=request.doc_ids or [],
+    )
+    # Сервер — источник истины списка чатов: ход регистрирует чат ДО запуска, с сессией, которую получит экран.
+    _upsert_dialog_stub(user.id, request.project_id or "", request.message, session_id, request.doc_ids or [])
+    run_id = run_orchestrator.start_run(
+        turn, kind="chat",
+        meta={"user_id": user.id, "project_id": request.project_id or "", "session_id": session_id},
+    )
+    # Исходное сообщение и документы хода — для инструментов ouroboros (CONTRACTS.md §3.0): цель
+    # `aifa_goal` берётся отсюда, а не из аргументов модели. Запись общая для реплик.
+    remember(TurnRecord(
+        run_id=run_id, owner_id=str(user.id), chat_id=chat_id, message=request.message, user_id=user.id,
+        case_id=request.project_id or session_id, doc_ids=tuple(doc_ids), active_doc_id=active_doc_id,
+        role=request.role or "",
+    ))
+    # start_run только планирует таск — до первого await управление у нас, раннер прочтёт `run_id` заполненным.
+    cell["run_id"] = run_id
+    return _turn_started(run_id)
+
+
 @app.post("/chat/turns")
 async def chat_turn_start(request: QueryRequest, user: User = Depends(get_current_user)):
     """Начать ход чата фоновым прогоном. Возвращает {run_id} немедленно."""
@@ -1540,6 +1582,10 @@ async def chat_turn_start(request: QueryRequest, user: User = Depends(get_curren
     # или только активный документ.
     _owned_doc_ids = list(_turn_docs)
     _owned_active = request.active_doc_id if request.active_doc_id in _owned else ""
+
+    # Шаг 10 (О3): ход ведёт ouroboros; внутри службы остаётся только детерминированный `pinned_tool`.
+    if not request.pinned_tool:
+        return _start_ouroboros_turn(request, user, _owned_doc_ids, _owned_active)
 
     # #98 C3-2: гейтвей-петля хода. Явный эксперимент клиента (arch=aifa_gateway)
     # или глобальный флаг окружения. Кнопки с pinned_tool — всегда инлайн
@@ -1695,24 +1741,10 @@ async def chat_turn_start(request: QueryRequest, user: User = Depends(get_curren
         meta={"user_id": user.id, "project_id": request.project_id or "",
               "session_id": request.session_id or ""},
     )
-    # Исходное сообщение и документы хода — для инструментов ouroboros (CONTRACTS.md §3.0): цель
-    # `aifa_goal` берётся отсюда, а не из аргументов модели. Запись общая для реплик.
-    from finengine.assistant.turn_record import TurnRecord, remember
-    remember(TurnRecord(
-        run_id=run_id, owner_id=str(user.id), chat_id=request.project_id or "",
-        message=request.message, user_id=user.id,
-        case_id=request.project_id or request.session_id or "",
-        doc_ids=tuple(_owned_doc_ids), active_doc_id=_owned_active, role=request.role or "",
-    ))
     # start_run только планирует таск — до первого await управление у нас,
     # так что gen() прочитает run_id из ячейки гарантированно заполненным.
     _run_cell["run_id"] = run_id
-    return {
-        "schema_version": "1.0",
-        "event_schema_version": "1.0",
-        "run_id": run_id,
-        "events_url": f"/chat/runs/{run_id}/events",
-    }
+    return _turn_started(run_id)
 
 
 @app.get("/chat/runs/{run_id}/stream")

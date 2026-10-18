@@ -43,6 +43,24 @@
    тест) — строкой в `PROGRESS.md` §3. Остаются в силе: prod не трогать, ядро ouroboros не править
    (F1, F11), секреты не в git, push без разрешения, выкатка на общий dev — по сигналу владельца.
 
+   **Корпоративная недоступность — не причина не прогнать проверку.** Если проверка не запускается
+   из-за корпоративного ресурса (индекс `nexus.genai.int`, внутренний реестр образов, корпоративная
+   сеть), проверку прогоняют на замене, а не записывают «не прогнано (nexus)». Для ворот ouroboros
+   (`./scripts/check.sh`, корневой `[tool.uv]` ведёт на nexus):
+   - окружение вне репозитория (scratchpad): `uv venv <dir> --python 3.12 --no-config`;
+     `uv export --frozen --no-hashes --no-emit-project --no-header > req.txt`;
+     `uv pip install --no-config --python <dir>/Scripts/python.exe --default-index https://pypi.org/simple -r req.txt`;
+   - те же стадии, что в `scripts/check.sh`, этим интерпретатором из корня: `ruff format --check .`,
+     `ruff check .`, `mypy --platform linux` (продакшен — Linux; без флага на Windows краснеют только
+     POSIX-вызовы `platform_layer.py`), `pytest tests_headless -n 8`, `pytest tests -n 8 -m "not
+     integration and not browser"` (PostgreSQL — `docker compose -f docker/docker-compose.test.yml up -d
+     --wait`, `OUROBOROS_RUNTIME_DB_URL_1=postgresql+psycopg://ouroboros:ouroboros@localhost:5433/ouroboros_test`),
+     `pytest skills -n 8 -m "not integration and not browser"`;
+   - красное, которое есть и на родительском коммите (например, `WinError 206` на Windows), —
+     базовая линия, а не новое падение; сравнение — по множеству упавших тестов.
+   В запись §3 — что чем заменено и итог каждой стадии. Невозможна только та проверка, для которой
+   замены нет вовсе (например, живой стенд без сигнала владельца); тогда — §4 с причиной.
+
 ---
 
 ## Б. Тесты
@@ -116,7 +134,9 @@
 
 ## Д. Конец сессии
 
-1. `aifa/scripts/check.sh` (с шага 02) зелёный, сравнение с базовой линией записано.
+1. `aifa/scripts/check.sh` (с шага 02) зелёный, сравнение с базовой линией записано. Стадия, красная
+   из-за корпоративной недоступности, прогоняется на замене (§А.8) — для `skills/aifa-*` это и есть
+   `./scripts/check.sh` ouroboros из Definition of Done.
 2. Запись в `PROGRESS.md` §3 по шаблону: диапазон коммитов, что сделано, тесты (какие контракты и
    проверки закрыты), базовая линия до/после, «Что и почему» (решения, альтернативы, компромиссы —
    менторский режим), что не сделано → §4.

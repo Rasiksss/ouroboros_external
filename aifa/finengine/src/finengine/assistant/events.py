@@ -11,6 +11,7 @@ from collections.abc import Callable
 from typing import Any
 
 from finengine.assistant import messages
+from finengine.assistant.tool_names import screen_name
 
 Event = dict[str, Any]
 Emit = Callable[[Event], None]  # куда конвейер пишет события хода
@@ -19,8 +20,11 @@ SERVICE_EVENT = "ouro_service"
 
 
 def answer_events(text: str) -> list[Event]:
-    """Ответ приходит целиком (ADR-0015): один `text_delta`, граница, конец."""
-    return [{"type": "text_delta", "text": text}, {"type": "text_segment_end"}, {"type": "done"}]
+    """Ответ приходит целиком (ADR-0015): один `text_delta`, граница, конец.
+
+    Конец несёт итог хода: ответ получен — `succeeded`, что бы ни отказал конвейер внутри хода (P62).
+    """
+    return [{"type": "text_delta", "text": text}, {"type": "text_segment_end"}, {"type": "done", "status": "succeeded"}]
 
 
 def error_event(message: str) -> Event:
@@ -38,3 +42,11 @@ def interrupted_event() -> Event:
 
 def service_event(kind: str, **fields: Any) -> Event:
     return {"type": SERVICE_EVENT, "kind": kind, **fields}
+
+
+def tool_call_event(tool: str) -> Event:
+    return {"type": "tool_call", "name": screen_name(tool)}
+
+
+def tool_output_event(tool: str, ok: bool) -> Event:
+    return {"type": "tool_output", "name": screen_name(tool), "ok": ok}

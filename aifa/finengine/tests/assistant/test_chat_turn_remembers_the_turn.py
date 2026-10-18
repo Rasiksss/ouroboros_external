@@ -26,6 +26,14 @@ class Store:
         return SimpleNamespace(owner_id=owners[doc_id]) if doc_id in owners else None
 
 
+class NoTurn:
+    """Шлюз хода, которому нечего сказать: тест смотрит на запись хода, а не на сам ход."""
+
+    async def events(self, request: Any):
+        return
+        yield
+
+
 class Agent:
     def session_doc_ids(self, session_id: str, *, auth_user_id: int) -> list[str]:
         return []
@@ -37,6 +45,7 @@ class Agent:
 @pytest.fixture
 def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
     from finengine.api import main as m
+    from finengine.assistant import composition
     from finengine.auth.db import User
     from finengine.auth.dependencies import get_current_user
 
@@ -45,6 +54,7 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClie
     monkeypatch.setattr(settings, "redis_url", "")
     B.reset_bus()
     C._cached = None
+    monkeypatch.setattr(composition, "turn_gateway", lambda: NoTurn())
     monkeypatch.setattr(m, "get_agent", lambda: Agent())
     monkeypatch.setattr(m, "get_store", lambda: Store())
     monkeypatch.setattr(m, "_upsert_dialog_stub", lambda *args, **kwargs: None)

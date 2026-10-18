@@ -19,8 +19,10 @@ ENV_EXAMPLE = DEV / "ouroboros.env.example"
 PROJECT = "aifa-sym-contract"
 PROD_MARKERS = ("prod", "finengine-caddy", "openclaw", "infproxy")
 LOOPBACK = "127.0.0.1:"
-# Что профиль вправе задать поверх `ouroboros.env.example`: адрес и имена моделей и заглушки
-# секретов (в примере там CHANGE_ME), и список отключённых инструментов без `schedule_task` (C2.4:
+# Что профиль вправе задать поверх `ouroboros.env.example`: адрес и имена моделей, адрес службы
+# расчётов и
+# заглушки секретов (в примере там CHANGE_ME), и список отключённых инструментов без `schedule_task`
+# (C2.4:
 # подзадача; на dev он включается шагом 16, ADR-0044 п. 3). Остальное из примера — как на dev.
 ALLOWED_ENVIRONMENT = frozenset(
     {
@@ -37,6 +39,8 @@ ALLOWED_ENVIRONMENT = frozenset(
         "OUROBOROS_S3_SECRET_KEY",
         "OUROBOROS_CREDENTIALS_ENCRYPTION_KEY",
         "WORKSTATION_CREATE_SECRET",
+        "AIFA_ENGINE_URL",
+        "AIFA_ENGINE_TOKEN",
         "OUROBOROS_DISABLED_TOOLS",
     }
 )

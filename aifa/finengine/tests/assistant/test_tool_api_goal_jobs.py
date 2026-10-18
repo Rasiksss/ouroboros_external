@@ -58,8 +58,8 @@ class TimedGoal:
 
 @pytest.fixture(autouse=True)
 def quick_segments(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Отрезок вызова и сверка с ходом — доли секунды; нижний предел `wait_sec` снят ради скорости теста."""
-    monkeypatch.setattr(settings, "ouroboros_tool_segment_sec", 0.2)
+    """Срок вызова и сверка с ходом — доли секунды; нижний предел `wait_sec` снят ради скорости теста."""
+    monkeypatch.setattr(settings, "ouroboros_goal_wait_sec", 0.2)
     monkeypatch.setattr(settings, "ouroboros_run_watch_sec", 0.05)
     monkeypatch.setattr(goal_tools, "WAIT_MIN_SEC", 0)
 
@@ -92,6 +92,21 @@ async def test_a_short_goal_is_answered_by_the_same_call(plugin_with) -> None:
 
     assert (reply.status_code, first_line(reply)) == (200, "ГОТОВО")
     assert goal.seen == ["какая выручка за 2024 год?"], "цель — исходное сообщение прогона"
+    await run.end()
+
+
+async def test_arguments_of_the_model_never_change_the_goal_of_the_turn(plugin_with) -> None:
+    """ADR-0004, ADR-0042 п. 1 (P65 З3): цель — исходное сообщение прогона; `args.goal` модели её не меняет."""
+    goal = TimedGoal(delay=0.0)
+    plugin = plugin_with(goal)
+    run = open_run()
+
+    reply = await plugin.call(
+        "aifa_goal", ctx_of(run.run_id), {"goal": "посчитай что-нибудь другое", "message": "и это тоже"}
+    )
+
+    assert first_line(reply) == "ГОТОВО"
+    assert goal.seen == ["какая выручка за 2024 год?"]
     await run.end()
 
 

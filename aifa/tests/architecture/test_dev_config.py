@@ -117,6 +117,13 @@ def env_violations(
                 f"F9 (ADR-0027): список {key} расходится со снимком dev_config.snapshot.json "
                 f"(разница: {drift or 'повтор имени'}). Изменение набора — новая ADR и снимок."
             )
+    for key in snapshot.get("shared_secrets", []):
+        problems.extend(
+            f"F9 (ADR-0028, ADR-0047): {key} нет в {name} — "
+            "секрет внутреннего API один у ouroboros и службы"
+            for name, env in (("ouroboros.env.example", ouro), ("engine.env.example", engine))
+            if key not in env
+        )
     if int(ouro.get("OUROBOROS_WORKER_SLOTS", "0") or 0) < 2:
         problems.append(
             "F9 (ADR-0008, ADR-0027): OUROBOROS_WORKER_SLOTS < 2 — автору не хватит слота"
@@ -347,6 +354,50 @@ def test_f9_catches_a_missing_skill_admission(tmp_path: Path) -> None:
     )
     problems = dev_config_violations(dev, load_snapshot())
     assert any("OUROBOROS_USER_ENABLED_SKILL_IDS" in p for p in problems)
+
+
+def test_f9_catches_a_planning_skill_the_owner_cannot_read(tmp_path: Path) -> None:
+    """F9: нарушитель — `aifa-planning` не допущен владельцам (ADR-0036, ADR-0047): в multiuser
+    навык-инструкция
+    без допуска не виден задаче, и корень не прочитает порядок работы с `aifa_goal` (найдено
+    живым прогоном шага 10)."""
+    dev = _copy_dev(tmp_path)
+    _edit(dev / "ouroboros.env.example", "distribution:aifa-planning,", "")
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("OUROBOROS_USER_ENABLED_SKILL_IDS" in p and "aifa-planning" in p for p in problems)
+
+
+def test_f9_catches_an_engine_extension_the_owner_cannot_call(tmp_path: Path) -> None:
+    """F9: нарушитель — `aifa-engine` не допущен владельцам: доверенный список ADR-0038 делает его
+    видимым
+    ядру, но задача без допуска получает `TOOL_UNAVAILABLE` на каждый вызов `aifa_goal`."""
+    dev = _copy_dev(tmp_path)
+    _edit(dev / "ouroboros.env.example", ",distribution:aifa-engine\n", "\n")
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("OUROBOROS_USER_ENABLED_SKILL_IDS" in p and "aifa-engine" in p for p in problems)
+
+
+def test_f9_catches_a_drifted_engine_address(tmp_path: Path) -> None:
+    """F9: нарушитель — плагин `aifa-engine` смотрит не на службу `engine` контура (ADR-0022,
+    ADR-0028)."""
+    dev = _copy_dev(tmp_path)
+    _edit(
+        dev / "ouroboros.env.example",
+        "AIFA_ENGINE_URL=http://engine:8000",
+        "AIFA_ENGINE_URL=http://elsewhere:8000",
+    )
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("AIFA_ENGINE_URL" in p for p in problems)
+
+
+def test_f9_catches_an_engine_token_that_one_side_does_not_have(tmp_path: Path) -> None:
+    """F9: нарушитель — у службы нет `AIFA_ENGINE_TOKEN`: её внутренний API закрыт целиком (503,
+    ADR-0028),
+    и ouroboros получает отказ на каждый вызов."""
+    dev = _copy_dev(tmp_path)
+    _edit(dev / "engine.env.example", "AIFA_ENGINE_TOKEN=CHANGE_ME\n", "")
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("AIFA_ENGINE_TOKEN" in p and "engine.env.example" in p for p in problems)
 
 
 def test_f9_catches_a_missing_trusted_executable_skill(tmp_path: Path) -> None:
