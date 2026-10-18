@@ -1,67 +1,47 @@
-"""Дымовой контрактный тест: ход «привет» через границу служба ↔ ouroboros (шаг 07).
+"""Дымовой контрактный тест: ход «привет» через границу служба ↔ ouroboros (шаги 07, 08).
 
-Настоящий ouroboros профиля `contract`, подставная модель отвечает по `scenarios/hello.json`.
-Закрывает C2.2 (эхо) и C2.3 (финальный кадр корня) по полям CONTRACTS.md §2.3.
+Настоящий ouroboros профиля `contract`, подставная модель отвечает по `scenarios/hello.json`; ход
+ведёт настоящий `turn_gateway`. Поля кадров (C2.2, C2.3) проверяет `test_turn_contract.py`.
 """
 
 from __future__ import annotations
 
-import uuid
-
 import pytest
 
-from ouro_ws import Turn, run_turn
 from stand import SCENARIOS, ContractStand
 from stub_model.client import StubModelAdmin
+from turn_support import collect, gateway_of, new_chat, new_request, screen
 
-pytestmark = pytest.mark.contract
+pytestmark = [pytest.mark.contract, pytest.mark.asyncio]
 
 HELLO_ANSWER = "Здравствуйте! Это подставная модель."
 
 
-def _hello(stand: ContractStand, chat_id: str) -> Turn:
-    return run_turn(
-        stand.ouro_ws_url,
-        owner_id="contract-owner",
-        chat_id=chat_id,
-        text="привет",
-        run_id=uuid.uuid4().hex,
-    )
-
-
-def test_hello_gets_the_scripted_answer_with_echo_and_final(
+async def test_hello_gets_the_scripted_answer_and_the_model_sees_the_text_verbatim(
     stand: ContractStand, stub: StubModelAdmin
 ) -> None:
-    """C2.2 + C2.3: эхо несёт `run_id`, финал — `task_id` и `transport.source_message_id`."""
+    """Ответ сценария доходит до журнала хода; реплика уходит к модели дословно (F6)."""
     stub.use_scenario(SCENARIOS / "hello.json")
 
-    turn = _hello(stand, f"smoke-{uuid.uuid4().hex[:8]}")
+    events = await collect(gateway_of(stand), new_request("привет"))
 
-    echo, final = turn.echo, turn.final
-    assert echo is not None and final is not None
-    assert echo["content"] == "привет"
-    assert echo["client_message_id"] == turn.run_id
-    assert final["content"] == HELLO_ANSWER
-    assert final["is_progress"] is False
-    assert final["task_id"]
-    assert final["transport"]["source_message_id"] == turn.run_id
-    assert turn.frames.index(echo) < turn.frames.index(final)
-
+    assert [e["type"] for e in screen(events)] == ["text_delta", "text_segment_end", "done"]
+    assert screen(events)[0]["text"] == HELLO_ANSWER
     asked = [e for e in stub.journal() if e["model"] == "stub-main"]
     assert [e["user"] for e in asked] == ["привет"], "модель увидела реплику дословно, без добавок"
     assert stub.unmatched() == [], "на каждый запрос к модели в сценарии есть правило"
 
 
-def test_hello_twice_gives_the_same_answer_and_each_final_names_its_own_run(
+async def test_hello_twice_gives_the_same_answer_and_each_turn_takes_its_own_final(
     stand: ContractStand, stub: StubModelAdmin
 ) -> None:
-    """Повтор в том же чате — тот же ответ; финал принадлежит своему ходу, а не предыдущему."""
+    """Повтор в том же чате — тот же ответ; ход берёт финал своего `run_id`, а не предыдущего."""
     stub.use_scenario(SCENARIOS / "hello.json")
-    chat_id = f"smoke-{uuid.uuid4().hex[:8]}"
+    chat_id = new_chat()
+    gateway = gateway_of(stand)
 
-    first, second = _hello(stand, chat_id), _hello(stand, chat_id)
+    first = await collect(gateway, new_request("привет", chat_id=chat_id))
+    second = await collect(gateway, new_request("привет", chat_id=chat_id))
 
-    assert first.final is not None and second.final is not None
-    assert first.final["content"] == second.final["content"] == HELLO_ANSWER
-    assert first.run_id != second.run_id
-    assert second.final["transport"]["source_message_id"] == second.run_id
+    assert screen(first)[0]["text"] == screen(second)[0]["text"] == HELLO_ANSWER
+    assert [e["type"] for e in screen(second)] == ["text_delta", "text_segment_end", "done"]

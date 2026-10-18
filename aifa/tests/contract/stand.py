@@ -16,3 +16,8 @@ SCENARIOS = Path(__file__).parent / "scenarios"
 class ContractStand:
     ouro_ws_url: str
     stub: StubModelAdmin
+
+    @property
+    def ouro_http_url(self) -> str:
+        """Базовый адрес ouroboros для `OuroClient`: тот же сервер, что и у WS."""
+        return self.ouro_ws_url.replace("ws", "http", 1).removesuffix("/ws")

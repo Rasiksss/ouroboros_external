@@ -42,6 +42,22 @@ class Settings(BaseSettings):
         "", alias="FINENGINE_WORKSTATION_URL", validation_alias="FINENGINE_WORKSTATION_URL",
     )
 
+    # ouroboros (CONTRACTS.md §2): служба ходит к нему по WS хода и за историей. Адрес — внутренняя
+    # сеть compose-проекта (ADR-0028), порт наружу не публикуется. Имена окружения — по префиксу
+    # FINENGINE_ (`FINENGINE_OUROBOROS_URL` и т. д.).
+    ouroboros_url: str = "http://ouroboros:8080"
+    ouroboros_connect_timeout_sec: float = 10.0
+    # Копия OUROBOROS_HARD_TIMEOUT_SEC и OUROBOROS_MAX_INBOUND_MESSAGE_CHARS из окружения ouroboros
+    # (служба его окружения не читает): держать равными. Крайний срок хода — первое плюс 60 с (ADR-0021).
+    ouroboros_hard_timeout_sec: float = 2700.0
+    ouroboros_max_inbound_chars: int = 50_000
+    # Тишина на соединении хода дольше этого — обрыв. Биения ouroboros идут раз в 30 с.
+    ouroboros_silence_sec: float = 120.0
+    ouroboros_stop_wait_sec: float = 30.0
+    # Пауза между попытками переподключиться и между опросами истории после обрыва.
+    ouroboros_retry_pause_sec: float = 2.0
+    ouroboros_reconnect_attempts: int = 3
+
     # OpenRouter settings (legacy fallback / non-chat call sites still
     # using openrouter directly: extract per-metric, AIFA reranker, etc.)
     openrouter_api_key: str = Field("", alias="OPENROUTER_API_KEY", validation_alias="OPENROUTER_API_KEY")

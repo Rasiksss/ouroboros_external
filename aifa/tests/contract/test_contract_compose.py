@@ -13,12 +13,15 @@ from typing import Any
 
 import yaml
 
-CONTRACT_COMPOSE = Path(__file__).resolve().parents[2] / "deploy" / "dev" / "compose.contract.yml"
+DEV = Path(__file__).resolve().parents[2] / "deploy" / "dev"
+CONTRACT_COMPOSE = DEV / "compose.contract.yml"
+ENV_EXAMPLE = DEV / "ouroboros.env.example"
 PROJECT = "aifa-sym-contract"
 PROD_MARKERS = ("prod", "finengine-caddy", "openclaw", "infproxy")
 LOOPBACK = "127.0.0.1:"
 # Что профиль вправе задать поверх `ouroboros.env.example`: адрес и имена моделей и заглушки
-# секретов (в примере там CHANGE_ME). Остальное из примера — как на dev, переопределять нельзя.
+# секретов (в примере там CHANGE_ME), и список отключённых инструментов без `schedule_task` (C2.4:
+# подзадача; на dev он включается шагом 16, ADR-0044 п. 3). Остальное из примера — как на dev.
 ALLOWED_ENVIRONMENT = frozenset(
     {
         "OUROBOROS_ENV",
@@ -34,13 +37,21 @@ ALLOWED_ENVIRONMENT = frozenset(
         "OUROBOROS_S3_SECRET_KEY",
         "OUROBOROS_CREDENTIALS_ENCRYPTION_KEY",
         "WORKSTATION_CREATE_SECRET",
+        "OUROBOROS_DISABLED_TOOLS",
     }
 )
+SUBTASK_TOOL = "schedule_task"
 
 
 def _load() -> dict[str, Any]:
     loaded: dict[str, Any] = yaml.safe_load(CONTRACT_COMPOSE.read_text(encoding="utf-8"))
     return loaded
+
+
+def _example_value(name: str) -> str:
+    prefix = f"{name}="
+    lines = ENV_EXAMPLE.read_text(encoding="utf-8").splitlines()
+    return next(line[len(prefix) :] for line in lines if line.startswith(prefix))
 
 
 def _published(service: Mapping[str, Any]) -> list[str]:
@@ -65,6 +76,13 @@ def contract_violations(compose: Mapping[str, Any]) -> list[str]:
     if ouroboros.get("env_file") != "ouroboros.env.example":
         problems.append(
             "ouroboros читает не ouroboros.env.example — набор настроек разошёлся с dev"
+        )
+    example_tools = _example_value("OUROBOROS_DISABLED_TOOLS").split(",")
+    expected_tools = [tool for tool in example_tools if tool != SUBTASK_TOOL]
+    if str(environment.get("OUROBOROS_DISABLED_TOOLS", "")).split(",") != expected_tools:
+        problems.append(
+            f"OUROBOROS_DISABLED_TOOLS профиля — не список dev без {SUBTASK_TOOL}: "
+            "профиль меняет ровно одно имя"
         )
     if environment.get("CLOUDRU_FOUNDATION_MODELS_BASE_URL") != "http://stub-model:8000/v1":
         problems.append("модель ouroboros не направлена на сервис stub-model")
@@ -112,6 +130,15 @@ def test_contract_check_catches_a_changed_dev_setting() -> None:
     compose = copy.deepcopy(_load())
     compose["services"]["ouroboros"]["environment"]["OUROBOROS_DISABLED_TOOLS"] = "code_exec"
     assert any("OUROBOROS_DISABLED_TOOLS" in p for p in contract_violations(compose))
+
+
+def test_contract_profile_enables_only_the_subtask_tool() -> None:
+    """C2.4: от списка dev профиль отличается одним именем: подзадачи включены."""
+    environment = _load()["services"]["ouroboros"]["environment"]
+    profile = set(str(environment["OUROBOROS_DISABLED_TOOLS"]).split(","))
+    dev = set(_example_value("OUROBOROS_DISABLED_TOOLS").split(","))
+    assert dev - profile == {SUBTASK_TOOL}
+    assert profile - dev == set()
 
 
 def test_contract_check_catches_a_port_outside_loopback() -> None:

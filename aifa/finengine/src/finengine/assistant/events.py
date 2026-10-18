@@ -1,0 +1,38 @@
+"""События журнала хода, которые пишет клиент хода (CONTRACTS.md §2.5).
+
+Формат — прежний (`run_orchestrator`, экран не меняется): `text_delta`, `text_segment_end`, `done`,
+`error`, `session_lost`. Служебные события экран не рисует (`applyChatEvent`: незнакомый тип
+пропускается), они нужны журналу и разбору.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+from finengine.assistant import messages
+
+Event = dict[str, Any]
+
+SERVICE_EVENT = "ouro_service"
+
+
+def answer_events(text: str) -> list[Event]:
+    """Ответ приходит целиком (ADR-0015): один `text_delta`, граница, конец."""
+    return [{"type": "text_delta", "text": text}, {"type": "text_segment_end"}, {"type": "done"}]
+
+
+def error_event(message: str) -> Event:
+    return {"type": "error", "message": message}
+
+
+def lost_events() -> list[Event]:
+    """`session_lost` и `done`, как у журнала, оборванного перезапуском (`recover_orphan_runs`)."""
+    return [{"type": "session_lost", "message": messages.LOST}, {"type": "done"}]
+
+
+def interrupted_event() -> Event:
+    return {"type": "interrupted"}
+
+
+def service_event(kind: str, **fields: Any) -> Event:
+    return {"type": SERVICE_EVENT, "kind": kind, **fields}

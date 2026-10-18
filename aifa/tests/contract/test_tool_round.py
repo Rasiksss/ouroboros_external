@@ -6,35 +6,27 @@
 
 from __future__ import annotations
 
-import uuid
-
 import pytest
 
-from ouro_ws import run_turn
 from stand import SCENARIOS, ContractStand
 from stub_model.client import StubModelAdmin
+from turn_support import collect, gateway_of, new_request, screen
 
-pytestmark = pytest.mark.contract
+pytestmark = [pytest.mark.contract, pytest.mark.asyncio]
 
 REQUEST = "покажи инструменты"
 ANSWER = "Список инструментов получен."
 
 
-def test_a_tool_call_is_answered_in_the_second_round_with_its_result_visible(
+async def test_a_tool_call_is_answered_in_the_second_round_with_its_result_visible(
     stand: ContractStand, stub: StubModelAdmin
 ) -> None:
     """Круг 1 — вызов инструмента, круг 2 видит его результат и ту же реплику; ход завершён."""
     stub.use_scenario(SCENARIOS / "tool_round.json")
 
-    turn = run_turn(
-        stand.ouro_ws_url,
-        owner_id="contract-owner",
-        chat_id=f"tool-{uuid.uuid4().hex[:8]}",
-        text=REQUEST,
-        run_id=uuid.uuid4().hex,
-    )
+    events = await collect(gateway_of(stand), new_request(REQUEST))
 
-    assert turn.final is not None and turn.final["content"] == ANSWER
+    assert screen(events)[0] == {"type": "text_delta", "text": ANSWER}
     asked = [e for e in stub.journal() if e["model"] == "stub-main"]
     assert [(e["round"], e["rule"]) for e in asked] == [
         (1, "call-tool"),
