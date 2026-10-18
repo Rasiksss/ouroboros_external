@@ -1,0 +1,15 @@
+{
+  "name": "hello",
+  "rules": [
+    {
+      "id": "title-by-light-model",
+      "when": {"model": "stub-light"},
+      "reply": {"text": "Приветствие"}
+    },
+    {
+      "id": "hello",
+      "when": {"model": "stub-main", "last_user_contains": "привет", "round": 1},
+      "reply": {"text": "Здравствуйте! Это подставная модель."}
+    }
+  ]
+}

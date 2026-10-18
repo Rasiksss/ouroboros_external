@@ -1,0 +1,155 @@
+# Контрактный профиль `contract` (шаг 07; ARCHITECTURE.md §2, PRINCIPLES.md §Б.4): настоящий
+# ouroboros с теми же настройками, что на dev (читает ouroboros.env.example), но модель — подставной
+# сервер aifa/tests/stub_model. Без Workstation (тесты с ним — живые) и без службы.
+#
+# Только локально: отдельный compose-проект и свои тома, контейнеры dev-контура `aifa-sym` не
+# затрагиваются; на общий dev этот файл не выкатывается. Секреты ниже — заглушки на время теста:
+# порты открыты только на 127.0.0.1, данные живут в томах `aifa-sym-contract-*` (`down -v` сносит).
+#
+#   docker compose -f aifa/deploy/dev/compose.contract.yml --profile contract up -d --build --wait
+#   AIFA_CONTRACT_OURO_URL=ws://127.0.0.1:18181/ws AIFA_CONTRACT_STUB_URL=http://127.0.0.1:18182 \
+#       uv run ... pytest aifa/tests/contract            # см. aifa/tests/contract/README.md
+#   docker compose -f aifa/deploy/dev/compose.contract.yml --profile contract down -v
+
+name: aifa-sym-contract
+
+services:
+  ouroboros:
+    profiles: [contract]
+    build:
+      context: ../../..
+      dockerfile: aifa/deploy/dev/ouroboros.Dockerfile
+    image: aifa-sym-ouroboros:dev
+    init: true
+    mem_limit: 1536m
+    # Набор dev целиком (ADR-0027): отличается только то, что в `environment` ниже.
+    env_file: ouroboros.env.example
+    environment:
+      OUROBOROS_ENV: production
+      OUROBOROS_DATA_DIR: /data
+      OUROBOROS_SERVER_HOST: 0.0.0.0
+      # Модели называются по ролям, чтобы правила сценария различали основную, лёгкую и запасную.
+      OUROBOROS_MODEL: cloudru::stub-main
+      OUROBOROS_MODEL_LIGHT: cloudru::stub-light
+      OUROBOROS_MODEL_FALLBACK: cloudru::stub-fallback
+      # Единственная подмена: адрес поставщика cloudru (SETTINGS.md §2.4) — правок ouroboros нет.
+      CLOUDRU_FOUNDATION_MODELS_BASE_URL: http://stub-model:8000/v1
+      CLOUDRU_FOUNDATION_MODELS_API_KEY: stub
+      OUROBOROS_RUNTIME_DB_URL: postgresql+psycopg://ouroboros:contract@ouro-postgres:5432/ouroboros
+      OUROBOROS_S3_ACCESS_KEY: contract
+      OUROBOROS_S3_SECRET_KEY: contract-secret
+      # 64 нулевых байта в base64: заглушка, настоящих учётных данных в этих томах нет.
+      OUROBOROS_CREDENTIALS_ENCRYPTION_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+      WORKSTATION_CREATE_SECRET: contract
+    ports:
+      - "127.0.0.1:18181:8080"
+    volumes:
+      - ouro-data:/data
+    depends_on:
+      ouro-postgres:
+        condition: service_healthy
+      s3-init:
+        condition: service_completed_successfully
+      stub-model:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/ready', timeout=5)
+      interval: 5s
+      timeout: 5s
+      retries: 36
+      start_period: 60s
+    networks: [internal]
+
+  stub-model:
+    profiles: [contract]
+    image: python:3.12-slim
+    working_dir: /app
+    command: [python, -m, stub_model, --port, "8000"]
+    user: "65534:65534"
+    environment:
+      PYTHONPATH: /app
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+    ports:
+      - "127.0.0.1:18182:8000"
+    volumes:
+      - ../../tests/stub_model:/app/stub_model:ro
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    networks: [internal]
+
+  ouro-postgres:
+    profiles: [contract]
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ouroboros
+      POSTGRES_USER: ouroboros
+      POSTGRES_PASSWORD: contract
+    volumes:
+      - ouro-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U ouroboros -d ouroboros"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    networks: [internal]
+
+  s3:
+    profiles: [contract]
+    image: chrislusf/seaweedfs:4.48
+    command: [server, -dir=/data, -s3, -s3.port=8333, -master.volumeSizeLimitMB=512]
+    environment:
+      AWS_ACCESS_KEY_ID: contract
+      AWS_SECRET_ACCESS_KEY: contract-secret
+    volumes:
+      - s3-data:/data
+    healthcheck:
+      test: [CMD-SHELL, "nc -z 127.0.0.1 8333"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+    networks: [internal]
+
+  s3-init:
+    profiles: [contract]
+    image: amazon/aws-cli:2.38.1
+    restart: "no"
+    depends_on:
+      s3:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: contract
+      AWS_SECRET_ACCESS_KEY: contract-secret
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint: [sh, -c]
+    command:
+      - >-
+        aws --endpoint-url http://s3:8333 s3api head-bucket --bucket ouroboros 2>/dev/null ||
+        aws --endpoint-url http://s3:8333 s3 mb s3://ouroboros
+    networks: [internal]
+
+networks:
+  internal:
+    name: aifa-sym-contract-internal
+    driver: bridge
+
+volumes:
+  ouro-data:
+    name: aifa-sym-contract-ouro-data
+  ouro-pgdata:
+    name: aifa-sym-contract-ouro-pgdata
+  s3-data:
+    name: aifa-sym-contract-s3-data
