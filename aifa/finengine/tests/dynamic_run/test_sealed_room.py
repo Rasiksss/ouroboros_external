@@ -356,3 +356,20 @@ def test_live_room_has_the_packages_and_no_service_environment(live_station) -> 
     result = run_code(code, {})
 
     assert result == CodeRun({"env": [], "ok": True}, None)
+
+
+@requires_room
+def test_live_room_hands_over_out_files_with_the_trace_of_the_turn(live_station) -> None:
+    """C5.1 вживую: `files:list` и `files:download` принимают заголовки протокола и трассы."""
+    code = (
+        "import os\n"
+        "def run(inputs):\n"
+        "    os.makedirs('out', exist_ok=True)\n"
+        "    open('out/итоги.txt', 'w', encoding='utf-8').write('строка')\n"
+        "    return {'ok': True}\n"
+    )
+
+    result = run_code(code, {}, collect_files=True, trace_id="9c1e7a52-0d3b-4e8a-9a41-6f2b7d3c5e10")
+
+    assert result.error is None and result.output == {"ok": True}
+    assert [(f.name, f.content) for f in result.files] == [("итоги.txt", "строка".encode())]

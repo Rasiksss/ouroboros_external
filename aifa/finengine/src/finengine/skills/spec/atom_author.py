@@ -49,7 +49,7 @@ class AtomAuthor:
     def write(
         self, request: AtomRequest, *, inputs_doc: str, real_inputs: dict | None,
         previous_code: str | None = None, error: str | None = None, on_attempt=None,
-        expected_files: tuple[FileSpec, ...] = (),
+        expected_files: tuple[FileSpec, ...] = (), trace_id: str = "",
     ) -> tuple[EphemeralAtom | None, str | None]:
         """(атом, None) — код прошёл самопроверку; (None, причина) — не справился за N попыток.
 
@@ -83,7 +83,7 @@ class AtomAuthor:
                 error = reason = f"ответ не в формате {{code, example_inputs}}: {exc!r}"
                 _report_attempt(on_attempt, number, "bad_format", error, code)
                 continue
-            result = sealed_room.run_code(code, real_inputs or example, collect_files=True)
+            result = sealed_room.run_code(code, real_inputs or example, collect_files=True, trace_id=trace_id)
             if result.station_fault:
                 _report_attempt(on_attempt, number, "station_fault", result.error, code)
                 return None, StationFault(result.error)

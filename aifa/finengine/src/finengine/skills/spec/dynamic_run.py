@@ -769,6 +769,7 @@ class DynamicRun:
                 {
                     "on_attempt": partial(self._report_author_attempt, request.name),
                     "expected_files": self.expected_files,
+                    "trace_id": self.inputs.extra.get("trace_id", ""),
                 }
                 if isinstance(self.author, AtomAuthor) else {}
             )
