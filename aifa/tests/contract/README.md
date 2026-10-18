@@ -3,10 +3,11 @@
 Тесты границ с настоящими объектами по обе стороны (`PRINCIPLES.md` §Б.3). Здесь — граница служба ↔
 ouroboros (`CONTRACTS.md` §2): живой ouroboros, модель подставная (`../stub_model/README.md`).
 
-Сейчас: `test_smoke.py` — ход «привет», эхо и финал (C2.2, C2.3); `test_tool_round.py` — ход с
-вызовом инструмента (круг 2 видит результат); `test_contract_compose.py` — границы
-самого профиля (идёт всегда, без Docker). `ouro_ws.py` — минимальный клиент WS для этих тестов;
-настоящий `ouro_client` службы (шаг 08) заменит его.
+Сейчас: `test_turn_contract.py` — C2.1–C2.8 настоящим `ouro_client` и `turn_gateway` службы
+(C2.3–C2.4 закрывают P1); `test_turn_to_journal.py` — сквозной ход `turn_gateway` → ouroboros →
+журнал `run_orchestrator`; `test_smoke.py` — ход «привет»; `test_tool_round.py` — ход с вызовом
+инструмента (круг 2 видит результат); `test_contract_compose.py` — границы самого профиля (идёт
+всегда, без Docker). Общее для тестов хода — `turn_support.py`.
 
 ## Запуск
 

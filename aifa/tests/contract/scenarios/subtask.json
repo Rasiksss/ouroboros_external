@@ -1,0 +1,30 @@
+{
+  "name": "subtask",
+  "rules": [
+    {
+      "id": "title-by-light-model",
+      "when": {"model": "stub-light"},
+      "reply": {"text": "Подзадача"}
+    },
+    {
+      "id": "subtask-answers",
+      "when": {"model": "stub-main", "user_contains": "Задача подзадачи"},
+      "reply": {"text": "Итог подзадачи."}
+    },
+    {
+      "id": "root-schedules-subtask",
+      "when": {"model": "stub-main", "user_contains": "ход с подзадачей", "round": 1},
+      "reply": {
+        "text": "Запускаю подзадачу.",
+        "tool_calls": [
+          {"name": "schedule_task", "arguments": {"description": "Задача подзадачи: ответь одной фразой"}}
+        ]
+      }
+    },
+    {
+      "id": "root-answers",
+      "when": {"model": "stub-main", "user_contains": "ход с подзадачей", "round": 2},
+      "reply": {"text": "Подзадача запущена."}
+    }
+  ]
+}

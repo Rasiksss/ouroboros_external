@@ -1,0 +1,23 @@
+{
+  "name": "progress",
+  "rules": [
+    {
+      "id": "title-by-light-model",
+      "when": {"model": "stub-light"},
+      "reply": {"text": "Прогресс"}
+    },
+    {
+      "id": "narrate-and-call-tool",
+      "when": {"model": "stub-main", "user_contains": "с пояснением", "round": 1},
+      "reply": {
+        "text": "Сейчас посмотрю инструменты.",
+        "tool_calls": [{"name": "list_available_tools", "arguments": {}}]
+      }
+    },
+    {
+      "id": "answer-after-tool",
+      "when": {"model": "stub-main", "user_contains": "с пояснением", "round": 2},
+      "reply": {"text": "Готово."}
+    }
+  ]
+}
