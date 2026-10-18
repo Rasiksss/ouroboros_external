@@ -25,10 +25,6 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "aiofiles>=24.1.0",
     "httpx>=0.28.0",
-    # <2 обязателен: в mcp 2.x FastMCP переименован (mcp.server.fastmcp снесён),
-    # и сборка образа 26.08 молча притянула 2.1.1 — import finengine.mcp_server
-    # в живом образе падал. Поймано прогоном тестов на стенде.
-    "mcp>=1.28.0,<2",  # native MCP server (finengine.mcp_server) — exposes tools to an OpenCLAW gateway
     # Проверка результата временного атома по его output_schema
     # (skills/spec/ephemeral.py::schema_problem). Раньше шла транзитивно.
     "jsonschema>=4.0",
