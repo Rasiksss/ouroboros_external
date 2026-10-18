@@ -87,6 +87,21 @@ async def test_an_unset_token_closes_the_api_instead_of_opening_it(
     await run.end()
 
 
+async def test_an_unauthorized_call_still_answers_in_the_grammar_of_the_contract(
+    plugin: Plugin, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """§3.0 (P65 З2): плагин отдаёт текст ответа как есть, поэтому 401 и 503 — тоже `СБОЙ_СЛУЖБЫ`, а не JSON FastAPI."""
+    run = open_run()
+    wrong = await plugin.call("aifa_wait", ctx_of(run.run_id), WAIT, token="bad")
+    monkeypatch.setattr(settings, "aifa_engine_token", "")
+    closed = await plugin.call("aifa_wait", ctx_of(run.run_id), WAIT)
+
+    for response in (wrong, closed):
+        assert first_line(response).startswith("СБОЙ_СЛУЖБЫ: "), response.text
+        assert response.headers["content-type"].startswith("text/plain")
+    await run.end()
+
+
 async def test_a_call_of_the_running_turn_passes_the_binding(plugin: Plugin) -> None:
     run = open_run()
 

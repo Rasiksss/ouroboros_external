@@ -62,4 +62,4 @@ def test_the_token_and_limits_come_from_the_settings(monkeypatch: pytest.MonkeyP
     fresh = Settings()
 
     assert fresh.aifa_engine_token == "from-the-environment"
-    assert (fresh.ouroboros_result_limit, fresh.ouroboros_tool_segment_sec) == (12_000, 20.0)
+    assert (fresh.ouroboros_result_limit, fresh.ouroboros_goal_wait_sec) == (12_000, 240.0)

@@ -11,21 +11,25 @@ import logging
 from dataclasses import dataclass
 from typing import Protocol
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, Header, Request, Response
 from fastapi.responses import PlainTextResponse
 from pydantic import ValidationError
 
 from finengine.assistant import ouro_view
 from finengine.assistant.binding import Binding, Refused, RootSink
-from finengine.assistant.goal_tools import GoalSource, GoalTool, WaitTool
+from finengine.assistant.events import tool_call_event, tool_output_event
+from finengine.assistant.goal_tools import GoalSource, GoalTool, RunEmitter, WaitTool
 from finengine.assistant.jobs import JobBoard
-from finengine.assistant.ouro_view import Refusal
+from finengine.assistant.ouro_view import Code, Refusal
 from finengine.assistant.tool_call import BoundCall, ToolCall
 from finengine.config import settings
 
 log = logging.getLogger(__name__)
 
 router = APIRouter()
+
+# Ответ с такого кода — инструмент не сделал дела (для экрана `tool_output.ok == false`); `УТОЧНИ` и `ЖДИ` — исходы.
+FAILED_CODES = (Code.REFUSE, Code.SERVICE_FAULT)
 
 
 @dataclass(frozen=True)
@@ -47,6 +51,9 @@ class ToolApi:
         self._binding = Binding(gateway)
         self._tools: dict[str, Tool] = {tool.name: tool for tool in (GoalTool(board, goal), WaitTool(board))}
 
+    def tool_names(self) -> list[str]:
+        return list(self._tools)
+
     async def handle(self, tool_name: str, body: bytes) -> Reply:
         tool = self._tools.get(tool_name)
         if tool is None:
@@ -60,11 +67,18 @@ class ToolApi:
             return Reply(ouro_view.refusal(bound.code, bound.why))
         if tool.root_only and not bound.is_root:
             return Reply(ouro_view.refusal(Refusal.NOT_THE_ROLE, f"{tool.name} вызывает только корень хода."))
+        emit = RunEmitter(bound.ctx.run_id)
+        emit(tool_call_event(tool_name))
+        reply = await self._run(tool, bound)
+        emit(tool_output_event(tool_name, ok=not reply.text.startswith(FAILED_CODES)))
+        return reply
+
+    async def _run(self, tool: Tool, bound: BoundCall) -> Reply:
         try:
             return Reply(await tool.run(bound))
         except Exception as failure:  # noqa: BLE001 — граница API: системная ошибка → 5xx, не отказ правила
-            log.warning("инструмент %s хода %s: системная ошибка %r", tool_name, bound.ctx.run_id[:8], failure)
-            return Reply(ouro_view.service_fault(f"{tool_name} не выполнен"), 500)
+            log.warning("инструмент %s хода %s: системная ошибка %r", tool.name, bound.ctx.run_id[:8], failure)
+            return Reply(ouro_view.service_fault(f"{tool.name} не выполнен"), 500)
 
 
 def get_tool_api() -> ToolApi:
@@ -73,13 +87,18 @@ def get_tool_api() -> ToolApi:
     return tool_api()
 
 
-def require_token(authorization: str) -> None:
-    """Пустой секрет закрывает API целиком (503), а не открывает (ADR-0028: вызовы меняют `Case`)."""
+def token_refusal(authorization: str) -> Reply | None:
+    """Пустой секрет закрывает API целиком (503), а не открывает (ADR-0028: вызовы меняют `Case`).
+
+    Ответ — в грамматике §3.0, как у остальных: плагин отдаёт модели текст ответа без разбора.
+    """
     token = settings.aifa_engine_token
     if not token:
-        raise HTTPException(status_code=503, detail="AIFA_ENGINE_TOKEN не задан: внутренний API закрыт")
+        log.error("AIFA_ENGINE_TOKEN не задан: внутренний API инструментов закрыт")
+        return Reply(ouro_view.service_fault("внутренний API службы закрыт: токен не задан, сообщи администратору"), 503)
     if not hmac.compare_digest(authorization.encode(), f"Bearer {token}".encode()):
-        raise HTTPException(status_code=401, detail="bad token")
+        return Reply(ouro_view.service_fault("токен службы не принят, сообщи администратору"), 401)
+    return None
 
 
 @router.post("/internal/ouro/v1/{tool}")
@@ -89,6 +108,5 @@ async def call_tool(
     authorization: str = Header(""),
     api: ToolApi = Depends(get_tool_api),
 ) -> Response:
-    require_token(authorization)
-    reply = await api.handle(tool, await request.body())
+    reply = token_refusal(authorization) or await api.handle(tool, await request.body())
     return PlainTextResponse(reply.text, status_code=reply.status)
