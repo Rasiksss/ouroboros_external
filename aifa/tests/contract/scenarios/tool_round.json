@@ -1,0 +1,20 @@
+{
+  "name": "tool_round",
+  "rules": [
+    {
+      "id": "title-by-light-model",
+      "when": {"model": "stub-light"},
+      "reply": {"text": "Инструменты"}
+    },
+    {
+      "id": "call-tool",
+      "when": {"model": "stub-main", "user_contains": "покажи инструменты", "round": 1},
+      "reply": {"tool_calls": [{"name": "list_available_tools", "arguments": {}}]}
+    },
+    {
+      "id": "answer-after-tool",
+      "when": {"model": "stub-main", "user_contains": "покажи инструменты", "round": 2},
+      "reply": {"text": "Список инструментов получен."}
+    }
+  ]
+}

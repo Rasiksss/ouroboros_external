@@ -53,7 +53,7 @@ class StubState:
                     "seq": seq,
                     "model": view.model,
                     "round": view.round,
-                    "last_user": view.last_user,
+                    "user": view.user,
                     "last_tool_result": view.last_tool_result,
                     "tools": tools,
                     "messages": payload.get("messages") or [],
@@ -83,7 +83,7 @@ def _no_rule_message(scenario: Scenario, view: RequestView) -> str:
     return (
         f"stub-model: ни одно правило сценария {scenario.name!r} не подошло. "
         f"Запрос: model={view.model!r}, круг={view.round}, "
-        f"последняя реплика пользователя={_snippet(view.last_user)!r}, "
+        f"реплика пользователя={_snippet(view.user)!r}, "
         f"последний результат инструмента={_snippet(view.last_tool_result)!r}. "
         f"Правила: {[rule.id for rule in scenario.rules]}"
     )

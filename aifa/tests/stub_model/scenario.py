@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-WHEN_KEYS = frozenset({"model", "last_user_contains", "last_tool_result_starts_with", "round"})
+WHEN_KEYS = frozenset({"model", "user_contains", "last_tool_result_starts_with", "round"})
 REPLY_KEYS = frozenset({"text", "tool_calls", "error"})
 RULE_KEYS = frozenset({"id", "when", "reply"})
 
@@ -29,7 +29,7 @@ class RequestView:
     model: str
     stream: bool
     round: int
-    last_user: str
+    user: str
     last_tool_result: str
 
 
@@ -43,17 +43,18 @@ def message_text(message: Mapping[str, Any]) -> str:
 
 
 def request_view(payload: Mapping[str, Any]) -> RequestView:
-    """Круг — 1 + число ответов модели после последней реплики пользователя; результат
-    инструмента — последний `tool` после неё (результат прошлого хода не считается)."""
+    """Запрос О — одна задача: история чата у него в системном сообщении, поэтому реплика задачи —
+    первое `user`. Следующие `user` О дописывает сам (итог круга с инструментом, ROUND_LIMIT) —
+    репликой они не считаются (Б1 ревью 07). Круг — 1 + число ответов модели в запросе, результат
+    инструмента — последний `tool`."""
     messages = [m for m in payload.get("messages") or [] if isinstance(m, Mapping)]
-    last_user_at = max((i for i, m in enumerate(messages) if m.get("role") == "user"), default=-1)
-    after = messages[last_user_at + 1 :]
-    tool_results = [message_text(m) for m in after if m.get("role") == "tool"]
+    users = [message_text(m) for m in messages if m.get("role") == "user"]
+    tool_results = [message_text(m) for m in messages if m.get("role") == "tool"]
     return RequestView(
         model=str(payload.get("model", "")),
         stream=bool(payload.get("stream")),
-        round=1 + sum(1 for m in after if m.get("role") == "assistant"),
-        last_user=message_text(messages[last_user_at]) if last_user_at >= 0 else "",
+        round=1 + sum(1 for m in messages if m.get("role") == "assistant"),
+        user=users[0] if users else "",
         last_tool_result=tool_results[-1] if tool_results else "",
     )
 
@@ -61,14 +62,14 @@ def request_view(payload: Mapping[str, Any]) -> RequestView:
 @dataclass(frozen=True)
 class When:
     model: str | None = None
-    last_user_contains: str | None = None
+    user_contains: str | None = None
     last_tool_result_starts_with: str | None = None
     round: int | None = None
 
     def matches(self, view: RequestView) -> bool:
         return (
             (self.model is None or view.model == self.model)
-            and (self.last_user_contains is None or self.last_user_contains in view.last_user)
+            and (self.user_contains is None or self.user_contains in view.user)
             and (
                 self.last_tool_result_starts_with is None
                 or view.last_tool_result.startswith(self.last_tool_result_starts_with)
@@ -126,7 +127,7 @@ def _parse_when(rule_id: str, raw: Any) -> When:
             f'правило {rule_id!r}: нет `when` (универсальное правило — `"when": {{}}`)'
         )
     _unknown(rule_id, "when", raw, WHEN_KEYS)
-    for key in ("model", "last_user_contains", "last_tool_result_starts_with"):
+    for key in ("model", "user_contains", "last_tool_result_starts_with"):
         if key in raw and not isinstance(raw[key], str):
             raise ScenarioError(f"правило {rule_id!r}: when.{key} должно быть строкой")
     if "round" in raw and (not isinstance(raw["round"], int) or raw["round"] < 1):

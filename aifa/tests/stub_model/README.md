@@ -9,31 +9,28 @@ OpenAI-совместимый сервер, который отвечает ouro
 
 ## Сценарий
 
-Файл JSON (`aifa/tests/contract/scenarios/hello.json` — рабочий пример):
+Файл JSON. Рабочие примеры, оба проходят живой ouroboros профиля `contract`:
+`aifa/tests/contract/scenarios/hello.json` (ответ текстом) и `tool_round.json` (вызов инструмента,
+затем ответ):
 
 ```json
 {
-  "name": "hello",
+  "name": "tool_round",
   "rules": [
     {
       "id": "title-by-light-model",
       "when": {"model": "stub-light"},
-      "reply": {"text": "Приветствие"}
+      "reply": {"text": "Инструменты"}
     },
     {
-      "id": "hello",
-      "when": {"model": "stub-main", "last_user_contains": "привет", "round": 1},
-      "reply": {"text": "Здравствуйте! Это подставная модель."}
+      "id": "call-tool",
+      "when": {"model": "stub-main", "user_contains": "покажи инструменты", "round": 1},
+      "reply": {"tool_calls": [{"name": "list_available_tools", "arguments": {}}]}
     },
     {
-      "id": "count-with-tool",
-      "when": {"model": "stub-main", "last_user_contains": "посчитай", "round": 1},
-      "reply": {"tool_calls": [{"name": "code_exec", "arguments": {"code": "print(2+2)"}}]}
-    },
-    {
-      "id": "tool-answered",
-      "when": {"model": "stub-main", "last_tool_result_starts_with": "4"},
-      "reply": {"text": "Получилось 4."}
+      "id": "answer-after-tool",
+      "when": {"model": "stub-main", "user_contains": "покажи инструменты", "round": 2},
+      "reply": {"text": "Список инструментов получен."}
     }
   ]
 }
@@ -50,9 +47,14 @@ OpenAI-совместимый сервер, который отвечает ouro
 | Условие | Выполнено, если |
 |---|---|
 | `model` | имя модели в запросе равно значению (`stub-main`, `stub-light`, `stub-fallback` — так их называет профиль `contract`) |
-| `last_user_contains` | последнее сообщение роли `user` содержит подстроку (с учётом регистра) |
-| `last_tool_result_starts_with` | последний результат инструмента (`role: tool`) после этой реплики пользователя начинается с значения; результаты прошлых ходов не считаются |
-| `round` | круг равен числу: 1 + число ответов модели (`role: assistant`) после последней реплики пользователя |
+| `user_contains` | реплика пользователя — **первое** сообщение роли `user` в запросе — содержит подстроку (с учётом регистра) |
+| `last_tool_result_starts_with` | последний результат инструмента (`role: tool`) в запросе начинается с значения |
+| `round` | круг равен числу: 1 + число ответов модели (`role: assistant`) в запросе |
+
+Почему первое `user`, а не последнее: запрос ouroboros — одна задача, история чата лежит в
+системном сообщении. После круга с инструментом ouroboros сам дописывает `user`-записку
+(«[SYSTEM RUNTIME NOTE: TOOL OUTCOME LEDGER]…»; так же `[ROUND_LIMIT]` и др.) — реплика
+пользователя, круг и результат инструмента от неё не меняются.
 
 Ответы:
 
@@ -95,7 +97,7 @@ cd aifa/tests && python -m stub_model --port 8000 [--scenario contract/scenarios
 | `GET /v1/models` | пустой список (ouroboros по этому пути не ходит) |
 | `GET /health` | для healthcheck |
 | `PUT /_scenario` | заменить сценарий (неверный отклоняется, прежний остаётся) |
-| `GET /_journal`, `DELETE /_journal` | журнал запросов: `seq`, `model`, `round`, `last_user`, `last_tool_result`, `tools`, `messages`, `rule`; очистка |
+| `GET /_journal`, `DELETE /_journal` | журнал запросов: `seq`, `model`, `round`, `user`, `last_tool_result`, `tools`, `messages`, `rule`; очистка |
 
 Со стороны теста — `stub_model.client.StubModelAdmin`: `use_scenario`, `journal`, `clear`,
 `saw(text)` («модель увидела»), `unmatched()`. «Модель не увидела» — `not saw(text)`.

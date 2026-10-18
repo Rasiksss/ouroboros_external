@@ -8,7 +8,7 @@
     },
     {
       "id": "hello",
-      "when": {"model": "stub-main", "last_user_contains": "привет", "round": 1},
+      "when": {"model": "stub-main", "user_contains": "привет", "round": 1},
       "reply": {"text": "Здравствуйте! Это подставная модель."}
     }
   ]

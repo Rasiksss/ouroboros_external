@@ -19,17 +19,17 @@ HELLO = {
     "rules": [
         {
             "id": "hello",
-            "when": {"last_user_contains": "привет"},
+            "when": {"user_contains": "привет"},
             "reply": {"text": "Здравствуйте!"},
         },
         {
             "id": "ask-tool",
-            "when": {"last_user_contains": "посчитай"},
+            "when": {"user_contains": "посчитай"},
             "reply": {"tool_calls": [{"name": "code_exec", "arguments": {"code": "print(2+2)"}}]},
         },
         {
             "id": "boom",
-            "when": {"last_user_contains": "сломайся"},
+            "when": {"user_contains": "сломайся"},
             "reply": {"error": {"status": 503, "message": "занято"}},
         },
     ],
@@ -123,7 +123,7 @@ def test_journal_keeps_what_the_model_was_shown_and_which_rule_answered(
     _post(server, _ask("не знаю такого"))
     first, second = admin.journal()
     assert (first["rule"], second["rule"]) == ("hello", None)
-    assert first["tools"] == ["code_exec"] and first["last_user"] == "привет"
+    assert first["tools"] == ["code_exec"] and first["user"] == "привет"
     assert admin.saw("привет") and not admin.saw("секретный документ")
     admin.clear()
     assert admin.journal() == []

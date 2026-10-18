@@ -48,9 +48,7 @@ def test_hello_gets_the_scripted_answer_with_echo_and_final(
     assert turn.frames.index(echo) < turn.frames.index(final)
 
     asked = [e for e in stub.journal() if e["model"] == "stub-main"]
-    assert [e["last_user"] for e in asked] == ["привет"], (
-        "модель увидела реплику дословно, без добавок"
-    )
+    assert [e["user"] for e in asked] == ["привет"], "модель увидела реплику дословно, без добавок"
     assert stub.unmatched() == [], "на каждый запрос к модели в сценарии есть правило"
 
 
