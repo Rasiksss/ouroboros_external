@@ -43,9 +43,7 @@ class Settings(BaseSettings):
     )
     # Секрет создания сессии Workstation контура (ADR-0007, ADR-0028): тот же, что у ouroboros
     # (WORKSTATION_CREATE_SECRET). Пусто — заголовок не ставится.
-    workstation_create_secret: str = Field(
-        "", alias="FINENGINE_WORKSTATION_CREATE_SECRET", validation_alias="FINENGINE_WORKSTATION_CREATE_SECRET",
-    )
+    workstation_create_secret: str = Field(default="", validation_alias="FINENGINE_WORKSTATION_CREATE_SECRET")
 
     # ouroboros (CONTRACTS.md §2): служба ходит к нему по WS хода и за историей. Адрес — внутренняя
     # сеть compose-проекта (ADR-0028), порт наружу не публикуется. Имена окружения — по префиксу
