@@ -149,6 +149,14 @@ docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml down        # конт
 | MinIO | заменён SeaweedFS: образов `minio/minio` нет ни на Docker Hub, ни на quay.io (ADR-0035) |
 | Caddy, Dozzle | общий `finengine-caddy-1` не трогаем (ADR-0028) |
 
+## Контрактный профиль (шаг 07)
+
+`compose.contract.yml` — отдельный локальный проект `aifa-sym-contract`: настоящий ouroboros с
+настройками `ouroboros.env.example`, PostgreSQL, S3 и подставная модель (`aifa/tests/stub_model`);
+без Workstation и службы. Нужен контрактным тестам (`aifa/tests/contract/README.md`); отдельным
+файлом, а не профилем в `compose.yml`, потому что F9 держит в нём ровно сервисы dev-контура и одну
+сеть. На общий dev не выкатывается, контейнеры `aifa-sym` не затрагивает.
+
 ## Открытое
 
 - **ADR-0037 (решение владельца)**: в `OUROBOROS_MULTIUSER=true` исполняемые навыки, в том числе
