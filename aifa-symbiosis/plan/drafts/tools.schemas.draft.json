@@ -1,0 +1,321 @@
+{
+  "note": "Черновик шага 10: схемы восьми инструментов ADR-0042 и бюджет по счёту task_graph.py. Не снимок (F4 держит tools.snapshot.json); шаги 13 и 16 расширяют снимок вместе с ADR.",
+  "budget": {
+    "counted_as": "len(json.dumps(ToolSchema(...), ensure_ascii=False, default=str)) по ouroboros/agent/task_graph.py",
+    "per_tool_chars": {
+      "aifa_goal": 268,
+      "aifa_wait": 353,
+      "aifa_state": 268,
+      "aifa_doc": 275,
+      "aifa_move": 1306,
+      "aifa_register_atom": 640,
+      "aifa_report": 406,
+      "aifa_finish": 401
+    },
+    "total_chars": 3917,
+    "target": 7000,
+    "limit": 8000
+  },
+  "tools": {
+    "aifa_goal": {
+      "description": "Выполнить цель пользователя стандартным путём службы: разобрать сообщение, посчитать показатели по отчёту и вернуть таблицу результатов. Аргументов нет.",
+      "schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "capability_class": "mutative"
+    },
+    "aifa_wait": {
+      "description": "Дождаться итога фонового задания службы (job_id из «ЖДИ job=…») или подзадачи (task_id).",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "string"
+          },
+          "task_id": {
+            "type": "string"
+          },
+          "wait_sec": {
+            "type": "integer",
+            "minimum": 10,
+            "maximum": 240
+          }
+        },
+        "required": [
+          "wait_sec"
+        ]
+      },
+      "capability_class": "read_only"
+    },
+    "aifa_state": {
+      "description": "Состояние цикла; с artifact_ids — полное содержимое этих артефактов Case.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "artifact_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20
+          }
+        }
+      },
+      "capability_class": "read_only"
+    },
+    "aifa_doc": {
+      "description": "Документы хода или распознанный текст документа по страницам либо поиском.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "doc_id": {
+            "type": "string"
+          },
+          "pages": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string"
+          }
+        }
+      },
+      "capability_class": "read_only"
+    },
+    "aifa_move": {
+      "description": "Один ход цикла: сценарии, части цели и шаги имеющихся атомов; атомы-загрузки в new_atoms.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "objective": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "plan": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string"
+                },
+                "parts": {
+                  "type": "integer"
+                },
+                "formulas": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            }
+          },
+          "goals": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scenarios": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "atom": {
+                  "type": "string"
+                },
+                "concept": {
+                  "type": "string"
+                },
+                "period_ref": {
+                  "type": "string"
+                },
+                "extra": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "atom"
+              ]
+            }
+          },
+          "new_atoms": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "purpose": {
+                  "type": "string"
+                },
+                "requires": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "input_type": {
+                        "type": "string"
+                      },
+                      "concept": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "input_type"
+                    ]
+                  }
+                },
+                "output_type": {
+                  "type": "string"
+                },
+                "output_schema": {
+                  "type": "object"
+                },
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          }
+        },
+        "required": [
+          "objective",
+          "reason"
+        ]
+      },
+      "capability_class": "mutative"
+    },
+    "aifa_register_atom": {
+      "description": "Зарегистрировать атом с кодом: проверка контракта, пробный прогон в разовой комнате, eph.<имя>@<версия>.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "requires": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "input_type": {
+                  "type": "string"
+                },
+                "concept": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "input_type"
+              ]
+            }
+          },
+          "output_type": {
+            "type": "string"
+          },
+          "output_schema": {
+            "type": "object"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "purpose",
+          "requires",
+          "output_type",
+          "output_schema",
+          "code"
+        ]
+      },
+      "capability_class": "mutative"
+    },
+    "aifa_report": {
+      "description": "Строка в ленте «Планировщик и автор» (ok/error) или итог подзадачи (done).",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "error",
+              "done"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "status"
+        ]
+      },
+      "capability_class": "mutative"
+    },
+    "aifa_finish": {
+      "description": "Закрыть цикл: finalize или give_up, опубликовать файлы; только корень.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "finalize",
+              "give_up"
+            ]
+          },
+          "deliverables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "capability_class": "mutative"
+    }
+  }
+}

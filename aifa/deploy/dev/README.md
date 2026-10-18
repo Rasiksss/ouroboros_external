@@ -44,9 +44,13 @@ cp infra.env.example .env          # compose читает его сам
 | `OUROBOROS_CREDENTIALS_ENCRYPTION_KEY` (ровно 64 байта base64, инвариант 8) | `openssl rand -base64 64 \| tr -d '\n'` |
 | пароли баз, ключи S3, `WORKSTATION_CREATE_SECRET` | `openssl rand -hex 24` |
 | `FINENGINE_AUTH_SECRET` | `python -c "import secrets; print(secrets.token_urlsafe(64))"` |
+| `AIFA_ENGINE_TOKEN` | `python -c "import secrets; print(secrets.token_urlsafe(48))"` |
 
 Один и тот же пароль стоит в `.env` и в адресе базы в `*.env` (и один и тот же ключ S3 — у
-контейнера `s3` и у обоих продуктов); секрет Workstation — в `.env` и в `ouroboros.env`.
+контейнера `s3` и у обоих продуктов); секрет Workstation — в `.env` и в `ouroboros.env`; `AIFA_ENGINE_TOKEN` —
+одно значение в `ouroboros.env` и `engine.env` (пустой секрет закрывает внутренний API службы целиком, ADR-0028).
+`OUROBOROS_USER_ENABLED_SKILL_IDS` в `ouroboros.env` на dev обновляется при выкатке шага 12: без допуска
+`aifa-planning` и `aifa-engine` корень не прочитает навык, а `aifa_goal` отвечает `TOOL_UNAVAILABLE` (ADR-0047).
 
 ## Проверка и сборка
 
