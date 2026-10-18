@@ -8,12 +8,14 @@ import asyncio
 from dataclasses import dataclass, field
 from typing import Any
 
+import pytest
 from fake_ouroboros import FakeOuroboros, assistant, echo, history_record
 from turn_harness import drain, gateway_of, request_of, shape
 from websockets.asyncio.server import ServerConnection
 from websockets.exceptions import ConnectionClosed
 
 from finengine.assistant.history import HistoryPage, HistoryRecord, find_final
+from finengine.assistant.ouro_client import TurnSocket
 
 LOST = "Связь с ассистентом прервалась, и ответ получить не удалось. Задайте вопрос ещё раз."
 TIMED_OUT = "Ассистент не ответил за отведённое время. Задайте вопрос ещё раз, при необходимости короче."
@@ -141,6 +143,41 @@ async def test_at_the_deadline_a_live_but_silent_ouroboros_gets_an_error_and_a_s
 
 
 async def test_at_the_deadline_an_answer_that_is_in_the_history_still_counts() -> None:
+    async with FakeOuroboros(beats_forever, history=[answered_history()]) as server:
+        events = await drain(gateway_of(server, deadline_sec=0.4, silence_sec=0.3), request_of())
+
+    assert shape(events) == ["text_delta", "text_segment_end", "done"]
+    assert events[0]["text"] == ANSWER
+
+
+_REAL_RECV = TurnSocket.recv
+# asyncio запускает таймер раньше срока на разрешение часов (на Windows 15,6 мс); здесь — всегда и с запасом.
+EARLY_TIMER_SEC = 0.03
+
+
+async def recv_with_an_early_timer(socket: TurnSocket, timeout: float) -> dict[str, Any]:
+    return await _REAL_RECV(socket, max(0.0, timeout - EARLY_TIMER_SEC))
+
+
+async def test_a_timer_that_fires_just_before_the_deadline_still_ends_the_turn_by_the_deadline(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """ADR-0021 п. 1 (ревью 08, Б1): ожидание крайнего срока — не обрыв: `error` и `/stop`, а не `session_lost`."""
+    monkeypatch.setattr(TurnSocket, "recv", recv_with_an_early_timer)
+    async with FakeOuroboros(beats_forever) as server:
+        events = await drain(gateway_of(server, deadline_sec=0.5, silence_sec=0.3), request_of())
+        await server.wait_received(2)
+
+    assert events == [{"type": "error", "message": TIMED_OUT}]
+    assert server.accepted == 1, "живое соединение не рвали ради переподключения"
+    assert server.received[1]["cmd"] == "/stop"
+
+
+async def test_a_timer_that_fires_just_before_the_deadline_still_looks_into_the_history(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """ADR-0021 п. 5 (ревью 08, Б1): на крайнем сроке ответ из истории засчитывается и при раннем таймере."""
+    monkeypatch.setattr(TurnSocket, "recv", recv_with_an_early_timer)
     async with FakeOuroboros(beats_forever, history=[answered_history()]) as server:
         events = await drain(gateway_of(server, deadline_sec=0.4, silence_sec=0.3), request_of())
 

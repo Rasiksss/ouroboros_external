@@ -181,9 +181,20 @@ class _Turn:
                 async for event in self._at_deadline():
                     yield event
                 return
+            wait = min(self._timings.silence_sec, left)
             try:
-                frame = await self._receive(min(self._timings.silence_sec, left))
-            except (TimeoutError, LinkLost):
+                frame = await self._receive(wait)
+            except TimeoutError:
+                # Ждали крайнего срока, а не тишины. По `loop.time()` этого не понять: таймер asyncio
+                # срабатывает раньше на разрешение часов (на Windows 15,6 мс), и срок «ещё не наступил».
+                if wait < self._timings.silence_sec or loop.time() >= self._deadline:
+                    async for event in self._at_deadline():
+                        yield event
+                    return
+                async for event in self._recover():
+                    yield event
+                continue
+            except LinkLost:
                 if loop.time() < self._deadline:
                     async for event in self._recover():
                         yield event
