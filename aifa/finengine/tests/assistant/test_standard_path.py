@@ -239,3 +239,20 @@ class SequenceModel:
     async def __call__(self, system: str, prompt: str) -> str:
         self.prompts.append(prompt)
         return json.dumps(self.replies[min(len(self.prompts), len(self.replies)) - 1], ensure_ascii=False)
+
+
+async def test_the_trace_of_the_turn_reaches_the_nodes_of_the_graph(monkeypatch: pytest.MonkeyPatch) -> None:
+    """ADR-0007: трасса хода доходит до контекста узла — оттуда её берёт комната станции (`X-Trace-Id`)."""
+    seen: list[str] = []
+    locate, read_value = _make_fake_locate_and_read_value_executors({"SALES_REVENUE": 1.0})
+
+    def reading(items: Any, ctx: Any) -> Any:
+        seen.append(ctx.inputs.extra.get("trace_id", ""))
+        return read_value(items, ctx)
+
+    set_intent(monkeypatch, REVENUE)
+    patched_build_registry(monkeypatch, locate, reading)
+
+    await StandardPath()(record_of(trace_id="trace-of-the-turn"), lambda event: None)
+
+    assert seen and set(seen) == {"trace-of-the-turn"}

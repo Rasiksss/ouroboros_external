@@ -3,7 +3,8 @@
 Комната — та же, где работают навыки станции: свой rootfs на сессию, ws-sandbox
 (Landlock + seccomp + cgroup), сокетов нет, окружение backend не проходит.
 Контракт HTTP-API — тот же, что у плагина гейтвея (deploy/workstation-ext/index.ts):
-создать сессию → exec → закрыть. Одна комната на один запуск.
+создать сессию → exec → закрыть. Одна комната на один запуск. Заголовки протокола Workstation контура
+ouroboros — ADR-0007, CONTRACTS.md §5.
 """
 from __future__ import annotations
 
@@ -22,6 +23,8 @@ _ENTRY = Path(__file__).with_name("_room_entry.py").read_text(encoding="utf-8")
 TIMEOUT_SECONDS = 60
 MAX_OUTPUT_CHARS = 1_000_000
 _HTTP_SLACK_SECONDS = 15       # сверх таймаута кода: создание комнаты и сеть до сервиса
+_PROTOCOL_VERSION = "1"        # X-Workstation-Protocol: тот же, что шлёт клиент ouroboros (ADR-0007)
+ROOM_PREFIX = "aifa-eph-"      # имя сессии: у ouroboros 24 знака дайджеста, пересечения исключены
 
 # Порт выхода (часть 16): всё, что код записал в `out/` рабочего каталога, клиент забирает по
 # `files:list` / `files:download` до закрытия комнаты. Формат файла не ограничен.
@@ -38,6 +41,25 @@ class RoomFile:
 
 
 @dataclass(frozen=True)
+class RoomSession:
+    """Одна комната: имя сессии и трасса хода — на каждом вызове станции."""
+
+    session_id: str
+    trace_id: str = ""
+
+    def headers(self, token: str | None = None) -> dict[str, str]:
+        """Заголовки вызова. Нет токена — это создание комнаты: тогда идёт и секрет создания, если он задан."""
+        headers = {"X-Workstation-Protocol": _PROTOCOL_VERSION, "X-Session-Id": self.session_id}
+        if self.trace_id:
+            headers["X-Trace-Id"] = self.trace_id
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        elif settings.workstation_create_secret:
+            headers["X-Session-Create-Secret"] = settings.workstation_create_secret
+        return headers
+
+
+@dataclass(frozen=True)
 class CodeRun:
     output: dict | None
     error: str | None          # хвост traceback / причина, ≤ 2000 символов
@@ -46,40 +68,40 @@ class CodeRun:
 
 
 def run_code(code: str, inputs: dict, *, timeout: int = TIMEOUT_SECONDS,
-             transport: httpx.BaseTransport | None = None, collect_files: bool = False) -> CodeRun:
+             transport: httpx.BaseTransport | None = None, collect_files: bool = False,
+             trace_id: str = "") -> CodeRun:
     if not settings.workstation_url:
         return CodeRun(None, "комната станции не настроена: FINENGINE_WORKSTATION_URL пуст",
                        station_fault=True)
-    session_id = f"eph-{uuid.uuid4().hex[:16]}"
+    room = RoomSession(f"{ROOM_PREFIX}{uuid.uuid4().hex[:16]}", trace_id)
     stdin = json.dumps({"code": code, "inputs": inputs}, ensure_ascii=False).encode()
     with httpx.Client(base_url=settings.workstation_url, timeout=timeout + _HTTP_SLACK_SECONDS,
                       transport=transport) as client:
         token = None
         try:
-            token = _open_room(client, session_id)
-            reply = _exec(client, session_id, token, stdin, timeout)
+            token = _open_room(client, room)
+            reply = _exec(client, room, token, stdin, timeout)
             run = _read_reply(reply, timeout)
             if collect_files and run.error is None:
-                run = _with_files(client, session_id, token, run)
+                run = _with_files(client, room, token, run)
             return run
         except (httpx.HTTPError, ValueError, KeyError) as exc:   # ValueError — тело не JSON; KeyError — нет token
             return CodeRun(None, f"станция не исполнила код: {exc}", station_fault=True)
         finally:
             if token:                                            # нет токена — нет и комнаты
-                _close_room(client, session_id, token)
+                _close_room(client, room, token)
 
 
-def _open_room(client: httpx.Client, session_id: str) -> str:
-    response = client.post("/v1/sessions", json={"idleTimeoutSec": 300},
-                           headers={"X-Session-Id": session_id})
+def _open_room(client: httpx.Client, room: RoomSession) -> str:
+    response = client.post("/v1/sessions", json={"idleTimeoutSec": 300}, headers=room.headers())
     response.raise_for_status()
     return response.json()["token"]
 
 
-def _exec(client: httpx.Client, session_id: str, token: str, stdin: bytes, timeout: int) -> dict:
+def _exec(client: httpx.Client, room: RoomSession, token: str, stdin: bytes, timeout: int) -> dict:
     response = client.post(
-        f"/v1/sessions/{session_id}/exec",
-        headers={"Authorization": f"Bearer {token}", "X-Session-Id": session_id},
+        f"/v1/sessions/{room.session_id}/exec",
+        headers=room.headers(token),
         json={"command": ["python3", "-I", "-c", _ENTRY], "cwd": "/workspace", "env": {},
               "timeoutSec": timeout, "stdin": base64.b64encode(stdin).decode(),
               "stdinEncoding": "base64"},
@@ -88,10 +110,10 @@ def _exec(client: httpx.Client, session_id: str, token: str, stdin: bytes, timeo
     return response.json()
 
 
-def _with_files(client: httpx.Client, session_id: str, token: str, run: CodeRun) -> CodeRun:
+def _with_files(client: httpx.Client, room: RoomSession, token: str, run: CodeRun) -> CodeRun:
     """Файлы из `out/`. Нарушение пределов — ошибка кода атома (автору её чинить), сбой станции — исключение."""
-    headers = {"Authorization": f"Bearer {token}", "X-Session-Id": session_id}
-    listing = client.post(f"/v1/sessions/{session_id}/files:list", headers=headers,
+    headers = room.headers(token)
+    listing = client.post(f"/v1/sessions/{room.session_id}/files:list", headers=headers,
                           json={"path": OUT_DIR, "recursive": True, "maxDepth": 2, "includeSha256": True})
     if listing.status_code == 404:        # каталога нет: код файлов не писал
         return run
@@ -105,7 +127,7 @@ def _with_files(client: httpx.Client, session_id: str, token: str, run: CodeRun)
     files = []
     for node in nodes:
         name = str(node["name"])
-        response = client.post(f"/v1/sessions/{session_id}/files:download", headers=headers,
+        response = client.post(f"/v1/sessions/{room.session_id}/files:download", headers=headers,
                                json={"path": f"{OUT_DIR}/{name}"})
         response.raise_for_status()
         content = response.content
@@ -140,10 +162,9 @@ def _limits_problem(nodes: list[dict]) -> str | None:
     return None
 
 
-def _close_room(client: httpx.Client, session_id: str, token: str) -> None:
+def _close_room(client: httpx.Client, room: RoomSession, token: str) -> None:
     try:   # без Bearer станция отвечает 401 и комната живёт до idleTimeoutSec
-        client.post(f"/v1/sessions/{session_id}:terminate",
-                    headers={"Authorization": f"Bearer {token}", "X-Session-Id": session_id})
+        client.post(f"/v1/sessions/{room.session_id}:terminate", headers=room.headers(token))
     except httpx.HTTPError:
         pass  # best-effort: незакрытая комната истечёт по idleTimeoutSec
 

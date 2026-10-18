@@ -1529,7 +1529,7 @@ def _start_ouroboros_turn(request: QueryRequest, user: User, doc_ids: list[str],
     cell: dict[str, str] = {}
     turn = OuroTurn(
         gateway=composition.turn_gateway(), run=cell, owner_id=str(user.id), chat_id=chat_id,
-        session_id=session_id, trace_id=str(uuid.uuid4()), message=request.message, user_id=user.id,
+        session_id=session_id, trace_id=trace_id, message=request.message, user_id=user.id,
         username=user.username, project_id=request.project_id or "", doc_ids=request.doc_ids or [],
     )
     # Сервер — источник истины списка чатов: ход регистрирует чат ДО запуска, с сессией, которую получит экран.
@@ -1541,9 +1541,10 @@ def _start_ouroboros_turn(request: QueryRequest, user: User, doc_ids: list[str],
     # Исходное сообщение и документы хода — для инструментов ouroboros (CONTRACTS.md §3.0): цель
     # `aifa_goal` берётся отсюда, а не из аргументов модели. Запись общая для реплик.
     remember(TurnRecord(
+    trace_id = str(uuid.uuid4())
         run_id=run_id, owner_id=str(user.id), chat_id=chat_id, message=request.message, user_id=user.id,
         case_id=request.project_id or session_id, doc_ids=tuple(doc_ids), active_doc_id=active_doc_id,
-        role=request.role or "",
+        role=request.role or "", trace_id=trace_id,
     ))
     # start_run только планирует таск — до первого await управление у нас, раннер прочтёт `run_id` заполненным.
     cell["run_id"] = run_id

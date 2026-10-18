@@ -4,6 +4,7 @@ from __future__ import annotations
 import base64
 import json
 import os
+import re
 from dataclasses import dataclass, field
 
 import httpx
@@ -129,7 +130,7 @@ def test_one_room_per_run_with_same_id_in_all_its_calls() -> None:
     ids_second = {r.headers["X-Session-Id"] for r in second.requests}
     assert len(ids_first) == 1 and len(ids_second) == 1
     assert ids_first != ids_second
-    assert all(i.startswith("eph-") for i in ids_first | ids_second)
+    assert all(re.fullmatch(r"aifa-eph-[0-9a-f]{16}", i) for i in ids_first | ids_second)  # C5.1, ADR-0007
     exec_path = first.requests[1].url.path
     assert exec_path == f"/v1/sessions/{next(iter(ids_first))}/exec"
     assert first.requests[2].url.path == f"/v1/sessions/{next(iter(ids_first))}:terminate"
@@ -299,3 +300,59 @@ def test_code_failures_are_not_station_fault() -> None:
 
 def test_successful_run_is_not_station_fault() -> None:
     assert _run(Station()).station_fault is False
+
+
+def test_every_call_names_the_protocol_version() -> None:
+    """C5.1 (ADR-0007): `X-Workstation-Protocol: 1` на создании, исполнении, файлах и закрытии комнаты."""
+    station = Station()
+
+    _run(station, collect_files=True)
+
+    assert station.steps()[0] == "create" and station.steps()[-1] == "terminate"
+    assert {r.headers["X-Workstation-Protocol"] for r in station.requests} == {"1"}
+
+
+def test_the_create_secret_goes_with_the_creation_only(monkeypatch: pytest.MonkeyPatch) -> None:
+    """C5.1: секрет создания сессии — только в создании комнаты и только если задан."""
+    monkeypatch.setattr(settings, "workstation_create_secret", "room-secret")
+    station = Station()
+
+    _run(station, collect_files=True)
+
+    create, *others = station.requests
+    assert create.headers["X-Session-Create-Secret"] == "room-secret"
+    assert all("X-Session-Create-Secret" not in r.headers for r in others)
+
+
+def test_without_a_create_secret_the_header_is_absent() -> None:
+    station = Station()
+
+    _run(station)
+
+    assert all("X-Session-Create-Secret" not in r.headers for r in station.requests)
+
+
+def test_the_trace_of_the_turn_goes_with_every_call() -> None:
+    """C5.1: `X-Trace-Id` хода — на каждом вызове; нет трассы — нет заголовка (не пустое значение)."""
+    traced, untraced = Station(), Station()
+
+    _run(traced, collect_files=True, trace_id="9c1e7a52-0d3b-4e8a-9a41-6f2b7d3c5e10")
+    _run(untraced)
+
+    assert {r.headers["X-Trace-Id"] for r in traced.requests} == {"9c1e7a52-0d3b-4e8a-9a41-6f2b7d3c5e10"}
+    assert all("X-Trace-Id" not in r.headers for r in untraced.requests)
+
+
+@requires_room
+def test_live_room_has_the_packages_and_no_service_environment(live_station) -> None:
+    """C5.2: пакеты комнаты импортируются, переменных окружения службы нет."""
+    code = (
+        "import os\n"
+        "def run(inputs):\n"
+        "    import numpy, pandas, openpyxl, pptx, docx\n"
+        "    return {'env': sorted(k for k in os.environ if k.startswith('FINENGINE')), 'ok': True}\n"
+    )
+
+    result = run_code(code, {})
+
+    assert result == CodeRun({"env": [], "ok": True}, None)

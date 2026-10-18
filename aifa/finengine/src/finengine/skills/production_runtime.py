@@ -60,6 +60,7 @@ class ProductionContext:
     case_id: str
     document_id: str
     document_version: str
+    trace_id: str = ""  # трасса хода ouroboros: уходит в комнату станции заголовком (ADR-0007)
 
 
 @dataclass(frozen=True)
@@ -110,6 +111,7 @@ def prepare_production_context(
     store: SqlCaseStore | None = None,
     registry_options: Mapping[str, object] | None = None,
     budget: ExecutionBudget | None = None,
+    trace_id: str = "",
 ) -> ProductionContext:
     """Freeze passport/registry and construct the sole production runtime.
 
@@ -167,6 +169,7 @@ def prepare_production_context(
         case_id=case_id,
         document_id=document_id,
         document_version=document_version,
+        trace_id=trace_id,
     )
 
 
@@ -746,7 +749,10 @@ def _run_inputs(
     к владельцу `system`, и пользователь скачать их не может. Проект чата — это `case_id`."""
     return RunInputs(
         document_text=document_text, role=role,
-        extra={**dict(extra or {}), "owner_id": str(context.owner_id), "project_id": context.case_id},
+        extra={
+            **dict(extra or {}), "owner_id": str(context.owner_id), "project_id": context.case_id,
+            **({"trace_id": context.trace_id} if context.trace_id else {}),
+        },
     )
 
 
@@ -897,6 +903,7 @@ def execute_routed_goal(
     diagnostics: dict | None = None,
     allow_dynamic: bool = True,
     is_cancelled: Callable[[], bool] | None = None,
+    trace_id: str = "",
 ) -> EvidenceGateOutcome | None:
     """Синхронный вход канонического конвейера для цели, выбранной моделью-
     маршрутизатором. Вызывать ТОЛЬКО через `stream_blocking`/`asyncio.to_thread`,
@@ -991,7 +998,7 @@ def execute_routed_goal(
     context = prepare_production_context(
         owner_id=owner_id, case_id=case_id, document_id=document_id, document_text=document_text,
         goal_ir=goal, methodology_version=methodology_version, store=store,
-        budget=budget,
+        budget=budget, trace_id=trace_id,
     )
     if deterministic and goal.intent_kind in _ANALYSIS_KINDS:
         # Профиль зафиксирован только теперь — пересобрать методический блок
