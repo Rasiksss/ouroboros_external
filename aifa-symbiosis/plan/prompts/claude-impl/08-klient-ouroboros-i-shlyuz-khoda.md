@@ -6,7 +6,7 @@
 
 ## Прочитай до работы
 1. `aifa/CLAUDE.md`; `aifa-symbiosis/plan/PRINCIPLES.md`.
-2. `aifa-symbiosis/plan/PROGRESS.md` — записи 05–07, §4 (P1).
+2. `aifa-symbiosis/plan/PROGRESS.md` — записи 05, 07, §4 (P1).
 3. ADR-0011, ADR-0014, ADR-0015, ADR-0021, ADR-0024 (п. 1), ADR-0028, ADR-0040, ADR-0041 (п. 3), ADR-0043 (п. 3), ADR-0044 (п. 9).
 4. `CONTRACTS.md` §2 целиком (C2.1–C2.8); `FITNESS.md` F6, F12 (а).
 5. `ARCHITECTURE.md` §4.3 (компоненты `turn_gateway`, `ouro_client`), §5 (последовательность).

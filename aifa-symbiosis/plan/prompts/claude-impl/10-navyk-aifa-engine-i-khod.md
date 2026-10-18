@@ -62,9 +62,6 @@ ouroboros через `turn_gateway`.
 - Сквозной тест: `POST /chat/turns` → ouroboros (настоящий, подставная модель) → `aifa_goal` →
   конвейер службы на фикстурном документе → финальный ответ → SSE: `start` … `tool_call`,
   `plan_graph`/`node_run`/`typed_result` …, `tool_output`, `text_delta`, `text_segment_end`, `done`.
-- Сравнение этого потока с опорной записью ближайшего сценария S0–S5 (нормализатор шага 05)
-  показывает только разрешённые различия — или различия записаны в отчёт с объяснением (полное
-  сравнение — шаг 12).
 - F4, F7, F12 (б), F9 зелёные; набор ouroboros `uv run pytest skills -m "not integration and not browser"` зелёный.
 
 ## Границы

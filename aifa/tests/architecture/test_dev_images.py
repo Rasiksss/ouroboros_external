@@ -19,7 +19,7 @@ CORPORATE = ("nexus", "genai.int", "sbrf.ru", "sberosc")
 MIN_WHITELISTED_TOOLS = 15  # AIFA держит у себя 18: меньше 15 — читаем не тот файл
 # Код службы ищет deploy/ рядом с src/ (llm/tools.py, net/ru_gov_tls.py): и в чекауте, и в образе.
 ENGINE_DEPLOY = REPO_ROOT / "aifa" / "finengine" / "deploy"
-# ADR-0007: пакеты комнаты; без версии вычисления атомов расходятся с опорной записью (F5, P30).
+# ADR-0007: пакеты комнаты; без версии вычисления атомов расходятся с комнатой старого dev (P30).
 ROOM_PACKAGES = ("numpy", "pandas", "openpyxl", "python-pptx", "python-docx")
 
 

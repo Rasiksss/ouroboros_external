@@ -22,8 +22,7 @@ ouroboros (инварианты, правила `.rules/`).
 корня → `skill_read aifa-planning` → вызов `aifa-engine.aifa_goal` → `plugin.py` (контекст, `run_id`
 из `transport`, заголовки) → `tool_api` → конвейер → события (`tool_call`, `plan_graph` …,
 `tool_output`) → `ouro_view` → модель → финал → `text_delta`/`text_segment_end`/`done` → SSE.
-Подними профиль `contract` и прогони сквозной тест сам; сравни поток с опорной записью ближайшего
-сценария нормализатором.
+Подними профиль `contract` и прогони сквозной тест сам.
 
 ## Горизонтальное ревью
 - `plugin.py`: только перенос; импорты — стандартная библиотека, `httpx`, `aef_tracing` (F2);
