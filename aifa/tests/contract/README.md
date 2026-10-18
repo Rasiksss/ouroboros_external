@@ -8,6 +8,11 @@ ouroboros (`CONTRACTS.md` §2): живой ouroboros, модель подста�
 подмены конвейера — `pipeline_fixture.py`), ouroboros-контейнер ходит к ней на хост через
 `host.docker.internal`. На Linux-хосте служба должна слушать адрес моста: `AIFA_CONTRACT_ENGINE_BIND=0.0.0.0`.
 
+Шаг 11: `test_catalog_files.py` — C6.1–C6.4 настоящим `CatalogFiles` службы на каталоге ouroboros;
+`test_files_end_to_end.py` — загрузка документа через ручку службы → каталог → распознавание → ход с этим
+документом → файл-результат (атом `out.file`) в каталоге → выдача через ручку → история чата → удаление.
+Служба в нём с настоящим реестром документов (временный SQLite): `pipeline_fixture.install(real_documents=True)`.
+
 Сейчас: `test_turn_contract.py` — C2.1–C2.8 настоящим `ouro_client` и `turn_gateway` службы
 (C2.3–C2.4 закрывают P1); `test_turn_to_journal.py` — сквозной ход `turn_gateway` → ouroboros →
 журнал `run_orchestrator`; `test_smoke.py` — ход «привет»; `test_tool_round.py` — ход с вызовом

@@ -52,6 +52,9 @@ class Settings(BaseSettings):
     # FINENGINE_ (`FINENGINE_OUROBOROS_URL` и т. д.).
     ouroboros_url: str = "http://ouroboros:8080"
     ouroboros_connect_timeout_sec: float = 10.0
+    # Загрузка и чтение файла каталога (CONTRACTS.md §6): дольше обычного запроса — до 50 МБ и проверка
+    # содержимого на стороне ouroboros.
+    ouroboros_file_timeout_sec: float = 120.0
     # Копия OUROBOROS_HARD_TIMEOUT_SEC и OUROBOROS_MAX_INBOUND_MESSAGE_CHARS из окружения ouroboros
     # (служба его окружения не читает): держать равными. Крайний срок хода — первое плюс 60 с (ADR-0021).
     ouroboros_hard_timeout_sec: float = 2700.0

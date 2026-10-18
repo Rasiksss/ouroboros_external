@@ -12,8 +12,13 @@ from finengine.config import settings
 
 
 @cache
+def ouro_client() -> OuroClient:
+    return OuroClient.from_settings(settings)
+
+
+@cache
 def turn_gateway() -> TurnGateway:
-    return TurnGateway(OuroClient.from_settings(settings), TurnTimings.from_settings(settings))
+    return TurnGateway(ouro_client(), TurnTimings.from_settings(settings))
 
 
 @cache

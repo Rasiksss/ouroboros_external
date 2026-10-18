@@ -40,8 +40,8 @@ LFS_POINTER = (
 
 
 @pytest.fixture()
-def client(tmp_path, monkeypatch):
-    """Настоящее приложение; файлы уезжают в tmp_path, разбор отложен."""
+def client(tmp_path, monkeypatch, catalog):
+    """Настоящее приложение; оригинал уезжает в подставной каталог ouroboros, разбор отложен."""
     monkeypatch.setattr(m.settings, "docs_dir", tmp_path)
     m.app.dependency_overrides[get_current_user] = lambda: User(
         id=1, username="t", is_admin=True)
@@ -97,7 +97,7 @@ def test_unknown_document_type_is_refused_before_the_file_is_saved(client, tmp_p
     assert not list(tmp_path.glob("*.pdf")), "невалидная мета не должна оставлять файл"
 
 
-def test_real_pdf_passes(client, tmp_path):
+def test_real_pdf_passes(client, tmp_path, catalog):
     """Отрицательный контроль: ворота, отбивающие всё, — это не ворота.
 
     🔴 ПРОВЕРКА ПЕРЕЕХАЛА ВМЕСТЕ С ФАЙЛОМ (25.08.2026). Здесь стояло
@@ -108,17 +108,16 @@ def test_real_pdf_passes(client, tmp_path):
     сразу уезжает объектом.
 
     Смысл теста прежний — «принятый файл где-то ЕСТЬ», — сменилось только где.
+
+    Шаг 11 (ADR-0012): теперь «где-то» — каталог файлов ouroboros; на диске службы его нет и временно.
     """
     got = _upload(client, "ok.pdf", MIN_PDF)
     assert got.status_code == 200, got.text[:300]
     doc_id = got.json()["doc_id"]
     assert doc_id
 
-    from finengine.store.blobs import document_key, get_blob_store
-    хранилище = get_blob_store()
-    ключ = document_key(doc_id, "ok.pdf")
-    assert хранилище.exists(ключ), "принятый PDF не попал в объектное хранилище"
-    assert хранилище.get(ключ) == MIN_PDF, "содержимое объекта не совпало с загруженным"
+    (blob,) = catalog.files.values()
+    assert blob.content == MIN_PDF, "содержимое файла в каталоге не совпало с загруженным"
+    assert blob.owner == "1" and blob.name == "ok.pdf"
     assert not list(tmp_path.glob("*ok.pdf")), (
-        "PDF остался лежать на диске — временный файл ворот не убран, и правило "
-        "«никогда на диск» держится только на словах")
+        "PDF остался лежать на диске — оригинал живёт только в каталоге, а ворота читают байты из памяти")

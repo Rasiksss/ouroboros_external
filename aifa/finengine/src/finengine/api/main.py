@@ -7,7 +7,6 @@ import logging
 import os
 import re
 import secrets
-import shutil
 import threading
 import time
 import uuid
@@ -18,7 +17,7 @@ from contextlib import ExitStack
 from starlette.background import BackgroundTask
 from fastapi import BackgroundTasks, Body, Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, Response, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 
 # App-INFO наружу: у root-логгера нет хендлера (uvicorn настраивает только свои),
@@ -29,6 +28,8 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
 )
 
+from finengine.assistant.ouro_client import OuroUnavailable  # noqa: E402
+from finengine.assistant.ouro_files import FileRefused, catalog, legacy_office_refusal  # noqa: E402
 from finengine.auth.bootstrap import bootstrap_admin  # noqa: E402
 from finengine.auth.db import User  # noqa: E402
 from finengine.auth.dependencies import get_current_user  # noqa: E402
@@ -85,6 +86,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(OuroUnavailable)
+async def _ouroboros_unavailable(_request: Request, failure: OuroUnavailable) -> JSONResponse:
+    """Каталог файлов или история ouroboros не отвечают: пользователю — «повторите», причина — в журнал службы."""
+    logging.getLogger(__name__).warning("ouroboros недоступен: %s", failure)
+    return JSONResponse(
+        status_code=503,
+        content={"detail": "Хранилище файлов и история чата временно недоступны. Повторите через несколько минут."},
+    )
 
 # 🔴 РЕЕСТР БЕРЁТСЯ ВЫЗОВОМ, А НЕ МОДУЛЬНОЙ ПЕРЕМЕННОЙ (26.08.2026).
 # Здесь стояло `index = get_store()` — имя от эпохи FAISS и обращение к базе
@@ -492,6 +503,7 @@ def _parse_doc_in_background(
       "idp"     — IDP-OCR cloud (per-page PNG, strong tables, ~15× slower)
     """
     from finengine.store.blobs import document_file  # noqa: PLC0415
+    from finengine.store.originals import document_original  # noqa: PLC0415
 
     # ⚠️ ExitStack, А НЕ `with` ВОКРУГ ТЕЛА, И ЭТО НЕ ЛЕНЬ. Обёртка `with`
     # потребовала бы переотступить сотню строк разбора — правку, в которой
@@ -503,7 +515,9 @@ def _parse_doc_in_background(
         meta = get_store().get_document(doc_id)
         if not meta:
             return
-        file_path = стек.enter_context(document_file(file_ref))
+        # Оригинал загруженного документа — в каталоге ouroboros (ADR-0012); `file_ref` нужен документу без него.
+        opened = document_original(meta) if meta.catalog_file_id else document_file(file_ref)
+        file_path = стек.enter_context(opened)
         if filename.lower().endswith(".pdf"):
             if ocr_engine == "idp":
                 # IDP path: every page → PNG → OCR cloud → markdown.
@@ -623,6 +637,10 @@ async def upload_document(
     show the document and PDF viewer immediately. /extract/stream waits for
     the .txt to appear and otherwise emits a "still processing" error.
     """
+    # ADR-0026: XLS и DOC служба отклоняет сама, до всякого обращения к каталогу файлов.
+    refusal = legacy_office_refusal(file.filename or "")
+    if refusal is not None:
+        raise HTTPException(status_code=400, detail=refusal.text)
     try:
         parsed_doc_type = DocType(doc_type) if doc_type else DocType.OTHER
         parsed_company_type = CompanyType(company_type) if company_type else CompanyType.UNKNOWN
@@ -635,27 +653,19 @@ async def upload_document(
             detail=f"Недопустимый {field}; допустимые значения: {allowed}",
         ) from exc
 
+    from finengine.skills.sources import MAX_BYTES  # noqa: PLC0415
+
     doc_id = str(uuid.uuid4())
     filename = file.filename or "document.pdf"
-    # Имя НА ДИСКЕ капим по БАЙТАМ utf-8: кириллица = 2 байта/символ, длинные
-    # названия банковских отчётов пробивают лимит ФС в 255 байт → OSError 36 →
-    # 500 (реальный инцидент: «Промежуточная бухгалтерская … 15.05.2025г..pdf»).
-    # Оригинальное имя целиком остаётся в DocumentMeta.filename (для UI/Excel).
-    _stem, _dot, _ext = filename.rpartition(".")
-    _stem = _stem or filename
-    _suffix = f".{_ext}" if _dot else ""
-    _budget = 200 - len(doc_id) - 1 - len(_suffix.encode("utf-8"))
-    _stem_b = _stem.encode("utf-8")[:max(_budget, 8)]
-    _safe_stem = _stem_b.decode("utf-8", errors="ignore")
-    file_path = settings.docs_dir / f"{doc_id}_{_safe_stem}{_suffix}"
-
-    # Save file synchronously — small enough that this is fast.
-    with open(file_path, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+    # Файл читается в память целиком, но не больше предела: ворота ниже смотрят первые байты, каталог
+    # принимает байты (CONTRACTS.md §6), на диск службы оригинал не ложится.
+    content = file.file.read(MAX_BYTES + 1)
+    if len(content) > MAX_BYTES:
+        raise HTTPException(status_code=400, detail=f"«{filename}»: файл слишком большой. Загрузите файл меньшего размера.")
     # Срез 10: имя файла не является версией документа. Content hash
-    # фиксируется до object-store move и используется Case для точечной
+    # фиксируется до приёма в каталог и используется Case для точечной
     # invalidation/reuse между сообщениями и service instances.
-    _sha256 = hashlib.sha256(file_path.read_bytes()).hexdigest()
+    _sha256 = hashlib.sha256(content).hexdigest()
 
     # ВОРОТА НА ВХОДЕ. Битый файл надо отбивать здесь, а не через пять минут в
     # OCR. Реальный случай (01.08.2026): пользователь загрузил указатель Git LFS
@@ -664,36 +674,24 @@ async def upload_document(
     # распознавания до таймаута и сказал «PDF не удалось обработать за 5 минут —
     # попробуйте загрузить ещё раз», отправив человека грузить тот же мусор по
     # кругу. Проверка стоит миллисекунды и снимает целый класс таких тупиков.
-    if file_path.suffix.lower() == ".pdf":
-        _size = file_path.stat().st_size
-        with open(file_path, "rb") as _fh:
-            _head = _fh.read(1024)
+    if Path(filename).suffix.lower() == ".pdf":
+        _head = content[:1024]
         _why = ""
         if _head.startswith(b"version https://git-lfs.github.com/"):
             _why = ("это указатель Git LFS, а не сам файл — в репозитории нужно "
                     "выполнить `git lfs pull`, либо загрузите настоящий PDF")
         elif not _head.lstrip()[:5].startswith(b"%PDF-"):
             _why = "файл не начинается с сигнатуры %PDF- — это не PDF"
-        elif _size < 1024:
-            _why = f"файл подозрительно мал ({_size} байт) — похоже, выгрузился не целиком"
+        elif len(content) < 1024:
+            _why = f"файл подозрительно мал ({len(content)} байт) — похоже, выгрузился не целиком"
         if _why:
-            file_path.unlink(missing_ok=True)
             raise HTTPException(status_code=400, detail=f"«{filename}»: {_why}")
 
-    # Lightweight metadata, register before background parse — UI sees the doc.
-    # ОБЪЕКТ УЕЗЖАЕТ В ХРАНИЛИЩЕ, А ЗАПИСЬ ДЕРЖИТ КЛЮЧ (architecture.md 3.1:
-    # «загрузки — в объектное хранилище… никогда на диск»). Файл на диске выше
-    # нужен был только воротам: чтобы отбить указатель LFS и не-PDF, надо
-    # прочитать первые байты. Дальше он лишний.
-    from finengine.store.blobs import document_key, get_blob_store  # noqa: PLC0415
-
-    _хранилище = get_blob_store()
-    if hasattr(_хранилище, "ensure_bucket"):
-        _хранилище.ensure_bucket()
-    _ключ = document_key(doc_id, filename)
-    with open(file_path, "rb") as _src:
-        _хранилище.put(_ключ, _src)
-    file_path.unlink(missing_ok=True)
+    # Оригинал — в каталог ouroboros (ADR-0012): документ запоминает пару «doc_id ↔ файл каталога» и sha256.
+    # Каталог не ответил — документ не регистрируется (обработчик OuroUnavailable отвечает 503).
+    stored = await asyncio.to_thread(catalog().upload, str(user.id), filename, content)
+    if isinstance(stored, FileRefused):
+        raise HTTPException(status_code=400, detail=stored.text)
 
     meta = DocumentMeta(
         doc_id=doc_id,
@@ -702,9 +700,9 @@ async def upload_document(
         company_name=company_name,
         company_type=parsed_company_type,
         period=period,
-        file_path=_ключ,
         owner_id=user.id,
-        sha256=_sha256,
+        sha256=stored.sha256,
+        catalog_file_id=stored.file_id,
     )
     get_store().add_document(meta, [])
 
@@ -719,7 +717,7 @@ async def upload_document(
     # отложен клиентом.
     deferred = defer_parse.strip().lower() in ("1", "true", "yes")
     if not deferred:
-        background.add_task(_parse_doc_in_background, _ключ, doc_id, filename, ocr_choice)
+        background.add_task(_parse_doc_in_background, meta.file_path, doc_id, filename, ocr_choice)
 
     return {
         "doc_id": doc_id,
@@ -1309,13 +1307,26 @@ def list_documents(user: User = Depends(get_current_user)):
 
 
 @app.get("/documents/{doc_id}/file")
-def get_document_file(doc_id: str, user: User = Depends(get_current_user)):
+async def get_document_file(doc_id: str, user: User = Depends(get_current_user)):
     """Serve the original PDF file."""
     doc = get_store().get_document(doc_id)
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found in index")
     if not _user_can_see(doc, user):
         raise HTTPException(status_code=404, detail="Document not found in index")
+    if doc.catalog_file_id:
+        from finengine.store.originals import original_stream  # noqa: PLC0415
+
+        stream = await asyncio.to_thread(original_stream, doc)
+        if stream is None:
+            raise HTTPException(status_code=404, detail="File not found in the file catalog")
+        # Поток из каталога (ADR-0012): служба байты не копит, закрывает поток после отдачи ответа.
+        return StreamingResponse(
+            stream.chunks(),
+            media_type=stream.media_type,
+            headers={"Content-Disposition": _inline_disposition(doc.filename)},
+            background=BackgroundTask(stream.close),
+        )
     if not doc.file_path:
         raise HTTPException(status_code=404, detail="File path not recorded (document indexed without file)")
     # Файл лежит в объектном хранилище (после переезда) ИЛИ на томе (до него).
@@ -1386,8 +1397,11 @@ def delete_document(doc_id: str, user: User = Depends(get_current_user)):
     if not _user_can_see(doc, user):
         raise HTTPException(status_code=404, detail="Document not found")
 
-    # Delete file — объект в хранилище ИЛИ файл на томе, смотря откуда он.
-    if doc.file_path:
+    # Delete file — файл в каталоге ouroboros, объект в хранилище ИЛИ файл на томе, смотря откуда он.
+    # Каталог первым: он не ответил — документ остаётся и удаление можно повторить (обработчик OuroUnavailable).
+    if doc.catalog_file_id:
+        catalog().delete(str(doc.owner_id), doc.catalog_file_id)
+    elif doc.file_path:
         from finengine.store.blobs import get_blob_store  # noqa: PLC0415
 
         ключ = doc.file_path.lstrip("/")
@@ -1527,6 +1541,7 @@ def _start_ouroboros_turn(request: QueryRequest, user: User, doc_ids: list[str],
     session_id = request.session_id or str(uuid.uuid4())
     chat_id = chat_of(request.project_id, session_id)
     cell: dict[str, str] = {}
+    trace_id = str(uuid.uuid4())
     turn = OuroTurn(
         gateway=composition.turn_gateway(), run=cell, owner_id=str(user.id), chat_id=chat_id,
         session_id=session_id, trace_id=trace_id, message=request.message, user_id=user.id,
@@ -1541,7 +1556,6 @@ def _start_ouroboros_turn(request: QueryRequest, user: User, doc_ids: list[str],
     # Исходное сообщение и документы хода — для инструментов ouroboros (CONTRACTS.md §3.0): цель
     # `aifa_goal` берётся отсюда, а не из аргументов модели. Запись общая для реплик.
     remember(TurnRecord(
-    trace_id = str(uuid.uuid4())
         run_id=run_id, owner_id=str(user.id), chat_id=chat_id, message=request.message, user_id=user.id,
         case_id=request.project_id or session_id, doc_ids=tuple(doc_ids), active_doc_id=active_doc_id,
         role=request.role or "", trace_id=trace_id,
@@ -2536,33 +2550,37 @@ def get_source_meta_endpoint(
     return meta.to_dict()
 
 
+def _inline_disposition(filename: str) -> str:
+    """Имя файла в заголовок — ТОЛЬКО через RFC 5987. Заголовки кодируются в
+    latin-1, и кириллическое имя («метрики_Совкомбанк.xlsx») роняло ручку с
+    500: браузер сохранял тело ошибки под именем .xlsx, а Excel ругался на
+    «недопустимый формат» — при том что файл на диске был цел."""
+    from urllib.parse import quote
+    ascii_fname = re.sub(r"[^\x20-\x7e]+", "_", filename) or "file"
+    return f'inline; filename="{ascii_fname}"; ' + f"filename*=UTF-8''{quote(filename)}"
+
+
 @app.get("/projects/{project_id}/sources/{file_id}/file")
-def download_source(
+async def download_source(
     project_id: str,
     file_id: str,
     user: User = Depends(get_current_user),
 ):
     """Return original file bytes — used by the workspace pane to
-    preview PDFs / Excels in the browser."""
+    preview PDFs / Excels in the browser. Поток из каталога ouroboros."""
     from finengine.skills import sources as _sources
 
-    result = _sources.read_source_bytes(user_id=user.id, project_id=project_id, file_id=file_id)
-    if not result:
-        raise HTTPException(status_code=404, detail="source not found")
-    content, meta = result
-    # Имя файла в заголовок — ТОЛЬКО через RFC 5987. Заголовки кодируются в
-    # latin-1, и кириллическое имя («метрики_Совкомбанк.xlsx») роняло ручку с
-    # 500: браузер сохранял тело ошибки под именем .xlsx, а Excel ругался на
-    # «недопустимый формат» — при том что файл на диске был цел.
-    from urllib.parse import quote
-    ascii_fname = re.sub(r"[^\x20-\x7e]+", "_", meta.filename) or "file"
-    disposition = (
-        f'inline; filename="{ascii_fname}"; ' + f"filename*=UTF-8''{quote(meta.filename)}"
+    opened = await asyncio.to_thread(
+        _sources.open_source, user_id=user.id, project_id=project_id, file_id=file_id
     )
-    return Response(
-        content=content,
+    if not opened:
+        raise HTTPException(status_code=404, detail="source not found")
+    stream, meta = opened
+    return StreamingResponse(
+        stream.chunks(),
         media_type=meta.content_type,
-        headers={"Content-Disposition": disposition},
+        headers={"Content-Disposition": _inline_disposition(meta.filename)},
+        background=BackgroundTask(stream.close),
     )
 
 
@@ -2688,35 +2706,33 @@ def log_client_event(ev: ClientEvent, user: User = Depends(get_current_user)) ->
     return {"ok": True}
 
 
+def _chat_of_session(user_id: int, session_id: str) -> str:
+    """Чат ouroboros для сессии экрана: проект, у которого она записана; хода без проекта чат — сама сессия."""
+    for project in get_dialog_store().load(user_id).get("projects") or []:
+        if isinstance(project, dict) and project.get("session_id") == session_id and project.get("id"):
+            return str(project["id"])
+    return session_id
+
+
 @app.get("/chat/history/{session_id}")
-def get_chat_history(session_id: str, user: User = Depends(get_current_user)) -> dict:
-    """История серверной сессии чата — страховочная копия переписки.
+async def get_chat_history(session_id: str, user: User = Depends(get_current_user)) -> dict:
+    """История чата — сообщения ходов из ouroboros в прежнем формате `{role, content}` (ADR-0011, C1.3).
 
-    Клиентская лента живёт в localStorage и может быть повреждена (гонки
-    писателей, потерянная вкладка). Серверная сессия пишется агентом на каждом
-    ходе и переживает всё это — по ней фронт восстанавливает пропавший тред.
+    Клиентская лента живёт в localStorage и может быть повреждена (гонки писателей, потерянная вкладка);
+    по этой истории фронт восстанавливает пропавший тред. Источник текстов — ouroboros: реплика
+    пользователя и финал корня каждого хода, без прогресса, уведомлений и подзадач.
 
-    Скоуп владельца: сессия ищется ТОЛЬКО у `user.id`. Прежде это держалось
-    каталогом (`data/sessions/<owner_id>/`), теперь — условием запроса в
-    хранилище; разбор и цена ошибки — в шапке `store/sessions.py`.
+    Скоуп владельца: чат запрашивается ТОЛЬКО у `user.id` — чужая сессия даёт пустую историю и 404.
     """
     if not re.fullmatch(r"[0-9a-fA-F-]{8,64}", session_id):
         raise HTTPException(status_code=400, detail="bad session id")
-    from finengine.store.sessions import get_session_store
+    from finengine.assistant import composition
+    from finengine.assistant.history import load_turn_messages
+    from finengine.assistant.ouro_client import ChatPages, ChatScope
 
-    try:
-        data = get_session_store().load(user.id, session_id)
-    except (OSError, json.JSONDecodeError):
-        raise HTTPException(status_code=500, detail="session unreadable") from None
-    if data is None:
+    chat_id = await asyncio.to_thread(_chat_of_session, user.id, session_id)
+    pages = ChatPages(composition.ouro_client(), ChatScope(str(user.id), chat_id))
+    history = await load_turn_messages(pages)
+    if not history:
         raise HTTPException(status_code=404, detail="session not found")
-    out = []
-    for e in (data.get("history") or [])[-200:]:
-        role = e.get("role")
-        if role in ("user", "assistant"):
-            out.append({"role": role, "content": str(e.get("content") or "")[:20000]})
-        elif role == "tool_call":
-            out.append({"role": "tool_call", "name": str(e.get("name") or "")[:64]})
-        # tool_output в восстановление не отдаём: это внутренности хода,
-        # в ленте они никогда не показывались.
-    return {"session_id": session_id, "history": out}
+    return {"session_id": session_id, "history": history}

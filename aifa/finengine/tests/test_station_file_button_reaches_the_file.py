@@ -15,8 +15,11 @@ from types import SimpleNamespace
 import pytest
 
 from finengine.api import main as api_main
+from fastapi.testclient import TestClient
+
 from finengine.api import station_turn
 from finengine.auth.db import User
+from finengine.auth.dependencies import get_current_user
 from finengine.config import settings
 from finengine.contracts.results import FileArtifact
 from finengine.skills import result_events, run_orchestrator, sources
@@ -27,7 +30,7 @@ CONTENT = b"PK\x03\x04excel-bytes"
 
 
 @pytest.fixture(autouse=True)
-def _local_blobs(tmp_path, monkeypatch):
+def _local_blobs(tmp_path, monkeypatch, catalog):  # оригиналы — в подставном каталоге (шаг 11)
     monkeypatch.setattr(settings, "s3_endpoint", "")
     monkeypatch.setattr(settings, "data_dir", tmp_path)
 
@@ -57,9 +60,13 @@ def _file_event_of_station_turn(monkeypatch, file_artifact: dict) -> dict:
 def test_the_station_file_button_opens_the_file_through_the_download_endpoint(monkeypatch) -> None:
     event = _file_event_of_station_turn(monkeypatch, _station_file_artifact())
 
-    response = api_main.download_source(PROJECT, event["file_id"], user=_user())
+    api_main.app.dependency_overrides[get_current_user] = _user
+    try:
+        response = TestClient(api_main.app).get(f"/projects/{PROJECT}/sources/{event['file_id']}/file")
+    finally:
+        api_main.app.dependency_overrides.pop(get_current_user, None)
 
-    assert response.body == CONTENT
+    assert response.status_code == 200 and response.content == CONTENT
 
 
 def test_the_station_and_the_pipeline_name_one_file_by_one_id(monkeypatch) -> None:

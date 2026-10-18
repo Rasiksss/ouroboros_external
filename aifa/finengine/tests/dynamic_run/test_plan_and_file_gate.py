@@ -30,7 +30,7 @@ PLAIN_BOOK_CODE = BOOK_CODE.replace('"=Данные!B2/Данные!B3"', "2.5")
 
 
 @pytest.fixture(autouse=True)
-def _local_blobs(tmp_path, monkeypatch):
+def _local_blobs(tmp_path, monkeypatch, catalog):  # оригиналы файлов — в подставном каталоге ouroboros (шаг 11)
     monkeypatch.setattr(settings, "s3_endpoint", "")
     monkeypatch.setattr(settings, "data_dir", tmp_path)
 

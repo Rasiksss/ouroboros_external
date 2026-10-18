@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
+import re
+from collections.abc import Awaitable, Callable, Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -76,3 +77,52 @@ async def find_final(
             return None
         before_ts = page.next_before_ts
     return None
+
+
+# Идентификатор хода — uuid4 (`run_orchestrator.start_run`): реплику хода отличает от команды (`<run_id>-stop`).
+_RUN_ID = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
+MESSAGE_LIMIT = 200       # сколько последних сообщений отдаёт история, как прежняя серверная сессия
+CONTENT_LIMIT = 20_000
+SCAN_PAGES = 20           # страниц истории ouroboros за один запрос: прогресс и уведомления занимают места
+
+
+def turn_messages(records: Sequence[HistoryRecord]) -> list[dict[str, str]]:
+    """Реплики ходов и финалы их корней в порядке времени, формат экрана `{role, content}` (§2.6, ADR-0011).
+
+    `records` — по возрастанию времени. Реплика хода — запись пользователя с `client_message_id == run_id`.
+    Финал корня — первая непрогрессная запись ассистента с `task_id` и тем же `client_message_id`: подзадача
+    стартует после корня (ADR-0046), её итог приходит позже и в историю хода не входит. Прогресс,
+    уведомления и записи чужих ходов отбрасываются.
+    """
+    runs = {r.client_message_id for r in records if r.role == "user" and _RUN_ID.fullmatch(r.client_message_id)}
+    answered: set[str] = set()
+    messages: list[dict[str, str]] = []
+    for record in records:
+        if record.client_message_id not in runs:
+            continue
+        if record.role == "user":
+            messages.append({"role": "user", "content": record.text[:CONTENT_LIMIT]})
+        elif (
+            record.role == "assistant"
+            and not record.is_progress
+            and record.task_id
+            and record.client_message_id not in answered
+        ):
+            answered.add(record.client_message_id)
+            messages.append({"role": "assistant", "content": record.text[:CONTENT_LIMIT]})
+    return messages
+
+
+async def load_turn_messages(fetch: HistoryFetch) -> list[dict[str, str]]:
+    """Последние сообщения ходов чата: страницы истории от новых к старым, пока их не хватит."""
+    pages: list[tuple[HistoryRecord, ...]] = []
+    before_ts = ""
+    for _ in range(SCAN_PAGES):
+        page = await fetch(before_ts)
+        pages.append(page.records)
+        ordered = [r for older in reversed(pages) for r in older]
+        messages = turn_messages(ordered)
+        if len(messages) >= MESSAGE_LIMIT or not page.next_before_ts:
+            return messages[-MESSAGE_LIMIT:]
+        before_ts = page.next_before_ts
+    return messages[-MESSAGE_LIMIT:]

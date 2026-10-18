@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from types import SimpleNamespace
@@ -64,7 +65,11 @@ class NoOldChat:
         return []
 
 
-def _executors() -> tuple[Any, Any]:
+def fixture_doc() -> str:
+    return DOC
+
+
+def _executors(doc: Callable[[], str] = fixture_doc) -> tuple[Any, Any]:
     from finengine.contracts import CandidateLocator, ScalarFact, SourceLocator
 
     def locate(items: Any, ctx: Any) -> dict[str, tuple[Any, ...]]:
@@ -73,7 +78,7 @@ def _executors() -> tuple[Any, Any]:
                 CandidateLocator(
                     produced_by_atom="locate",
                     produced_by_atom_version="1.0.0",
-                    document_id=DOC,
+                    document_id=doc(),
                     document_version=ctx.run_id,
                     concept=args.concept or "",
                     locator=SourceLocator(
@@ -105,15 +110,25 @@ def _executors() -> tuple[Any, Any]:
     return locate, read_value
 
 
-def install(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def install(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    *,
+    doc: Callable[[], str] = fixture_doc,
+    real_documents: bool = False,
+) -> None:
     """Подменить границы конвейера и хранилища; `tmp_path` — каталог данных теста (Case,
-    журналы)."""
+    журналы).
+
+    `real_documents` — документы и их текст настоящие (реестр на временном SQLite, текст в
+    хранилище службы): документ, который называет `doc()`, приходит в тест через ручку загрузки,
+    а не из фикстуры (шаг 11)."""
     from finengine import config
     from finengine.api import main as app_main
     from finengine.assistant import standard_path
     from finengine.skills.atoms.graph_atoms import build_registry
 
-    locate, read_value = _executors()
+    locate, read_value = _executors(doc)
 
     async def parsed(system: str, prompt: str, *, model_version: Any = None) -> str:
         return json.dumps(INTENT, ensure_ascii=False)
@@ -125,16 +140,25 @@ def install(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
 
     text = document_text()
     store = FixtureStore()
+    if real_documents:
+        import finengine.ingestion.document_store as documents
+
+        monkeypatch.setattr(
+            config.settings, "documents_database_url", f"sqlite:///{tmp_path / 'documents.db'}"
+        )
+        documents.reset_store()
     monkeypatch.setattr(config.settings, "state_database_url", f"sqlite:///{tmp_path / 'case.db'}")
     monkeypatch.setattr(config.settings, "docs_dir", tmp_path)
     monkeypatch.setattr(config.settings, "data_dir", tmp_path)
     monkeypatch.setattr(config.settings, "redis_url", "")
-    monkeypatch.setattr(standard_path, "get_store", lambda: store)
-    monkeypatch.setattr(app_main, "get_store", lambda: store)
+    if not real_documents:
+        monkeypatch.setattr(standard_path, "get_store", lambda: store)
+        monkeypatch.setattr(app_main, "get_store", lambda: store)
+        monkeypatch.setattr(
+            "finengine.store.blobs.document_text",
+            lambda doc_id, **_: text if doc_id == DOC else None,
+        )
     monkeypatch.setattr(app_main, "get_agent", lambda: NoOldChat())
     monkeypatch.setattr(app_main, "_upsert_dialog_stub", lambda *args, **kwargs: None)
-    monkeypatch.setattr(
-        "finengine.store.blobs.document_text", lambda doc_id, **_: text if doc_id == DOC else None
-    )
     monkeypatch.setattr("finengine.skills.atoms.intent._default_complete", parsed)
     monkeypatch.setattr("finengine.skills.production_runtime.build_registry", registry)

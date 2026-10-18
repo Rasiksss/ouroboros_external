@@ -76,6 +76,11 @@ def _headers(scope: ChatScope, trace_id: str) -> dict[str, str]:
     return {OWNER_HEADER: scope.owner_id, CHAT_HEADER: scope.chat_id, TRACE_HEADER: trace_id}
 
 
+def owner_headers(owner_id: str) -> dict[str, str]:
+    """Заголовки владельца для ручек каталога файлов (CONTRACTS.md §6); агент — `main` по умолчанию."""
+    return {OWNER_HEADER: owner_id}
+
+
 def _check_frame(frame: Mapping[str, Any], allowed: frozenset[str]) -> None:
     extra = sorted(set(frame) - allowed)
     if extra:
@@ -184,3 +189,14 @@ class OuroClient:
         except (httpx.HTTPError, ValueError) as failure:
             raise OuroUnavailable(type(failure).__name__) from failure
         return parse_page(payload)
+
+
+@dataclass(frozen=True)
+class ChatPages:
+    """Страницы истории одного чата как `HistoryFetch` (`history.load_turn_messages`)."""
+
+    client: OuroClient
+    scope: ChatScope
+
+    async def __call__(self, before_ts: str) -> HistoryPage:
+        return await self.client.history(self.scope, before_ts=before_ts)
