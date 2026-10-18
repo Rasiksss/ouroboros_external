@@ -58,6 +58,17 @@ class Settings(BaseSettings):
     ouroboros_retry_pause_sec: float = 2.0
     ouroboros_reconnect_attempts: int = 3
 
+    # Внутренний API инструментов (CONTRACTS.md §3, ADR-0028): ouroboros ходит с этим токеном; имя
+    # окружения общее с ouroboros и плагином. Пусто — API закрыто целиком (503), а не открыто.
+    aifa_engine_token: str = Field(default="", validation_alias="AIFA_ENGINE_TOKEN")
+    # Предел ответа инструмента в знаках (§3.0); длинное отдаётся частями.
+    ouroboros_result_limit: int = 12_000
+    # Один HTTP-вызов инструмента держится не дольше (плагин между вызовами проверяет остановку, §3.1);
+    # 240 с «ждёт инструмент» складывает плагин из таких отрезков.
+    ouroboros_tool_segment_sec: float = 20.0
+    # Как часто задание сверяется с ходом: ход закончен или отменён — задание снимается (§3.1, C3.4).
+    ouroboros_run_watch_sec: float = 1.0
+
     # OpenRouter settings (legacy fallback / non-chat call sites still
     # using openrouter directly: extract per-metric, AIFA reranker, etc.)
     openrouter_api_key: str = Field("", alias="OPENROUTER_API_KEY", validation_alias="OPENROUTER_API_KEY")

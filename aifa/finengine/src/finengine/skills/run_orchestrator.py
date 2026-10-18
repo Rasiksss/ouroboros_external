@@ -127,6 +127,9 @@ class RunState:
         self.task: "asyncio.Task | None" = None
         # Слушатель канала управления. Живёт ровно столько же, сколько прогон.
         self.control: "asyncio.Task | None" = None
+        # Команды владельцу сверх `cancel`/`emit`: имя → обработчик. Регистрирует тот, кто ведёт ход
+        # (шлюз хода ouroboros — `root`, шаг 09), чтобы команда с другой реплики дошла до него.
+        self.commands: dict[str, Callable[[dict], None]] = {}
         self.finished: bool = False
         self.started_at: float = time.time()
         self.finished_at: float | None = None
@@ -350,6 +353,17 @@ def emit_to_run(run_id: str, event: dict) -> bool:
     return True
 
 
+def tell_run(run_id: str, command: dict) -> bool:
+    """Передать команду владельцу живого прогона (на любой реплике); `False` — прогона нет или он закрыт.
+
+    Исполняет её обработчик из `RunState.commands`; ответа владельца не ждём, как у `cancel_run`."""
+    запись = состояние_прогона(run_id)
+    if запись is None or запись.get("finished"):
+        return False
+    _команда(run_id, command)
+    return True
+
+
 # ── Канал управления прогоном ────────────────────────────────────────────
 # Отдельный канал, а не тот же, что у событий: подписчики событий не должны
 # видеть служебные команды, а владелец не должен разбирать поток собственных
@@ -396,6 +410,9 @@ async def _слушать_команды(state: "RunState") -> None:
                 событие = сообщение.get("event")
                 if isinstance(событие, dict):
                     state.emit(событие)
+            обработчик = state.commands.get(str(приказ))
+            if обработчик is not None and not state.finished:
+                обработчик(сообщение)
     except asyncio.CancelledError:
         raise
     except Exception:  # noqa: BLE001 — слушатель не должен ронять прогон
