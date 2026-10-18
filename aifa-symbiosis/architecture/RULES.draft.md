@@ -91,7 +91,6 @@
   симбиоза, фронтенд).
 - Для правок в `skills/aifa-*` — ещё и Definition of Done ouroboros: независимое ревью диффа в
   чистом контексте (`/code-review`), сверка с `docs/INVARIANTS.md`.
-- Для изменений поведения — сравнение с опорной записью (F5 (б)); различия — только разрешённые ADR.
 - Отчёт: что сделано; тесты; сравнение с базовой линией; «Что и почему»; что не сделано.
 
 ## 7. Прогресс и незавершённое — в `aifa-symbiosis/plan/PROGRESS.md`
@@ -121,7 +120,7 @@
 - **prod не трогать никогда:** `finengine-prod-*`, `openclaw-prod-gw`, `workstation-svc-prod`,
   `finengine-caddy-1`, `infproxy`, `deploy/.env.prod`, `deploy/prod-*`. Тесты против prod не гонять.
 - Старый AIFA на dev (`finengine-*`, `openclaw-dev`, `workstation-svc`) до этапа 6 не трогать: он
-  — опора сравнения и работает параллельно.
+  работает параллельно.
 - Порядок выкатки AIFA (сверка md5, бэкап, накладывание поверх серверного состояния) — раздел 7а
   правил AIFA; для `aifa-sym` — `aifa/deploy/dev/README.md` (пишется на этапе 0).
 

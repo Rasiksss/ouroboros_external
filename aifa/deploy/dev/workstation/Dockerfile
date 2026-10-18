@@ -15,7 +15,7 @@ RUN rm -f /etc/mime.types
 
 # Пакеты комнаты — в системный site-packages: именно его читает python сессии ws-sandbox
 # (/opt/venv и /usr/local ей закрыты). Версии numpy, pandas, openpyxl — как у комнаты старого dev
-# (pip freeze 15.10.2026), чтобы вычисления атомов совпадали с опорной записью (P30); python-pptx
+# (pip freeze 15.10.2026), чтобы вычисления атомов совпадали со старой комнатой (P30); python-pptx
 # и python-docx в старой комнате нет, версии — на дату сборки.
 RUN /usr/bin/python3.12 -m pip install --no-cache-dir \
         --target=/usr/lib64/python3.12/site-packages \

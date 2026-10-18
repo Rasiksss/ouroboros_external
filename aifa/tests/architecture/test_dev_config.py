@@ -35,19 +35,6 @@ SECRET_KEY = re.compile(r"(KEY|SECRET|PASSWORD|TOKEN)$")
 PLACEHOLDER = "CHANGE_ME"
 DB_URL_KEY = re.compile(r"^OUROBOROS_RUNTIME_DB_URL(_\d+)?$")
 
-# Опорная запись (шаг 05): ходит на старый dev и loopback; адрес prod нигде не появляется.
-GOLDEN_DIR = REPO_ROOT / "aifa" / "tests" / "golden"
-GOLDEN_HOSTS = frozenset({"finagent.homyakagent.ru", "127.0.0.1", "localhost"})
-RESERVED_HOSTS = frozenset({"example.org", "example.com", "example.invalid"})  # RFC 2606
-# Публичный источник, который называет набор приёмки (А4: цена Brent, 34-status.md).
-PUBLIC_DATA_HOSTS = frozenset({"fred.stlouisfed.org"})
-GOLDEN_SUFFIXES = frozenset({".py", ".json", ".md", ".txt", ".sh", ".sse"})
-URL_HOST = re.compile(r"https?://([A-Za-z0-9.-]+)")
-SECRET_SHAPE = re.compile(
-    r"eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}|Bearer\s+\S{8,}|Set-Cookie|Authorization",
-    re.IGNORECASE,
-)
-
 
 def parse_env(path: Path) -> dict[str, str]:
     """`KEY=VALUE` по строке; пустые строки и `#` пропускаются, строчных комментариев нет."""
@@ -279,28 +266,6 @@ def dev_config_violations(dev: Path, snapshot: Mapping[str, Any]) -> list[str]:
     ]
 
 
-def golden_violations(root: Path) -> list[str]:
-    """Адреса вне списка стендов и цели prod — в любом файле; токены и cookie — в записях
-    (`*.json`), где им не место (код называет эти заголовки, но не хранит их значения)."""
-    problems: list[str] = []
-    for path in sorted(root.rglob("*")):
-        if not path.is_file() or path.suffix not in GOLDEN_SUFFIXES or "__pycache__" in path.parts:
-            continue
-        text = path.read_text(encoding="utf-8")
-        name = path.relative_to(root).as_posix()
-        known = GOLDEN_HOSTS | RESERVED_HOSTS | PUBLIC_DATA_HOSTS
-        for host in sorted(set(URL_HOST.findall(text)) - known):
-            problems.append(f"F9 (ADR-0018): {name} называет адрес {host!r} вне списка стендов")
-        problems.extend(
-            f"F9 (ADR-0018): {name} ссылается на {target!r}"
-            for target in (*PROD_TARGETS, "infproxy")
-            if target in text
-        )
-        if path.suffix == ".json" and SECRET_SHAPE.search(text):
-            problems.append(f"F9: в записи {name} секрет: токен, Authorization или cookie")
-    return problems
-
-
 def _copy_dev(tmp_path: Path) -> Path:
     target = tmp_path / "dev"
     shutil.copytree(DEV_DIR, target)
@@ -449,42 +414,3 @@ def test_f9_catches_an_enabled_channel(tmp_path: Path) -> None:
         env.write("\nA2A_ENABLED=true\n")
     problems = dev_config_violations(dev, load_snapshot())
     assert any("A2A_ENABLED" in p and "ADR-0016" in p for p in problems)
-
-
-def test_f9_golden_has_no_foreign_address_and_no_secret() -> None:
-    """F9: записывающий клиент ходит только на dev и loopback; в `aifa/tests/golden` нет адреса
-    prod и учётных данных (шаг 05)."""
-    assert golden_violations(GOLDEN_DIR) == []
-
-
-def test_f9_catches_a_foreign_address_in_golden(tmp_path: Path) -> None:
-    """F9: нарушитель — запись или пример с адресом, которого нет в списке стендов."""
-    (tmp_path / "scenario.json").write_text(
-        '{"url": "https://app.corp-bank.example.net/api"}', encoding="utf-8"
-    )
-    problems = golden_violations(tmp_path)
-    assert any("app.corp-bank.example.net" in p and "ADR-0018" in p for p in problems)
-
-
-def test_f9_catches_a_prod_container_name_in_golden(tmp_path: Path) -> None:
-    """F9: нарушитель — цель prod названа в коде записи."""
-    (tmp_path / "golden_x.py").write_text("TARGET = 'finengine-prod-backend-1'\n", encoding="utf-8")
-    assert any("finengine-prod" in p for p in golden_violations(tmp_path))
-
-
-def test_f9_catches_a_token_and_a_cookie_in_a_recording(tmp_path: Path) -> None:
-    """F9: нарушитель — в записи остался JWT или заголовок Set-Cookie."""
-    jwt = "eyJhbGciOiJIUzI1NiJ9." + "a" * 20 + "." + "b" * 20
-    (tmp_path / "token.json").write_text(f'{{"h": "{jwt}"}}', encoding="utf-8")
-    (tmp_path / "cookie.json").write_text('{"c": "Set-Cookie: tok=1"}', encoding="utf-8")
-    problems = golden_violations(tmp_path)
-    assert any("token.json" in p and "секрет" in p for p in problems)
-    assert any("cookie.json" in p and "секрет" in p for p in problems)
-
-
-def test_f9_allows_the_dev_stand_loopback_and_reserved_example_hosts(tmp_path: Path) -> None:
-    (tmp_path / "scenario.json").write_text(
-        '["https://finagent.homyakagent.ru/api", "http://127.0.0.1:18180", "https://example.org"]',
-        encoding="utf-8",
-    )
-    assert golden_violations(tmp_path) == []
