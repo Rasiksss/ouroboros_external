@@ -13,11 +13,12 @@ from finengine.contracts import (
     ExtractedMetric,
     GoalIR,
     NodeRun,
-    QuoteEvidence,
     ScalarFact,
     VerificationFinding,
 )
+from finengine.config import settings
 from finengine.llm.budget import BudgetExceeded
+from finengine.skills import run_logger
 from finengine.skills.case_runtime import PlanInfeasible
 from finengine.skills.production_runtime import _dynamic_outcome
 from finengine.skills.spec.atom_author import AtomAuthor
@@ -143,12 +144,17 @@ def _artifact_row(*metrics: ExtractedMetric) -> dict:
     }
 
 
-def _terminal_reply(*, action: str, answer: str, reason: str, evidence_ids=()) -> str:
+def _terminal_reply(*, action: str, answer: str, reason: str, evidence_ids=(), deliverables=()) -> str:
     return json.dumps({
         "objective": "завершить", "reason": reason, "action": action,
         "scenarios": [], "new_atoms": [], "steps": [], "answer": answer,
-        "evidence_ids": list(evidence_ids),
+        "evidence_ids": list(evidence_ids), "deliverables": list(deliverables),
     }, ensure_ascii=False)
+
+
+def _finalize_with_missing_file() -> str:
+    """Ответ, который правила цикла не принимают: он называет файл, которого в `Case` нет."""
+    return _terminal_reply(action="finalize", answer="Файл готов.", reason="итог", deliverables=("no-such-file",))
 
 
 @dataclass
@@ -311,15 +317,6 @@ def test_repeated_rejected_planner_replies_use_the_last_word(base) -> None:
     assert len(planner.prompts) == 4
 
 
-def test_finalize_with_missing_evidence_becomes_feedback(base) -> None:
-    dynamic, planner = _run(base, [_finalize("missing-id"), _give_up()])
-
-    result = dynamic.run(deterministic_error="нет пути")
-
-    assert result.status == "gave_up"
-    assert "несуществующие артефакты" in planner.prompts[1]
-
-
 def test_final_result_deduplicates_evidence_repeated_by_case_artifacts(base, monkeypatch) -> None:
     dynamic, _ = _run(base, [_give_up()])
     metric = _metric("REVENUE", 100.0)
@@ -328,37 +325,6 @@ def test_final_result_deduplicates_evidence_repeated_by_case_artifacts(base, mon
     result = dynamic._result("finalized", "готово", (metric.scalar_fact.evidence_id,))
 
     assert result.evidence == (metric,)
-
-
-def test_finalize_with_failed_verification_becomes_feedback(base) -> None:
-    quote = QuoteEvidence(
-        produced_by_atom="read.quote", produced_by_atom_version="1.0.0", source_ref="doc-1",
-        concept="ИНН", quote_text="Идентификационный номер налогоплательщика", page=1,
-    )
-    finding = VerificationFinding(
-        produced_by_atom="verify.citation", produced_by_atom_version="1.0.0",
-        source_ref=quote.evidence_id, concept="ИНН", check_kind="citation", status="fail",
-        detail="цитата не подтверждена",
-    )
-    base.store.put_artifact(
-        OWNER, CASE, node_key=NodeKey(atom_name="read.quote", atom_version="1.0.0", args_fingerprint="inn"),
-        output_type="QuoteEvidence", payloads=(quote,), concept="ИНН", entity_ref=ENTITY,
-        period_ref=None, basis=None, document_version="sha256:v1",
-        policy_version=base.policy.policy_version,
-    )
-    base.store.put_artifact(
-        OWNER, CASE,
-        node_key=NodeKey(atom_name="verify.citation", atom_version="1.0.0", args_fingerprint="inn"),
-        output_type="VerificationFinding", payloads=(finding,), concept="ИНН", entity_ref=ENTITY,
-        period_ref=None, basis=None, document_version="sha256:v1",
-        policy_version=base.policy.policy_version, dependency_evidence_ids=(quote.evidence_id,),
-    )
-    dynamic, planner = _run(base, [_finalize(quote.evidence_id), _give_up()])
-
-    result = dynamic.run(deterministic_error="нет пути")
-
-    assert result.status == "gave_up"
-    assert "проваленную проверку citation" in planner.prompts[1]
 
 
 def test_default_planner_requests_a_strict_nested_json_schema(monkeypatch) -> None:
@@ -509,7 +475,7 @@ def test_rejected_last_word_falls_back_to_a_summary_with_partial_results(base, m
     empty = _move(steps=({"atom": "read.value", "concept": "EBITDA"},))
     dynamic, _ = _run(
         base,
-        [_move(scenarios=("Извлеки выручку",)), empty, _finalize("missing-id")],
+        [_move(scenarios=("Извлеки выручку",)), empty, _finalize_with_missing_file()],
         scenario=scenario, limits=RunLimits(max_moves=4, idle_moves=1),
     )
     monkeypatch.setattr(
@@ -599,22 +565,6 @@ def test_give_up_keeps_accepted_partial_results_even_without_ids(base) -> None:
     assert {event["result"]["metric_id"] for event in events} == {
         item.metric_id for item in result.evidence
     }
-
-
-def test_give_up_does_not_keep_a_partial_result_that_failed_verification(base) -> None:
-    dynamic, _ = _run(
-        base, [_move(scenarios=("Извлеки выручку",)), _give_up("Проверенное значение получить не удалось.")],
-        scenario=FailedCheckScenario(base),
-    )
-
-    result = dynamic.run(deterministic_error="нет пути")
-
-    assert result.status == "gave_up"
-    assert result.evidence == ()
-    assert "1453957" not in result.answer
-    events: list[dict] = []
-    _dynamic_outcome(result, events.append, case_id=CASE, document_id="doc-1")
-    assert events == []
 
 
 def test_service_only_moves_count_as_idle_and_do_not_claim_new_results(base, monkeypatch) -> None:
@@ -1196,16 +1146,6 @@ def test_station_fault_inside_the_graph_is_not_remembered_as_a_code_failure(base
 
 # ---------------------------------------------------------------------------
 # Ревью части 8
-def test_finalize_without_evidence_ids_tells_the_planner_how_to_fix_it(base) -> None:
-    reply = _terminal_reply(action="finalize", answer="Ответ готов.", reason="итог")
-    dynamic, planner = _run(base, [reply, _give_up()])
-
-    dynamic.run(deterministic_error="нет пути")
-
-    assert "evidence_ids пуст" in planner.prompts[1]
-    assert "give_up" in planner.prompts[1]
-
-
 def _rejections(events: list) -> list[dict]:
     return [event for event in events if event["type"] == "dynamic_move" and event["status"] == "rejected"]
 
@@ -1289,19 +1229,6 @@ class FailedCheckScenario:
         return ScenarioResult(True, "✓ extract")
 
 
-def test_stopped_summary_does_not_offer_a_value_that_failed_verification(base) -> None:
-    dynamic, _ = _run(
-        base, [_move(scenarios=("Извлеки выручку",)), "bad", "bad", "bad", "bad"],
-        scenario=FailedCheckScenario(base), limits=RunLimits(max_moves=6, idle_moves=3),
-    )
-
-    result = dynamic.run(deterministic_error="нет пути")
-
-    assert result.status == "stopped"
-    assert result.evidence == ()
-    assert "1453957" not in result.answer
-
-
 @dataclass
 class GiveUpNamingTheArtifact:
     """Планировщик: первым ходом сценарий, затем give_up с id значения из таблицы артефактов."""
@@ -1320,14 +1247,80 @@ class GiveUpNamingTheArtifact:
         return json.dumps(reply, ensure_ascii=False)
 
 
-def test_give_up_does_not_keep_a_failed_value_the_model_listed_itself(base) -> None:
+def test_finalize_without_references_and_files_is_accepted(base) -> None:
+    """ADR-0040 п. 1, ADR-0044 п. 7: finalize без `evidence_ids` и без файлов принимается — отказа и лишнего хода нет."""
+    dynamic, planner = _run(base, [_terminal_reply(action="finalize", answer="Ответ готов.", reason="итог"), _give_up()])
+
+    result = dynamic.run(deterministic_error="нет пути")
+
+    assert result.status == "finalized" and result.answer == "Ответ готов."
+    assert len(planner.prompts) == 1
+
+
+def test_finalize_with_a_missing_reference_is_accepted_and_the_journal_keeps_the_fact(base, monkeypatch, tmp_path) -> None:
+    """ADR-0040 п. 1: ссылка на несуществующий артефакт не отказ; в журнал прогона пишется, что её нет."""
+    monkeypatch.setattr(settings, "data_dir", tmp_path)
+    dynamic, planner = _run(base, [_finalize("missing-id"), _give_up()])
+
+    result = dynamic.run(deterministic_error="нет пути")
+
+    assert result.status == "finalized" and result.evidence == () and len(planner.prompts) == 1
+    assert [line["references"] for line in run_logger.прочитать(run_logger.ЖУРНАЛ_ЗАВЕРШЕНИЙ)] == [
+        [{"evidence_id": "missing-id", "exists": False}]
+    ]
+
+
+def test_give_up_keeps_a_partial_result_that_failed_verification(base) -> None:
+    """ADR-0044 п. 7: `give_up` не вычёркивает опровергнутую находку — значение доходит до пользователя карточкой."""
+    dynamic, _ = _run(
+        base, [_move(scenarios=("Извлеки выручку",)), _give_up("Проверенное значение получить не удалось.")],
+        scenario=FailedCheckScenario(base),
+    )
+
+    result = dynamic.run(deterministic_error="нет пути")
+
+    assert result.status == "gave_up"
+    assert [item.concept for item in result.evidence] == ["SALES_REVENUE"]
+    events: list[dict] = []
+    _dynamic_outcome(result, events.append, case_id=CASE, document_id="doc-1")
+    assert [event["result"]["concept"] for event in events] == ["SALES_REVENUE"]
+
+
+def test_give_up_keeps_a_failed_value_the_model_listed_itself(base) -> None:
+    """ADR-0044 п. 7: id значения с проваленной проверкой, названный в `give_up`, остаётся в итоге."""
     dynamic, _ = _run(base, [], scenario=FailedCheckScenario(base))
     dynamic.complete_fn = GiveUpNamingTheArtifact()
 
     result = dynamic.run(deterministic_error="нет пути")
 
     assert result.status == "gave_up"
-    assert result.evidence == (), "значение, проваленное проверкой, не уходит карточкой, даже если его назвала модель"
+    assert [item.concept for item in result.evidence] == ["SALES_REVENUE"]
+
+
+def test_stopped_summary_offers_a_value_that_failed_verification(base) -> None:
+    """ADR-0044 п. 7: сводка остановленного цикла не прячет опровергнутую находку."""
+    dynamic, _ = _run(
+        base, [_move(scenarios=("Извлеки выручку",)), "bad", "bad", "bad", "bad"],
+        scenario=FailedCheckScenario(base), limits=RunLimits(max_moves=6, idle_moves=3),
+    )
+
+    result = dynamic.run(deterministic_error="нет пути")
+
+    assert result.status == "stopped"
+    assert [item.concept for item in result.evidence] == ["SALES_REVENUE"]
+    assert "SALES_REVENUE" in result.answer
+
+
+def test_the_terminal_move_names_files_or_the_chat_instead_of_the_answer_text(base) -> None:
+    """ADR-0044 пп. 2, 7: `details` финального `dynamic_move` — «ответ — в чате», а не текст `answer` модели."""
+    events: list[dict] = []
+    dynamic, _ = _run(base, [_terminal_reply(action="finalize", answer="Маржа рассчитана.", reason="итог")])
+    dynamic.event_sink = events.append
+
+    result = dynamic.run(deterministic_error="нет пути")
+
+    assert result.answer == "Маржа рассчитана."
+    assert [event["details"] for event in events if event.get("action") == "finalize"] == ["ответ — в чате"]
 
 
 def test_accepted_last_word_is_a_trace_event_of_the_next_move(base) -> None:
@@ -1339,13 +1332,13 @@ def test_accepted_last_word_is_a_trace_event_of_the_next_move(base) -> None:
 
     last = events[-1]
     assert (last["type"], last["status"], last["action"], last["move"]) == ("dynamic_move", "done", "give_up", 4)
-    assert last["details"] == "Данных недостаточно."
+    assert last["details"] == "ответ — в чате"
 
 
 def test_rejected_last_word_leaves_its_reason_in_the_trace(base) -> None:
     events = []
     dynamic, _ = _run(
-        base, ["bad", "bad", "bad", _finalize("missing-id")], limits=RunLimits(max_moves=12, idle_moves=3),
+        base, ["bad", "bad", "bad", _finalize_with_missing_file()], limits=RunLimits(max_moves=12, idle_moves=3),
     )
     dynamic.event_sink = events.append
 
@@ -1354,7 +1347,7 @@ def test_rejected_last_word_leaves_its_reason_in_the_trace(base) -> None:
     assert result.status == "stopped"
     last = events[-1]
     assert (last["status"], last["move"]) == ("rejected", 4)
-    assert "несуществующие артефакты" in last["details"]
+    assert "несуществующие файлы" in last["details"]
 
 
 @pytest.mark.parametrize("variant", [{"concept": " ebitda "}, {"period_ref": "6m  2026"}])

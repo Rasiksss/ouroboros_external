@@ -20,7 +20,7 @@ CONTRACTS = (ROOT / "aifa-symbiosis" / "architecture" / "CONTRACTS.md").read_tex
 LOOP_TOOLS = ("aifa_state", "aifa_doc", "aifa_move", "aifa_finish")
 RULES = MAP["rules"]
 DEFERRED = MAP["deferred"]
-DEFERRED_STEPS = {"13a", "16", "17"}
+DEFERRED_STEPS = {"16", "17"}
 
 
 def _plan34_rows() -> list[str]:
@@ -77,7 +77,7 @@ def test_every_row_of_the_plan_34_rules_table_is_mapped() -> None:
 
 
 def test_every_fragment_of_the_rules_column_is_mapped_or_deferred_to_a_later_step() -> None:
-    """F8: фрагмент столбца «Правила» инструмента цикла — либо правило с тестом, либо правило шага 13a/16/17."""
+    """F8: фрагмент столбца «Правила» инструмента цикла — либо правило с тестом, либо правило шага 16/17."""
     known = {rule["cell"] for rule in RULES if "cell" in rule} | {item["cell"] for item in DEFERRED}
 
     missing = [f"{tool}: {cell}" for tool, cell in _rules_cells() if cell not in known]

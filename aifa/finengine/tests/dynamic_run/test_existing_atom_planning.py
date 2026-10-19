@@ -186,21 +186,7 @@ def test_independent_steps_are_kept_because_a_cycle_move_has_no_single_semantic_
     assert len(quote_nodes) == 2
 
 
-def test_finalize_without_real_evidence_is_rejected_instead_of_claiming_a_wrong_result(base) -> None:
-    invalid_finalize = {
-        "objective": "ответить", "reason": "готово", "action": "finalize",
-        "scenarios": [], "new_atoms": [], "steps": [], "answer": "Сегменты готовы",
-        "evidence_ids": ["несуществующий-id"],
-    }
-    dynamic, script = _run(base, [invalid_finalize, _give_up()], kind="extract_structure")
-
-    result = dynamic.run(deterministic_error="нет корня")
-
-    assert result.status == "gave_up"
-    assert "несуществующие артефакты" in script.calls[1]["prompt"]
-
-
-def test_finalize_cannot_cite_a_service_artifact_that_only_has_a_result_id(base) -> None:
+def test_the_planner_is_not_shown_the_service_id_of_a_result(base) -> None:
     document = DocumentText(document_id=ENTITY, document_version="sha256:v1", page=1, text="отчёт")
     service_id = result_id_of(document)
     base.store.put_artifact(
@@ -209,21 +195,13 @@ def test_finalize_cannot_cite_a_service_artifact_that_only_has_a_result_id(base)
         output_type="DocumentText", payloads=(document,), concept=None, entity_ref=ENTITY, period_ref=None,
         basis=None, document_version="sha256:v1", policy_version="policy-1",
     )
-    cites_the_document = {
-        "objective": "ответить", "reason": "готово", "action": "finalize",
-        "scenarios": [], "new_atoms": [], "steps": [], "answer": "Выручка 100 млн",
-        "evidence_ids": [service_id],
-    }
-    dynamic, script = _run(base, [cites_the_document, _give_up()])
+    dynamic, _ = _run(base, [_give_up()])
 
     state = render_state(dynamic, "")
-    result = dynamic.run(deterministic_error="нет пути")
 
     # Id служебного результата нужен исполнителю, чтобы NodeRun ссылался на сохранённое, но это не
-    # доказательство ответа: планировщику он не показывается, а гейт finalize его не принимает.
+    # доказательство ответа: планировщику он не показывается.
     assert service_id not in state
-    assert result.status == "gave_up"
-    assert "несуществующие артефакты" in script.calls[1]["prompt"]
 
 
 def test_two_stage_extraction_step_gets_locate_and_gates_automatically(base) -> None:

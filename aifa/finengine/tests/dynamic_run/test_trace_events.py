@@ -90,7 +90,7 @@ def test_rejected_reply_and_the_terminal_move_are_traced(base) -> None:
         (1, "rejected", "rejected"), (2, "done", "give_up"),
     ]
     assert moves[0]["details"], "причина отказа видна в ленте"
-    assert "Данных нет." in moves[1]["details"]
+    assert moves[1]["details"] == "ответ — в чате"
 
 
 def test_execute_move_is_traced_before_and_after_it_runs(base, monkeypatch) -> None:

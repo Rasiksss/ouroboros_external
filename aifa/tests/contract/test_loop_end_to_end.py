@@ -54,6 +54,7 @@ def engine(stand: ContractStand, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 
     with running_engine(stand, tmp_path, monkeypatch) as base:
         monkeypatch.setattr(settings, "loop_driver", "ouroboros")
+        monkeypatch.setattr(settings, "data_dir", tmp_path)  # журнал завершений этого теста — свой
         monkeypatch.setattr("finengine.skills.atoms.intent._default_complete", parsed)
         monkeypatch.setattr(
             "finengine.skills.spec.dynamic_run._default_complete", planner_of_the_service
@@ -95,8 +96,10 @@ async def test_ouroboros_leads_the_cycle_to_the_final_answer(
     assert [(m["status"], m["action"]) for m in moves] == [
         ("running", "execute"),
         ("done", "execute"),
-        ("done", "give_up"),
+        ("done", "finalize"),
     ]
+    # Текст ответа пишет ouroboros, не цикл (ADR-0044 пп. 2, 7).
+    assert moves[-1]["details"] == "ответ — в чате"
     assert kinds.count("plan_graph") == 1, "граф сценария хода показан один раз"
     assert events[-1]["status"] == "succeeded"
 
@@ -132,3 +135,19 @@ async def test_the_cycle_is_saved_after_every_move_and_closed_by_the_finish(
     assert saved is not None and saved["state"]["closed"] is True
     assert saved["state"]["turns"] == 1 and len(saved["state"]["journal"]) == 1
     assert saved["origin"]["document_id"] == fixture.DOC
+
+
+async def test_a_finish_without_references_is_accepted_and_the_run_journal_keeps_the_fact(
+    engine: str, stub: StubModelAdmin
+) -> None:
+    """C3.7: `aifa_finish` без `evidence_ids` — `ПРИНЯТО`; журнал прогона хранит завершение."""
+    from finengine.skills import run_logger
+
+    _, events = await run_the_cycle(engine, stub)
+
+    asked = [e for e in stub.journal() if e["model"] == "stub-main"]
+    results = {e["round"]: e["last_tool_result"] for e in asked}
+    assert results[6].startswith("ПРИНЯТО\nЦикл закрыт.")
+    journal = run_logger.прочитать(run_logger.ЖУРНАЛ_ЗАВЕРШЕНИЙ)
+    assert [(line["action"], line["references"]) for line in journal] == [("finalize", [])]
+    assert kind_of(events[-1]) == "completed" and events[-1]["status"] == "succeeded"

@@ -23,6 +23,7 @@ from test_ephemeral_atoms import ECHO_CODE, ECHO_SCHEMA, _metric
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 
 from finengine.contracts import GoalIR, NodeKey, VerificationFinding
+from finengine.skills import run_logger
 from finengine.skills.spec.atom_author import AtomAuthor
 from finengine.skills.spec.dynamic_run import RunLimits, ScenarioResult, artifact_content
 from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom
@@ -190,19 +191,50 @@ async def test_a_dependent_part_waits_for_the_part_it_depends_on(base) -> None:
     await together.close()
 
 
-async def test_a_finish_cannot_cite_what_is_not_in_the_case(base) -> None:
-    """LR-16 (до шага 13a): `aifa_finish` со ссылкой на несуществующий артефакт — отказ."""
+def _finish_journal() -> list[dict]:
+    """Строки журнала завершений: что названо в `evidence_ids` и есть ли оно в `Case` (ADR-0040 п. 1)."""
+    return run_logger.прочитать(run_logger.ЖУРНАЛ_ЗАВЕРШЕНИЙ)
+
+
+async def test_a_finish_with_a_citable_result_is_accepted(base) -> None:
+    """LR-41, C3.7: найденный результат, названный в `evidence_ids`, — `ПРИНЯТО`; в журнале он отмечен как существующий."""
+    cycle = await open_cycle(base, scenario=ExtractScenario(base, None))
+    await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
+    evidence_id = cited(base)
+
+    reply = await cycle.finish(_finalize(evidence_id))
+
+    assert code_of(reply) == "ПРИНЯТО" and cycle.session.closed
+    assert [line["references"] for line in _finish_journal()] == [[{"evidence_id": evidence_id, "exists": True}]]
+    await cycle.close()
+
+
+async def test_a_finish_without_references_is_accepted(base) -> None:
+    """LR-41, C3.7: `aifa_finish` без `evidence_ids` и без файлов — `ПРИНЯТО`, ответ пишет ouroboros; ссылок в журнале нет."""
+    cycle = await open_cycle(base)
+
+    reply = await cycle.call("aifa_finish", {"action": "finalize"})
+
+    assert code_of(reply) == "ПРИНЯТО" and cycle.session.closed
+    final = [event for event in cycle.events if event.get("action") == "finalize"][0]
+    assert final["details"] == "ответ — в чате"
+    assert [(line["action"], line["references"]) for line in _finish_journal()] == [("finalize", [])]
+    await cycle.close()
+
+
+async def test_a_finish_with_a_missing_reference_is_accepted_and_the_journal_says_it_is_missing(base) -> None:
+    """LR-41, C3.7: несуществующая ссылка — `ПРИНЯТО`; служба пишет в журнал прогона, что такого артефакта нет."""
     cycle = await open_cycle(base)
 
     reply = await cycle.finish(_finalize("no-such-id"))
 
-    assert code_of(reply) == "ОТКАЗ неверные_аргументы" and "несуществующие артефакты" in reply
-    assert not cycle.session.closed
+    assert code_of(reply) == "ПРИНЯТО" and cycle.session.closed
+    assert [line["references"] for line in _finish_journal()] == [[{"evidence_id": "no-such-id", "exists": False}]]
     await cycle.close()
 
 
-async def test_a_finish_cannot_cite_a_failed_verification(base) -> None:
-    """LR-16 (до шага 13a): артефакт, чью проверку не прошло, ответом не становится."""
+async def test_a_finding_that_refuted_a_value_does_not_stop_the_finish(base) -> None:
+    """LR-41, C3.7: опровергнутая находка завершению не мешает; ссылка на значение с проваленной проверкой принимается."""
     metric = _metric("EBITDA", 500.0)
     base.store.put_artifact(
         OWNER, CASE, node_key=NodeKey(atom_name="read.value", atom_version="1", args_fingerprint="m"),
@@ -221,17 +253,6 @@ async def test_a_finish_cannot_cite_a_failed_verification(base) -> None:
     cycle = await open_cycle(base)
 
     reply = await cycle.finish(_finalize(metric.scalar_fact.evidence_id))
-
-    assert code_of(reply) == "ОТКАЗ неверные_аргументы" and "проваленную проверку" in reply
-    await cycle.close()
-
-
-async def test_a_finish_with_a_citable_result_is_accepted(base) -> None:
-    """LR-16: найденное доказательство — `ПРИНЯТО`; цикл закрыт."""
-    cycle = await open_cycle(base, scenario=ExtractScenario(base, None))
-    await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
-
-    reply = await cycle.finish(_finalize(cited(base)))
 
     assert code_of(reply) == "ПРИНЯТО" and cycle.session.closed
     await cycle.close()
@@ -307,7 +328,7 @@ async def test_the_last_word_that_is_refused_closes_the_cycle_with_a_summary(bas
     cycle = await open_cycle(base, scenario=ExtractScenario(base, None), limits=RunLimits(max_moves=1))
     await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
 
-    reply = await cycle.finish(_finalize("no-such-id"))
+    reply = await cycle.call("aifa_finish", {"action": "finalize", "deliverables": ["no-such-file"]})
 
     assert code_of(reply) == "ПРИНЯТО" and "итог не принят" in reply and "EBITDA" in reply
     assert cycle.session.closed
@@ -321,7 +342,7 @@ async def test_the_last_word_that_is_refused_still_publishes_what_was_found(base
     cycle.session.initial_file_ids = frozenset()
     await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
 
-    reply = await cycle.finish(_finalize("no-such-id"))
+    reply = await cycle.call("aifa_finish", {"action": "finalize", "deliverables": ["no-such-file"]})
 
     assert code_of(reply) == "ПРИНЯТО" and "итог не принят" in reply and "итоги.xlsx" in reply
     files = [event["filename"] for event in cycle.events if event["type"] == "file"]

@@ -66,6 +66,8 @@ _GIT_VER = os.environ.get("FINENGINE_GIT_VER", "").strip() or "local-dev"
 ЖУРНАЛ_ИЗВЛЕЧЕНИЙ = "run_log_extract"
 ЖУРНАЛ_ЧАТА = "run_log_chat"
 ЖУРНАЛ_РАЗБОРОВ = "run_log_analysis"
+# Завершения цикла: какие ссылки назвал ответ и есть ли они в `Case` (ADR-0040 п. 1 — замер для решения после MVP).
+ЖУРНАЛ_ЗАВЕРШЕНИЙ = "run_log_finish"
 СЫРЬЁ_СТАНЦИИ = "station_events"
 # Телеметрия фронта: что видел пользователь (обрыв связи, догон ответа,
 # подрезка хранилища). Пишет её `api/main`, читаем при разборах вручную.
@@ -335,5 +337,23 @@ def log_chat_turn(
             "error": error,
         }
         _записать(ЖУРНАЛ_ЧАТА, _ОБЩИЙ, record)
+    except Exception:
+        pass
+
+
+def log_finish_references(*, owner_id: str, case_id: str, action: str, references: dict[str, bool]) -> None:
+    """Дописать строку о завершении цикла: названные `evidence_ids` и существует ли каждая в `Case`.
+
+    Ссылки условием завершения не служат (ADR-0040 п. 1): строка нужна, чтобы после MVP посчитать, какая
+    доля ответов опиралась на `Case`. Best-effort, как `log_chat_turn`: журнал не роняет цикл."""
+    try:
+        _записать(ЖУРНАЛ_ЗАВЕРШЕНИЙ, _ОБЩИЙ, {
+            "ts": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
+            "git_sha": _GIT_SHA,
+            "owner_id": owner_id,
+            "case_id": case_id,
+            "action": action,
+            "references": [{"evidence_id": key, "exists": found} for key, found in references.items()],
+        })
     except Exception:
         pass

@@ -30,10 +30,10 @@ from finengine.contracts import (
     GoalIR,
     NodeKey,
     RunPassport,
-    VerificationFinding,
 )
 from finengine.llm.budget import BudgetExceeded
 from finengine.roles.scope import build_role_plan
+from finengine.skills import run_logger
 from finengine.skills.analysis.external import WEB_SEARCH_OFF_REASON, user_allowed_web_search
 from finengine.skills.atoms.web_search import PRODUCER_PREFIX as WEB_SEARCH_PRODUCER
 from finengine.skills.atoms.web_search import describe_hits
@@ -470,31 +470,12 @@ class LoopSession:
             if isinstance(promised, str):
                 return Rejection(promised, "файл_не_собран")
             decision = promised
-            if not decision.evidence_ids and not decision.deliverables:
-                return (
-                    "evidence_ids пуст: перечисли id артефактов (первый столбец таблицы «Полученные "
-                    "артефакты»), на которые опирается ответ; готовый файл-результат укажи в deliverables; "
-                    "если опереться не на что — give_up с причиной"
-                )
-            missing = [evidence_id for evidence_id in decision.evidence_ids if not self._evidence(evidence_id)]
-            if missing:
-                return (
-                    f"finalize ссылается на несуществующие артефакты: {missing}; id артефакта стоит в первом "
-                    "столбце таблицы «Полученные артефакты», строки с «—» в первом столбце не цитируются — "
-                    "перечисли id показателей, на которые опирается ответ"
-                )
             missing_files = [file_id for file_id in decision.deliverables if self._deliverable(file_id) is None]
             if missing_files:
                 return (
                     f"finalize ссылается на несуществующие файлы: {missing_files}; id файла — первый столбец "
                     "строки FileArtifact в таблице «Полученные артефакты»"
                 )
-            failed = self._failed_verifications(decision.evidence_ids)
-            if failed:
-                details = "; ".join(
-                    f"{finding.check_kind}: {finding.detail or finding.status}" for finding in failed
-                )
-                return f"finalize ссылается на проваленную проверку {details}"
         repeat = self._repeated_dead_end(decision)
         if repeat:
             return Rejection(repeat, "повтор_тупика")
@@ -559,12 +540,16 @@ class LoopSession:
             raise asyncio.CancelledError
 
     def _finish(self, number: int, decision: Decision) -> DynamicRunResult:
-        self._emit(self._move_event(number, "done", decision, details=decision.answer or self._without_answer(decision)))
+        self._emit(self._move_event(number, "done", decision, details=self._without_answer(decision)))
+        run_logger.log_finish_references(
+            owner_id=str(self.owner_id), case_id=self.case_id, action=decision.action,
+            references={evidence_id: bool(self._evidence(evidence_id)) for evidence_id in decision.evidence_ids},
+        )
         status = "finalized" if decision.action == "finalize" else "gave_up"
         evidence_ids = decision.evidence_ids
         deliverable_ids = decision.deliverables
         if status == "gave_up":
-            evidence_ids = self._without_refuted(tuple(dict.fromkeys((*evidence_ids, *self._partial_evidence_ids()))))
+            evidence_ids = tuple(dict.fromkeys((*evidence_ids, *self._partial_evidence_ids())))
             # Найденное не выбрасывается: файл, собранный в этом прогоне, доходит до пользователя и при отказе.
             deliverable_ids = tuple(dict.fromkeys((*deliverable_ids, *self._partial_deliverable_ids())))
         return self._result(status, decision.answer, evidence_ids, deliverable_ids)
@@ -578,7 +563,7 @@ class LoopSession:
         self._emit(dynamic_move_event(move=number, status="rejected", action="rejected", details=details))
 
     def _partial_evidence_ids(self) -> tuple[str, ...]:
-        """Целевые результаты прогона без значений, проваливших проверку: сводка не обходит гейт finalize."""
+        """Целевые результаты, полученные в этом прогоне."""
         obtained = tuple(dict.fromkeys(
             evidence_id
             for row in self.runtime.store.list_artifacts(self.owner_id, self.case_id)
@@ -587,7 +572,7 @@ class LoopSession:
             if (evidence_id := evidence_id_of(payload))
             if evidence_id not in self.initial_evidence_ids
         ))
-        return self._without_refuted(obtained)[:self.limits.max_terminal_evidence]
+        return obtained[:self.limits.max_terminal_evidence]
 
     def _partial_deliverable_ids(self) -> tuple[str, ...]:
         """Файлы этого прогона (до его начала в Case их не было): обещанные планом, а без них — все собранные."""
@@ -598,9 +583,7 @@ class LoopSession:
         found = (self.promised_file(spec)[0] for spec in self.expected_files)
         return [file for file in found if file is not None]
 
-    def _without_refuted(self, evidence_ids: tuple[str, ...]) -> tuple[str, ...]:
-        refuted = {finding.source_ref for finding in self._failed_verifications(evidence_ids)}
-        return tuple(evidence_id for evidence_id in evidence_ids if evidence_id not in refuted)
+
 
     def _stopped_summary(self, evidence_ids: tuple[str, ...]) -> str:
         # Причина остановки — для планировщика (`_stop`), пользователю она ни о чём не говорит.
@@ -969,17 +952,7 @@ class LoopSession:
         found = self.runtime.store.find_evidence(self.owner_id, self.case_id, evidence_id)
         return [item for item in found if evidence_id_of(item)]
 
-    def _failed_verifications(self, evidence_ids: tuple[str, ...]) -> tuple[VerificationFinding, ...]:
-        selected = set(evidence_ids)
-        findings: dict[str, VerificationFinding] = {}
-        for artifact in self.runtime.store.list_artifacts(self.owner_id, self.case_id):
-            for item in artifact.get("payloads") or ():
-                if (
-                    isinstance(item, VerificationFinding) and item.status == "fail"
-                    and (item.evidence_id in selected or item.source_ref in selected)
-                ):
-                    findings[item.evidence_id] = item
-        return tuple(findings.values())
+
 
     def _remember_failures(self, result: ExecutionResult) -> None:
         for key, node_run in result.node_runs.items():

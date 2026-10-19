@@ -33,7 +33,7 @@
     {
       "id": "finish-the-cycle",
       "when": {"model": "stub-main", "user_contains": "какая выручка", "round": 5, "last_tool_result_starts_with": "ГОТОВО"},
-      "reply": {"tool_calls": [{"name": "ext_13_r_aifa-engine_aifa_finish", "arguments": {"action": "give_up"}}]}
+      "reply": {"tool_calls": [{"name": "ext_13_r_aifa-engine_aifa_finish", "arguments": {"action": "finalize"}}]}
     },
     {
       "id": "answer-after-the-finish",

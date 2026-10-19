@@ -1702,7 +1702,6 @@ ValueError: не могу разобрать период '6M 2026'
 | Сценарий исполняется тем же путём, что сообщение чата | `ScenarioChannel`: `parse_message` → `execute_routed_goal` |
 | Сценарий не запускает вложенный цикл | `execute_routed_goal(..., allow_dynamic=False)` |
 | Промежуточные карточки и отказы сценариев не видны пользователю | `ScenarioChannel._progress_only` пропускает только `plan_graph`/`node_run` |
-| `finalize` ссылается только на существующее | `_ask_planner` проверяет `evidence_ids` через `store.find_evidence` |
 | Цикл конечен | `RunLimits`: ходы, новые атомы, ходы без прогресса; у автора — 3 попытки |
 
 ---

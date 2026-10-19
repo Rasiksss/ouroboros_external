@@ -1,9 +1,9 @@
-# Карта правил цикла (F8, ADR-0023, ADR-0040, ADR-0044 п. 9): у каждого правила, действующего в шаге 13, — тест.
+# Карта правил цикла (F8, ADR-0023, ADR-0040, ADR-0044 п. 9): у каждого правила, действующего в цикле, — тест.
 #
 # Источники: раздел 8 плана 34 (`aifa/finengine/docs/build-plan/34-…md`, колонка `plan34` — первая ячейка строки)
 # и столбец «Правила» §3.1 `CONTRACTS.md` для инструментов цикла `aifa_state`, `aifa_doc`, `aifa_move`, `aifa_finish`
 # (колонка `cell` — фрагмент ячейки между `;` верхнего уровня; `contract` — фрагмент текста §3.0). Тест — путь от `aifa/finengine/` и имя функции.
-# Правила, которые вводят шаги 13a, 16, 17, лежат в `deferred` с номером шага; снять строку оттуда и завести правило
+# Правила, которые вводят шаги 16, 17, лежат в `deferred` с номером шага; снять строку оттуда и завести правило
 # выше — работа того шага. Тесты каталога `tests/loop_tools/` проходят через API инструментов и называют
 # идентификатор правила в строке документации; тесты исполнителя (комната, загрузчик, версия) — своего уровня.
 
@@ -58,9 +58,6 @@ rules:
   - id: LR-15
     plan34: "Промежуточные карточки и отказы сценариев не видны пользователю"
     test: tests/loop_tools/test_open_and_restore.py::test_a_scenario_of_a_move_goes_the_same_path_as_a_chat_message
-  - id: LR-16
-    plan34: "`finalize` ссылается только на существующее"
-    test: tests/loop_tools/test_loop_rules.py::test_a_finish_cannot_cite_what_is_not_in_the_case
   - id: LR-17
     plan34: "Цикл конечен"
     cell: "`RunLimits` (ходы, новые атомы, ходы без прогресса, 1200 с)"
@@ -134,11 +131,12 @@ rules:
   - id: LR-40
     contract: "**Цикл** открывается только ответом `НУЖЕН_ЦИКЛ` у `aifa_goal`"
     test: tests/loop_tools/test_open_and_restore.py::test_when_the_standard_path_cannot_plan_the_cycle_is_handed_over
+  - id: LR-41
+    cell: "`evidence_ids` условием не служат — служба пишет в журнал прогона, существует ли каждая (ADR-0040 п. 1)"
+    test: tests/loop_tools/test_loop_rules.py::test_a_finish_with_a_missing_reference_is_accepted_and_the_journal_says_it_is_missing
 
 # Правила, которые вводят другие шаги; до них тестов нет и быть не должно.
 deferred:
-  - step: "13a"
-    cell: "`evidence_ids` условием не служат — служба пишет в журнал прогона, существует ли каждая (ADR-0040 п. 1)"
   - step: "17"
     cell: "атом с кодом в `new_atoms` — только до шага 17 (автор в службе, ADR-0029), затем `ОТКАЗ неверные_аргументы` с подсказкой «подзадача и `aifa_register_atom`»"
   - step: "17"
