@@ -125,7 +125,7 @@ def install(
     а не из фикстуры (шаг 11)."""
     from finengine import config
     from finengine.api import main as app_main
-    from finengine.assistant import standard_path
+    from finengine.assistant import read_tools, standard_path
     from finengine.skills.atoms.graph_atoms import build_registry
 
     locate, read_value = _executors(doc)
@@ -153,10 +153,14 @@ def install(
     monkeypatch.setattr(config.settings, "redis_url", "")
     if not real_documents:
         monkeypatch.setattr(standard_path, "get_store", lambda: store)
+        monkeypatch.setattr(read_tools, "get_store", lambda: store)
         monkeypatch.setattr(app_main, "get_store", lambda: store)
         monkeypatch.setattr(
             "finengine.store.blobs.document_text",
             lambda doc_id, **_: text if doc_id == DOC else None,
+        )
+        monkeypatch.setattr(
+            read_tools, "document_text", lambda doc_id, **_: text if doc_id == DOC else None
         )
     monkeypatch.setattr(app_main, "get_agent", lambda: NoOldChat())
     monkeypatch.setattr(app_main, "_upsert_dialog_stub", lambda *args, **kwargs: None)

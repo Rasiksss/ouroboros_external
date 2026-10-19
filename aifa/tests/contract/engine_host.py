@@ -56,6 +56,7 @@ def running_engine(
     monkeypatch.setattr(settings, "aifa_engine_token", ENGINE_TOKEN)
     composition.turn_gateway.cache_clear()
     composition.tool_api.cache_clear()
+    composition.loop_desk.cache_clear()
     app_main.app.dependency_overrides[get_current_user] = lambda: User(
         id=pipeline_fixture.OWNER, username="contract-analyst"
     )
@@ -80,6 +81,7 @@ def running_engine(
         app_main.app.dependency_overrides.pop(get_current_user, None)
         composition.turn_gateway.cache_clear()
         composition.tool_api.cache_clear()
+        composition.loop_desk.cache_clear()
 
 
 def _wait_until_up(base: str) -> None:
