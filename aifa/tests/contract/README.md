@@ -8,6 +8,10 @@ ouroboros (`CONTRACTS.md` §2): живой ouroboros, модель подста�
 подмены конвейера — `pipeline_fixture.py`), ouroboros-контейнер ходит к ней на хост через
 `host.docker.internal`. На Linux-хосте служба должна слушать адрес моста: `AIFA_CONTRACT_ENGINE_BIND=0.0.0.0`.
 
+Шаг 13: `test_loop_end_to_end.py` — цикл ведёт ouroboros (`loop_driver=ouroboros`): `aifa_goal` → `НУЖЕН_ЦИКЛ` →
+`aifa_doc` → `aifa_move` (сценарий хода → конвейер) → `aifa_finish` → финал; сценарий подставной модели —
+`scenarios/loop.json`, модель планировщика службы в нём вызвать нельзя. Сохранение цикла после хода проверяется там же.
+
 Шаг 11: `test_catalog_files.py` — C6.1–C6.4 настоящим `CatalogFiles` службы на каталоге ouroboros;
 `test_files_end_to_end.py` — загрузка документа через ручку службы → каталог → распознавание → ход с этим
 документом → файл-результат (атом `out.file`) в каталоге → выдача через ручку → история чата → удаление.

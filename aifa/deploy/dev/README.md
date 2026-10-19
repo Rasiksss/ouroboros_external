@@ -185,6 +185,14 @@ ssh -N -L 13000:127.0.0.1:13000 rasul@85.198.84.50      # затем http://127.
 остановлены (`docker stop`, не удалены) приложения старого AIFA: `finengine-backend-1`, `finengine-frontend-1`,
 `workstation-svc`, `openclaw-dev`; вернуть — `docker start` этих четырёх. Базы, Caddy, `infproxy` и prod не трогались.
 
+### Шаг 13 (19.10.2026)
+
+Выкачено при `loop_driver=engine` (умолчание; `FINENGINE_LOOP_DRIVER` в `engine.env` не задан): ветка
+`sym/13-loopsession-instrumenty-cikla`, `ouroboros` — полная сборка, `engine` — заменой `/app/src` поверх прежнего образа
+(`apt` сервера недоступен с нужной скоростью, зависимости не менялись; следующая выкатка собирает его целиком, P92). В
+ouroboros зарегистрированы шесть инструментов `aifa-engine`; `ouroboros` в `FINENGINE_LOOP_DRIVER` на dev не включать, пока
+навык `aifa-planning` не описывает цикл (шаг 14, P91).
+
 ### Известные ограничения
 
 - Диск dev: 2,9–5,3 ГБ свободно; полная пересборка трёх образов занимает до 4 ГБ кэша — после неё `docker builder prune -f`
