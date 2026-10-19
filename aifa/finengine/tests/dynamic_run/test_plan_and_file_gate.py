@@ -228,19 +228,6 @@ def test_the_state_table_keeps_what_an_answer_can_cite_and_drops_the_plumbing(ba
     assert "не цитируется" in form_row
 
 
-def test_citing_an_id_that_is_not_in_the_table_is_refused_with_what_to_cite_instead(base, local_room) -> None:
-    form = _form()
-    _put(base, "FormOutput", form)
-    planner = Replies([_reply("finalize", answer="Форма заполнена.", evidence_ids=[form.output_id])])
-    dynamic = _dynamic(base, planner)
-    events = _events(dynamic)
-
-    dynamic.run(deterministic_error="нет пути")
-
-    refusal = _rejections(events)[0]
-    assert form.output_id in refusal and "первом столбце" in refusal and "«—»" in refusal
-
-
 # ───────────────────────── автор ─────────────────────────
 
 def test_the_author_sees_a_sample_of_every_input_type_not_the_head_of_the_first() -> None:

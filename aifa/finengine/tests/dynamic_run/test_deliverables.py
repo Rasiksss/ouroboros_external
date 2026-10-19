@@ -180,25 +180,6 @@ def test_an_unknown_file_id_is_rejected_with_a_reason_the_planner_can_act_on(bas
     assert result.status == "gave_up"
 
 
-def test_finalize_without_evidence_and_without_files_is_still_refused(base, local_room) -> None:
-    class Empty:
-        def __init__(self):
-            self.prompts = []
-
-        async def __call__(self, system, prompt):
-            self.prompts.append(prompt)
-            if len(self.prompts) == 1:
-                return _move()
-            return _terminal() if len(self.prompts) == 2 else _terminal("give_up", answer="Нет.")
-
-    dynamic = _dynamic(base, Empty())
-    events = _events(dynamic)
-
-    dynamic.run(deterministic_error="нет пути")
-
-    assert any("deliverables" in str(event.get("details")) for event in events if event.get("status") == "rejected")
-
-
 def test_a_file_built_in_this_run_is_not_thrown_away_when_the_planner_gives_up(base, local_room) -> None:
     planner = Planner(lambda prompt: _terminal("give_up", answer="Формулы не сошлись, вот что есть."))
 

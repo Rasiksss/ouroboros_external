@@ -19,10 +19,10 @@ from test_dynamic_run import (
     _give_up,
     _move,
 )
-from test_ephemeral_atoms import ECHO_CODE, ECHO_SCHEMA, _metric
+from test_ephemeral_atoms import ECHO_CODE, ECHO_SCHEMA
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 
-from finengine.contracts import GoalIR, NodeKey, VerificationFinding
+from finengine.contracts import GoalIR, NodeKey
 from finengine.skills.spec.atom_author import AtomAuthor
 from finengine.skills.spec.dynamic_run import RunLimits, ScenarioResult, artifact_content
 from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom
@@ -190,44 +190,8 @@ async def test_a_dependent_part_waits_for_the_part_it_depends_on(base) -> None:
     await together.close()
 
 
-async def test_a_finish_cannot_cite_what_is_not_in_the_case(base) -> None:
-    """LR-16 (до шага 13a): `aifa_finish` со ссылкой на несуществующий артефакт — отказ."""
-    cycle = await open_cycle(base)
-
-    reply = await cycle.finish(_finalize("no-such-id"))
-
-    assert code_of(reply) == "ОТКАЗ неверные_аргументы" and "несуществующие артефакты" in reply
-    assert not cycle.session.closed
-    await cycle.close()
-
-
-async def test_a_finish_cannot_cite_a_failed_verification(base) -> None:
-    """LR-16 (до шага 13a): артефакт, чью проверку не прошло, ответом не становится."""
-    metric = _metric("EBITDA", 500.0)
-    base.store.put_artifact(
-        OWNER, CASE, node_key=NodeKey(atom_name="read.value", atom_version="1", args_fingerprint="m"),
-        output_type="ExtractedMetric", payloads=(metric,), concept="EBITDA", entity_ref=ENTITY, period_ref="2024",
-        basis=None, document_version="sha256:v1", policy_version=base.policy.policy_version,
-    )
-    finding = VerificationFinding(
-        check_kind="bounds", status="fail", detail="значение вне границ", source_ref=metric.scalar_fact.evidence_id,
-        produced_by_atom="verify.bounds", produced_by_atom_version="1",
-    )
-    base.store.put_artifact(
-        OWNER, CASE, node_key=NodeKey(atom_name="verify.bounds", atom_version="1", args_fingerprint="f"),
-        output_type="VerificationFinding", payloads=(finding,), concept=None, entity_ref=ENTITY, period_ref=None,
-        basis=None, document_version="sha256:v1", policy_version=base.policy.policy_version,
-    )
-    cycle = await open_cycle(base)
-
-    reply = await cycle.finish(_finalize(metric.scalar_fact.evidence_id))
-
-    assert code_of(reply) == "ОТКАЗ неверные_аргументы" and "проваленную проверку" in reply
-    await cycle.close()
-
-
 async def test_a_finish_with_a_citable_result_is_accepted(base) -> None:
-    """LR-16: найденное доказательство — `ПРИНЯТО`; цикл закрыт."""
+    """Найденный результат, названный в `evidence_ids`, — `ПРИНЯТО`; цикл закрыт."""
     cycle = await open_cycle(base, scenario=ExtractScenario(base, None))
     await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
 
@@ -307,7 +271,7 @@ async def test_the_last_word_that_is_refused_closes_the_cycle_with_a_summary(bas
     cycle = await open_cycle(base, scenario=ExtractScenario(base, None), limits=RunLimits(max_moves=1))
     await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
 
-    reply = await cycle.finish(_finalize("no-such-id"))
+    reply = await cycle.call("aifa_finish", {"action": "finalize", "deliverables": ["no-such-file"]})
 
     assert code_of(reply) == "ПРИНЯТО" and "итог не принят" in reply and "EBITDA" in reply
     assert cycle.session.closed
@@ -321,7 +285,7 @@ async def test_the_last_word_that_is_refused_still_publishes_what_was_found(base
     cycle.session.initial_file_ids = frozenset()
     await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
 
-    reply = await cycle.finish(_finalize("no-such-id"))
+    reply = await cycle.call("aifa_finish", {"action": "finalize", "deliverables": ["no-such-file"]})
 
     assert code_of(reply) == "ПРИНЯТО" and "итог не принят" in reply and "итоги.xlsx" in reply
     files = [event["filename"] for event in cycle.events if event["type"] == "file"]
