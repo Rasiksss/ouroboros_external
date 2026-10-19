@@ -871,14 +871,15 @@ async def _repair_underspecified_ad_hoc_goal_set(
 
 async def _default_complete(system: str, prompt: str, *, model_version: str | None) -> str:
     from finengine.llm import openrouter as _llm  # noqa: PLC0415 — тот же единый шлюз, что у two_stage_extractor
+    from finengine.skills.spec.atom_author import without_markdown_fence  # noqa: PLC0415 — ограда GLM, ADR-0048
 
-    return await asyncio.wait_for(
+    return without_markdown_fence(await asyncio.wait_for(
         _llm.complete(
             prompt, model=model_version, system=system, response_format={"type": "json_object"},
             temperature=0.0, retries=1, max_output=6000, reasoning_effort="low",
         ),
         timeout=settings.routing_model_timeout_seconds,
-    )
+    ))
 
 
 # ---------------------------------------------------------------------------
