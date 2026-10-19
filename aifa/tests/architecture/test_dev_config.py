@@ -31,6 +31,18 @@ APP_SERVICES = frozenset({"engine", "engine-postgres", "frontend"})
 # Контейнеры prod и общий вход: цели изменений быть не могут (ADR-0018).
 PROD_TARGETS = ("finengine-prod", "openclaw-prod-gw", "workstation-svc-prod", "finengine-caddy-1")
 LOOPBACK = ("127.0.0.1:", "[::1]:")
+# ouroboros — только /ready (ADR-0028); фронтенд — вход пользователей по SSH-туннелю (шаг 12):
+# оба строго на loopback, остальным сервисам порты запрещены.
+PUBLISHING_SERVICES = frozenset({"ouroboros", "frontend"})
+# ADR-0050: модели службы — как у старого AIFA на dev (сверено 19.10.2026), напрямую в Cloud.ru.
+SERVICE_MODELS = {
+    "FINENGINE_OPENROUTER_MODEL": "deepseek-ai/DeepSeek-V4-Pro",
+    "FINENGINE_NEWS_CLASSIFY_MODEL": "deepseek-ai/DeepSeek-V4-Pro",
+    "FINENGINE_PLANNER_MODEL": "zai-org/GLM-5.2",
+    "FINENGINE_ATOM_AUTHOR_MODEL": "zai-org/GLM-5.2",
+    "FINENGINE_PLANNER_REASONING_EFFORT": "medium",
+}
+MIN_S3_VOLUMES = 30  # две корзины (`ouroboros`, `finengine`) по семь томов роста, с запасом
 SECRET_KEY = re.compile(r"(KEY|SECRET|PASSWORD|TOKEN)$")
 PLACEHOLDER = "CHANGE_ME"
 DB_URL_KEY = re.compile(r"^OUROBOROS_RUNTIME_DB_URL(_\d+)?$")
@@ -124,6 +136,11 @@ def env_violations(
             for name, env in (("ouroboros.env.example", ouro), ("engine.env.example", engine))
             if key not in env
         )
+    problems.extend(
+        f"F9 (ADR-0050): {key}={engine.get(key)!r} в примере, у старого AIFA {expected!r}"
+        for key, expected in SERVICE_MODELS.items()
+        if engine.get(key) != expected
+    )
     if int(ouro.get("OUROBOROS_WORKER_SLOTS", "0") or 0) < 2:
         problems.append(
             "F9 (ADR-0008, ADR-0027): OUROBOROS_WORKER_SLOTS < 2 — автору не хватит слота"
@@ -210,7 +227,7 @@ def compose_violations(compose: Mapping[str, Any]) -> list[str]:
         if name in DEFAULT_SERVICES and profiles:
             problems.append(f"F9: `{name}` под профилем {profiles} — контур не поднимется целиком")
         ports = _published(service)
-        if ports and name != "ouroboros":
+        if ports and name not in PUBLISHING_SERVICES:
             problems.append(f"F9 (ADR-0028): `{name}` публикует порты {ports}")
         problems.extend(
             f"F9 (ADR-0028): `{name}` публикует {p!r} не на 127.0.0.1"
@@ -240,11 +257,26 @@ def compose_violations(compose: Mapping[str, Any]) -> list[str]:
         for name, spec in volumes.items()
         if not str((spec or {}).get("name", "")).startswith(f"{PROJECT}-")
     )
+    problems.extend(_s3_volume_violations(services.get("s3", {})))
     for service_name, env_file in (("ouroboros", "ouroboros.env"), ("engine", "engine.env")):
         files = _env_files(services.get(service_name, {}))
         if env_file not in files:
             problems.append(f"F9: `{service_name}` не читает {env_file} (env_file: {files})")
     return problems
+
+
+def _s3_volume_violations(service: Mapping[str, Any]) -> list[str]:
+    """SeaweedFS сам выводит потолок томов из свободного диска (на dev — 9); корзина растёт семью
+    томами, поэтому вторая корзина (`finengine`) не получала ни одного и PutObject отвечал
+    InternalError (шаг 12)."""
+    command = [str(item) for item in service.get("command") or []]
+    limits = [item.split("=", 1)[1] for item in command if item.startswith("-volume.max=")]
+    if not limits or not limits[0].isdigit() or int(limits[0]) < MIN_S3_VOLUMES:
+        return [
+            f"F9 (шаг 12): у `s3` нет -volume.max>={MIN_S3_VOLUMES}: две корзины не поместятся "
+            "в потолок томов, выведенный из диска"
+        ]
+    return []
 
 
 def workstation_limit_violations(
@@ -419,6 +451,43 @@ def test_f9_catches_a_port_published_beyond_loopback(tmp_path: Path) -> None:
     _edit(dev / "compose.yml", '"127.0.0.1:18180:8080"', '"18180:8080"')
     problems = dev_config_violations(dev, load_snapshot())
     assert any("ADR-0028" in p and "127.0.0.1" in p for p in problems)
+
+
+def test_f9_catches_a_frontend_published_beyond_loopback(tmp_path: Path) -> None:
+    """F9: фронтенд доступен только через туннель, на все интерфейсы не публикуется (ADR-0028)."""
+    dev = _copy_dev(tmp_path)
+    _edit(dev / "compose.yml", '"127.0.0.1:13000:3000"', '"13000:3000"')
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("`frontend` публикует" in p and "127.0.0.1" in p for p in problems)
+
+
+def test_f9_catches_a_port_on_the_engine(tmp_path: Path) -> None:
+    """F9: нарушитель — у службы опубликован порт, даже на loopback (её API не для входа)."""
+    dev = _copy_dev(tmp_path)
+    compose = yaml.safe_load((dev / "compose.yml").read_text(encoding="utf-8"))
+    compose["services"]["engine"]["ports"] = ["127.0.0.1:18000:8000"]
+    (dev / "compose.yml").write_text(yaml.safe_dump(compose, allow_unicode=True), encoding="utf-8")
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("`engine` публикует" in p for p in problems)
+
+
+def test_f9_catches_an_s3_left_with_the_disk_derived_volume_limit(tmp_path: Path) -> None:
+    """F9: нарушитель — у `s3` нет явного потолка томов, вторая корзина не получает томов."""
+    dev = _copy_dev(tmp_path)
+    _edit(dev / "compose.yml", ", -volume.max=40", "")
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("-volume.max" in p for p in problems)
+
+
+def test_f9_catches_a_service_model_drifting_from_the_old_aifa(tmp_path: Path) -> None:
+    """F9: нарушитель — модель службы расходится со старым AIFA (ADR-0050): нет модели новостей."""
+    dev = _copy_dev(tmp_path)
+    path = dev / "engine.env.example"
+    lines = path.read_text(encoding="utf-8").splitlines()
+    kept = [ln for ln in lines if not ln.startswith("FINENGINE_NEWS_CLASSIFY_MODEL=")]
+    path.write_text("\n".join(kept) + "\n", encoding="utf-8")
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("ADR-0050" in p and "FINENGINE_NEWS_CLASSIFY_MODEL" in p for p in problems)
 
 
 def test_f9_catches_a_port_on_the_workstation(tmp_path: Path) -> None:

@@ -41,6 +41,22 @@ def _ignore_entries(path: Path) -> set[str]:
     return {e.rstrip("/") for e in entries if e and not e.startswith("#")}
 
 
+def _frontend_rewrite_violations(dev: Path, lines: list[str]) -> list[str]:
+    """P31: перезапись `/api/*` Next.js запекается при `npm run build`, а не читается на запуске."""
+    text = "\n".join(lines)
+    problems: list[str] = []
+    if "ARG API_BASE_URL" not in text or "API_BASE_URL=$API_BASE_URL" not in text:
+        problems.append(
+            "F9 (P31): frontend.Dockerfile не передаёт API_BASE_URL в сборку — "
+            "перезапись /api/* запечётся на localhost:8000"
+        )
+    compose = yaml.safe_load((dev / "compose.yml").read_text(encoding="utf-8"))
+    args = ((compose["services"]["frontend"].get("build") or {}).get("args")) or {}
+    if not str(args.get("API_BASE_URL", "")).startswith("http://engine:"):
+        problems.append("F9 (P31): compose не задаёт build-аргумент API_BASE_URL на службу engine")
+    return problems
+
+
 def image_violations(dev: Path, engine_deploy: Path = ENGINE_DEPLOY) -> list[str]:
     problems: list[str] = []
     dockerfiles = {
@@ -95,6 +111,9 @@ def image_violations(dev: Path, engine_deploy: Path = ENGINE_DEPLOY) -> list[str
             problems.append(
                 "F9 (P15): в finengine/certs нет сертификатов — Росстат останется закрыт"
             )
+
+    if "frontend" in lines:
+        problems.extend(_frontend_rewrite_violations(dev, lines["frontend"]))
 
     if "workstation" in lines:
         if _bases(lines["workstation"])[:1] != ["workstation-svc:local"]:
@@ -193,3 +212,16 @@ def test_f9_catches_a_corporate_registry(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     assert any("корпоративный реестр" in p for p in image_violations(dev))
+
+
+def test_f9_catches_a_frontend_api_proxy_left_to_runtime(tmp_path: Path) -> None:
+    """F9: нарушитель — адрес службы для /api/* не доходит до сборки фронтенда (P31)."""
+    dev = _copy_dev(tmp_path)
+    path = dev / "frontend.Dockerfile"
+    kept = [
+        ln
+        for ln in path.read_text(encoding="utf-8").splitlines()
+        if "API_BASE_URL" not in ln.replace("NEXT_PUBLIC_API_BASE_URL", "")
+    ]
+    path.write_text("\n".join(kept) + "\n", encoding="utf-8")
+    assert any("P31" in p for p in image_violations(dev))
