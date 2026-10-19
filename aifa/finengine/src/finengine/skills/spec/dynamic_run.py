@@ -452,7 +452,9 @@ class LoopSession:
     def check(self, decision: Decision, *, last_word: bool = False) -> Decision | Rejection:
         """Правила решения: что можно исполнить или принять. `Rejection` — причина отказа и его код §3.0."""
         verdict = self._verdict(decision, last_word)
-        return Rejection(verdict) if type(verdict) is str else verdict
+        if isinstance(verdict, Decision | Rejection):
+            return verdict
+        return Rejection(verdict)
 
     def _verdict(self, decision: Decision, last_word: bool) -> Decision | str:
         self._accept_plan(decision.plan, decision.files)
