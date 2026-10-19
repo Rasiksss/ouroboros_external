@@ -1,8 +1,8 @@
 {
   "snapshot_version": 1,
-  "adr": "ADR-0047",
-  "note": "Снимок схем инструментов навыка aifa-engine, зарегистрированных шагом 10 (F4). Шаги 13 и 16 расширяют его вместе с ADR.",
-  "budget_chars": 584,
+  "adr": "ADR-0051",
+  "note": "Снимок схем инструментов навыка aifa-engine (F4): шаг 10 — aifa_goal, aifa_wait; шаг 13 — aifa_state, aifa_doc, aifa_move, aifa_finish. Шаг 16 добавит aifa_register_atom и aifa_report вместе с ADR.",
+  "budget_chars": 2823,
   "tools": {
     "aifa_goal": {
       "arguments": [],
@@ -13,10 +13,72 @@
       "result_limit": 12000
     },
     "aifa_wait": {
-      "arguments": ["job_id", "wait_sec"],
-      "required": ["job_id", "wait_sec"],
+      "arguments": [
+        "job_id",
+        "wait_sec"
+      ],
+      "required": [
+        "job_id",
+        "wait_sec"
+      ],
       "safety_policy": "skip",
       "capability_class": "read_only",
+      "timeout_sec": 300,
+      "result_limit": 12000
+    },
+    "aifa_state": {
+      "arguments": [
+        "artifact_ids"
+      ],
+      "required": [],
+      "safety_policy": "skip",
+      "capability_class": "read_only",
+      "timeout_sec": 300,
+      "result_limit": 12000
+    },
+    "aifa_doc": {
+      "arguments": [
+        "doc_id",
+        "pages",
+        "query"
+      ],
+      "required": [],
+      "safety_policy": "skip",
+      "capability_class": "read_only",
+      "timeout_sec": 300,
+      "result_limit": 12000
+    },
+    "aifa_move": {
+      "arguments": [
+        "files",
+        "goals",
+        "new_atoms",
+        "objective",
+        "plan",
+        "reason",
+        "scenarios",
+        "steps"
+      ],
+      "required": [
+        "objective",
+        "reason"
+      ],
+      "safety_policy": "skip",
+      "capability_class": "mutative",
+      "timeout_sec": 300,
+      "result_limit": 12000
+    },
+    "aifa_finish": {
+      "arguments": [
+        "action",
+        "deliverables",
+        "evidence_ids"
+      ],
+      "required": [
+        "action"
+      ],
+      "safety_policy": "skip",
+      "capability_class": "mutative",
       "timeout_sec": 300,
       "result_limit": 12000
     }

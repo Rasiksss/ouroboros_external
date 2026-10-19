@@ -18,8 +18,7 @@ from finengine.skills import run_orchestrator
 from finengine.skills.production_runtime import LoopOpener, restore_loop_session
 from finengine.skills.spec.dynamic_run import LoopSession
 from finengine.skills.spec.loop_state import LoopOrigin, state_of
-from finengine.store import state
-from finengine.store.blobs import document_text
+from finengine.store import blobs, state
 
 log = logging.getLogger(__name__)
 
@@ -113,7 +112,7 @@ class LoopDesk:
         if doc is None:
             return None
         origin = LoopOrigin.from_doc(doc["origin"])
-        text = await asyncio.to_thread(document_text, origin.document_id) or ""
+        text = await asyncio.to_thread(blobs.document_text, origin.document_id) or ""
         session = await asyncio.to_thread(
             restore_loop_session, origin, doc["state"], document_text=text,
             event_sink=LoopEmitter.here(run_id), is_cancelled=RunClosed(run_id),

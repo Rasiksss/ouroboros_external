@@ -10,7 +10,7 @@ from aifa_engine_support import SNAPSHOT, Registered, registered_tools, schema_c
 from ouroboros.storage.settings.schema import AppSettings
 
 TARGET_CHARS = 7000
-EXPECTED_TOOLS = {"aifa_goal", "aifa_wait"}
+EXPECTED_TOOLS = {"aifa_goal", "aifa_wait", "aifa_state", "aifa_doc", "aifa_move", "aifa_finish"}
 
 
 def _shape(tool: Registered) -> dict[str, Any]:
@@ -26,7 +26,7 @@ def _shape(tool: Registered) -> dict[str, Any]:
 
 
 def test_the_plugin_registers_exactly_the_tools_this_step_owns() -> None:
-    """F4: набор инструментов — `aifa_goal` и `aifa_wait`; остальные шесть приходят шагами 13 и 16."""
+    """F4: набор инструментов — шесть (шаги 10 и 13); `aifa_register_atom` и `aifa_report` приходят шагом 16."""
     assert set(registered_tools()) == EXPECTED_TOOLS
 
 

@@ -7,21 +7,24 @@ from __future__ import annotations
 
 import json
 
-from loop_support import open_cycle
+from loop_support import make_passport, open_cycle
+from test_atom_author import BAD_SCHEMA_CODE, Script
 from test_deliverables import _file_artifact
 from test_dynamic_run import (
+    CALC_SCHEMA,
     ExtractScenario,
     RefusingScenario,
     _finalize,
     _give_up,
     _move,
 )
-from test_ephemeral_atoms import _metric
+from test_ephemeral_atoms import ECHO_CODE, ECHO_SCHEMA, _metric
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 
 from finengine.contracts import NodeKey, VerificationFinding
-from finengine.skills.spec.dynamic_run import RunLimits
-from finengine.skills.spec.ephemeral import AtomRequest
+from finengine.skills.spec.atom_author import AtomAuthor
+from finengine.skills.spec.dynamic_run import RunLimits, artifact_content
+from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom
 from finengine.skills.spec.target import InputSpec
 from finengine.store.cases import evidence_id_of
 
@@ -93,7 +96,7 @@ async def test_a_number_of_the_result_needs_its_unit(base) -> None:
 
 
 async def test_a_code_atom_needs_inputs_that_are_already_in_the_case(base) -> None:
-    """LR-22: атом с кодом пишется, когда его входы уже в Case; иначе `нет_входов`, а не вызов автора."""
+    """LR-24: атом с кодом пишется, когда его входы уже в Case; иначе `нет_входов`, а не вызов автора."""
     cycle = await open_cycle(base)
     request = _atom(url="", requires=(InputSpec("ExtractedMetric", "EBITDA"),))
 
@@ -104,7 +107,7 @@ async def test_a_code_atom_needs_inputs_that_are_already_in_the_case(base) -> No
 
 
 async def test_the_same_dead_end_move_is_refused(base) -> None:
-    """LR-23: точный повтор хода без новых результатов — `повтор_тупика`."""
+    """LR-25: точный повтор хода без новых результатов — `повтор_тупика`."""
     cycle = await open_cycle(base, scenario=RefusingScenario())
     move = _move(scenarios=("Извлеки EBITDA",))
 
@@ -117,7 +120,7 @@ async def test_the_same_dead_end_move_is_refused(base) -> None:
 
 
 async def test_a_move_has_at_most_three_actions(base) -> None:
-    """LR-20: за ход не больше трёх действий — сценарии и части цели вместе."""
+    """LR-21: за ход не больше трёх действий — сценарии и части цели вместе."""
     cycle = await open_cycle(base, scenario=RefusingScenario())
 
     reply = await cycle.move(_move(scenarios=("а", "б", "в", "г")))
@@ -127,7 +130,7 @@ async def test_a_move_has_at_most_three_actions(base) -> None:
 
 
 async def test_a_part_of_the_goal_must_be_one_the_goal_has(base) -> None:
-    """LR-24: части цели называют по `goal_ref` из разобранной цели; неизвестная — отказ с перечнем."""
+    """LR-26: части цели называют по `goal_ref` из разобранной цели; неизвестная — отказ с перечнем."""
     cycle = await open_cycle(base)
     cycle.session.run_goals = type("Goals", (), {"refusal": lambda self, clause: None})()
     arguments = json.loads(_move(scenarios=()))
@@ -187,7 +190,7 @@ async def test_a_finish_with_a_citable_result_is_accepted(base) -> None:
 
 
 async def test_the_promised_file_must_be_built_before_the_finish(base) -> None:
-    """LR-29: обещанный планом файл не собран — `файл_не_собран`, пока цикл не потратил ходы с кодом атома."""
+    """LR-31: обещанный планом файл не собран — `файл_не_собран`, пока цикл не потратил ходы с кодом атома."""
     cycle = await open_cycle(base, scenario=ExtractScenario(base, None))
     arguments = json.loads(_move(scenarios=("Извлеки EBITDA",)))
     arguments.update(plan=["получить показатели", "собрать Excel"], files=[{"kind": "xlsx", "parts": 0, "formulas": False}])
@@ -200,7 +203,7 @@ async def test_the_promised_file_must_be_built_before_the_finish(base) -> None:
 
 
 async def test_a_built_file_is_published_to_the_screen_with_the_finish(base) -> None:
-    """LR-31: собранный файл уходит в ответ сам и публикуется событием `file` при `aifa_finish`."""
+    """LR-32: собранный файл уходит в ответ сам и публикуется событием `file` при `aifa_finish`."""
     file_id = _put_file(base)
     cycle = await open_cycle(base)
     cycle.session.initial_file_ids = frozenset()
@@ -215,7 +218,7 @@ async def test_a_built_file_is_published_to_the_screen_with_the_finish(base) -> 
 
 
 async def test_the_cycle_is_finite_and_the_limit_leaves_only_the_last_word(base) -> None:
-    """LR-17: `RunLimits` — после исчерпания ходов `aifa_move` отвечает `ЛИМИТ`, а `aifa_finish` принимается."""
+    """LR-17, LR-33: `RunLimits` — после исчерпания ходов `aifa_move` отвечает `ЛИМИТ`, а `aifa_finish` принимается."""
     cycle = await open_cycle(base, scenario=ExtractScenario(base, None), limits=RunLimits(max_moves=2))
 
     first = await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
@@ -229,7 +232,7 @@ async def test_the_cycle_is_finite_and_the_limit_leaves_only_the_last_word(base)
 
 
 async def test_moves_without_progress_exhaust_the_cycle(base) -> None:
-    """LR-17: `idle_moves` ходов подряд без новых результатов — `ЛИМИТ` на самом последнем из них."""
+    """LR-18: `idle_moves` ходов подряд без новых результатов — `ЛИМИТ` на самом последнем из них."""
     cycle = await open_cycle(base, limits=RunLimits(max_moves=6, idle_moves=2))
     unmade = _atom(output_type="not-dyn")
 
@@ -242,7 +245,7 @@ async def test_moves_without_progress_exhaust_the_cycle(base) -> None:
 
 
 async def test_the_new_atoms_limit_refuses_a_new_atom_but_not_the_old_ones(base) -> None:
-    """LR-17: лимит новых атомов `RunLimits` — `лимит_атомов`."""
+    """LR-19: лимит новых атомов `RunLimits` — `лимит_атомов`."""
     cycle = await open_cycle(base, limits=RunLimits(max_new_atoms=0))
 
     reply = await cycle.move(_refused_move(_atom()))
@@ -252,7 +255,7 @@ async def test_the_new_atoms_limit_refuses_a_new_atom_but_not_the_old_ones(base)
 
 
 async def test_the_last_word_that_is_refused_closes_the_cycle_with_a_summary(base) -> None:
-    """LR-32: после лимита недействительное последнее слово не зацикливает ход — сводка по найденному, как у службы."""
+    """LR-33: после лимита недействительное последнее слово не зацикливает ход — сводка по найденному, как у службы."""
     cycle = await open_cycle(base, scenario=ExtractScenario(base, None), limits=RunLimits(max_moves=1))
     await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
 
@@ -264,10 +267,151 @@ async def test_the_last_word_that_is_refused_closes_the_cycle_with_a_summary(bas
 
 
 async def test_give_up_needs_no_evidence(base) -> None:
-    """LR-33: `give_up` принимается без ссылок; ответ пользователю — последнее сообщение корня (ADR-0024 п. 1)."""
+    """`give_up` принимается без ссылок; ответ пользователю — последнее сообщение корня (ADR-0024 п. 1)."""
     cycle = await open_cycle(base)
 
     reply = await cycle.finish(_give_up())
 
     assert reply == "ПРИНЯТО\nЦикл закрыт."
+    await cycle.close()
+
+
+# ── правила исполнителя, которые держит код, — через ход цикла ──────────────────────────────────────
+
+
+def _dynamic_content(base, output_type: str) -> str:
+    """Полное содержимое `dyn:*`-артефакта Case так, как его отдаёт `aifa_state(artifact_ids)`."""
+    payload = next(
+        payload for row in base.store.list_artifacts(OWNER, CASE) for payload in row["payloads"]
+        if getattr(payload, "output_type", "") == output_type
+    )
+    return artifact_content(payload)
+
+
+def _echo_author() -> AtomAuthor:
+    return AtomAuthor(Script([json.dumps({"code": ECHO_CODE, "example_inputs": {}}, ensure_ascii=False)]))
+
+
+def _echo_request() -> AtomRequest:
+    return AtomRequest(
+        name="eph.echo", purpose="что видит код", output_type="dyn:echo", output_schema=ECHO_SCHEMA,
+        requires=(InputSpec("ExtractedMetric", "EBITDA"),),
+    )
+
+
+async def test_the_code_of_an_atom_sees_only_the_results_of_its_inputs(base, local_room) -> None:
+    """LR-05: код атома не видит сырой документ — только результаты входов; текст отчёта до него не доходит."""
+    passport = make_passport()
+    cycle = await open_cycle(
+        base, scenario=ExtractScenario(base, passport), author=_echo_author(), passport=passport,
+        document_text="СЕКРЕТНЫЙ ТЕКСТ ОТЧЁТА",
+    )
+    request = _echo_request()
+
+    await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
+    reply = await cycle.move(_move(atoms=(request,), steps=({"atom": request.name},)))
+
+    seen = json.loads(_dynamic_content(base, "dyn:echo"))["payload"]["seen"]
+    assert code_of(reply) == "ГОТОВО" and "ExtractedMetric" in seen
+    assert "СЕКРЕТНЫЙ" not in seen
+    await cycle.close()
+
+
+async def test_the_result_of_an_atom_carries_its_version_and_the_origin_the_wrapper_computed(base, local_room) -> None:
+    """LR-09, LR-11: результат — от конкретного кода (`eph.<имя>@<хэш контракта и кода>`), происхождение — из входов."""
+    passport = make_passport()
+    cycle = await open_cycle(
+        base, scenario=ExtractScenario(base, passport), author=_echo_author(), passport=passport, document_text="отчёт",
+    )
+    request = _echo_request()
+
+    await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
+    await cycle.move(_move(atoms=(request,), steps=({"atom": request.name},)))
+
+    content = json.loads(_dynamic_content(base, "dyn:echo"))
+    assert content["producer"] == f"eph.echo@{EphemeralAtom(request, ECHO_CODE).version}"
+    assert content["origin"], "происхождение считает обёртка, не код атома"
+    await cycle.close()
+
+
+async def test_a_result_of_the_wrong_shape_is_a_failed_attempt_and_no_atom(base, local_room) -> None:
+    """LR-10: результат обязан соответствовать `output_schema`; код автора, не прошедший проверку, атомом не становится."""
+    wrong = json.dumps({"code": BAD_SCHEMA_CODE, "example_inputs": {}}, ensure_ascii=False)
+    cycle = await open_cycle(base, scenario=ExtractScenario(base, None), author=AtomAuthor(Script([wrong] * 3)))
+    request = AtomRequest(
+        name="eph.margin_with_brent", purpose="маржа", output_type="dyn:margin_with_brent", output_schema=CALC_SCHEMA,
+        requires=(InputSpec("ExtractedMetric", "EBITDA"), InputSpec("ExtractedMetric", "REVENUE")),
+    )
+
+    reply = await cycle.move(_move(scenarios=("Извлеки EBITDA и выручку",), atoms=(request,), steps=({"atom": request.name},)))
+
+    assert code_of(reply) == "ГОТОВО" and "output_schema" in reply
+    assert request.name not in cycle.session.atoms
+    await cycle.close()
+
+
+async def test_a_download_to_a_private_address_is_refused_by_the_guard(base) -> None:
+    """LR-04: загрузка ходит только на свой узел и только по публичным адресам; приватный адрес — отказ узла."""
+    cycle = await open_cycle(base)
+
+    reply = await cycle.move(_refused_move(_atom(url="http://127.0.0.1:9/a.csv")))
+
+    assert code_of(reply) == "ГОТОВО" and "✗ eph.probe" in reply and "приватный" in reply
+    await cycle.close()
+
+
+async def test_gates_cannot_be_planned_by_hand_and_the_planner_adds_them(base) -> None:
+    """LR-08: гейты проверок планировщик ставит сам — вручную их не назвать, а шаг чтения тянет их за собой."""
+    cycle = await open_cycle(base, passport=make_passport(), document_text="Выручка 2000 млн руб. EBITDA 500 млн руб.")
+
+    by_hand = await cycle.move(_move(steps=({"atom": "verify.bounds"},)))
+    read = await cycle.move(_move(steps=({"atom": "read.value", "concept": "EBITDA", "period_ref": "2024"},)))
+
+    assert "нельзя планировать вручную" in by_hand
+    assert "verify." in read or "norm." in read, "гейты достроены планировщиком и исполнены"
+    await cycle.close()
+
+
+async def test_the_wall_time_of_the_cycle_is_limited(base, monkeypatch) -> None:
+    """LR-20: бюджет времени цикла (`RunLimits.max_wall_seconds`) — по его исчерпании `aifa_move` отвечает `ЛИМИТ`."""
+    clock = [1000.0]
+    monkeypatch.setattr("finengine.skills.spec.dynamic_run.monotonic", lambda: clock[0])
+    cycle = await open_cycle(base, scenario=ExtractScenario(base, None), limits=RunLimits(max_wall_seconds=1200.0))
+
+    first = await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
+    clock[0] += 1300.0
+    second = await cycle.move(_move(scenarios=("Извлеки выручку",)))
+
+    assert code_of(first) == "ГОТОВО" and code_of(second) == "ЛИМИТ" and "бюджет времени" in second
+    assert cycle.session.turns == 1, "ход после бюджета не исполнялся"
+    await cycle.close()
+
+
+async def test_an_atom_without_a_step_runs_by_itself(base) -> None:
+    """LR-22: атом, описанный в `new_atoms` без шага, запускается сам — отказом возвращать его модели незачем."""
+    cycle = await open_cycle(base)
+
+    reply = await cycle.move(_move(atoms=(_atom(url="http://127.0.0.1:9/a.csv"),)))
+
+    assert code_of(reply) == "ГОТОВО" and "✗ eph.probe" in reply, "узел атома исполнялся"
+    await cycle.close()
+
+
+async def test_a_code_atom_needs_inputs_by_contract(base) -> None:
+    """LR-23: у атома с кодом есть `requires` — иначе ему не из чего считать, контракт отклонён."""
+    cycle = await open_cycle(base)
+
+    reply = await cycle.move(_refused_move(_atom(url="", requires=())))
+
+    assert code_of(reply) == "ОТКАЗ неверные_аргументы" and "без входов" in reply
+    await cycle.close()
+
+
+async def test_a_download_atom_is_described_in_new_atoms(base) -> None:
+    """LR-27: атом-загрузка (с `url`) описывается в `new_atoms` и становится атомом цикла."""
+    cycle = await open_cycle(base)
+
+    await cycle.move(_refused_move(_atom(url="http://127.0.0.1:9/a.csv")))
+
+    assert cycle.session.atoms["eph.probe"].request.is_download
     await cycle.close()

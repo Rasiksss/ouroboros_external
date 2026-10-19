@@ -9,7 +9,7 @@ import asyncio
 import json
 
 from dynamic_support import normalized_events
-from loop_support import new_runtime, open_cycle
+from loop_support import make_passport, new_runtime, open_cycle
 from test_atom_author import Script
 from test_dynamic_run import (
     CALC_CODE,
@@ -22,7 +22,6 @@ from test_dynamic_run import (
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 
 from finengine.contracts import GoalIR
-from finengine.skills.atoms.run_passport import build_run_passport, classification_from_cell
 from finengine.skills.spec.atom_author import AtomAuthor
 from finengine.skills.spec.dynamic_run import DynamicRun
 from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom
@@ -39,13 +38,6 @@ MARGIN_ID = EphemeralAtom(MARGIN, CALC_CODE).version
 
 def _author() -> AtomAuthor:
     return AtomAuthor(Script([json.dumps({"code": CALC_CODE, "example_inputs": {}}, ensure_ascii=False)]))
-
-
-def _passport():
-    goal = GoalIR(raw_query="сложный вопрос", intent_kind="document_qa")
-    return build_run_passport(
-        "financial report", goal_ir_id=goal.goal_id, classification=classification_from_cell("ifrs_nf_ru"),
-    )
 
 
 def _decisions() -> list[str]:
@@ -66,9 +58,9 @@ def _without_final_words(events: list[dict]) -> list[dict]:
 async def test_recorded_decisions_give_the_same_outcome_and_events_through_the_tools(
     base, read_value, tmp_path, local_room,
 ) -> None:
-    """Эквивалентность: тот же итог цикла, журнал ходов и события экрана, что у `DynamicRun` (C3.1)."""
+    """LR-34, C3.1, эквивалентность: тот же итог цикла, журнал ходов и события экрана, что у `DynamicRun`."""
     events: list[dict] = []
-    passport = _passport()
+    passport = make_passport()
     engine_runtime = new_runtime(tmp_path, "engine", read_value)
     engine = DynamicRun(
         runtime=engine_runtime, owner_id=OWNER, case_id=CASE,

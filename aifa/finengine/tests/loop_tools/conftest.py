@@ -40,7 +40,6 @@ from finengine.config import settings
 def loop_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, base, coordination) -> None:
     """Срок вызова — доли секунды; состояние цикла — во временном каталоге; Case артефактов — рантайма теста."""
     monkeypatch.setattr(settings, "data_dir", tmp_path)
-    monkeypatch.setattr(settings, "state_database_url", "")
     monkeypatch.setattr(settings, "ouroboros_goal_wait_sec", 5.0)
     monkeypatch.setattr(settings, "ouroboros_run_watch_sec", 0.05)
     monkeypatch.setattr(goal_tools, "WAIT_MIN_SEC", 0)

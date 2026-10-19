@@ -127,7 +127,7 @@ async def test_after_the_finish_every_changing_call_is_refused_as_closed(base) -
 
 
 async def test_a_subtask_may_move_the_cycle_but_not_close_it(base) -> None:
-    """C3.0: `aifa_finish` из подзадачи — `ОТКАЗ не_та_роль`; ход цикла подзадача делать может (ADR-0043 п. 2)."""
+    """LR-28, C3.0: `aifa_finish` из подзадачи — `ОТКАЗ не_та_роль`; ход цикла подзадача делать может (ADR-0043 п. 2)."""
     cycle = await open_cycle(base, scenario=Slow(delay=0.0))
 
     assert first_line_of(await cycle.call("aifa_finish", {"action": "give_up"}, depth=1)) == "ОТКАЗ не_та_роль"
@@ -148,7 +148,7 @@ class AnsweredGoal:
 
 
 async def test_the_cycle_is_opened_only_by_the_answer_that_needs_it(base) -> None:
-    """C3.9: после `ГОТОВО` `aifa_move`, `aifa_finish` и `aifa_state` без id — `ОТКАЗ нет_цикла`; чтение по id и
+    """LR-29, C3.9: после `ГОТОВО` `aifa_move`, `aifa_finish` и `aifa_state` без id — `ОТКАЗ нет_цикла`; чтение по id и
     `aifa_doc` отвечают."""
     run = open_run(user_id=OWNER, case_id=CASE, doc_ids=())
     plugin = Plugin(ToolApi(Gateway(), AnsweredGoal()))
@@ -168,7 +168,7 @@ async def test_the_cycle_is_opened_only_by_the_answer_that_needs_it(base) -> Non
 
 
 async def test_nothing_of_the_cycle_is_readable_before_the_goal_was_asked(base) -> None:
-    """§3.0: `aifa_state(artifact_ids)` и `aifa_doc` доступны после любого `aifa_goal`, не раньше."""
+    """LR-30, §3.0: `aifa_state(artifact_ids)` и `aifa_doc` доступны после любого `aifa_goal`, не раньше."""
     run = open_run(user_id=OWNER, case_id=CASE, doc_ids=())
     plugin = Plugin(ToolApi(Gateway(), AnsweredGoal()))
     ctx = ctx_of(run.run_id)

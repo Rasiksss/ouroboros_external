@@ -20,6 +20,7 @@ from finengine.assistant.loop_desk import LoopDesk, LoopEmitter
 from finengine.assistant.tool_api import ToolApi
 from finengine.contracts import GoalIR
 from finengine.skills.atoms.graph_atoms import build_registry, default_policy
+from finengine.skills.atoms.run_passport import build_run_passport, classification_from_cell
 from finengine.skills.case_runtime import CaseRuntime
 from finengine.skills.production_runtime import SwitchSink
 from finengine.skills.spec.dynamic_run import LoopSession, RunLimits
@@ -27,6 +28,14 @@ from finengine.skills.spec.graph_executor import ExecutionBudget, RunInputs
 from finengine.skills.spec.loop_state import LoopOrigin
 from finengine.skills.spec.target import Target
 from finengine.store.cases import SqlCaseStore
+
+
+def make_passport() -> Any:
+    """Паспорт прогона, как у цикла в службе: без него граф не находит уже полученное и не достраивает гейты."""
+    goal = GoalIR(raw_query="сложный вопрос", intent_kind="document_qa")
+    return build_run_passport(
+        "financial report", goal_ir_id=goal.goal_id, classification=classification_from_cell("ifrs_nf_ru"),
+    )
 
 
 def new_runtime(tmp_path: Path, name: str, read_value) -> CaseRuntime:
@@ -99,14 +108,14 @@ class Cycle:
 async def open_cycle(
     base, *, scenario: Callable[[str], Any] | None = None, author: Any = None,
     limits: RunLimits = RunLimits(), passport: Any = None, doc_ids: tuple[str, ...] = (),
-    message: str = "сложный вопрос", entry_stage: str = "planning",
+    message: str = "сложный вопрос", entry_stage: str = "planning", document_text: str = "",
 ) -> Cycle:
     """Цикл, открытый так, как его открывает `aifa_goal` при `НУЖЕН_ЦИКЛ`: сессия принята `LoopDesk`."""
     run = open_run(user_id=OWNER, case_id=CASE, doc_ids=doc_ids, message=message)
     goal = GoalIR(raw_query=message, intent_kind="document_qa")
     target = Target(output_type="QuoteEvidence", entity_ref=ENTITY)
     session = LoopSession(
-        runtime=base, owner_id=OWNER, case_id=CASE, goal=goal, target=target, inputs=RunInputs(),
+        runtime=base, owner_id=OWNER, case_id=CASE, goal=goal, target=target, inputs=RunInputs(document_text=document_text),
         run_scenario=scenario, author=author, limits=limits, run_passport=passport, event_sink=SwitchSink(), entry_stage=entry_stage,  # type: ignore[arg-type]
     )
     session.open(deterministic_error="нет пути")
@@ -127,4 +136,4 @@ class _NoGoal:
         raise AssertionError("aifa_goal не должен вызываться")
 
 
-__all__ = ["new_runtime", "CHAT", "CASE", "ENTITY", "OWNER", "ROOT", "Cycle", "args_of", "finish_args", "open_cycle"]
+__all__ = ["make_passport", "new_runtime", "CHAT", "CASE", "ENTITY", "OWNER", "ROOT", "Cycle", "args_of", "finish_args", "open_cycle"]
