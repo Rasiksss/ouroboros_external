@@ -449,7 +449,7 @@ def test_f9_catches_a_port_published_beyond_loopback(tmp_path: Path) -> None:
 
 
 def test_f9_catches_a_frontend_published_beyond_loopback(tmp_path: Path) -> None:
-    """F9: фронтенд доступен только через туннель; на все интерфейсы он не публикуется (ADR-0028)."""
+    """F9: фронтенд доступен только через туннель, на все интерфейсы не публикуется (ADR-0028)."""
     dev = _copy_dev(tmp_path)
     _edit(dev / "compose.yml", '"127.0.0.1:13000:3000"', '"13000:3000"')
     problems = dev_config_violations(dev, load_snapshot())
@@ -457,7 +457,7 @@ def test_f9_catches_a_frontend_published_beyond_loopback(tmp_path: Path) -> None
 
 
 def test_f9_catches_a_port_on_the_engine(tmp_path: Path) -> None:
-    """F9: нарушитель — у службы опубликован порт, даже на loopback: её внутренний API не для входа."""
+    """F9: нарушитель — у службы опубликован порт, даже на loopback (её API не для входа)."""
     dev = _copy_dev(tmp_path)
     compose = yaml.safe_load((dev / "compose.yml").read_text(encoding="utf-8"))
     compose["services"]["engine"]["ports"] = ["127.0.0.1:18000:8000"]

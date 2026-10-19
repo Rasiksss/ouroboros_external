@@ -42,7 +42,7 @@ def _ignore_entries(path: Path) -> set[str]:
 
 
 def _frontend_rewrite_violations(dev: Path, lines: list[str]) -> list[str]:
-    """P31: `/api/*` Next.js запекается при `npm run build` (standalone), а не читается на запуске."""
+    """P31: перезапись `/api/*` Next.js запекается при `npm run build`, а не читается на запуске."""
     text = "\n".join(lines)
     problems: list[str] = []
     if "ARG API_BASE_URL" not in text or "API_BASE_URL=$API_BASE_URL" not in text:
