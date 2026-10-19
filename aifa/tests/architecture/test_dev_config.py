@@ -34,6 +34,7 @@ LOOPBACK = ("127.0.0.1:", "[::1]:")
 # ouroboros — только /ready (ADR-0028); фронтенд — вход пользователей по SSH-туннелю (шаг 12):
 # оба строго на loopback, остальным сервисам порты запрещены.
 PUBLISHING_SERVICES = frozenset({"ouroboros", "frontend"})
+MIN_S3_VOLUMES = 30  # две корзины (`ouroboros`, `finengine`) по семь томов роста, с запасом
 SECRET_KEY = re.compile(r"(KEY|SECRET|PASSWORD|TOKEN)$")
 PLACEHOLDER = "CHANGE_ME"
 DB_URL_KEY = re.compile(r"^OUROBOROS_RUNTIME_DB_URL(_\d+)?$")
@@ -243,11 +244,26 @@ def compose_violations(compose: Mapping[str, Any]) -> list[str]:
         for name, spec in volumes.items()
         if not str((spec or {}).get("name", "")).startswith(f"{PROJECT}-")
     )
+    problems.extend(_s3_volume_violations(services.get("s3", {})))
     for service_name, env_file in (("ouroboros", "ouroboros.env"), ("engine", "engine.env")):
         files = _env_files(services.get(service_name, {}))
         if env_file not in files:
             problems.append(f"F9: `{service_name}` не читает {env_file} (env_file: {files})")
     return problems
+
+
+def _s3_volume_violations(service: Mapping[str, Any]) -> list[str]:
+    """SeaweedFS сам выводит потолок томов из свободного диска (на dev — 9); корзина растёт семью
+    томами, поэтому вторая корзина (`finengine`) не получала ни одного и PutObject отвечал
+    InternalError (шаг 12)."""
+    command = [str(item) for item in service.get("command") or []]
+    limits = [item.split("=", 1)[1] for item in command if item.startswith("-volume.max=")]
+    if not limits or not limits[0].isdigit() or int(limits[0]) < MIN_S3_VOLUMES:
+        return [
+            f"F9 (шаг 12): у `s3` нет -volume.max>={MIN_S3_VOLUMES}: две корзины не поместятся "
+            "в потолок томов, выведенный из диска"
+        ]
+    return []
 
 
 def workstation_limit_violations(
@@ -440,6 +456,14 @@ def test_f9_catches_a_port_on_the_engine(tmp_path: Path) -> None:
     (dev / "compose.yml").write_text(yaml.safe_dump(compose, allow_unicode=True), encoding="utf-8")
     problems = dev_config_violations(dev, load_snapshot())
     assert any("`engine` публикует" in p for p in problems)
+
+
+def test_f9_catches_an_s3_left_with_the_disk_derived_volume_limit(tmp_path: Path) -> None:
+    """F9: нарушитель — у `s3` нет явного потолка томов, вторая корзина не получает томов."""
+    dev = _copy_dev(tmp_path)
+    _edit(dev / "compose.yml", ", -volume.max=40", "")
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("-volume.max" in p for p in problems)
 
 
 def test_f9_catches_a_port_on_the_workstation(tmp_path: Path) -> None:

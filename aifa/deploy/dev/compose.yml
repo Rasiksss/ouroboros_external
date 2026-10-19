@@ -79,7 +79,10 @@ services:
   s3:
     image: chrislusf/seaweedfs:4.48
     restart: unless-stopped
-    command: [server, -dir=/data, -s3, -s3.port=8333, -master.volumeSizeLimitMB=512]
+    # -volume.max: без него потолок томов выводится из свободного диска (9), а корзина растёт семью
+    # томами — вторая корзина не получала ни одного (PutObject → InternalError, шаг 12). Тома не
+    # преаллоцируются: потолок места на диске не занимает.
+    command: [server, -dir=/data, -s3, -s3.port=8333, -master.volumeSizeLimitMB=512, -volume.max=40]
     environment:
       AWS_ACCESS_KEY_ID: ${AIFA_SYM_S3_USER:-}
       AWS_SECRET_ACCESS_KEY: ${AIFA_SYM_S3_PASSWORD:-}
