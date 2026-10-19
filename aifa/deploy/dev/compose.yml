@@ -203,11 +203,13 @@ services:
       args:
         NEXT_PUBLIC_API_BASE_URL: /api
         NEXT_PUBLIC_BUILD_ID: ${AIFA_SYM_BUILD_ID:-dev}
+        # Серверные перезаписи Next.js (/api/*) идут в службу по внутренней сети; запекаются при сборке (P31).
+        API_BASE_URL: http://engine:8000
     image: aifa-sym-frontend:dev
     restart: unless-stopped
-    environment:
-      # Серверные перезаписи Next.js (/api/*) идут в службу по внутренней сети.
-      API_BASE_URL: http://engine:8000
+    ports:
+      # Доступ — SSH-туннель к loopback хоста; в finengine-caddy-1 ничего не добавляется (шаг 12).
+      - "127.0.0.1:13000:3000"
     expose:
       - "3000"
     depends_on:

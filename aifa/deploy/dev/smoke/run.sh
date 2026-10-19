@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Дымовые проверки контура aifa-sym (этап 0.6). Повторяются шагом 12 и далее.
-# Запуск на dev-хосте из корня клона:  aifa/deploy/dev/smoke/run.sh [1|2|3|4|5]...
+# Дымовые проверки контура aifa-sym (этап 0.6; 6–9 — шаг 12, профиль app).
+# Запуск на dev-хосте из корня клона:  aifa/deploy/dev/smoke/run.sh [1|2|3|4|5|6|7|8|9]...
 # Контейнеры одноразовые, в сети aifa-sym-internal; имена без `prod`; порты не публикуются.
 set -uo pipefail
 
@@ -10,14 +10,17 @@ PROJECT=aifa-sym
 NETWORK=aifa-sym-internal
 IMAGE=aifa-sym-ouroboros:dev
 READY_URL=${AIFA_SYM_READY_URL:-http://127.0.0.1:18180/ready}
+FRONTEND_URL=${AIFA_SYM_FRONTEND_URL:-http://127.0.0.1:13000}
 CHECKS=("$@")
-[ ${#CHECKS[@]} -eq 0 ] && CHECKS=(1 2 3 4 5)
+[ ${#CHECKS[@]} -eq 0 ] && CHECKS=(1 2 3 4 5 6 7 8 9)
 FAILED=0
 
 # Секреты из .env рядом с compose.yml: попадают только в окружение одноразового контейнера.
 set -a
 # shellcheck disable=SC1091
 [ -f "$DEV/.env" ] && . "$DEV/.env"
+# Пароли тестовых учёток службы (шаг 12): файл с правами 600 на сервере, не в git.
+[ -f "${AIFA_SYM_QA_ENV:-$HOME/aifa-sym-qa.env}" ] && . "${AIFA_SYM_QA_ENV:-$HOME/aifa-sym-qa.env}"
 set +a
 
 inside() { # скрипт аргументы... — одноразовый контейнер из образа ouroboros
@@ -26,6 +29,10 @@ inside() { # скрипт аргументы... — одноразовый ко�
   docker run --rm --network "$NETWORK" --name "$PROJECT-smoke-$$-$RANDOM" \
     -e PYTHONIOENCODING=utf-8 -e AIFA_SYM_WORKSTATION_CREATE_SECRET \
     -v "$HERE:/smoke:ro" --entrypoint python "$IMAGE" "/smoke/$script" "$@"
+}
+
+api() { # команда аргументы... — клиент службы с хоста, через loopback-порт фронтенда
+  python3 "$HERE/api.py" "$@" --base "$FRONTEND_URL"
 }
 
 result() { # номер описание код
@@ -70,6 +77,22 @@ for check in "${CHECKS[@]}"; do
       echo "пределы контейнера workstation (память, память+swap, наноCPU, процессы): $limits"
       [ "$rc" -eq 0 ] && [ "$limits" = "1610612736 1610612736 1500000000 256" ]
       result 5 "ADR-0039: пределы Workstation (exec и контейнер)" $?
+      ;;
+    6)
+      api health
+      result 6 "служба отвечает через фронтенд (/api/health, P31)" $?
+      ;;
+    7)
+      api build-id --expect "${AIFA_SYM_BUILD_ID:-dev}"
+      result 7 "/build-id фронтенда = AIFA_SYM_BUILD_ID" $?
+      ;;
+    8)
+      AIFA_SYM_QA_PASSWORD=$AIFA_SYM_QA_A_PASSWORD api login --user qa-a
+      result 8 "вход qa-a" $?
+      ;;
+    9)
+      AIFA_SYM_QA_PASSWORD=$AIFA_SYM_QA_A_PASSWORD api hello --user qa-a --prompt "привет"
+      result 9 "ход «привет» доходит до ouroboros и обратно (UI-ручки)" $?
       ;;
     *) echo "неизвестная проверка: $check"; FAILED=1 ;;
   esac

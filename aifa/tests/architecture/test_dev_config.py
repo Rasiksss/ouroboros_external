@@ -31,6 +31,9 @@ APP_SERVICES = frozenset({"engine", "engine-postgres", "frontend"})
 # Контейнеры prod и общий вход: цели изменений быть не могут (ADR-0018).
 PROD_TARGETS = ("finengine-prod", "openclaw-prod-gw", "workstation-svc-prod", "finengine-caddy-1")
 LOOPBACK = ("127.0.0.1:", "[::1]:")
+# ouroboros — только /ready (ADR-0028); фронтенд — вход пользователей по SSH-туннелю (шаг 12):
+# оба строго на loopback, остальным сервисам порты запрещены.
+PUBLISHING_SERVICES = frozenset({"ouroboros", "frontend"})
 SECRET_KEY = re.compile(r"(KEY|SECRET|PASSWORD|TOKEN)$")
 PLACEHOLDER = "CHANGE_ME"
 DB_URL_KEY = re.compile(r"^OUROBOROS_RUNTIME_DB_URL(_\d+)?$")
@@ -210,7 +213,7 @@ def compose_violations(compose: Mapping[str, Any]) -> list[str]:
         if name in DEFAULT_SERVICES and profiles:
             problems.append(f"F9: `{name}` под профилем {profiles} — контур не поднимется целиком")
         ports = _published(service)
-        if ports and name != "ouroboros":
+        if ports and name not in PUBLISHING_SERVICES:
             problems.append(f"F9 (ADR-0028): `{name}` публикует порты {ports}")
         problems.extend(
             f"F9 (ADR-0028): `{name}` публикует {p!r} не на 127.0.0.1"
@@ -419,6 +422,24 @@ def test_f9_catches_a_port_published_beyond_loopback(tmp_path: Path) -> None:
     _edit(dev / "compose.yml", '"127.0.0.1:18180:8080"', '"18180:8080"')
     problems = dev_config_violations(dev, load_snapshot())
     assert any("ADR-0028" in p and "127.0.0.1" in p for p in problems)
+
+
+def test_f9_catches_a_frontend_published_beyond_loopback(tmp_path: Path) -> None:
+    """F9: фронтенд доступен только через туннель; на все интерфейсы он не публикуется (ADR-0028)."""
+    dev = _copy_dev(tmp_path)
+    _edit(dev / "compose.yml", '"127.0.0.1:13000:3000"', '"13000:3000"')
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("`frontend` публикует" in p and "127.0.0.1" in p for p in problems)
+
+
+def test_f9_catches_a_port_on_the_engine(tmp_path: Path) -> None:
+    """F9: нарушитель — у службы опубликован порт, даже на loopback: её внутренний API не для входа."""
+    dev = _copy_dev(tmp_path)
+    compose = yaml.safe_load((dev / "compose.yml").read_text(encoding="utf-8"))
+    compose["services"]["engine"]["ports"] = ["127.0.0.1:18000:8000"]
+    (dev / "compose.yml").write_text(yaml.safe_dump(compose, allow_unicode=True), encoding="utf-8")
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("`engine` публикует" in p for p in problems)
 
 
 def test_f9_catches_a_port_on_the_workstation(tmp_path: Path) -> None:

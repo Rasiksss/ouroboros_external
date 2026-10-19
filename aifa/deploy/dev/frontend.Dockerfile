@@ -14,7 +14,11 @@ WORKDIR /app
 # бандл, и в ручку /build-id: по нему вкладка узнаёт, что её код устарел.
 ARG NEXT_PUBLIC_API_BASE_URL=/api
 ARG NEXT_PUBLIC_BUILD_ID=dev
+# Перезапись /api/* (next.config.ts) при `output: standalone` запекается в routes-manifest при сборке:
+# адрес службы на запуске её уже не меняет (P31).
+ARG API_BASE_URL=http://engine:8000
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL \
+    API_BASE_URL=$API_BASE_URL \
     NEXT_PUBLIC_BUILD_ID=$NEXT_PUBLIC_BUILD_ID \
     NEXT_TELEMETRY_DISABLED=1 \
     NODE_ENV=production

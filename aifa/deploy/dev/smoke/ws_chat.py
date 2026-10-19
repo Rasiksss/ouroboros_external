@@ -59,11 +59,22 @@ async def _turn(ws, prompt: str, timeout: float) -> tuple[str, list[str]]:  # ty
             return str(frame.get("content", "")), seen
 
 
+def _is_refusal(exc: Exception) -> bool:
+    """Отказ контура: 403 до accept или закрытие 1008; недоступный хост и таймаут — не отказ (P39)."""
+    code = getattr(getattr(exc, "response", None), "status_code", None)
+    code = code or getattr(exc, "status_code", None)  # websockets < 14: InvalidStatusCode
+    closed = getattr(exc, "rcvd", None)
+    return code == 403 or getattr(closed, "code", None) == 1008
+
+
 async def main(args: argparse.Namespace) -> int:
     if args.no_owner:
         try:
             ws = await _connect(args)
-        except Exception as exc:  # любой отказ рукопожатия: 403 до accept или закрытие 1008
+        except Exception as exc:
+            if not _is_refusal(exc):
+                print(f"FAIL рукопожатие не дошло до проверки владельца: {type(exc).__name__}: {exc}")
+                return 1
             print(f"OK отказ рукопожатия без {OWNER_HEADER}: {type(exc).__name__}")
             return 0
         await ws.close()
