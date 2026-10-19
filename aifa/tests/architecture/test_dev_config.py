@@ -34,8 +34,14 @@ LOOPBACK = ("127.0.0.1:", "[::1]:")
 # ouroboros — только /ready (ADR-0028); фронтенд — вход пользователей по SSH-туннелю (шаг 12):
 # оба строго на loopback, остальным сервисам порты запрещены.
 PUBLISHING_SERVICES = frozenset({"ouroboros", "frontend"})
-# ADR-0050: модель разбора запроса и извлечения службы — DeepSeek-V4-Pro (ADR-0017).
-SERVICE_MODEL = "deepseek-ai/DeepSeek-V4-Pro"
+# ADR-0050: модели службы — как у старого AIFA на dev (сверено 19.10.2026), напрямую в Cloud.ru.
+SERVICE_MODELS = {
+    "FINENGINE_OPENROUTER_MODEL": "deepseek-ai/DeepSeek-V4-Pro",
+    "FINENGINE_NEWS_CLASSIFY_MODEL": "deepseek-ai/DeepSeek-V4-Pro",
+    "FINENGINE_PLANNER_MODEL": "zai-org/GLM-5.2",
+    "FINENGINE_ATOM_AUTHOR_MODEL": "zai-org/GLM-5.2",
+    "FINENGINE_PLANNER_REASONING_EFFORT": "medium",
+}
 MIN_S3_VOLUMES = 30  # две корзины (`ouroboros`, `finengine`) по семь томов роста, с запасом
 SECRET_KEY = re.compile(r"(KEY|SECRET|PASSWORD|TOKEN)$")
 PLACEHOLDER = "CHANGE_ME"
@@ -130,12 +136,11 @@ def env_violations(
             for name, env in (("ouroboros.env.example", ouro), ("engine.env.example", engine))
             if key not in env
         )
-    service_model = engine.get("FINENGINE_OPENROUTER_MODEL")
-    if service_model != SERVICE_MODEL:
-        problems.append(
-            f"F9 (ADR-0050): FINENGINE_OPENROUTER_MODEL={service_model!r}, нужна {SERVICE_MODEL}: "
-            "разбор запроса и извлечение службы идут на этой модели"
-        )
+    problems.extend(
+        f"F9 (ADR-0050): {key}={engine.get(key)!r} в примере, у старого AIFA {expected!r}"
+        for key, expected in SERVICE_MODELS.items()
+        if engine.get(key) != expected
+    )
     if int(ouro.get("OUROBOROS_WORKER_SLOTS", "0") or 0) < 2:
         problems.append(
             "F9 (ADR-0008, ADR-0027): OUROBOROS_WORKER_SLOTS < 2 — автору не хватит слота"
@@ -474,16 +479,15 @@ def test_f9_catches_an_s3_left_with_the_disk_derived_volume_limit(tmp_path: Path
     assert any("-volume.max" in p for p in problems)
 
 
-def test_f9_catches_the_service_model_drifting_from_adr_0050(tmp_path: Path) -> None:
-    """F9: нарушитель — модель службы сменили с DeepSeek-V4-Pro (ADR-0050)."""
+def test_f9_catches_a_service_model_drifting_from_the_old_aifa(tmp_path: Path) -> None:
+    """F9: нарушитель — модель службы расходится со старым AIFA (ADR-0050): нет модели новостей."""
     dev = _copy_dev(tmp_path)
-    _edit(
-        dev / "engine.env.example",
-        "FINENGINE_OPENROUTER_MODEL=deepseek-ai/DeepSeek-V4-Pro",
-        "FINENGINE_OPENROUTER_MODEL=zai-org/GLM-5.2",
-    )
+    path = dev / "engine.env.example"
+    lines = path.read_text(encoding="utf-8").splitlines()
+    kept = [ln for ln in lines if not ln.startswith("FINENGINE_NEWS_CLASSIFY_MODEL=")]
+    path.write_text("\n".join(kept) + "\n", encoding="utf-8")
     problems = dev_config_violations(dev, load_snapshot())
-    assert any("ADR-0050" in p and "FINENGINE_OPENROUTER_MODEL" in p for p in problems)
+    assert any("ADR-0050" in p and "FINENGINE_NEWS_CLASSIFY_MODEL" in p for p in problems)
 
 
 def test_f9_catches_a_port_on_the_workstation(tmp_path: Path) -> None:
