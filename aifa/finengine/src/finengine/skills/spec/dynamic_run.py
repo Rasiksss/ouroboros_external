@@ -341,17 +341,21 @@ async def complete_plan(system: str, prompt: str) -> str:
     return await _default_complete(system, prompt, _PLAN_RESPONSE_FORMAT)
 
 
-class DynamicRun:
-    """Единственный объект состояния одного динамического прогона."""
+class LoopSession:
+    """Состояние одного прогона цикла и правила, которые его держат (ADR-0023).
+
+    Ведущий — не здесь: решение приходит либо от модели службы (`DynamicRun`), либо вызовом
+    инструмента ouroboros (`assistant/loop_tools.py`). Оба пути зовут одни и те же `check`, `move`,
+    `finish`, поэтому правил цикла в одном месте столько же, сколько было.
+    """
 
     def __init__(
         self, *, runtime: CaseRuntime, owner_id, case_id: str, goal: GoalIR, target: Target,
         inputs: RunInputs, run_passport: RunPassport | None = None, root_extra=None,
         event_sink=None, run_scenario: ScenarioRunner | None = None,
-        run_goals: GoalRunner | None = None, complete_fn: CompleteFn | None = None,
-        author: AtomAuthor | None = None, limits: RunLimits = RunLimits(),
-        entry_stage: Literal["planning", "execution"] = "planning",
-        is_cancelled: Callable[[], bool] | None = None, plan_fn: CompleteFn | None = None,
+        run_goals: GoalRunner | None = None, author: AtomAuthor | None = None,
+        limits: RunLimits = RunLimits(), entry_stage: Literal["planning", "execution"] = "planning",
+        is_cancelled: Callable[[], bool] | None = None,
     ):
         self.runtime = runtime
         self.owner_id = owner_id
@@ -362,8 +366,6 @@ class DynamicRun:
         self.run_passport = run_passport
         self.root_extra = root_extra or {}
         self.event_sink = event_sink
-        self.complete_fn = complete_fn or _default_complete
-        self.plan_fn = plan_fn
         self.author = author or AtomAuthor()
         self.limits = limits
         self.entry_stage = entry_stage
@@ -376,7 +378,11 @@ class DynamicRun:
         self.failures: dict[str, str] = {}
         self.journal: list[JournalEntry] = []
         self.created = 0
-        self.moves_used = 0
+        self.turns = 0                       # потрачено ходов: и принятые решения, и отклонённые ответы
+        self.idle = 0                        # ходов подряд без новых результатов
+        self.rejected = 0                    # ответов подряд, не прошедших проверку
+        self.opened_at = monotonic()
+        self.feedback = ""                   # «Итог прошлого хода» для следующего решения
         self.evidence_generation = 0
         self.dead_end_actions: dict[tuple[str, ...], int] = {}
         self.plan: tuple[str, ...] = ()
@@ -385,13 +391,13 @@ class DynamicRun:
         self.initial_evidence_ids = self._evidence_ids()
         self.initial_file_ids = self._file_ids()
 
-    def run(self, *, deterministic_error: str) -> DynamicRunResult:
-        """Выполнить синхронный цикл; из async-кода вызывать через `asyncio.to_thread`."""
-        started = monotonic()
+    def open(self, *, deterministic_error: str) -> None:
+        """Цикл открыт: время идёт с этой минуты; причина входа — в «Итоге прошлого хода»."""
+        self.opened_at = monotonic()
         if self.entry_stage == "execution":
             # «Нулевой ход»: граф собрался и упал. Итог читается так же, как итог хода цикла; уже
             # полученные им артефакты планировщик видит в таблице состояния.
-            feedback = (
+            self.feedback = (
                 "Детерминированный граф собрался, но исполнение упало с ошибкой. Уже полученные "
                 f"результаты — в таблице артефактов.\n{deterministic_error}"
             )
@@ -404,66 +410,118 @@ class DynamicRun:
                 details=deterministic_error,
             ))
         else:
-            feedback = f"Детерминированный планировщик не собрал план: {deterministic_error}"
-        self._draft_plan(feedback)
-        idle = 0
-        rejected = 0
-        for move_index in range(self.limits.max_moves):
-            self.moves_used = move_index
-            self._stop_if_cancelled()
-            if monotonic() - started > self.limits.max_wall_seconds:
-                return self._stop("исчерпан бюджет времени цикла", move_index + 1)
-            decision = self._ask_planner(feedback)
-            number = move_index + 1
-            if isinstance(decision, str):
-                # Молчание модели (таймаут, сбой шлюза) — не ошибка ответа: в счёт отказов подряд не идёт.
-                rejected += 0 if isinstance(decision, PlannerSilent) else 1
-                self._emit_rejection(number, decision)
-                if rejected >= self.limits.idle_moves:
-                    return self._stop(f"{rejected} ответа подряд не прошли проверку", number + 1)
-                feedback = f"Твой ответ не принят: {decision}. Пришли ход заново."
-                continue
-            rejected = 0
-            if decision.action in ("finalize", "give_up"):
-                return self._finish(number, decision)
-            self._emit(self._move_event(number, "running", decision))
-            before = self._artifact_count()
-            outcome = self._move(decision)
-            self._emit(self._move_event(
-                number, "done", decision, outcome=outcome.headline, details=outcome.details,
-            ))
-            if self._runs_code_atom(decision):
-                self.build_attempts += 1
-            factual_outcome = _outcome_text(outcome)
-            self.journal.append(JournalEntry(decision.objective, decision.reason, factual_outcome))
-            feedback = factual_outcome
-            after = self._artifact_count()
-            if after != before:
-                self.evidence_generation += 1
-            for signature in outcome.dead_end_actions:
-                self.dead_end_actions[signature] = self.evidence_generation
-            idle = idle + 1 if after == before else 0
-            if idle >= self.limits.idle_moves:
-                return self._stop(f"{idle} хода подряд без новых результатов", number + 1)
-        return self._stop("исчерпан лимит ходов", self.limits.max_moves + 1)
+            self.feedback = f"Детерминированный планировщик не собрал план: {deterministic_error}"
 
-    def _draft_plan(self, feedback: str) -> None:
-        """Фаза планирования: модель видит всё состояние и возвращает только план — он уходит на экран до
-        первого хода. Не получилось — цикл идёт как раньше: план придёт первым ходом."""
-        if self.plan_fn is None or not any(
-            clause.intent_kind in _PLAN_PHASE_GOALS for clause in self.goal.clauses()
-        ):
-            return
-        system = _SKILL.read_text(encoding="utf-8") + "\n\n" + _PLAN_PHASE.read_text(encoding="utf-8")
-        try:
-            data = json.loads(asyncio.run(self.plan_fn(system, render_state(self, feedback))))
-            plan = _string_tuple(data.get("plan", []), "plan")
-            files = _file_specs(data.get("files", []))
-        except BudgetExceeded:
-            raise
-        except Exception:  # noqa: BLE001 — без плана цикл работает: сбой фазы не останавливает прогон
-            return
-        self._accept_plan(plan, files)
+    def limit(self) -> str | None:
+        """Причина, по которой цикл исчерпан и принимает только последнее слово; `None` — ходить можно."""
+        if self.rejected >= self.limits.idle_moves:
+            return f"{self.rejected} ответа подряд не прошли проверку"
+        if self.idle >= self.limits.idle_moves:
+            return f"{self.idle} хода подряд без новых результатов"
+        if self.turns >= self.limits.max_moves:
+            return "исчерпан лимит ходов"
+        if monotonic() - self.opened_at > self.limits.max_wall_seconds:
+            return "исчерпан бюджет времени цикла"
+        return None
+
+    @property
+    def next_number(self) -> int:
+        return self.turns + 1
+
+    def reject(self, reason: str, *, counted: bool = True, feedback: str | None = None) -> None:
+        """Ответ не принят: ход потрачен, причина — в ленту и в «Итог прошлого хода». Молчание модели
+        (таймаут, сбой шлюза) в счёт отказов подряд не идёт."""
+        self._emit_rejection(self.next_number, reason)
+        self.turns += 1
+        self.rejected += 1 if counted else 0
+        self.feedback = feedback if feedback is not None else f"Твой ответ не принят: {reason}. Пришли ход заново."
+
+    def check(self, decision: Decision, *, last_word: bool = False) -> Decision | str:
+        """Правила решения: что можно исполнить или принять. Строка — причина отказа."""
+        self._accept_plan(decision.plan, decision.files)
+        known = [clause.goal_ref for clause in self.goal.clauses()]
+        unknown = [ref for ref in decision.goals if ref not in known]
+        if unknown:
+            return f"goals: нет части {unknown}; в блоке «Разобранная цель» есть {known} — укажи goal_ref оттуда"
+        if decision.action in ("finalize", "give_up"):
+            decision = self._files_as_deliverables(decision)
+        if decision.action == "finalize":
+            # После остановки цикла собрать файл уже нельзя: последнее слово проходит без него.
+            promised = decision if last_word else self._with_promised_files(decision)
+            if isinstance(promised, str):
+                return promised
+            decision = promised
+            if not decision.evidence_ids and not decision.deliverables:
+                return (
+                    "evidence_ids пуст: перечисли id артефактов (первый столбец таблицы «Полученные "
+                    "артефакты»), на которые опирается ответ; готовый файл-результат укажи в deliverables; "
+                    "если опереться не на что — give_up с причиной"
+                )
+            missing = [evidence_id for evidence_id in decision.evidence_ids if not self._evidence(evidence_id)]
+            if missing:
+                return (
+                    f"finalize ссылается на несуществующие артефакты: {missing}; id артефакта стоит в первом "
+                    "столбце таблицы «Полученные артефакты», строки с «—» в первом столбце не цитируются — "
+                    "перечисли id показателей, на которые опирается ответ"
+                )
+            missing_files = [file_id for file_id in decision.deliverables if self._deliverable(file_id) is None]
+            if missing_files:
+                return (
+                    f"finalize ссылается на несуществующие файлы: {missing_files}; id файла — первый столбец "
+                    "строки FileArtifact в таблице «Полученные артефакты»"
+                )
+            failed = self._failed_verifications(decision.evidence_ids)
+            if failed:
+                details = "; ".join(
+                    f"{finding.check_kind}: {finding.detail or finding.status}" for finding in failed
+                )
+                return f"finalize ссылается на проваленную проверку {details}"
+        repeat = self._repeated_dead_end(decision)
+        if repeat:
+            return repeat
+        return decision
+
+    def move(self, decision: Decision) -> MoveOutcome:
+        """Исполнить принятое решение `execute`: события хода, журнал, счётчики цикла."""
+        number = self.next_number
+        self.rejected = 0
+        self._emit(self._move_event(number, "running", decision))
+        before = self._artifact_count()
+        outcome = self._move(decision)
+        self._emit(self._move_event(
+            number, "done", decision, outcome=outcome.headline, details=outcome.details,
+        ))
+        if self._runs_code_atom(decision):
+            self.build_attempts += 1
+        factual_outcome = _outcome_text(outcome)
+        self.journal.append(JournalEntry(decision.objective, decision.reason, factual_outcome))
+        self.feedback = factual_outcome
+        after = self._artifact_count()
+        if after != before:
+            self.evidence_generation += 1
+        for signature in outcome.dead_end_actions:
+            self.dead_end_actions[signature] = self.evidence_generation
+        self.idle = self.idle + 1 if after == before else 0
+        self.turns += 1
+        return outcome
+
+    def stop_feedback(self, reason: str) -> str:
+        return (
+            f"Цикл остановлен системой: {reason}. Исполнять новые действия нельзя. "
+            "Верни finalize по имеющимся артефактам либо give_up с конкретной причиной."
+        )
+
+    def finish(self, decision: Decision, *, number: int | None = None) -> DynamicRunResult:
+        """Последнее решение цикла (`finalize` или `give_up`)."""
+        self.rejected = 0
+        return self._finish(number or self.next_number, decision)
+
+    def stopped(self, reason: str) -> DynamicRunResult:
+        """Последнее слово не принято: сводка по частичным результатам, как у цикла, остановленного системой."""
+        self._emit_rejection(self.next_number, reason)
+        evidence_ids = self._partial_evidence_ids()
+        answer = self._stopped_summary(evidence_ids)
+        return self._result("stopped", answer, evidence_ids, self._partial_deliverable_ids())
 
     def _accept_plan(self, plan: tuple[str, ...], files: tuple[FileSpec, ...]) -> None:
         # План — заявление планировщика о намерении: он принимается и тогда, когда сам ход будет отклонён.
@@ -491,22 +549,6 @@ class DynamicRun:
 
     def _emit_rejection(self, number: int, details: str) -> None:
         self._emit(dynamic_move_event(move=number, status="rejected", action="rejected", details=details))
-
-    def _stop(self, reason: str, last_word_number: int) -> DynamicRunResult:
-        feedback = (
-            f"Цикл остановлен системой: {reason}. Исполнять новые действия нельзя. "
-            "Верни finalize по имеющимся артефактам либо give_up с конкретной причиной."
-        )
-        decision = self._ask_planner(feedback, last_word=True)
-        if isinstance(decision, Decision) and decision.action in ("finalize", "give_up"):
-            return self._finish(last_word_number, decision)
-        self._emit_rejection(
-            last_word_number,
-            decision if isinstance(decision, str) else "после остановки цикла исполнять действия нельзя",
-        )
-        evidence_ids = self._partial_evidence_ids()
-        answer = self._stopped_summary(evidence_ids)
-        return self._result("stopped", answer, evidence_ids, self._partial_deliverable_ids())
 
     def _partial_evidence_ids(self) -> tuple[str, ...]:
         """Целевые результаты прогона без значений, проваливших проверку: сводка не обходит гейт finalize."""
@@ -576,7 +618,7 @@ class DynamicRun:
 
     def _report_author_attempt(self, atom: str, number: int, status: str, error: str | None, code: str) -> None:
         self._emit(author_attempt_event(
-            move=self.moves_used + 1, atom=atom, attempt=number, status=status, error=error, code=code,
+            move=self.next_number, atom=atom, attempt=number, status=status, error=error, code=code,
         ))
 
     def _move(self, decision: Decision) -> MoveOutcome:
@@ -797,63 +839,6 @@ class DynamicRun:
         save_source(self.runtime.store, self.owner_id, self.case_id, atom)
         return None
 
-    def _ask_planner(self, feedback: str, *, last_word: bool = False) -> Decision | str:
-        prompt = render_state(self, feedback)
-        try:
-            raw = asyncio.run(self.complete_fn(_SKILL.read_text(encoding="utf-8"), prompt))
-        except BudgetExceeded:
-            raise
-        except Exception as exc:  # noqa: BLE001 — сбой шлюза становится обратной связью хода
-            return PlannerSilent(f"модель-планировщик не ответила: {type(exc).__name__}: {exc}")
-        try:
-            decision = parse_decision(
-                raw, scenarios_enabled=self.run_scenario is not None, goals_enabled=self.run_goals is not None,
-            )
-        except ValueError as exc:
-            return str(exc)
-        self._accept_plan(decision.plan, decision.files)
-        known = [clause.goal_ref for clause in self.goal.clauses()]
-        unknown = [ref for ref in decision.goals if ref not in known]
-        if unknown:
-            return f"goals: нет части {unknown}; в блоке «Разобранная цель» есть {known} — укажи goal_ref оттуда"
-        if decision.action in ("finalize", "give_up"):
-            decision = self._files_as_deliverables(decision)
-        if decision.action == "finalize":
-            # После остановки цикла собрать файл уже нельзя: последнее слово проходит без него.
-            promised = decision if last_word else self._with_promised_files(decision)
-            if isinstance(promised, str):
-                return promised
-            decision = promised
-            if not decision.evidence_ids and not decision.deliverables:
-                return (
-                    "evidence_ids пуст: перечисли id артефактов (первый столбец таблицы «Полученные "
-                    "артефакты»), на которые опирается ответ; готовый файл-результат укажи в deliverables; "
-                    "если опереться не на что — give_up с причиной"
-                )
-            missing = [evidence_id for evidence_id in decision.evidence_ids if not self._evidence(evidence_id)]
-            if missing:
-                return (
-                    f"finalize ссылается на несуществующие артефакты: {missing}; id артефакта стоит в первом "
-                    "столбце таблицы «Полученные артефакты», строки с «—» в первом столбце не цитируются — "
-                    "перечисли id показателей, на которые опирается ответ"
-                )
-            missing_files = [file_id for file_id in decision.deliverables if self._deliverable(file_id) is None]
-            if missing_files:
-                return (
-                    f"finalize ссылается на несуществующие файлы: {missing_files}; id файла — первый столбец "
-                    "строки FileArtifact в таблице «Полученные артефакты»"
-                )
-            failed = self._failed_verifications(decision.evidence_ids)
-            if failed:
-                details = "; ".join(
-                    f"{finding.check_kind}: {finding.detail or finding.status}" for finding in failed
-                )
-                return f"finalize ссылается на проваленную проверку {details}"
-        repeat = self._repeated_dead_end(decision)
-        if repeat:
-            return repeat
-        return decision
-
     def _files_as_deliverables(self, decision: Decision) -> Decision:
         """Модель может назвать id готового файла в evidence_ids: файл — результат ответа, а не доказательство."""
         file_ids = self._file_ids()
@@ -1005,6 +990,74 @@ class DynamicRun:
             for payload in row.get("payloads") or ()
             if (evidence_id := evidence_id_of(payload))
         )
+
+
+class DynamicRun(LoopSession):
+    """Ведущий цикла — модель службы (`loop_driver=engine`): ответ модели → `check` → `move`/`finish`."""
+
+    def __init__(self, *, complete_fn: CompleteFn | None = None, plan_fn: CompleteFn | None = None, **session):
+        super().__init__(**session)
+        self.complete_fn = complete_fn or _default_complete
+        self.plan_fn = plan_fn
+
+    def run(self, *, deterministic_error: str) -> DynamicRunResult:
+        """Выполнить синхронный цикл; из async-кода вызывать через `asyncio.to_thread`."""
+        self.open(deterministic_error=deterministic_error)
+        self._draft_plan(self.feedback)
+        while True:
+            self._stop_if_cancelled()
+            reason = self.limit()
+            if reason is not None:
+                return self._stop(reason)
+            decision = self._ask_planner(self.feedback)
+            if isinstance(decision, str):
+                self.reject(decision, counted=not isinstance(decision, PlannerSilent))
+            elif decision.action in ("finalize", "give_up"):
+                return self.finish(decision)
+            else:
+                self.move(decision)
+
+    def _draft_plan(self, feedback: str) -> None:
+        """Фаза планирования: модель видит всё состояние и возвращает только план — он уходит на экран до
+        первого хода. Не получилось — цикл идёт как раньше: план придёт первым ходом."""
+        if self.plan_fn is None or not any(
+            clause.intent_kind in _PLAN_PHASE_GOALS for clause in self.goal.clauses()
+        ):
+            return
+        system = _SKILL.read_text(encoding="utf-8") + "\n\n" + _PLAN_PHASE.read_text(encoding="utf-8")
+        try:
+            data = json.loads(asyncio.run(self.plan_fn(system, render_state(self, feedback))))
+            plan = _string_tuple(data.get("plan", []), "plan")
+            files = _file_specs(data.get("files", []))
+        except BudgetExceeded:
+            raise
+        except Exception:  # noqa: BLE001 — без плана цикл работает: сбой фазы не останавливает прогон
+            return
+        self._accept_plan(plan, files)
+
+    def _stop(self, reason: str) -> DynamicRunResult:
+        decision = self._ask_planner(self.stop_feedback(reason), last_word=True)
+        if isinstance(decision, Decision) and decision.action in ("finalize", "give_up"):
+            return self.finish(decision)
+        return self.stopped(
+            decision if isinstance(decision, str) else "после остановки цикла исполнять действия нельзя"
+        )
+
+    def _ask_planner(self, feedback: str, *, last_word: bool = False) -> Decision | str:
+        prompt = render_state(self, feedback)
+        try:
+            raw = asyncio.run(self.complete_fn(_SKILL.read_text(encoding="utf-8"), prompt))
+        except BudgetExceeded:
+            raise
+        except Exception as exc:  # noqa: BLE001 — сбой шлюза становится обратной связью хода
+            return PlannerSilent(f"модель-планировщик не ответила: {type(exc).__name__}: {exc}")
+        try:
+            decision = parse_decision(
+                raw, scenarios_enabled=self.run_scenario is not None, goals_enabled=self.run_goals is not None,
+            )
+        except ValueError as exc:
+            return str(exc)
+        return self.check(decision, last_word=last_word)
 
 
 class InvalidSteps(ValueError):
@@ -1245,7 +1298,7 @@ def artifacts_table(rows: list[dict]) -> str:
     return "\n".join(_state_table(rows)) or "—"
 
 
-def render_state(run: DynamicRun, feedback: str) -> str:
+def render_state(run: LoopSession, feedback: str) -> str:
     goal = run.goal
     profile = "не зафиксирован"
     if run.run_passport is not None:
@@ -1276,12 +1329,12 @@ def render_state(run: DynamicRun, feedback: str) -> str:
         f"## Журнал ходов\n{journal}",
         f"## Итог прошлого хода\n{feedback}",
         "## Осталось\n"
-        f"ходов: {run.limits.max_moves - run.moves_used} из {run.limits.max_moves}; "
+        f"ходов: {run.limits.max_moves - run.turns} из {run.limits.max_moves}; "
         f"новых атомов: {run.limits.max_new_atoms - run.created} из {run.limits.max_new_atoms}",
     ])
 
 
-def _describe_metric_registry(run: DynamicRun) -> str:
+def _describe_metric_registry(run: LoopSession) -> str:
     """Показатели, которые AIFA получает сама для отчёта этого профиля: по реестру, зафиксированному в паспорте."""
     if run.run_passport is None:
         return "профиль отчёта не зафиксирован — реестр недоступен"
@@ -1297,7 +1350,7 @@ def _describe_metric_registry(run: DynamicRun) -> str:
     return "\n".join(lines)
 
 
-def _describe_plan(run: DynamicRun) -> str:
+def _describe_plan(run: LoopSession) -> str:
     if not run.plan:
         return "плана нет — пришли `plan` и `files` этим ходом"
     lines = [f"{index}. {part}" for index, part in enumerate(run.plan, 1)]
@@ -1342,7 +1395,7 @@ def describe_clause(clause: GoalClause) -> str:
     return f"{verb} {subject} ({clause.period_ref or 'все периоды'})".replace("  ", " ")
 
 
-def _how_to_get(run: DynamicRun, clause: GoalClause) -> str | None:
+def _how_to_get(run: LoopSession, clause: GoalClause) -> str | None:
     """Способ получения части и статус в этом прогоне; `None` — по ссылке её получить нельзя."""
     if run.run_goals is None or run.run_goals.refusal(clause) is not None:
         return None
@@ -1351,7 +1404,7 @@ def _how_to_get(run: DynamicRun, clause: GoalClause) -> str | None:
     return f'по ссылке: goals ["{clause.goal_ref}"] — {shown}'
 
 
-def _describe_goal(run: DynamicRun) -> str:
+def _describe_goal(run: LoopSession) -> str:
     """Разобранная цель для планировщика. У составной — все части со связями и способом получения: без них он
     не знает, что часть можно получить по ссылке, а что — только своими силами."""
     goal = run.goal
@@ -1584,7 +1637,7 @@ def save_source(store, owner_id, case_id: str, atom: EphemeralAtom) -> None:
 
 
 __all__ = [
-    "Decision", "DynamicRun", "DynamicRunResult", "InvalidSteps", "JournalEntry", "MoveOutcome",
+    "Decision", "DynamicRun", "DynamicRunResult", "InvalidSteps", "JournalEntry", "LoopSession", "MoveOutcome",
     "GOAL_OBTAINED", "GoalRunner", "RunLimits", "ScenarioResult", "ScenarioRunner", "artifacts_table",
     "case_rows", "complete_plan", "describe_clause", "describe_execution", "load_case_atoms",
     "parse_decision", "parse_steps", "render_state", "save_source",
