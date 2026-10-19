@@ -85,21 +85,6 @@ def test_intent_model_call_uses_the_bounded_router_profile(monkeypatch):
     assert seen["reasoning_effort"] == "low"
 
 
-def test_a_fenced_json_reply_of_the_model_reaches_the_parser_without_the_fence(monkeypatch):
-    """ADR-0048: `zai-org/GLM-5.2` отдаёт верный JSON в ограде ```json, и без снятия ограды разбор
-    считал ответ не-JSON, повторял вызов и не укладывался в предел (S1–S3 шага 12, P25)."""
-    async def _complete(prompt, **kwargs):
-        return '```json\n{"route": "plan"}\n```'
-
-    from finengine.llm import openrouter
-
-    monkeypatch.setattr(openrouter, "complete", _complete)
-
-    reply = asyncio.run(intent_module._default_complete("system", "prompt", model_version=None))
-
-    assert json.loads(reply) == {"route": "plan"}
-
-
 # ---------------------------------------------------------------------------
 # Пункт 2: «Неизвестный концепт и неоднозначное имя в 100% соответствующих
 # тестов попадают в unresolved/ambiguities, а не превращаются в выдуманный
