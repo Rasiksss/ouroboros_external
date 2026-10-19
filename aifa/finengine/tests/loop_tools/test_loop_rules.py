@@ -415,3 +415,30 @@ async def test_a_download_atom_is_described_in_new_atoms(base) -> None:
 
     assert cycle.session.atoms["eph.probe"].request.is_download
     await cycle.close()
+
+
+async def test_a_refusal_spends_a_move_of_the_cycle(base) -> None:
+    """LR-17: отказ тоже тратит ход цикла — как отклонённый ответ модели; поток отказов цикл не растягивает."""
+    cycle = await open_cycle(base, limits=RunLimits(max_moves=2))
+    refused = _move(scenarios=("а", "б", "в", "г"))
+
+    first, second = await cycle.move(refused), await cycle.move(refused)
+    third = await cycle.move(refused)
+
+    assert [code_of(reply) for reply in (first, second, third)] == ["ОТКАЗ неверные_аргументы"] * 2 + ["ЛИМИТ"]
+    assert cycle.session.turns == 2
+    await cycle.close()
+
+
+async def test_the_last_word_after_the_limit_does_not_wait_for_a_promised_file(base) -> None:
+    """LR-33: после предела файл уже не собрать — последнее слово проходит без гейта файла."""
+    cycle = await open_cycle(base, scenario=ExtractScenario(base, None), limits=RunLimits(max_moves=1))
+    arguments = json.loads(_move(scenarios=("Извлеки EBITDA",)))
+    arguments.update(plan=["получить показатели", "собрать Excel"], files=[{"kind": "xlsx", "parts": 0, "formulas": False}])
+
+    limited = await cycle.call("aifa_move", arguments)
+    reply = await cycle.finish(_finalize(cited(base)))
+
+    assert code_of(limited) == "ЛИМИТ"
+    assert reply == "ПРИНЯТО\nЦикл закрыт."
+    await cycle.close()

@@ -110,7 +110,7 @@ async def _opened(monkeypatch, scenario_intent: dict):
     desk = LoopDesk()
     await StandardPath(desk)(run.record, lambda event: None)
     plugin = Plugin(ToolApi(Gateway(), StandardPath(desk), desk))
-    return run, plugin, ctx_of(run.run_id, owner_id=str(OWNER), chat_id=CHAT)
+    return run, plugin, ctx_of(run.run_id, owner_id=str(OWNER), chat_id=CHAT), desk
 
 
 MOVE = {"objective": "получить выручку", "reason": "нужна для ответа", "scenarios": ["Извлеки выручку за 2024 год"]}
@@ -118,7 +118,7 @@ MOVE = {"objective": "получить выручку", "reason": "нужна д
 
 async def test_a_scenario_of_a_move_goes_the_same_path_as_a_chat_message(monkeypatch) -> None:
     """LR-13, LR-15: сценарий идёт тем же разбором и конвейером; на экран из него — только `plan_graph`/`node_run`."""
-    run, plugin, ctx = await _opened(monkeypatch, REVENUE)
+    run, plugin, ctx, _ = await _opened(monkeypatch, REVENUE)
 
     reply = await plugin.call("aifa_move", ctx, MOVE)
     await run.end()
@@ -133,10 +133,30 @@ async def test_a_scenario_of_a_move_goes_the_same_path_as_a_chat_message(monkeyp
 
 async def test_a_scenario_of_a_move_never_opens_a_nested_cycle(monkeypatch) -> None:
     """LR-14: сценарий без вложенного цикла — цель без корня в графе даёт отказ, а не новый цикл и не модель службы."""
-    run, plugin, ctx = await _opened(monkeypatch, CUSTOM)
+    run, plugin, ctx, _ = await _opened(monkeypatch, CUSTOM)
 
     reply = await plugin.call("aifa_move", ctx, MOVE)
 
     assert first_line(reply) == "ГОТОВО" and "scenario_not_deterministic" in reply.text
     await plugin.close()
+    await run.end()
+
+
+async def test_every_move_is_saved_and_the_restored_cycle_goes_on_from_it(monkeypatch) -> None:
+    """ADR-0023: состояние сохраняется после каждого хода; после перезапуска журнал, счётчики и ход идут дальше."""
+    run, plugin, ctx, _ = await _opened(monkeypatch, REVENUE)
+    await plugin.call("aifa_move", ctx, MOVE)
+    saved = state.get(state.LOOP_SESSION, owner=OWNER, key=run.run_id)["state"]
+    assert saved["turns"] == 1 and saved["journal"][0]["objective"] == "получить выручку"
+
+    restarted = LoopDesk()
+    after = Plugin(ToolApi(Gateway(), StandardPath(restarted), restarted))
+    reading = await after.call("aifa_state", ctx)
+    second = await after.call("aifa_move", ctx, {**MOVE, "scenarios": ["Извлеки ещё раз"]})
+
+    assert "получить выручку" in reading.text and "ходов: 11 из 12" in reading.text
+    assert first_line(second) == "ГОТОВО" and "## Итог хода 2" in second.text
+    assert restarted.live(run.run_id).session.turns == 2
+    await plugin.close()
+    await after.close()
     await run.end()
