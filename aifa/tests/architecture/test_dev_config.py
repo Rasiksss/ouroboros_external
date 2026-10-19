@@ -34,6 +34,7 @@ LOOPBACK = ("127.0.0.1:", "[::1]:")
 # ouroboros — только /ready (ADR-0028); фронтенд — вход пользователей по SSH-туннелю (шаг 12):
 # оба строго на loopback, остальным сервисам порты запрещены.
 PUBLISHING_SERVICES = frozenset({"ouroboros", "frontend"})
+MIN_ROUTING_TIMEOUT_SEC = 300.0  # ответ DeepSeek-V4-Pro через шлюз — 70–160 с и больше
 MIN_S3_VOLUMES = 30  # две корзины (`ouroboros`, `finengine`) по семь томов роста, с запасом
 SECRET_KEY = re.compile(r"(KEY|SECRET|PASSWORD|TOKEN)$")
 PLACEHOLDER = "CHANGE_ME"
@@ -127,6 +128,13 @@ def env_violations(
             "секрет внутреннего API один у ouroboros и службы"
             for name, env in (("ouroboros.env.example", ouro), ("engine.env.example", engine))
             if key not in env
+        )
+    routing_timeout = float(engine.get("FINENGINE_ROUTING_MODEL_TIMEOUT_SECONDS", "0") or 0)
+    if routing_timeout < MIN_ROUTING_TIMEOUT_SEC:
+        problems.append(
+            "F9 (шаг 12): FINENGINE_ROUTING_MODEL_TIMEOUT_SECONDS в engine.env.example меньше "
+            f"{MIN_ROUTING_TIMEOUT_SEC:.0f} с — разбор запроса через шлюз не укладывается в 120 с "
+            "по умолчанию, и S1–S3 заканчиваются intent_parse_failed (P25)"
         )
     if int(ouro.get("OUROBOROS_WORKER_SLOTS", "0") or 0) < 2:
         problems.append(
@@ -464,6 +472,17 @@ def test_f9_catches_an_s3_left_with_the_disk_derived_volume_limit(tmp_path: Path
     _edit(dev / "compose.yml", ", -volume.max=40", "")
     problems = dev_config_violations(dev, load_snapshot())
     assert any("-volume.max" in p for p in problems)
+
+
+def test_f9_catches_a_routing_timeout_left_at_the_default(tmp_path: Path) -> None:
+    """F9: нарушитель — таймаут разбора запроса не задан, действует умолчание службы (P25)."""
+    dev = _copy_dev(tmp_path)
+    path = dev / "engine.env.example"
+    lines = path.read_text(encoding="utf-8").splitlines()
+    kept = [ln for ln in lines if not ln.startswith("FINENGINE_ROUTING_MODEL_TIMEOUT_SECONDS")]
+    path.write_text("\n".join(kept) + "\n", encoding="utf-8")
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("FINENGINE_ROUTING_MODEL_TIMEOUT_SECONDS" in p for p in problems)
 
 
 def test_f9_catches_a_port_on_the_workstation(tmp_path: Path) -> None:

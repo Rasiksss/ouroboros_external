@@ -24,7 +24,8 @@
 ## Сеть и доверие
 
 Одна сеть `aifa-sym-internal`, тома `aifa-sym-*`. Единственный опубликованный порт —
-`127.0.0.1:18180` → `/ready` ouroboros (ADR-0028); у Workstation портов нет вовсе. Порт ouroboros
+`127.0.0.1:18180` → `/ready` ouroboros (ADR-0028) и, с шага 12, `127.0.0.1:13000` → фронтенд (вход
+пользователей по SSH-туннелю, ниже); у Workstation и службы портов нет вовсе. Порт ouroboros
 не должен стать доступным снаружи: с доверенными заголовками любой, кто до него дотянется, станет
 любым владельцем. Всё это держит F9.
 
@@ -110,12 +111,13 @@ docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml build workstation     
 9. **Дымовые проверки**: `aifa/deploy/dev/smoke/run.sh` (ниже).
 10. **После**: `docker ps` prod-контейнеров и время их старта равны снимку «до»; `/health` старого AIFA.
 
-Профиль `app` (`engine`, `engine-postgres`, `frontend`) — с шага 12.
+Профиль `app` (`engine`, `engine-postgres`, `frontend`) — с шага 12, порядок — раздел «Выкатка шага 12».
 
 ### Дымовые проверки (`smoke/`)
 
-`smoke/run.sh [1|2|3|4|5]` — одноразовые контейнеры из образа ouroboros в сети `aifa-sym-internal`;
-секрет Workstation берётся из `.env` и не печатается. Повторяются шагом 12 и далее.
+`smoke/run.sh [1…9]` — 1–5 одноразовые контейнеры из образа ouroboros в сети `aifa-sym-internal`;
+секрет Workstation берётся из `.env` и не печатается. 6–9 (шаг 12) — `python3 smoke/api.py` на хосте через
+loopback-порт фронтенда; пароль `qa-a` — из `~/aifa-sym-qa.env` (`AIFA_SYM_QA_A_PASSWORD`).
 
 | № | Что | Критерий |
 |---|---|---|
@@ -124,6 +126,10 @@ docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml build workstation     
 | 3 | `code_exec` в Workstation контура | ответ содержит «4», в логе ouroboros — `POST …/v1/sessions/<id>/exec:stream` к `workstation:8080` |
 | 4 | C5.2: разовая комната по протоколу `sealed_room` (`room.py`) | `numpy`, `pandas`, `openpyxl`, `pptx`, `docx` импортируются; сокет заблокирован; переменных окружения службы нет |
 | 5 | Пределы Workstation, ADR-0039 (`room.py --limits`, `docker inspect`) | у exec `RLIMIT_CPU` 300 с и `RLIMIT_AS` 1 ГиБ, 1,5 ГБ не выделяются, `timeoutSec` 301 отклонён; у контейнера память 1,5 ГБ без swap, 1,5 CPU, 256 процессов |
+| 6 | `/api/health` через фронтенд (P31) | HTTP 200: перезапись `/api/*` дошла до службы |
+| 7 | `/build-id` фронтенда | равен `AIFA_SYM_BUILD_ID` из `.env` |
+| 8 | вход `qa-a` | `/auth/login` и `/auth/me` — 200 |
+| 9 | ход «привет» (`POST /chat/turns` → поток событий) | `completed` и непустой ответ ouroboros |
 
 Пределы Workstation (ADR-0039) держит контейнер, а не песочница: её cgroup-настройки
 (`SESSION_MEMORY_MAX` и др.) в контейнере не действуют, действуют только rlimit одного exec и
@@ -140,6 +146,58 @@ docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml down        # конт
 (`down -v` — нельзя). Тег `workstation-svc:local` — только новая ссылка на слои старой комнаты, его
 удаление (`docker rmi workstation-svc:local`) старый AIFA не затрагивает. Чистка образов
 `aifa-sym-*`, `chrislusf/seaweedfs`, `amazon/aws-cli` — отдельным решением.
+
+## Выкатка шага 12: служба и фронтенд (профиль `app`)
+
+Сигнал владельца — `PROGRESS.md` §2 (19.10.2026). Порядок — как в «Порядке выкатки» выше, плюс:
+
+1. **Окружение на сервере** (секреты не печатаются, права 600): `.env` — `AIFA_SYM_ENGINE_PG_PASSWORD`,
+   `AIFA_SYM_BUILD_ID=<коммит>`; `ouroboros.env` — значения списков и допуска навыков из примера,
+   `AIFA_ENGINE_URL`, `AIFA_ENGINE_TOKEN` (общий со службой); `engine.env` — из `engine.env.example`:
+   секреты генерируются на сервере, пароль базы = `AIFA_SYM_ENGINE_PG_PASSWORD`, ключи S3 и секрет Workstation = как в
+   `.env`. Ключа Tavily нет — строка не пишется, поиск в сети выключен.
+2. **Шлюз моделей службы** — тот же `infproxy`, что у старого dev (ADR-0017, решение владельца 19.10.2026): две строки
+   (`FINENGINE_OPENROUTER_BASE_URL`, `OPENROUTER_API_KEY`) переносит из `/opt/finagent/deploy/.env` владелец, командой с
+   `sudo grep` без вывода значений. Напрямую в Cloud.ru DeepSeek-V4-Pro рвёт соединение (~100 с), а ключ делят с
+   ouroboros и старым dev (лимит 200 запросов в минуту, 429): через неё службе ходить нельзя.
+3. **Сборка и подъём**: `docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml --profile app build engine frontend
+   ouroboros` (с `AIFA_SYM_BUILD_ID` из `.env`; `set -a; . aifa/deploy/dev/.env; set +a`), затем `--profile app up -d
+   --wait`. Миграций нет: таблицы службы создаёт её старт (`create_all`), схему ouroboros — `alembic upgrade head` из его
+   `entrypoint.sh`. Сбой `apt-get` при сборке (connection reset) — повторить.
+4. **Учётки `qa-a`, `qa-b`** — штатным путём AIFA: вход admin (`FINENGINE_ADMIN_*` из `engine.env`) → `POST /auth/invites`
+   → `POST /auth/register`. Пароли генерируются на сервере и лежат в `~/aifa-sym-qa.env` (600); владельцу их передают
+   вне git и вне чата.
+5. **Дымовые**: `aifa/deploy/dev/smoke/run.sh` (1–9). Сценарии S0–S5 — `smoke/scenarios/*.json` через
+   `aifa/tests/golden/golden_cli.py record` с `AIFA_GOLDEN_BASE_URL=http://127.0.0.1:13000/api`; документ ЛУКОЙЛ
+   («Бухгалтерская отчётность на 30.06.2026», 24 стр., скан) в git не хранится — кладётся рядом со сценарием как
+   `lukoil-6m2026.pdf`.
+
+### Вход пользователей: SSH-туннель
+
+```bash
+ssh -N -L 13000:127.0.0.1:13000 rasul@85.198.84.50      # затем http://127.0.0.1:13000/v2
+```
+
+В `finengine-caddy-1` ничего не добавляется. Пароли `qa-a`, `qa-b` — `~/aifa-sym-qa.env` на сервере.
+
+### Что развёрнуто (19.10.2026)
+
+Контур `aifa-sym`: `ouroboros`, `ouro-postgres`, `s3`, `workstation`, `engine`, `engine-postgres`, `frontend`; код — ветка
+`sym/12-vykatka-aifa-sym`, сборка фронтенда — `AIFA_SYM_BUILD_ID` из `.env`. Образы `engine`/`ouroboros` собраны с
+коммита `044ce6a` (позже менялись только compose, тесты и документы). По просьбе владельца на время проверок
+остановлены (`docker stop`, не удалены) приложения старого AIFA: `finengine-backend-1`, `finengine-frontend-1`,
+`workstation-svc`, `openclaw-dev`; вернуть — `docker start` этих четырёх. Базы, Caddy, `infproxy` и prod не трогались.
+
+### Известные ограничения
+
+- Диск dev: 2,9–5,3 ГБ свободно; полная пересборка трёх образов занимает до 4 ГБ кэша — после неё `docker builder prune -f`
+  (единственная разрешённая чистка).
+- Шлюз моделей медленный: DeepSeek-V4-Pro через `infproxy` — 70–160 с на ответ в 3000 токенов, вызовы извлечения
+  по 5–25 мин, иногда HTTP 500 апстрима; ход может не уложиться в 30 мин клиента записи.
+- Поиск в сети (Tavily) выключен. Внутренние ручки старого пути OpenClaw (`FINENGINE_OPENCLAW_GATEWAY_TOKEN`) без
+  токена отвечают отказом — путь уходит шагом 19.
+- Документ, разбор которого оборвался сбоем хранилища, остаётся «в обработке» до следующего хода, который снова просит
+  разбор (P79-класс; описан в шаге 11).
 
 ## Чем образы отличаются от образов AIFA
 
