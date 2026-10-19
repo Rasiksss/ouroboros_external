@@ -288,6 +288,7 @@ class MoveOutcome:
     transient: bool = False
     uncreated_atoms: tuple[str, ...] = ()
     steps_rejected: bool = False
+    refusal: str = ""                       # код отказа §3.0, если ход не исполнялся из-за правила атома
 
 
 @dataclass(frozen=True)
@@ -341,6 +342,17 @@ async def complete_plan(system: str, prompt: str) -> str:
     return await _default_complete(system, prompt, _PLAN_RESPONSE_FORMAT)
 
 
+class Rejection(str):
+    """Причина отказа решению. Служба читает её как строку; `code` — код отказа §3.0 для ouroboros."""
+
+    code: str
+
+    def __new__(cls, reason: str, code: str = "неверные_аргументы") -> Rejection:
+        text = super().__new__(cls, reason)
+        text.code = code
+        return text
+
+
 class LoopSession:
     """Состояние одного прогона цикла и правила, которые его держат (ADR-0023).
 
@@ -382,6 +394,7 @@ class LoopSession:
         self.idle = 0                        # ходов подряд без новых результатов
         self.rejected = 0                    # ответов подряд, не прошедших проверку
         self.opened_at = monotonic()
+        self.closed = False                  # последнее слово сказано: ходить и завершать больше нельзя
         self.feedback = ""                   # «Итог прошлого хода» для следующего решения
         self.evidence_generation = 0
         self.dead_end_actions: dict[tuple[str, ...], int] = {}
@@ -436,8 +449,12 @@ class LoopSession:
         self.rejected += 1 if counted else 0
         self.feedback = feedback if feedback is not None else f"Твой ответ не принят: {reason}. Пришли ход заново."
 
-    def check(self, decision: Decision, *, last_word: bool = False) -> Decision | str:
-        """Правила решения: что можно исполнить или принять. Строка — причина отказа."""
+    def check(self, decision: Decision, *, last_word: bool = False) -> Decision | Rejection:
+        """Правила решения: что можно исполнить или принять. `Rejection` — причина отказа и его код §3.0."""
+        verdict = self._verdict(decision, last_word)
+        return Rejection(verdict) if type(verdict) is str else verdict
+
+    def _verdict(self, decision: Decision, last_word: bool) -> Decision | str:
         self._accept_plan(decision.plan, decision.files)
         known = [clause.goal_ref for clause in self.goal.clauses()]
         unknown = [ref for ref in decision.goals if ref not in known]
@@ -449,7 +466,7 @@ class LoopSession:
             # После остановки цикла собрать файл уже нельзя: последнее слово проходит без него.
             promised = decision if last_word else self._with_promised_files(decision)
             if isinstance(promised, str):
-                return promised
+                return Rejection(promised, "файл_не_собран")
             decision = promised
             if not decision.evidence_ids and not decision.deliverables:
                 return (
@@ -478,7 +495,7 @@ class LoopSession:
                 return f"finalize ссылается на проваленную проверку {details}"
         repeat = self._repeated_dead_end(decision)
         if repeat:
-            return repeat
+            return Rejection(repeat, "повтор_тупика")
         return decision
 
     def move(self, decision: Decision) -> MoveOutcome:
@@ -514,13 +531,16 @@ class LoopSession:
     def finish(self, decision: Decision, *, number: int | None = None) -> DynamicRunResult:
         """Последнее решение цикла (`finalize` или `give_up`)."""
         self.rejected = 0
-        return self._finish(number or self.next_number, decision)
+        result = self._finish(number or self.next_number, decision)
+        self.closed = True
+        return result
 
     def stopped(self, reason: str) -> DynamicRunResult:
         """Последнее слово не принято: сводка по частичным результатам, как у цикла, остановленного системой."""
         self._emit_rejection(self.next_number, reason)
         evidence_ids = self._partial_evidence_ids()
         answer = self._stopped_summary(evidence_ids)
+        self.closed = True
         return self._result("stopped", answer, evidence_ids, self._partial_deliverable_ids())
 
     def _accept_plan(self, plan: tuple[str, ...], files: tuple[FileSpec, ...]) -> None:
@@ -537,7 +557,7 @@ class LoopSession:
             raise asyncio.CancelledError
 
     def _finish(self, number: int, decision: Decision) -> DynamicRunResult:
-        self._emit(self._move_event(number, "done", decision, details=decision.answer))
+        self._emit(self._move_event(number, "done", decision, details=decision.answer or self._without_answer(decision)))
         status = "finalized" if decision.action == "finalize" else "gave_up"
         evidence_ids = decision.evidence_ids
         deliverable_ids = decision.deliverables
@@ -546,6 +566,11 @@ class LoopSession:
             # Найденное не выбрасывается: файл, собранный в этом прогоне, доходит до пользователя и при отказе.
             deliverable_ids = tuple(dict.fromkeys((*deliverable_ids, *self._partial_deliverable_ids())))
         return self._result(status, decision.answer, evidence_ids, deliverable_ids)
+
+    def _without_answer(self, decision: Decision) -> str:
+        """Итог финального хода, когда ответ пишет ouroboros (ADR-0044 п. 2): файлы или «ответ — в чате»."""
+        files = [file.filename for file_id in decision.deliverables if (file := self._deliverable(file_id))]
+        return f"файлы: {', '.join(files)}" if files else "ответ — в чате"
 
     def _emit_rejection(self, number: int, details: str) -> None:
         self._emit(dynamic_move_event(move=number, status="rejected", action="rejected", details=details))
@@ -650,6 +675,7 @@ class LoopSession:
                 failed = True
         empty_atoms: tuple[str, ...] = ()
         transient = False
+        refusal = ""
         if decision.new_atoms or decision.raw_steps:
             before_steps = self._progress_ids()
             steps = self._run_steps(decision)
@@ -661,6 +687,8 @@ class LoopSession:
             failed = failed or steps.failed
             empty_atoms = steps.empty_atoms
             transient = steps.transient
+            # Ход целиком отклонён правилом атома, только если кроме шагов в нём ничего не исполнялось.
+            refusal = steps.refusal if not decision.goals and not decision.scenarios else ""
             if self._progress_ids() == before_steps and not transient and not steps.steps_rejected:
                 # шаг атома, которого не создали, не исполнялся — повтором его правка не считается;
                 # набор, отклонённый проверкой шагов, не исполнялся целиком
@@ -680,7 +708,7 @@ class LoopSession:
             headline = "новых результатов нет, всё уже было получено"
         return MoveOutcome(
             headline, "\n".join(lines), failed=failed, empty_atoms=empty_atoms,
-            dead_end_actions=tuple(dead_end_actions), transient=transient,
+            dead_end_actions=tuple(dead_end_actions), transient=transient, refusal=refusal,
         )
 
     def _run_goal_refs(self, refs: tuple[str, ...]) -> ScenarioResult:
@@ -735,6 +763,7 @@ class LoopSession:
                 f"атомы не созданы: {', '.join(atom_problems)}", problems, failed=True,
                 transient=any("комната станции недоступна" in problem for problem in atom_problems.values()),
                 uncreated_atoms=tuple(atom_problems),
+                refusal=next((code for code in map(_refusal_code, atom_problems.values()) if code), ""),
             )
         known = self._progress_ids()
         runtime = self.runtime.with_atoms([self._atom_def(atom) for atom in self.atoms.values()])
@@ -1075,6 +1104,16 @@ def parse_decision(raw: str, *, scenarios_enabled: bool, goals_enabled: bool = F
         raise ValueError(f"ответ не является JSON: {exc}") from exc
     if not isinstance(data, dict):
         raise ValueError("ответ — не JSON-объект")
+    return decision_from_data(data, scenarios_enabled=scenarios_enabled, goals_enabled=goals_enabled)
+
+
+def decision_from_data(
+    data: dict, *, scenarios_enabled: bool, goals_enabled: bool = False, answer_in_chat: bool = False,
+) -> Decision:
+    """Решение из разобранного объекта — путь модели службы (`parse_decision`) и путь аргументов инструмента.
+
+    `answer_in_chat` — ответ пользователю пишет ouroboros, а не решение (ADR-0044 п. 2): `finalize` не
+    требует `answer`, `give_up` не подменяет его причиной."""
     objective = str(data.get("objective") or "").strip()
     reason = str(data.get("reason") or "").strip()
     action = data.get("action")
@@ -1112,9 +1151,9 @@ def parse_decision(raw: str, *, scenarios_enabled: bool, goals_enabled: bool = F
         raise ValueError("для execute нужен хотя бы один сценарий, часть цели (goals) или шаг")
     if action in ("finalize", "give_up") and (scenarios or goals or new_atoms or raw_steps):
         raise ValueError(f"для {action} поля scenarios, goals, new_atoms и steps должны быть пустыми")
-    if action == "finalize" and not answer:
+    if action == "finalize" and not answer and not answer_in_chat:
         raise ValueError("для finalize поле answer обязательно")
-    if action == "give_up" and not answer:
+    if action == "give_up" and not answer and not answer_in_chat:
         answer = reason
     return Decision(
         objective=objective, reason=reason, action=action, scenarios=scenarios, goals=goals,
@@ -1298,7 +1337,16 @@ def artifacts_table(rows: list[dict]) -> str:
     return "\n".join(_state_table(rows)) or "—"
 
 
+ARTIFACTS_TITLE = "Полученные артефакты"
+ARTIFACTS_HEADER = "id | тип | концепт | период | значение"
+
+
 def render_state(run: LoopSession, feedback: str) -> str:
+    return "\n\n".join(f"## {title}\n{body}" for title, body in state_sections(run, feedback))
+
+
+def state_sections(run: LoopSession, feedback: str) -> list[tuple[str, str]]:
+    """Разделы состояния цикла (6.2 плана 34): их читает и модель службы, и ouroboros (`ouro_view`)."""
     goal = run.goal
     profile = "не зафиксирован"
     if run.run_passport is not None:
@@ -1317,21 +1365,22 @@ def render_state(run: LoopSession, feedback: str) -> str:
         f"{index}. {entry.objective} — {entry.outcome}"
         for index, entry in enumerate(run.journal, 1)
     ) or "—"
-    return "\n\n".join([
-        f"## Вопрос пользователя\n{goal.raw_query}",
-        f"## Разобранная цель\n{_describe_goal(run)}",
-        f"## План\n{_describe_plan(run)}",
-        f"## Профиль отчёта\n{profile}",
-        f"## Реестр показателей\n{_describe_metric_registry(run)}",
-        f"## Каталог атомов\n{catalog_text(run.runtime.registry)}",
-        f"## Созданные атомы этого разговора\n{atoms}",
-        "## Полученные артефакты\nid | тип | концепт | период | значение\n" + artifacts,
-        f"## Журнал ходов\n{journal}",
-        f"## Итог прошлого хода\n{feedback}",
-        "## Осталось\n"
-        f"ходов: {run.limits.max_moves - run.turns} из {run.limits.max_moves}; "
-        f"новых атомов: {run.limits.max_new_atoms - run.created} из {run.limits.max_new_atoms}",
-    ])
+    return [
+        ("Вопрос пользователя", goal.raw_query),
+        ("Разобранная цель", _describe_goal(run)),
+        ("План", _describe_plan(run)),
+        ("Профиль отчёта", profile),
+        ("Реестр показателей", _describe_metric_registry(run)),
+        ("Каталог атомов", catalog_text(run.runtime.registry)),
+        ("Созданные атомы этого разговора", atoms),
+        (ARTIFACTS_TITLE, f"{ARTIFACTS_HEADER}\n{artifacts}"),
+        ("Журнал ходов", journal),
+        ("Итог прошлого хода", feedback),
+        ("Осталось", (
+            f"ходов: {run.limits.max_moves - run.turns} из {run.limits.max_moves}; "
+            f"новых атомов: {run.limits.max_new_atoms - run.created} из {run.limits.max_new_atoms}"
+        )),
+    ]
 
 
 def _describe_metric_registry(run: LoopSession) -> str:
@@ -1505,6 +1554,23 @@ def _summarize(payload) -> str:
     return json.dumps(data, ensure_ascii=False, default=str)
 
 
+def artifact_content(payload) -> str:
+    """Полное содержимое артефакта для чтения ouroboros: значения, единицы, периоды, цитаты, источник."""
+    if isinstance(payload, BaseModel):
+        data = _without_none(payload.model_dump(mode="json"))
+    else:
+        data = str(payload)
+    return json.dumps(data, ensure_ascii=False, default=str)
+
+
+def _without_none(value):
+    if isinstance(value, dict):
+        return {key: _without_none(item) for key, item in value.items() if item is not None}
+    if isinstance(value, list):
+        return [_without_none(item) for item in value]
+    return value
+
+
 def _without_noise(value):
     if isinstance(value, dict):
         return {
@@ -1514,6 +1580,17 @@ def _without_noise(value):
     if isinstance(value, list):
         return [_without_noise(item) for item in value]
     return value
+
+
+# Правило атома, из-за которого ход не исполнялся, — по тексту отказа; коды — закрытый список §3.0.
+_REFUSAL_MARKS = (
+    ("входов атома", "нет_входов"), ("лимит новых атомов", "лимит_атомов"),
+    ("только dyn:*", "не_dyn_тип"), ("без x-unit", "нет_единицы"), ("контракт отклонён", "неверные_аргументы"),
+)
+
+
+def _refusal_code(problem: str) -> str:
+    return next((code for mark, code in _REFUSAL_MARKS if mark in problem), "")
 
 
 def _outcome_text(outcome: MoveOutcome) -> str:
@@ -1638,7 +1715,8 @@ def save_source(store, owner_id, case_id: str, atom: EphemeralAtom) -> None:
 
 __all__ = [
     "Decision", "DynamicRun", "DynamicRunResult", "InvalidSteps", "JournalEntry", "LoopSession", "MoveOutcome",
+    "Rejection",
     "GOAL_OBTAINED", "GoalRunner", "RunLimits", "ScenarioResult", "ScenarioRunner", "artifacts_table",
-    "case_rows", "complete_plan", "describe_clause", "describe_execution", "load_case_atoms",
-    "parse_decision", "parse_steps", "render_state", "save_source",
+    "case_rows", "complete_plan", "artifact_content", "state_sections", "ARTIFACTS_TITLE", "ARTIFACTS_HEADER", "describe_clause", "describe_execution", "load_case_atoms",
+    "decision_from_data", "parse_decision", "parse_steps", "render_state", "save_source",
 ]

@@ -35,12 +35,14 @@ from finengine.skills.result_events import file_event, typed_error_event, typed_
 from finengine.skills.spec.dynamic_run import (
     DynamicRun,
     DynamicRunResult,
+    LoopSession,
     ScenarioResult,
     _progress_only,
     complete_plan,
     describe_execution,
 )
 from finengine.skills.spec.graph_executor import ExecutionBudget, ExecutionResult, RunInputs
+from finengine.skills.spec.loop_state import LoopOrigin, restore_state
 from finengine.skills.spec.target import Target
 from finengine.store.cases import CasePersistenceError, SqlCaseStore, get_case_store
 
@@ -76,6 +78,7 @@ class ProductionOutcome:
     roots: tuple[ProductionRootResult, ...] = ()
     refusal_event: dict | None = None
     dynamic: DynamicRunResult | None = None
+    loop: LoopSession | None = None   # цикл открыт и передан ведущему снаружи (`open_loop`), а не пройден здесь
     # Исключение из `CaseRuntime.execute` (таймаут, бюджет вызовов, сбой исполнителя): граф собрался и
     # упал. Выставляется только при `allow_dynamic` — иначе исключение поднимается как раньше.
     crashed: Exception | None = None
@@ -209,6 +212,7 @@ def execute_production_goal(
     dynamic_cause: BaseException | None = None,
     dynamic_stage: str = "planning",
     is_cancelled: Callable[[], bool] | None = None,
+    open_loop: LoopOpener | None = None,
 ) -> ProductionOutcome:
     """Resolve and execute every semantic root without legacy fallback.
 
@@ -349,27 +353,14 @@ def execute_production_goal(
                 dynamic_stage, context.case_id, goal_ir.intent_kind, exc,
                 exc_info=exc if exc.__cause__ is not None else None,
             )
+            if open_loop is not None:
+                return ProductionOutcome(context=context, loop=_hand_over_loop(
+                    open_loop, context, goal_ir, target, merged_extra, document_text, event_sink,
+                    dynamic_stage, str(exc),
+                ))
             try:
                 dynamic = DynamicRun(
-                    runtime=context.runtime,
-                    owner_id=context.owner_id,
-                    case_id=context.case_id,
-                    goal=goal_ir,
-                    target=target,
-                    run_passport=context.passport,
-                    root_extra=merged_extra,
-                    inputs=_run_inputs(
-                        context, document_text=document_text, role=goal_ir.role or "", extra=merged_extra,
-                    ),
-                    event_sink=event_sink,
-                    run_scenario=ScenarioChannel(
-                        context=context, document_text=document_text,
-                        role=goal_ir.role or "", event_sink=event_sink,
-                    ),
-                    run_goals=GoalChannel(
-                        context=context, document_text=document_text,
-                        role=goal_ir.role or "", event_sink=event_sink,
-                    ),
+                    **_loop_parts(context, goal_ir, target, merged_extra, document_text, event_sink),
                     entry_stage=dynamic_stage,
                     is_cancelled=is_cancelled,
                     plan_fn=complete_plan,
@@ -530,7 +521,7 @@ def _execution_failure(
     * узлы отработали без ошибок, корень пуст («показателя нет», «периода нет») — результат, не вход в цикл."""
     if outcome.crashed is not None:
         return f"исполнение графа прервано: {type(outcome.crashed).__name__}: {outcome.crashed}", outcome.crashed
-    if outcome.dynamic is not None or outcome.refusal_event is not None or not outcome.roots:
+    if outcome.dynamic is not None or outcome.loop is not None or outcome.refusal_event is not None or not outcome.roots:
         return None
     matches, _ = _root_matches(outcome, roots)
     failed = [item.execution for item in outcome.roots if item.execution.errors]
@@ -756,6 +747,83 @@ def _run_inputs(
     )
 
 
+LoopOpener = Callable[[LoopSession, LoopOrigin], None]
+
+
+class SwitchSink:
+    """Куда цикл пишет события сейчас: пока идёт стандартный путь — в его поток, после передачи ведущему
+    снаружи — туда, куда укажет он (поток стандартного пути к тому времени закрыт)."""
+
+    def __init__(self, target: EventSink | None = None) -> None:
+        self.target = target
+
+    def __call__(self, event: dict) -> None:
+        if self.target is not None:
+            self.target(event)
+
+
+def _loop_parts(
+    context: ProductionContext, goal_ir: GoalIR, target: Target, root_extra: Mapping[str, str],
+    document_text: str, event_sink: EventSink | None,
+) -> dict:
+    """Общая часть сессии цикла для обоих ведущих: службы (`DynamicRun`) и ouroboros (`LoopSession`)."""
+    role = goal_ir.role or ""
+    return {
+        "runtime": context.runtime, "owner_id": context.owner_id, "case_id": context.case_id,
+        "goal": goal_ir, "target": target, "run_passport": context.passport, "root_extra": root_extra,
+        "inputs": _run_inputs(context, document_text=document_text, role=role, extra=root_extra),
+        "event_sink": event_sink,
+        "run_scenario": ScenarioChannel(context=context, document_text=document_text, role=role, event_sink=event_sink),
+        "run_goals": GoalChannel(context=context, document_text=document_text, role=role, event_sink=event_sink),
+    }
+
+
+def _hand_over_loop(
+    open_loop: LoopOpener, context: ProductionContext, goal_ir: GoalIR, target: Target,
+    root_extra: Mapping[str, str], document_text: str, event_sink: EventSink | None,
+    stage: str, reason: str,
+) -> LoopSession:
+    """Цикл открыт, но ведёт его не служба: сессия передаётся ведущему вместе с рецептом сборки."""
+    session = LoopSession(
+        **_loop_parts(context, goal_ir, target, root_extra, document_text, SwitchSink(event_sink)),
+        entry_stage=stage,  # type: ignore[arg-type]
+    )
+    session.open(deterministic_error=reason)
+    budget = context.runtime.executor.budget
+    open_loop(session, LoopOrigin(
+        owner_id=context.owner_id, case_id=context.case_id, document_id=context.document_id,  # type: ignore[arg-type]
+        goal=goal_ir, target=target, root_extra=dict(root_extra), trace_id=context.trace_id, entry_stage=stage,
+        methodology_version=context.passport.methodology_version,
+        budget={"max_wall_seconds": budget.max_wall_seconds, "max_atom_calls": budget.max_atom_calls,
+                "max_retries": budget.max_retries},
+    ))
+    return session
+
+
+def restore_loop_session(
+    origin: LoopOrigin, state: dict, *, document_text: str, event_sink: EventSink | None,
+    is_cancelled: Callable[[], bool] | None = None,
+) -> LoopSession:
+    """Сессия цикла после перезапуска процесса: рантайм и каналы — заново, накопленное — из сохранённого."""
+    context = prepare_production_context(
+        owner_id=origin.owner_id, case_id=origin.case_id, document_id=origin.document_id,
+        document_text=document_text, goal_ir=origin.goal, methodology_version=origin.methodology_version,
+        budget=ExecutionBudget(**origin.budget) if origin.budget else None, trace_id=origin.trace_id,
+    )
+    session = LoopSession(
+        **_loop_parts(context, origin.goal, origin.target, origin.root_extra, document_text, SwitchSink(event_sink)),
+        entry_stage=origin.entry_stage,  # type: ignore[arg-type]
+        is_cancelled=is_cancelled,
+    )
+    restore_state(session, state)
+    return session
+
+
+def publish_result(result: DynamicRunResult, event_sink: EventSink | None, *, case_id: str, document_id: str) -> None:
+    """Итог цикла на экран: карточки результатов и файлы — как у цикла, который вела служба."""
+    _dynamic_outcome(result, event_sink, case_id=case_id, document_id=document_id)
+
+
 def _dynamic_outcome(
     result: DynamicRunResult,
     event_sink: EventSink | None,
@@ -893,6 +961,7 @@ class GoalChannel(_NestedChannel):
 
 def execute_routed_goal(
     *,
+    open_loop: LoopOpener | None = None,
     owner_id: object,
     case_id: str,
     document_id: str,
@@ -1034,6 +1103,7 @@ def execute_routed_goal(
             context, goal, document_text=document_text, root_extra=root_extra,
             event_sink=_checked_event_sink, roots=roots,
             allow_dynamic=allow_dynamic, dynamic_reason=dynamic_reason, is_cancelled=is_cancelled,
+            open_loop=open_loop,
         )
     except PlanInfeasible as exc:
         if not allow_dynamic:
@@ -1056,9 +1126,13 @@ def execute_routed_goal(
         outcome = execute_production_goal(
             context, goal, document_text=document_text, event_sink=_checked_event_sink,
             roots=roots, allow_dynamic=True, dynamic_reason=reason, dynamic_cause=cause,
-            dynamic_stage=stage, is_cancelled=is_cancelled,
+            dynamic_stage=stage, is_cancelled=is_cancelled, open_loop=open_loop,
         )
 
+    if outcome.loop is not None:
+        return EvidenceGateOutcome(tool_name="financial_pipeline", manifest={
+            "schema_version": "1.0", "case_id": case_id, "document_id": document_id, "loop_opened": True,
+        })
     if outcome.dynamic is not None:
         return _dynamic_outcome(
             outcome.dynamic, event_sink, case_id=case_id, document_id=document_id,

@@ -4,8 +4,9 @@
 (`_chat_turn_docs`). События конвейера идут в журнал этого хода, как шли при чате без ouroboros.
 
 Этап 2 (ADR-0029): сбой стандартного пути служба разбирает сама — цель идёт тем же вызовом, но с
-`allow_dynamic=True`, то есть в нынешний `DynamicRun`; его итог — тоже `ГОТОВО`. Это временно: с шага 14
-сбой вернёт `НУЖЕН_ЦИКЛ`, а цикл поведёт ouroboros.
+`allow_dynamic=True`, то есть в нынешний `DynamicRun`; его итог — тоже `ГОТОВО`. При `loop_driver=ouroboros`
+(временный переключатель, шаг 19) цикл не проходится здесь: он открывается и передаётся `LoopDesk`, а `aifa_goal`
+отвечает `НУЖЕН_ЦИКЛ`.
 """
 
 from __future__ import annotations
@@ -17,12 +18,14 @@ from typing import Any
 
 from finengine.assistant.events import Emit, Event
 from finengine.assistant.goal_result import GoalResult, Verdict
+from finengine.assistant.loop_desk import LoopDesk, LoopEmitter
 from finengine.assistant.turn_record import TurnRecord
+from finengine.config import settings
 from finengine.ingestion.document_store import get_store
 from finengine.llm.budget import BudgetExceeded
 from finengine.orchestrator.live_stream import stream_blocking
 from finengine.skills.atoms.intent import IngressContext, IntentDecision, parse_message
-from finengine.skills.production_runtime import EvidenceGateOutcome, execute_routed_goal
+from finengine.skills.production_runtime import EvidenceGateOutcome, LoopOpener, execute_routed_goal
 from finengine.skills.result_events import typed_error_event
 from finengine.skills.spec.dynamic_run import case_rows
 from finengine.store.cases import CasePersistenceError, get_case_store
@@ -45,6 +48,9 @@ class HoldStageTwo:
 
 
 class StandardPath:
+    def __init__(self, desk: LoopDesk | None = None) -> None:
+        self._desk = desk or LoopDesk()
+
     async def __call__(self, record: TurnRecord, emit: Emit) -> GoalResult:
         decision = await self._parse(record, emit)
         if decision.route != "plan" or decision.goal is None:
@@ -62,6 +68,10 @@ class StandardPath:
         if outcome is None:
             return GoalResult(Verdict.NO_CALCULATION, "Вид цели не подключён к конвейеру: ответь пользователю сам.")
         rows = await asyncio.to_thread(case_rows, get_case_store(), record.user_id, record.case_id)
+        if outcome.manifest.get("loop_opened"):
+            opened = self._desk.live(record.run_id)
+            assert opened is not None, "цикл открыт, но не передан LoopDesk"
+            return GoalResult(Verdict.NEEDS_LOOP, rows=tuple(rows), loop=opened.session)
         return _result_of(outcome, tuple(rows))
 
     async def _parse(self, record: TurnRecord, emit: Emit) -> IntentDecision:
@@ -109,19 +119,27 @@ class StandardPath:
     async def _execute(
         self, record: TurnRecord, doc_id: str, text: str, goal: Any, emit: Emit
     ) -> EvidenceGateOutcome | None:
+        open_loop = self._opener(record)
         try:
             outcome = await self._stream(record, doc_id, text, goal, HoldStageTwo(emit), allow_dynamic=False)
         except (CasePersistenceError, BudgetExceeded):
             raise  # состояние вокруг графа, а не ошибка графа: цикл тут не поможет (Р14.3)
         except Exception as crash:  # noqa: BLE001 — граф собрался и упал: это вход в этап 2, как в чате
             log.warning("стандартный путь хода %s упал, цель уходит на этап 2: %r", record.run_id[:8], crash)
-            return await self._stream(record, doc_id, text, goal, emit, allow_dynamic=True)
+            return await self._stream(record, doc_id, text, goal, emit, allow_dynamic=True, open_loop=open_loop)
         if outcome is not None and _stage_two_needed(outcome):
-            return await self._stream(record, doc_id, text, goal, emit, allow_dynamic=True)
+            return await self._stream(record, doc_id, text, goal, emit, allow_dynamic=True, open_loop=open_loop)
         return outcome
 
+    def _opener(self, record: TurnRecord) -> LoopOpener | None:
+        """Кто ведёт цикл при сбое стандартного пути: служба (`None`) или ouroboros (`LoopDesk` принимает сессию)."""
+        if settings.loop_driver != "ouroboros":
+            return None
+        return self._desk.opener(record.run_id, record.user_id, LoopEmitter.here(record.run_id))
+
     async def _stream(
-        self, record: TurnRecord, doc_id: str, text: str, goal: Any, emit: Emit, *, allow_dynamic: bool
+        self, record: TurnRecord, doc_id: str, text: str, goal: Any, emit: Emit, *, allow_dynamic: bool,
+        open_loop: LoopOpener | None = None,
     ) -> EvidenceGateOutcome | None:
         outcome: EvidenceGateOutcome | None = None
         async for kind, payload in stream_blocking(
@@ -132,6 +150,7 @@ class StandardPath:
             document_text=text,
             goal=goal,
             allow_dynamic=allow_dynamic,
+            open_loop=open_loop,
             trace_id=record.trace_id,
             cancel_kw="is_cancelled",
         ):

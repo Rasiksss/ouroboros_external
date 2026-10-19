@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from functools import cache
 
+from finengine.assistant.loop_desk import LoopDesk
 from finengine.assistant.ouro_client import OuroClient
 from finengine.assistant.standard_path import StandardPath
 from finengine.assistant.tool_api import ToolApi
@@ -22,5 +23,10 @@ def turn_gateway() -> TurnGateway:
 
 
 @cache
+def loop_desk() -> LoopDesk:
+    return LoopDesk()
+
+
+@cache
 def tool_api() -> ToolApi:
-    return ToolApi(turn_gateway(), StandardPath())
+    return ToolApi(turn_gateway(), StandardPath(loop_desk()), loop_desk())
