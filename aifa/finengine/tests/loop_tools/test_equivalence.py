@@ -49,9 +49,9 @@ def _decisions() -> list[str]:
 
 
 def _without_final_words(events: list[dict]) -> list[dict]:
-    """ADR-0042, ADR-0044 п. 2: у `aifa_finish` нет ни цели, ни причины, ни текста ответа — допустимое различие."""
+    """ADR-0042: у `aifa_finish` нет ни цели, ни причины — допустимое различие; `details` у обоих ведущих одни (ADR-0044 п. 7)."""
     final = [index for index, event in enumerate(events) if event.get("action") in ("finalize", "give_up")]
-    blank = {"objective": "", "reason": "", "details": ""}
+    blank = {"objective": "", "reason": ""}
     return [dict(event, **blank) if index in final else event for index, event in enumerate(events)]
 
 

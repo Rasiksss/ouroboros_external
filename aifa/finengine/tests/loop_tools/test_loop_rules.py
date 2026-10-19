@@ -19,10 +19,11 @@ from test_dynamic_run import (
     _give_up,
     _move,
 )
-from test_ephemeral_atoms import ECHO_CODE, ECHO_SCHEMA
+from test_ephemeral_atoms import ECHO_CODE, ECHO_SCHEMA, _metric
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 
-from finengine.contracts import GoalIR, NodeKey
+from finengine.contracts import GoalIR, NodeKey, VerificationFinding
+from finengine.skills import run_logger
 from finengine.skills.spec.atom_author import AtomAuthor
 from finengine.skills.spec.dynamic_run import RunLimits, ScenarioResult, artifact_content
 from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom
@@ -190,12 +191,68 @@ async def test_a_dependent_part_waits_for_the_part_it_depends_on(base) -> None:
     await together.close()
 
 
+def _finish_journal() -> list[dict]:
+    """Строки журнала завершений: что названо в `evidence_ids` и есть ли оно в `Case` (ADR-0040 п. 1)."""
+    return run_logger.прочитать(run_logger.ЖУРНАЛ_ЗАВЕРШЕНИЙ)
+
+
 async def test_a_finish_with_a_citable_result_is_accepted(base) -> None:
-    """Найденный результат, названный в `evidence_ids`, — `ПРИНЯТО`; цикл закрыт."""
+    """LR-41, C3.7: найденный результат, названный в `evidence_ids`, — `ПРИНЯТО`; в журнале он отмечен как существующий."""
     cycle = await open_cycle(base, scenario=ExtractScenario(base, None))
     await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
+    evidence_id = cited(base)
 
-    reply = await cycle.finish(_finalize(cited(base)))
+    reply = await cycle.finish(_finalize(evidence_id))
+
+    assert code_of(reply) == "ПРИНЯТО" and cycle.session.closed
+    assert [line["references"] for line in _finish_journal()] == [[{"evidence_id": evidence_id, "exists": True}]]
+    await cycle.close()
+
+
+async def test_a_finish_without_references_is_accepted(base) -> None:
+    """LR-41, C3.7: `aifa_finish` без `evidence_ids` и без файлов — `ПРИНЯТО`, ответ пишет ouroboros; ссылок в журнале нет."""
+    cycle = await open_cycle(base)
+
+    reply = await cycle.call("aifa_finish", {"action": "finalize"})
+
+    assert code_of(reply) == "ПРИНЯТО" and cycle.session.closed
+    final = [event for event in cycle.events if event.get("action") == "finalize"][0]
+    assert final["details"] == "ответ — в чате"
+    assert [(line["action"], line["references"]) for line in _finish_journal()] == [("finalize", [])]
+    await cycle.close()
+
+
+async def test_a_finish_with_a_missing_reference_is_accepted_and_the_journal_says_it_is_missing(base) -> None:
+    """LR-41, C3.7: несуществующая ссылка — `ПРИНЯТО`; служба пишет в журнал прогона, что такого артефакта нет."""
+    cycle = await open_cycle(base)
+
+    reply = await cycle.finish(_finalize("no-such-id"))
+
+    assert code_of(reply) == "ПРИНЯТО" and cycle.session.closed
+    assert [line["references"] for line in _finish_journal()] == [[{"evidence_id": "no-such-id", "exists": False}]]
+    await cycle.close()
+
+
+async def test_a_finding_that_refuted_a_value_does_not_stop_the_finish(base) -> None:
+    """LR-41, C3.7: опровергнутая находка завершению не мешает; ссылка на значение с проваленной проверкой принимается."""
+    metric = _metric("EBITDA", 500.0)
+    base.store.put_artifact(
+        OWNER, CASE, node_key=NodeKey(atom_name="read.value", atom_version="1", args_fingerprint="m"),
+        output_type="ExtractedMetric", payloads=(metric,), concept="EBITDA", entity_ref=ENTITY, period_ref="2024",
+        basis=None, document_version="sha256:v1", policy_version=base.policy.policy_version,
+    )
+    finding = VerificationFinding(
+        check_kind="bounds", status="fail", detail="значение вне границ", source_ref=metric.scalar_fact.evidence_id,
+        produced_by_atom="verify.bounds", produced_by_atom_version="1",
+    )
+    base.store.put_artifact(
+        OWNER, CASE, node_key=NodeKey(atom_name="verify.bounds", atom_version="1", args_fingerprint="f"),
+        output_type="VerificationFinding", payloads=(finding,), concept=None, entity_ref=ENTITY, period_ref=None,
+        basis=None, document_version="sha256:v1", policy_version=base.policy.policy_version,
+    )
+    cycle = await open_cycle(base)
+
+    reply = await cycle.finish(_finalize(metric.scalar_fact.evidence_id))
 
     assert code_of(reply) == "ПРИНЯТО" and cycle.session.closed
     await cycle.close()

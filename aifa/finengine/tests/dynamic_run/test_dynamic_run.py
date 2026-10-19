@@ -16,7 +16,9 @@ from finengine.contracts import (
     ScalarFact,
     VerificationFinding,
 )
+from finengine.config import settings
 from finengine.llm.budget import BudgetExceeded
+from finengine.skills import run_logger
 from finengine.skills.case_runtime import PlanInfeasible
 from finengine.skills.production_runtime import _dynamic_outcome
 from finengine.skills.spec.atom_author import AtomAuthor
@@ -1245,6 +1247,82 @@ class GiveUpNamingTheArtifact:
         return json.dumps(reply, ensure_ascii=False)
 
 
+def test_finalize_without_references_and_files_is_accepted(base) -> None:
+    """ADR-0040 п. 1, ADR-0044 п. 7: finalize без `evidence_ids` и без файлов принимается — отказа и лишнего хода нет."""
+    dynamic, planner = _run(base, [_terminal_reply(action="finalize", answer="Ответ готов.", reason="итог"), _give_up()])
+
+    result = dynamic.run(deterministic_error="нет пути")
+
+    assert result.status == "finalized" and result.answer == "Ответ готов."
+    assert len(planner.prompts) == 1
+
+
+def test_finalize_with_a_missing_reference_is_accepted_and_the_journal_keeps_the_fact(base, monkeypatch, tmp_path) -> None:
+    """ADR-0040 п. 1: ссылка на несуществующий артефакт не отказ; в журнал прогона пишется, что её нет."""
+    monkeypatch.setattr(settings, "data_dir", tmp_path)
+    dynamic, planner = _run(base, [_finalize("missing-id"), _give_up()])
+
+    result = dynamic.run(deterministic_error="нет пути")
+
+    assert result.status == "finalized" and result.evidence == () and len(planner.prompts) == 1
+    assert [line["references"] for line in run_logger.прочитать(run_logger.ЖУРНАЛ_ЗАВЕРШЕНИЙ)] == [
+        [{"evidence_id": "missing-id", "exists": False}]
+    ]
+
+
+def test_give_up_keeps_a_partial_result_that_failed_verification(base) -> None:
+    """ADR-0044 п. 7: `give_up` не вычёркивает опровергнутую находку — значение доходит до пользователя карточкой."""
+    dynamic, _ = _run(
+        base, [_move(scenarios=("Извлеки выручку",)), _give_up("Проверенное значение получить не удалось.")],
+        scenario=FailedCheckScenario(base),
+    )
+
+    result = dynamic.run(deterministic_error="нет пути")
+
+    assert result.status == "gave_up"
+    assert [item.concept for item in result.evidence] == ["SALES_REVENUE"]
+    events: list[dict] = []
+    _dynamic_outcome(result, events.append, case_id=CASE, document_id="doc-1")
+    assert [event["result"]["concept"] for event in events] == ["SALES_REVENUE"]
+
+
+def test_give_up_keeps_a_failed_value_the_model_listed_itself(base) -> None:
+    """ADR-0044 п. 7: id значения с проваленной проверкой, названный в `give_up`, остаётся в итоге."""
+    dynamic, _ = _run(base, [], scenario=FailedCheckScenario(base))
+    dynamic.complete_fn = GiveUpNamingTheArtifact()
+
+    result = dynamic.run(deterministic_error="нет пути")
+
+    assert result.status == "gave_up"
+    assert [item.concept for item in result.evidence] == ["SALES_REVENUE"]
+
+
+def test_stopped_summary_offers_a_value_that_failed_verification(base) -> None:
+    """ADR-0044 п. 7: сводка остановленного цикла не прячет опровергнутую находку."""
+    dynamic, _ = _run(
+        base, [_move(scenarios=("Извлеки выручку",)), "bad", "bad", "bad", "bad"],
+        scenario=FailedCheckScenario(base), limits=RunLimits(max_moves=6, idle_moves=3),
+    )
+
+    result = dynamic.run(deterministic_error="нет пути")
+
+    assert result.status == "stopped"
+    assert [item.concept for item in result.evidence] == ["SALES_REVENUE"]
+    assert "SALES_REVENUE" in result.answer
+
+
+def test_the_terminal_move_names_files_or_the_chat_instead_of_the_answer_text(base) -> None:
+    """ADR-0044 пп. 2, 7: `details` финального `dynamic_move` — «ответ — в чате», а не текст `answer` модели."""
+    events: list[dict] = []
+    dynamic, _ = _run(base, [_terminal_reply(action="finalize", answer="Маржа рассчитана.", reason="итог")])
+    dynamic.event_sink = events.append
+
+    result = dynamic.run(deterministic_error="нет пути")
+
+    assert result.answer == "Маржа рассчитана."
+    assert [event["details"] for event in events if event.get("action") == "finalize"] == ["ответ — в чате"]
+
+
 def test_accepted_last_word_is_a_trace_event_of_the_next_move(base) -> None:
     events = []
     dynamic, _ = _run(base, ["bad", "bad", "bad", _give_up()], limits=RunLimits(max_moves=12, idle_moves=3))
@@ -1254,7 +1332,7 @@ def test_accepted_last_word_is_a_trace_event_of_the_next_move(base) -> None:
 
     last = events[-1]
     assert (last["type"], last["status"], last["action"], last["move"]) == ("dynamic_move", "done", "give_up", 4)
-    assert last["details"] == "Данных недостаточно."
+    assert last["details"] == "ответ — в чате"
 
 
 def test_rejected_last_word_leaves_its_reason_in_the_trace(base) -> None:
