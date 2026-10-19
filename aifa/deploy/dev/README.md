@@ -156,10 +156,7 @@ docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml down        # конт
    `AIFA_ENGINE_URL`, `AIFA_ENGINE_TOKEN` (общий со службой); `engine.env` — из `engine.env.example`:
    секреты генерируются на сервере, пароль базы = `AIFA_SYM_ENGINE_PG_PASSWORD`, ключи S3 и секрет Workstation = как в
    `.env`. Ключа Tavily нет — строка не пишется, поиск в сети выключен.
-2. **Шлюз моделей службы** — тот же `infproxy`, что у старого dev (ADR-0017, решение владельца 19.10.2026): две строки
-   (`FINENGINE_OPENROUTER_BASE_URL`, `OPENROUTER_API_KEY`) переносит из `/opt/finagent/deploy/.env` владелец, командой с
-   `sudo grep` без вывода значений. Напрямую в Cloud.ru DeepSeek-V4-Pro рвёт соединение (~100 с), а ключ делят с
-   ouroboros и старым dev (лимит 200 запросов в минуту, 429): через неё службе ходить нельзя.
+2. **Шлюз моделей службы** — Cloud.ru напрямую, модель GLM-5.2 (ADR-0048, ADR-0049; решение владельца 19.10.2026): в `engine.env` на сервере `FINENGINE_OPENROUTER_BASE_URL=https://foundation-models.api.cloud.ru/v1` и `OPENROUTER_API_KEY` — тот же ключ, что `CLOUDRU_FOUNDATION_MODELS_API_KEY` в `ouroboros.env` (копируется на сервере без вывода). Через `infproxy` не ходим: он отдавал 500 (обрыв между ним и Cloud.ru) и ответы по 5–25 мин; DeepSeek-V4-Pro напрямую рвёт соединение, GLM-5.2 отвечает на запрос классификатора за 32–39 с. Лимит ключа — 200 запросов в минуту на модель, его делят ouroboros, служба и старый dev.
 3. **Сборка и подъём**: `docker compose -p aifa-sym -f aifa/deploy/dev/compose.yml --profile app build engine frontend
    ouroboros` (с `AIFA_SYM_BUILD_ID` из `.env`; `set -a; . aifa/deploy/dev/.env; set +a`), затем `--profile app up -d
    --wait`. Миграций нет: таблицы службы создаёт её старт (`create_all`), схему ouroboros — `alembic upgrade head` из его
@@ -192,8 +189,7 @@ ssh -N -L 13000:127.0.0.1:13000 rasul@85.198.84.50      # затем http://127.
 
 - Диск dev: 2,9–5,3 ГБ свободно; полная пересборка трёх образов занимает до 4 ГБ кэша — после неё `docker builder prune -f`
   (единственная разрешённая чистка).
-- Шлюз моделей медленный: DeepSeek-V4-Pro через `infproxy` — 70–160 с на ответ в 3000 токенов, вызовы извлечения
-  по 5–25 мин, иногда HTTP 500 апстрима; ход может не уложиться в 30 мин клиента записи.
+- Шлюз моделей: на `infproxy` DeepSeek-V4-Pro давал 70–160 с на ответ в 3000 токенов и HTTP 500 — службе он отключён (ADR-0049); качество GLM-5.2 на извлечении не измерено.
 - Поиск в сети (Tavily) выключен. Внутренние ручки старого пути OpenClaw (`FINENGINE_OPENCLAW_GATEWAY_TOKEN`) без
   токена отвечают отказом — путь уходит шагом 19.
 - Документ, разбор которого оборвался сбоем хранилища, остаётся «в обработке» до следующего хода, который снова просит
