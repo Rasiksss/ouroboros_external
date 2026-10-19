@@ -11,6 +11,10 @@ from __future__ import annotations
 SCREEN_NAMES: dict[str, str] = {
     "aifa_goal": "financial_pipeline",
     "aifa_wait": "financial_pipeline",
+    "aifa_state": "read_source",
+    "aifa_doc": "read_source",
+    "aifa_move": "financial_pipeline",
+    "aifa_finish": "financial_pipeline",
 }
 
 

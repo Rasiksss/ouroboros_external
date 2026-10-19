@@ -1,0 +1,147 @@
+# Карта правил цикла (F8, ADR-0023, ADR-0040, ADR-0044 п. 9): у каждого правила, действующего в шаге 13, — тест.
+#
+# Источники: раздел 8 плана 34 (`aifa/finengine/docs/build-plan/34-…md`, колонка `plan34` — первая ячейка строки)
+# и столбец «Правила» §3.1 `CONTRACTS.md` для инструментов цикла `aifa_state`, `aifa_doc`, `aifa_move`, `aifa_finish`
+# (колонка `cell` — фрагмент ячейки между `;` верхнего уровня; `contract` — фрагмент текста §3.0). Тест — путь от `aifa/finengine/` и имя функции.
+# Правила, которые вводят шаги 13a, 16, 17, лежат в `deferred` с номером шага; снять строку оттуда и завести правило
+# выше — работа того шага. Тесты каталога `tests/loop_tools/` проходят через API инструментов и называют
+# идентификатор правила в строке документации; тесты исполнителя (комната, загрузчик, версия) — своего уровня.
+
+rules:
+  - id: LR-01
+    plan34: "Временный атом производит только `dyn:*`"
+    cell: "`check_request`: `dyn:*`-тип, `x-unit` у чисел, у загрузки нет `requires`, у кода есть `requires`"
+    test: tests/loop_tools/test_loop_rules.py::test_an_atom_may_produce_only_a_dyn_type
+  - id: LR-02
+    plan34: "Код, видящий данные `Case`, не имеет сети"
+    test: tests/dynamic_run/test_ephemeral_atoms.py::test_room_profile_has_code_and_no_network_and_is_not_a_fourth_fixed_profile
+  - id: LR-03
+    plan34: "Загрузка не видит данных `Case` и не исполняет код"
+    cell: "`check_request`: `dyn:*`-тип, `x-unit` у чисел, у загрузки нет `requires`, у кода есть `requires`"
+    test: tests/loop_tools/test_loop_rules.py::test_a_download_atom_cannot_have_inputs
+  - id: LR-04
+    plan34: "Загрузка ходит только на свой узел и только по публичным адресам"
+    cell: "загрузка — только свой узел и публичный адрес"
+    test: tests/loop_tools/test_loop_rules.py::test_a_download_to_a_private_address_is_refused_by_the_guard
+  - id: LR-05
+    plan34: "Код атома не видит сырой документ — только результаты атомов чтения (метрики за гейтами `norm.*`/`verify.bounds`; цитаты и таблицы — со своими гейтами или без)"
+    test: tests/loop_tools/test_loop_rules.py::test_the_code_of_an_atom_sees_only_the_results_of_its_inputs
+  - id: LR-06
+    plan34: "Код атома не видит ключей backend"
+    test: tests/dynamic_run/test_sealed_room.py::test_exec_body_carries_entry_point_and_base64_stdin
+  - id: LR-07
+    plan34: "У каждого числа результата есть единица"
+    cell: "`check_request`: `dyn:*`-тип, `x-unit` у чисел, у загрузки нет `requires`, у кода есть `requires`"
+    test: tests/loop_tools/test_loop_rules.py::test_a_number_of_the_result_needs_its_unit
+  - id: LR-08
+    plan34: "Гейты проверок нельзя пропустить"
+    test: tests/loop_tools/test_loop_rules.py::test_gates_cannot_be_planned_by_hand_and_the_planner_adds_them
+  - id: LR-09
+    plan34: "Происхождение числа не теряется"
+    test: tests/loop_tools/test_loop_rules.py::test_the_result_of_an_atom_carries_its_version_and_the_origin_the_wrapper_computed
+  - id: LR-10
+    plan34: "Результат соответствует объявленной схеме"
+    test: tests/loop_tools/test_loop_rules.py::test_a_result_of_the_wrong_shape_is_a_failed_attempt_and_no_atom
+  - id: LR-11
+    plan34: "Результат ↔ конкретный код"
+    test: tests/loop_tools/test_loop_rules.py::test_the_result_of_an_atom_carries_its_version_and_the_origin_the_wrapper_computed
+  - id: LR-12
+    plan34: "Исправленный атом не подменяется старым результатом"
+    test: tests/dynamic_run/test_ephemeral_in_graph.py::test_a_new_version_makes_the_old_result_incompatible_and_runs_again
+  - id: LR-13
+    plan34: "Сценарий исполняется тем же путём, что сообщение чата"
+    test: tests/loop_tools/test_open_and_restore.py::test_a_scenario_of_a_move_goes_the_same_path_as_a_chat_message
+  - id: LR-14
+    plan34: "Сценарий не запускает вложенный цикл"
+    cell: "сценарий без вложенного цикла (`allow_dynamic=False`)"
+    test: tests/loop_tools/test_open_and_restore.py::test_a_scenario_of_a_move_never_opens_a_nested_cycle
+  - id: LR-15
+    plan34: "Промежуточные карточки и отказы сценариев не видны пользователю"
+    test: tests/loop_tools/test_open_and_restore.py::test_a_scenario_of_a_move_goes_the_same_path_as_a_chat_message
+  - id: LR-16
+    plan34: "`finalize` ссылается только на существующее"
+    test: tests/loop_tools/test_loop_rules.py::test_a_finish_cannot_cite_what_is_not_in_the_case
+  - id: LR-17
+    plan34: "Цикл конечен"
+    cell: "`RunLimits` (ходы, новые атомы, ходы без прогресса, 1200 с)"
+    test: tests/loop_tools/test_loop_rules.py::test_the_cycle_is_finite_and_the_limit_leaves_only_the_last_word
+  - id: LR-18
+    cell: "`RunLimits` (ходы, новые атомы, ходы без прогресса, 1200 с)"
+    test: tests/loop_tools/test_loop_rules.py::test_moves_without_progress_exhaust_the_cycle
+  - id: LR-19
+    cell: "`RunLimits` (ходы, новые атомы, ходы без прогресса, 1200 с)"
+    test: tests/loop_tools/test_loop_rules.py::test_the_new_atoms_limit_refuses_a_new_atom_but_not_the_old_ones
+  - id: LR-20
+    cell: "`RunLimits` (ходы, новые атомы, ходы без прогресса, 1200 с)"
+    test: tests/loop_tools/test_loop_rules.py::test_the_wall_time_of_the_cycle_is_limited
+  - id: LR-21
+    cell: "`parse_decision`: ≤ 3 сценариев+частей за ход, атом без шага запускается сам"
+    test: tests/loop_tools/test_loop_rules.py::test_a_move_has_at_most_three_actions
+  - id: LR-22
+    cell: "`parse_decision`: ≤ 3 сценариев+частей за ход, атом без шага запускается сам"
+    test: tests/loop_tools/test_loop_rules.py::test_an_atom_without_a_step_runs_by_itself
+  - id: LR-23
+    cell: "`check_request`: `dyn:*`-тип, `x-unit` у чисел, у загрузки нет `requires`, у кода есть `requires`"
+    test: tests/loop_tools/test_loop_rules.py::test_a_code_atom_needs_inputs_by_contract
+  - id: LR-24
+    cell: "«входов ещё нет»"
+    test: tests/loop_tools/test_loop_rules.py::test_a_code_atom_needs_inputs_that_are_already_in_the_case
+  - id: LR-25
+    cell: "повтор тупика (`_repeated_dead_end`; новая регистрация имени через `aifa_register_atom` снимает его сигнатуры тупика, ADR-0043 п. 6)"
+    test: tests/loop_tools/test_loop_rules.py::test_the_same_dead_end_move_is_refused
+  - id: LR-26
+    cell: "части цели по ссылке и `depends_on`"
+    test: tests/loop_tools/test_loop_rules.py::test_a_part_of_the_goal_must_be_one_the_goal_has
+  - id: LR-27
+    cell: "в `new_atoms` — атомы-загрузки (`url`)"
+    test: tests/loop_tools/test_loop_rules.py::test_a_download_atom_is_described_in_new_atoms
+  - id: LR-28
+    cell: "только корень"
+    test: tests/loop_tools/test_cycle_and_queue.py::test_a_subtask_may_move_the_cycle_but_not_close_it
+  - id: LR-29
+    cell: "`нет_цикла`"
+    test: tests/loop_tools/test_cycle_and_queue.py::test_the_cycle_is_opened_only_by_the_answer_that_needs_it
+  - id: LR-30
+    cell: "без открытого цикла — только артефакты по `artifact_ids` (после любого `aifa_goal`), иначе `нет_цикла`"
+    test: tests/loop_tools/test_cycle_and_queue.py::test_nothing_of_the_cycle_is_readable_before_the_goal_was_asked
+  - id: LR-31
+    cell: "обещанный файл собран и отвечает требованиям (`_with_promised_files`)"
+    test: tests/loop_tools/test_loop_rules.py::test_the_promised_file_must_be_built_before_the_finish
+  - id: LR-32
+    cell: "файлы публикуются на экран (`file`)"
+    test: tests/loop_tools/test_loop_rules.py::test_a_built_file_is_published_to_the_screen_with_the_finish
+  - id: LR-33
+    cell: "после `ЛИМИТ` — «последнее слово» принимается"
+    test: tests/loop_tools/test_loop_rules.py::test_the_last_word_that_is_refused_closes_the_cycle_with_a_summary
+  - id: LR-34
+    cell: "`details` финального `dynamic_move` — перечень опубликованных файлов или «ответ — в чате» (ADR-0044 пп. 2, 7)"
+    test: tests/loop_tools/test_equivalence.py::test_recorded_decisions_give_the_same_outcome_and_events_through_the_tools
+  - id: LR-35
+    cell: "артефакты — только `Case` этого хода (ADR-0040 п. 2)"
+    test: tests/loop_tools/test_read_tools.py::test_only_the_case_of_this_turn_is_readable
+  - id: LR-36
+    cell: "только документы хода (как `_chat_turn_docs`)"
+    test: tests/loop_tools/test_read_tools.py::test_documents_of_the_turn_are_listed_with_their_pages
+  - id: LR-37
+    cell: "чужой или неизвестный `doc_id` — `ОТКАЗ нет_документа`"
+    test: tests/loop_tools/test_read_tools.py::test_a_document_of_another_turn_is_not_readable
+  - id: LR-38
+    cell: "ответ ≤ `result_limit`, длинное — с номером следующей страницы (ADR-0040 п. 2)"
+    test: tests/loop_tools/test_read_tools.py::test_a_long_text_comes_in_parts_with_the_next_page_named
+  - id: LR-39
+    cell: "текст ответа — последнее сообщение корня (ADR-0024 п. 1)"
+    test: tests/assistant/test_assistant_turn_gateway.py::test_a_subtask_answer_before_the_final_goes_to_the_extension_point_not_to_the_screen
+  - id: LR-40
+    contract: "**Цикл** открывается только ответом `НУЖЕН_ЦИКЛ` у `aifa_goal`"
+    test: tests/loop_tools/test_open_and_restore.py::test_when_the_standard_path_cannot_plan_the_cycle_is_handed_over
+
+# Правила, которые вводят другие шаги; до них тестов нет и быть не должно.
+deferred:
+  - step: "13a"
+    cell: "`evidence_ids` условием не служат — служба пишет в журнал прогона, существует ли каждая (ADR-0040 п. 1)"
+  - step: "17"
+    cell: "атом с кодом в `new_atoms` — только до шага 17 (автор в службе, ADR-0029), затем `ОТКАЗ неверные_аргументы` с подсказкой «подзадача и `aifa_register_atom`»"
+  - step: "17"
+    cell: "подсказки цикла («входов ещё нет», файл не собран) после шага 17 ведут к подзадаче и `aifa_register_atom`"
+  - step: "16"
+    cell: "шаг с `eph`-атомом из `aifa_register_atom` исполняется как любой атом"

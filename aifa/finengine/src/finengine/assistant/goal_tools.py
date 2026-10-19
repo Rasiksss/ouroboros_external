@@ -41,14 +41,12 @@ class RunEmitter:
 
 
 async def reply_of(board: JobBoard, job: Job, seconds: float) -> str:
-    """Итог задания, `ЖДИ`, если не успело за `seconds`, или отказ, если ход закончился."""
+    """Ответ задания, `ЖДИ`, если не успело за `seconds`, или отказ, если ход закончился."""
     try:
-        result = await board.wait(job, seconds)
+        text = await board.wait(job, seconds)
     except RunEnded:
         return ouro_view.refusal(Refusal.FOREIGN_RUN, "Ход уже закончен или остановлен.")
-    if result is None:
-        return ouro_view.waiting(job.job_id)
-    return ouro_view.goal(result, limit=settings.ouroboros_result_limit)
+    return ouro_view.waiting(job.job_id) if text is None else text
 
 
 class GoalTool:
@@ -64,8 +62,12 @@ class GoalTool:
         # C3.3: повторный вызов в ходе — то же задание и тот же итог, цель заново не разбирается.
         job = self._board.of_kind(run_id, GOAL_KIND)
         if job is None:
-            job = self._board.start(run_id, GOAL_KIND, self._goal(call.record, RunEmitter(run_id)))
+            job = self._board.start(run_id, GOAL_KIND, self._answer(call))
         return await reply_of(self._board, job, settings.ouroboros_goal_wait_sec)
+
+    async def _answer(self, call: BoundCall) -> str:
+        result = await self._goal(call.record, RunEmitter(call.ctx.run_id))
+        return ouro_view.goal(result, limit=settings.ouroboros_result_limit)
 
 
 class WaitTool:

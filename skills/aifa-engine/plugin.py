@@ -54,6 +54,101 @@ TOOLS = (
         },
         capability_class="read_only",
     ),
+    Tool(
+        name="aifa_state",
+        description="Состояние цикла; с artifact_ids — полное содержимое этих артефактов Case.",
+        schema={
+            "type": "object",
+            "properties": {"artifact_ids": {"type": "array", "items": {"type": "string"}, "maxItems": 20}},
+        },
+        capability_class="read_only",
+    ),
+    Tool(
+        name="aifa_doc",
+        description="Документы хода или распознанный текст документа по страницам либо поиском.",
+        schema={
+            "type": "object",
+            "properties": {"doc_id": {"type": "string"}, "pages": {"type": "string"}, "query": {"type": "string"}},
+        },
+        capability_class="read_only",
+    ),
+    Tool(
+        name="aifa_move",
+        description="Один ход цикла: сценарии, части цели и шаги атомов; новые атомы — в new_atoms.",
+        schema={
+            "type": "object",
+            "properties": {
+                "objective": {"type": "string"},
+                "reason": {"type": "string"},
+                "plan": {"type": "array", "items": {"type": "string"}},
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "kind": {"type": "string"},
+                            "parts": {"type": "integer"},
+                            "formulas": {"type": "boolean"},
+                        },
+                        "required": ["kind"],
+                    },
+                },
+                "goals": {"type": "array", "items": {"type": "string"}},
+                "scenarios": {"type": "array", "items": {"type": "string"}},
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "atom": {"type": "string"},
+                            "concept": {"type": "string"},
+                            "period_ref": {"type": "string"},
+                            "extra": {"type": "object"},
+                        },
+                        "required": ["atom"],
+                    },
+                },
+                "new_atoms": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {"type": "string"},
+                            "purpose": {"type": "string"},
+                            "requires": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {"input_type": {"type": "string"}, "concept": {"type": "string"}},
+                                    "required": ["input_type"],
+                                },
+                            },
+                            "output_type": {"type": "string"},
+                            "output_schema": {"type": "object"},
+                            "url": {"type": "string"},
+                        },
+                        "required": ["name"],
+                    },
+                },
+            },
+            "required": ["objective", "reason"],
+        },
+        capability_class="mutative",
+    ),
+    Tool(
+        name="aifa_finish",
+        description="Закрыть цикл: finalize или give_up, опубликовать файлы; только корень.",
+        schema={
+            "type": "object",
+            "properties": {
+                "action": {"type": "string", "enum": ["finalize", "give_up"]},
+                "deliverables": {"type": "array", "items": {"type": "string"}},
+                "evidence_ids": {"type": "array", "items": {"type": "string"}},
+            },
+            "required": ["action"],
+        },
+        capability_class="mutative",
+    ),
 )
 
 

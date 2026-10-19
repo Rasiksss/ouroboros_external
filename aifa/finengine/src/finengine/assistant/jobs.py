@@ -14,7 +14,6 @@ from collections.abc import Coroutine
 from dataclasses import dataclass
 from typing import Any
 
-from finengine.assistant.goal_result import GoalResult
 from finengine.assistant.turn_record import run_is_active
 
 log = logging.getLogger(__name__)
@@ -29,7 +28,7 @@ class Job:
     job_id: str
     run_id: str
     kind: str
-    task: asyncio.Task[GoalResult]
+    task: asyncio.Task[str]
 
 
 class JobBoard:
@@ -37,7 +36,7 @@ class JobBoard:
         self._watch_sec = watch_sec
         self._jobs: dict[str, Job] = {}
 
-    def start(self, run_id: str, kind: str, work: Coroutine[Any, Any, GoalResult]) -> Job:
+    def start(self, run_id: str, kind: str, work: Coroutine[Any, Any, str]) -> Job:
         self._sweep()
         job_id = uuid.uuid4().hex[:8]
         task = asyncio.create_task(self._supervise(run_id, work), name=f"ouro-job-{job_id}")
@@ -58,8 +57,8 @@ class JobBoard:
                 return job
         return None
 
-    async def wait(self, job: Job, seconds: float) -> GoalResult | None:
-        """Итог задания или `None`, если за `seconds` не закончилось. Закончился ход — `RunEnded`."""
+    async def wait(self, job: Job, seconds: float) -> str | None:
+        """Готовый ответ задания или `None`, если за `seconds` не закончилось. Закончился ход — `RunEnded`."""
         await asyncio.wait({job.task}, timeout=seconds)
         if not job.task.done():
             return None
@@ -67,7 +66,7 @@ class JobBoard:
             raise RunEnded(job.run_id)
         return job.task.result()
 
-    async def _supervise(self, run_id: str, work: Coroutine[Any, Any, GoalResult]) -> GoalResult:
+    async def _supervise(self, run_id: str, work: Coroutine[Any, Any, str]) -> str:
         inner = asyncio.ensure_future(work)
         try:
             while True:
@@ -88,11 +87,11 @@ class JobBoard:
                 del self._jobs[job_id]
 
 
-def _failed(task: asyncio.Task[GoalResult]) -> bool:
+def _failed(task: asyncio.Task[str]) -> bool:
     return task.done() and (task.cancelled() or task.exception() is not None)
 
 
-def _log_failure(task: asyncio.Task[GoalResult]) -> None:
+def _log_failure(task: asyncio.Task[str]) -> None:
     """Системная ошибка задания — в журнал службы один раз, с трассой; её же забирает вызвавший."""
     if task.cancelled():
         return

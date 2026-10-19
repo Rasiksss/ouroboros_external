@@ -57,6 +57,8 @@ CHAT_SESSION = "chat_session"
 # owner-гейта тулов. Поставить его в ключ значило бы требовать его до
 # того, как он стал известен.
 GATEWAY_SESSION = "gateway_session"
+# Сессия цикла хода ouroboros: рецепт сборки и накопленное ходами (`assistant/loop_desk.py`, ADR-0023).
+LOOP_SESSION = "loop_session"
 
 _metadata = MetaData()
 
