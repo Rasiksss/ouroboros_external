@@ -34,6 +34,8 @@ LOOPBACK = ("127.0.0.1:", "[::1]:")
 # ouroboros — только /ready (ADR-0028); фронтенд — вход пользователей по SSH-туннелю (шаг 12):
 # оба строго на loopback, остальным сервисам порты запрещены.
 PUBLISHING_SERVICES = frozenset({"ouroboros", "frontend"})
+# ADR-0048: модель разбора запроса и извлечения службы (заменяет DeepSeek-V4-Pro из ADR-0017).
+SERVICE_MODEL = "zai-org/GLM-5.2"
 MIN_S3_VOLUMES = 30  # две корзины (`ouroboros`, `finengine`) по семь томов роста, с запасом
 SECRET_KEY = re.compile(r"(KEY|SECRET|PASSWORD|TOKEN)$")
 PLACEHOLDER = "CHANGE_ME"
@@ -127,6 +129,12 @@ def env_violations(
             "секрет внутреннего API один у ouroboros и службы"
             for name, env in (("ouroboros.env.example", ouro), ("engine.env.example", engine))
             if key not in env
+        )
+    service_model = engine.get("FINENGINE_OPENROUTER_MODEL")
+    if service_model != SERVICE_MODEL:
+        problems.append(
+            f"F9 (ADR-0048): FINENGINE_OPENROUTER_MODEL={service_model!r}, нужна {SERVICE_MODEL}: "
+            "разбор запроса и извлечение службы идут на этой модели"
         )
     if int(ouro.get("OUROBOROS_WORKER_SLOTS", "0") or 0) < 2:
         problems.append(
@@ -464,6 +472,18 @@ def test_f9_catches_an_s3_left_with_the_disk_derived_volume_limit(tmp_path: Path
     _edit(dev / "compose.yml", ", -volume.max=40", "")
     problems = dev_config_violations(dev, load_snapshot())
     assert any("-volume.max" in p for p in problems)
+
+
+def test_f9_catches_the_service_model_drifting_from_adr_0048(tmp_path: Path) -> None:
+    """F9: нарушитель — модель службы вернули на DeepSeek-V4-Pro (ADR-0048)."""
+    dev = _copy_dev(tmp_path)
+    _edit(
+        dev / "engine.env.example",
+        "FINENGINE_OPENROUTER_MODEL=zai-org/GLM-5.2",
+        "FINENGINE_OPENROUTER_MODEL=deepseek-ai/DeepSeek-V4-Pro",
+    )
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("ADR-0048" in p and "FINENGINE_OPENROUTER_MODEL" in p for p in problems)
 
 
 def test_f9_catches_a_port_on_the_workstation(tmp_path: Path) -> None:
