@@ -34,6 +34,8 @@ LOOPBACK = ("127.0.0.1:", "[::1]:")
 # ouroboros — только /ready (ADR-0028); фронтенд — вход пользователей по SSH-туннелю (шаг 12):
 # оба строго на loopback, остальным сервисам порты запрещены.
 PUBLISHING_SERVICES = frozenset({"ouroboros", "frontend"})
+# Модели стадий извлечения `locate` и `read.value`: как на старом dev (34-status.md, 09.10.2026).
+STAGE_MODEL_KEYS = ("FINENGINE_LOCATE_MODEL", "FINENGINE_READ_VALUE_MODEL")
 MIN_S3_VOLUMES = 30  # две корзины (`ouroboros`, `finengine`) по семь томов роста, с запасом
 SECRET_KEY = re.compile(r"(KEY|SECRET|PASSWORD|TOKEN)$")
 PLACEHOLDER = "CHANGE_ME"
@@ -128,6 +130,12 @@ def env_violations(
             for name, env in (("ouroboros.env.example", ouro), ("engine.env.example", engine))
             if key not in env
         )
+    problems.extend(
+        f"F9 (шаг 12): в engine.env.example нет {key} — стадия извлечения возьмёт тяжёлую модель "
+        "бэкенда, а прямой Cloud.ru обрывает её ответ (S2 шага 12 не завершился за 30 мин)"
+        for key in STAGE_MODEL_KEYS
+        if not engine.get(key)
+    )
     if int(ouro.get("OUROBOROS_WORKER_SLOTS", "0") or 0) < 2:
         problems.append(
             "F9 (ADR-0008, ADR-0027): OUROBOROS_WORKER_SLOTS < 2 — автору не хватит слота"
@@ -464,6 +472,16 @@ def test_f9_catches_an_s3_left_with_the_disk_derived_volume_limit(tmp_path: Path
     _edit(dev / "compose.yml", ", -volume.max=40", "")
     problems = dev_config_violations(dev, load_snapshot())
     assert any("-volume.max" in p for p in problems)
+
+
+def test_f9_catches_extraction_stages_left_without_their_model(tmp_path: Path) -> None:
+    """F9: нарушитель — у стадий извлечения нет своей модели (шаг 12)."""
+    dev = _copy_dev(tmp_path)
+    path = dev / "engine.env.example"
+    kept = [ln for ln in path.read_text(encoding="utf-8").splitlines() if "_MODEL=xiaomi" not in ln]
+    path.write_text("\n".join(kept) + "\n", encoding="utf-8")
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("FINENGINE_LOCATE_MODEL" in p for p in problems)
 
 
 def test_f9_catches_a_port_on_the_workstation(tmp_path: Path) -> None:
