@@ -111,14 +111,13 @@ class FinishTool(ExclusiveTool):
             return self._rejected(loop, Rejection(str(problem)))
         last_word = session.limit() is not None
         checked = session.check(decision, last_word=last_word)
+        if isinstance(checked, Rejection) and not last_word:
+            return self._rejected(loop, checked)
+        # Последнее слово не принято: цикл конечен — закрывается сводкой и показывает найденное, как у цикла службы.
         if isinstance(checked, Rejection):
-            if not last_word:
-                return self._rejected(loop, checked)
-            # Последнее слово не принято: цикл конечен — закрывается сводкой, как у цикла службы.
-            result = session.stopped(checked)
-            self._desk.save(loop.run_id)
-            return ouro_view.accepted(result, reason=checked)
-        result = session.finish(checked)
+            result, refused = session.stopped(checked), str(checked)
+        else:
+            result, refused = session.finish(checked), ""
         self._desk.save(loop.run_id)
         publish_result(result, session.event_sink, case_id=session.case_id, document_id=loop.origin.document_id)
-        return ouro_view.accepted(result)
+        return ouro_view.accepted(result, reason=refused)

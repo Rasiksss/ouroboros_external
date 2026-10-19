@@ -6,8 +6,9 @@
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass, field
 
-from loop_support import make_passport, open_cycle
+from loop_support import Cycle, make_passport, open_cycle
 from test_atom_author import BAD_SCHEMA_CODE, Script
 from test_deliverables import _file_artifact
 from test_dynamic_run import (
@@ -21,9 +22,9 @@ from test_dynamic_run import (
 from test_ephemeral_atoms import ECHO_CODE, ECHO_SCHEMA, _metric
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 
-from finengine.contracts import NodeKey, VerificationFinding
+from finengine.contracts import GoalIR, NodeKey, VerificationFinding
 from finengine.skills.spec.atom_author import AtomAuthor
-from finengine.skills.spec.dynamic_run import RunLimits, artifact_content
+from finengine.skills.spec.dynamic_run import RunLimits, ScenarioResult, artifact_content
 from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom
 from finengine.skills.spec.target import InputSpec
 from finengine.store.cases import evidence_id_of
@@ -140,6 +141,53 @@ async def test_a_part_of_the_goal_must_be_one_the_goal_has(base) -> None:
 
     assert code_of(reply) == "ОТКАЗ неверные_аргументы" and "нет части" in reply
     await cycle.close()
+
+
+TWO_PARTS = GoalIR.model_validate({
+    "raw_query": "Посчитай EBITDA и корреляцию с Brent", "intent_kind": "calculate_registered_metric",
+    "targets": [{"concept": "EBITDA", "output_kind": "scalar"}], "goal_ref": "goal-1",
+    "additional_goals": [{
+        "goal_ref": "goal-2", "raw_query": "корреляция с Brent", "intent_kind": "custom_analysis",
+        "depends_on": ["goal-1"], "unresolved": ["корреляция с Brent"],
+    }],
+})
+
+
+@dataclass
+class Goals:
+    """Канал частей цели: по ссылке исполнимы все; помнит, какие части ему отдали."""
+
+    given: list[list[str]] = field(default_factory=list)
+
+    def refusal(self, clause) -> None:
+        return None
+
+    def __call__(self, clauses) -> ScenarioResult:
+        self.given.append([clause.goal_ref for clause in clauses])
+        return ScenarioResult(True, "✓ части получены")
+
+
+async def _parts_cycle(base) -> tuple[Cycle, Goals]:
+    cycle = await open_cycle(base)
+    goals = Goals()
+    cycle.session.goal, cycle.session.run_goals = TWO_PARTS, goals
+    return cycle, goals
+
+
+async def test_a_dependent_part_waits_for_the_part_it_depends_on(base) -> None:
+    """LR-26: часть с `depends_on` не идёт по ссылке, пока опора не получена или не названа в том же ходе."""
+    move = {"objective": "корреляция", "reason": "нужна для ответа"}
+    alone, alone_goals = await _parts_cycle(base)
+    together, together_goals = await _parts_cycle(base)
+
+    refused = await alone.call("aifa_move", {**move, "goals": ["goal-2"]})
+    accepted = await together.call("aifa_move", {**move, "goals": ["goal-1", "goal-2"]})
+
+    assert code_of(refused) == "ГОТОВО" and "зависит от части goal-1" in refused
+    assert alone_goals.given == [], "без опоры часть в конвейер не уходит"
+    assert code_of(accepted) == "ГОТОВО" and together_goals.given == [["goal-1", "goal-2"]]
+    await alone.close()
+    await together.close()
 
 
 async def test_a_finish_cannot_cite_what_is_not_in_the_case(base) -> None:
@@ -263,6 +311,22 @@ async def test_the_last_word_that_is_refused_closes_the_cycle_with_a_summary(bas
 
     assert code_of(reply) == "ПРИНЯТО" and "итог не принят" in reply and "EBITDA" in reply
     assert cycle.session.closed
+    await cycle.close()
+
+
+async def test_the_last_word_that_is_refused_still_publishes_what_was_found(base) -> None:
+    """LR-33, LR-32: сводка по отклонённому последнему слову показывает найденное на экране, как у `DynamicRun._stop`."""
+    file_id = _put_file(base)
+    cycle = await open_cycle(base, scenario=ExtractScenario(base, None), limits=RunLimits(max_moves=1))
+    cycle.session.initial_file_ids = frozenset()
+    await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
+
+    reply = await cycle.finish(_finalize("no-such-id"))
+
+    assert code_of(reply) == "ПРИНЯТО" and "итог не принят" in reply and "итоги.xlsx" in reply
+    files = [event["filename"] for event in cycle.events if event["type"] == "file"]
+    assert file_id and files == ["итоги.xlsx"], "файл, названный в ответе, опубликован событием `file`"
+    assert any(event["type"] == "typed_result" for event in cycle.events), "частичные итоги — карточками"
     await cycle.close()
 
 
