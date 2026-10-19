@@ -98,7 +98,8 @@ async def test_ouroboros_leads_the_cycle_to_the_final_answer(
         ("done", "execute"),
         ("done", "finalize"),
     ]
-    assert moves[-1]["details"] == "ответ — в чате", "текст ответа пишет ouroboros, не цикл (ADR-0044 пп. 2, 7)"
+    # Текст ответа пишет ouroboros, не цикл (ADR-0044 пп. 2, 7).
+    assert moves[-1]["details"] == "ответ — в чате"
     assert kinds.count("plan_graph") == 1, "граф сценария хода показан один раз"
     assert events[-1]["status"] == "succeeded"
 
@@ -139,14 +140,14 @@ async def test_the_cycle_is_saved_after_every_move_and_closed_by_the_finish(
 async def test_a_finish_without_references_is_accepted_and_the_run_journal_keeps_the_fact(
     engine: str, stub: StubModelAdmin
 ) -> None:
-    """C3.7: `aifa_finish` без `evidence_ids` — `ПРИНЯТО`; цикл закрыт; в журнале прогона — завершение без ссылок."""
+    """C3.7: `aifa_finish` без `evidence_ids` — `ПРИНЯТО`; журнал прогона хранит завершение."""
     from finengine.skills import run_logger
 
     _, events = await run_the_cycle(engine, stub)
 
-    results = {e["round"]: e["last_tool_result"] for e in stub.journal() if e["model"] == "stub-main"}
+    asked = [e for e in stub.journal() if e["model"] == "stub-main"]
+    results = {e["round"]: e["last_tool_result"] for e in asked}
     assert results[6].startswith("ПРИНЯТО\nЦикл закрыт.")
-    assert [(line["action"], line["references"]) for line in run_logger.прочитать(run_logger.ЖУРНАЛ_ЗАВЕРШЕНИЙ)] == [
-        ("finalize", [])
-    ]
+    journal = run_logger.прочитать(run_logger.ЖУРНАЛ_ЗАВЕРШЕНИЙ)
+    assert [(line["action"], line["references"]) for line in journal] == [("finalize", [])]
     assert kind_of(events[-1]) == "completed" and events[-1]["status"] == "succeeded"
