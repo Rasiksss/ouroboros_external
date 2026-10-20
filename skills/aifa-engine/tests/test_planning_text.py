@@ -75,6 +75,32 @@ def test_the_result_of_a_wait_is_read_by_the_rules_of_the_call_that_was_waited_f
     assert "итог того вызова, который ждал" in cycle and "ждал `aifa_goal` — правило 3" in cycle
 
 
+def test_after_the_limit_the_skill_finishes_at_once_and_the_collect_it_rules_give_way() -> None:
+    """Ревью 14-r3, Р1: `ЛИМИТ` — сразу `aifa_finish`; «не завершай, собери» на него не действует."""
+    cycle = guide().split("## Цикл", 1)[1]
+    limit = cycle.split("- `ЛИМИТ`", 1)[1].split("\n- ", 1)[0]
+
+    assert "вызови его сразу" in limit and "give_up" in limit and "не завершай, собери" in limit
+    assert "если это не `ЛИМИТ`" in guide()
+
+
+def test_a_service_fault_inside_a_cycle_ends_with_a_finish_and_a_wait_fault_repeats_the_call() -> None:
+    """Ревью 14-r3, Р2: после неудачного повтора цикл закрывает `aifa_finish`; `aifa_wait` не повторяют."""
+    cycle = guide().split("## Цикл", 1)[1]
+    fault = cycle.split("`СБОЙ_СЛУЖБЫ` у любого инструмента", 1)[1].split("\n- ", 1)[0]
+
+    assert "у `aifa_wait` — исходный вызов, не `aifa_wait`" in fault
+    assert "закрой его `aifa_finish` (`give_up`)" in fault
+
+
+def test_the_read_codes_promised_by_rule_three_are_in_the_cycle_section() -> None:
+    """Ревью 14-r3, Р3, Р4: коды чтения описаны в «Цикле», «не конец» — только внутри цикла."""
+    cycle = guide().split("## Цикл", 1)[1]
+
+    assert "`aifa_doc`: `ОТКАЗ нет_документа`" in cycle and "`doc_id` из списка" in cycle
+    assert "Внутри цикла `ГОТОВО` у `aifa_move`" in cycle
+
+
 def test_every_code_a_cycle_tool_can_answer_with_has_an_instruction() -> None:
     """Ревью 14-r2, Н2: `СБОЙ_СЛУЖБЫ` у инструментов цикла, `ЖДИ` у `aifa_finish`, `нет_цикла`."""
     cycle = guide().split("## Цикл", 1)[1]
