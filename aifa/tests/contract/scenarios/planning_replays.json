@@ -1,0 +1,79 @@
+[
+  {
+    "name": "one-scenario-then-finalize",
+    "note": "форма task1-run1 (live_run_replays.json): один ход, затем finalize со ссылкой на артефакт",
+    "decisions": [
+      {
+        "objective": "Получить выручку за 2024 год", "reason": "Она нужна для ответа", "action": "execute",
+        "plan": ["Извлечь выручку за 2024 год сценарием"], "files": [], "scenarios": ["Извлеки выручку за 2024 год"],
+        "goals": [], "new_atoms": [], "steps": [], "answer": "", "evidence_ids": []
+      },
+      {
+        "objective": "Ответить", "reason": "Выручка получена", "action": "finalize", "plan": [], "files": [],
+        "scenarios": [], "goals": [], "new_atoms": [], "steps": [],
+        "answer": "Выручка за 2024 год — 987654 млн руб.", "evidence_ids": ["no-such-evidence"]
+      }
+    ]
+  },
+  {
+    "name": "two-moves-then-finalize",
+    "note": "форма task1-run2: сценарий, затем шаг атома поверх полученного, затем finalize без ссылок",
+    "decisions": [
+      {
+        "objective": "Получить выручку", "reason": "Нужна выручка", "action": "execute",
+        "plan": ["Извлечь выручку сценарием", "Прочитать значение шагом"], "files": [],
+        "scenarios": ["Извлеки выручку за 2024 год"], "goals": [], "new_atoms": [], "steps": [],
+        "answer": "", "evidence_ids": []
+      },
+      {
+        "objective": "Прочитать значение шагом", "reason": "Проверить то же значение шагом каталога", "action": "execute",
+        "plan": [], "files": [], "scenarios": [], "goals": [], "new_atoms": [],
+        "steps": [{"atom": "read.value", "concept": "SALES_REVENUE", "period_ref": "p-2024-fy", "extra": {}}],
+        "answer": "", "evidence_ids": []
+      },
+      {
+        "objective": "Ответить", "reason": "Значение получено", "action": "finalize", "plan": [], "files": [],
+        "scenarios": [], "goals": [], "new_atoms": [], "steps": [],
+        "answer": "Выручка за 2024 год — 987654 млн руб.", "evidence_ids": []
+      }
+    ]
+  },
+  {
+    "name": "give-up-after-a-move",
+    "note": "форма task5-run1: ход, затем честная остановка",
+    "decisions": [
+      {
+        "objective": "Попробовать получить показатель", "reason": "Нужен показатель", "action": "execute",
+        "plan": ["Извлечь показатель сценарием"], "files": [], "scenarios": ["Извлеки выручку за 2024 год"],
+        "goals": [], "new_atoms": [], "steps": [], "answer": "", "evidence_ids": []
+      },
+      {
+        "objective": "Остановиться", "reason": "Для ответа данных недостаточно", "action": "give_up", "plan": [],
+        "files": [], "scenarios": [], "goals": [], "new_atoms": [], "steps": [],
+        "answer": "Данных для ответа в отчёте нет.", "evidence_ids": []
+      }
+    ]
+  },
+  {
+    "name": "refused-move-then-recover",
+    "note": "путь отказа: ход с неизвестным атомом тратит ход и возвращает причину; следующий ход проходит",
+    "decisions": [
+      {
+        "objective": "Прочитать значение", "reason": "Нужно значение", "action": "execute",
+        "plan": ["Прочитать значение шагом"], "files": [], "scenarios": [], "goals": [], "new_atoms": [],
+        "steps": [{"atom": "no.such_atom", "concept": "SALES_REVENUE", "period_ref": "p-2024-fy", "extra": {}}],
+        "answer": "", "evidence_ids": []
+      },
+      {
+        "objective": "Получить выручку сценарием", "reason": "Шаг не принят", "action": "execute",
+        "plan": [], "files": [], "scenarios": ["Извлеки выручку за 2024 год"], "goals": [], "new_atoms": [],
+        "steps": [], "answer": "", "evidence_ids": []
+      },
+      {
+        "objective": "Ответить", "reason": "Выручка получена", "action": "finalize", "plan": [], "files": [],
+        "scenarios": [], "goals": [], "new_atoms": [], "steps": [],
+        "answer": "Выручка за 2024 год — 987654 млн руб.", "evidence_ids": []
+      }
+    ]
+  }
+]

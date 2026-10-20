@@ -190,8 +190,16 @@ ssh -N -L 13000:127.0.0.1:13000 rasul@85.198.84.50      # затем http://127.
 Выкачено при `loop_driver=engine` (умолчание; `FINENGINE_LOOP_DRIVER` в `engine.env` не задан): ветка
 `sym/13-loopsession-instrumenty-cikla`, `ouroboros` — полная сборка, `engine` — заменой `/app/src` поверх прежнего образа
 (`apt` сервера недоступен с нужной скоростью, зависимости не менялись; следующая выкатка собирает его целиком, P92). В
-ouroboros зарегистрированы шесть инструментов `aifa-engine`; `ouroboros` в `FINENGINE_LOOP_DRIVER` на dev не включать, пока
-навык `aifa-planning` не описывает цикл (шаг 14, P91).
+ouroboros зарегистрированы шесть инструментов `aifa-engine`; `ouroboros` в `FINENGINE_LOOP_DRIVER` на dev не включали, пока
+навык `aifa-planning` не описывал цикл (включено шагом 14, P91).
+
+### Шаг 14 (20.10.2026)
+
+Цикл ведёт ouroboros: `FINENGINE_LOOP_DRIVER=ouroboros` в `engine.env` (теперь и умолчание `Settings`); навык `aifa-planning`
+описывает цикл, его справочники `references/atoms.md` и `references/metrics.md` генерирует служба
+(`python -m finengine.assistant.skill_references`, тест `tests/skill_references` держит их равными реестрам). Навыки лежат
+в образе `ouroboros`, поэтому выкатка пересобирает его; `engine` при выкатке — заменой `/app/src`, если полная сборка
+не укладывается в диск (P92). Откат: `FINENGINE_LOOP_DRIVER=engine` и `docker compose … up -d --no-build engine`.
 
 ### Известные ограничения
 

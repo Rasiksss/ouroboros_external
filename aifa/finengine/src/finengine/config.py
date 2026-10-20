@@ -75,9 +75,9 @@ class Settings(BaseSettings):
     # Как часто задание сверяется с ходом: ход закончен или отменён — задание снимается (§3.1, C3.4).
     ouroboros_run_watch_sec: float = 1.0
     # ВРЕМЕННО (ADR-0029, PRINCIPLES А.7), удаляется в шаге 19: кто ведёт цикл при сбое стандартного пути.
-    # `engine` — служба гонит `DynamicRun` (как с шага 09); `ouroboros` — `aifa_goal` отвечает `НУЖЕН_ЦИКЛ`,
-    # а ходы приходят вызовами `aifa_move`/`aifa_finish`. Окружение: FINENGINE_LOOP_DRIVER.
-    loop_driver: Literal["engine", "ouroboros"] = "engine"
+    # `ouroboros` (с шага 14) — `aifa_goal` отвечает `НУЖЕН_ЦИКЛ`, а ходы приходят вызовами `aifa_move`/`aifa_finish`;
+    # `engine` — откат: служба гонит `DynamicRun` (как с шага 09). Окружение: FINENGINE_LOOP_DRIVER.
+    loop_driver: Literal["engine", "ouroboros"] = "ouroboros"
 
     # OpenRouter settings (legacy fallback / non-chat call sites still
     # using openrouter directly: extract per-metric, AIFA reranker, etc.)

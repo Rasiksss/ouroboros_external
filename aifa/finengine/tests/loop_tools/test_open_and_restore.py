@@ -41,9 +41,9 @@ def ouroboros_leads(monkeypatch: pytest.MonkeyPatch, coordination) -> None:
     monkeypatch.setattr("finengine.skills.spec.dynamic_run._default_complete", forbidden)
 
 
-def test_the_service_leads_the_cycle_by_default() -> None:
-    """Переключатель: по умолчанию `engine`, поведение как после шага 12; удаляется в шаге 19 (PRINCIPLES А.7)."""
-    assert Settings.model_fields["loop_driver"].default == "engine"
+def test_ouroboros_leads_the_cycle_by_default() -> None:
+    """Переключатель: с шага 14 по умолчанию `ouroboros`; `engine` — откат; удаляется в шаге 19 (PRINCIPLES А.7)."""
+    assert Settings.model_fields["loop_driver"].default == "ouroboros"
 
 
 async def test_when_the_standard_path_cannot_plan_the_cycle_is_handed_over(monkeypatch) -> None:
