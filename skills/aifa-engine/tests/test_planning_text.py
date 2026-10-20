@@ -66,6 +66,28 @@ def test_a_ready_answer_of_a_move_or_a_read_is_not_the_end_of_the_cycle() -> Non
     assert "пользователю не отвечай" in cycle
 
 
+def test_the_result_of_a_wait_is_read_by_the_rules_of_the_call_that_was_waited_for() -> None:
+    """Ревью 14-r2, Н1: путь `aifa_goal` → `ЖДИ` → `aifa_wait` → `ГОТОВО` кончается ответом, а не `aifa_finish`."""
+    cycle = guide().split("## Цикл", 1)[1]
+    not_the_end = cycle.split("не конец", 1)[1].split("- `aifa_wait`", 1)[0]
+
+    assert "итог `aifa_wait`" not in not_the_end
+    assert "итог того вызова, который ждал" in cycle and "ждал `aifa_goal` — правило 3" in cycle
+
+
+def test_every_code_a_cycle_tool_can_answer_with_has_an_instruction() -> None:
+    """Ревью 14-r2, Н2: `СБОЙ_СЛУЖБЫ` у инструментов цикла, `ЖДИ` у `aifa_finish`, `нет_цикла`."""
+    cycle = guide().split("## Цикл", 1)[1]
+
+    for phrase in (
+        "`ЖДИ job=<id>` бывает и у `aifa_finish`",
+        "`СБОЙ_СЛУЖБЫ` у любого инструмента",
+        "`ОТКАЗ нет_цикла`",
+    ):
+        assert phrase in cycle, phrase
+    assert "`нет_цикла`" in references()["moves.md"]
+
+
 def test_the_document_is_read_by_pages_and_search_not_whole() -> None:
     """ADR-0040 п. 2: текст документа приходит частями через `aifa_doc`, контекст ограничен."""
     section = guide().split("### Документ и артефакты", 1)[1].split("###", 1)[0]
@@ -138,5 +160,8 @@ def test_the_planner_rules_that_moved_into_the_skill_are_all_there() -> None:
         "нескольких ключевых показателей",
         "id находок или скачанной страницы укажи в `evidence_ids`",
         "не называй коды отказов и ошибок",
+        "Отвечай по-русски",
+        "по описанию структуры из таблицы",
+        "при файле в `evidence_ids` достаточно нескольких ключевых показателей",
     ):
         assert rule.lower() in text.lower(), rule
