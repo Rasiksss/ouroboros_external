@@ -59,3 +59,17 @@ def test_per_call_override_still_wins():
     на нём держатся дешёвые служебные вызовы."""
     body = _extra_body(settings.openrouter_model, reasoning_effort="low")
     assert body["reasoning"]["effort"] == "low"
+
+
+def test_openai_style_sends_the_level_as_a_top_level_parameter(monkeypatch):
+    """OpenAI-совместимый шлюз (dev, 20.10.2026) молча игнорировал `reasoning: {effort}` в стиле
+    OpenRouter: `low` и `high` не различались, и GLM-5.3 тратил весь вывод на размышления."""
+    monkeypatch.setattr(settings, "reasoning_style", "openai")
+
+    body = _extra_body(settings.openrouter_model, reasoning_effort="low")
+
+    assert body == {"reasoning_effort": "low"}
+
+
+def test_openrouter_style_stays_the_default():
+    assert settings.reasoning_style == "openrouter"

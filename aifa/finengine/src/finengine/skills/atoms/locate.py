@@ -207,6 +207,7 @@ async def _locate_shard(
         compression, _request, _raw = await _call_json_llm(
             prompt=prompt, system=system_prompt, model_id=model_id, stage="locate",
             debug_dir=None, prompt_name="locate_prompt", response_name="locate_response.json",
+            reasoning_effort=settings.locate_reasoning_effort or None,
         )
     return _enrich_compression_with_alias_table_matches(
         compression, metrics=shard, tables=tables, language=language,

@@ -338,6 +338,12 @@ class Settings(BaseSettings):
     read_value_model: str = Field(
         "", alias="FINENGINE_READ_VALUE_MODEL", validation_alias="FINENGINE_READ_VALUE_MODEL",
     )
+    # Глубина размышлений `locate` (low | medium | high). `locate` отдаёт модели отчёт целиком: на `high` GLM
+    # тратил на размышления весь вывод (16000 токенов) и отвечал пустотой (dev, 20.10.2026). Пусто — как у
+    # остальных вызовов (`llm.openrouter`).
+    locate_reasoning_effort: str = Field(
+        "", alias="FINENGINE_LOCATE_REASONING_EFFORT", validation_alias="FINENGINE_LOCATE_REASONING_EFFORT",
+    )
     # Автор временных атомов пишет код целиком и в 120 с на dev не укладывался (08.10.2026). Предел
     # отдельный от планировщика: у автора до трёх попыток на атом, и его крутят независимо.
     atom_author_model_timeout_seconds: float = Field(
@@ -367,6 +373,9 @@ class Settings(BaseSettings):
     # routes across multiple providers and we observed micro-variance in
     # outputs even at temperature=0. Empty = no pinning (default routing).
     openrouter_provider: str = Field("", alias="FINENGINE_OPENROUTER_PROVIDER", validation_alias="FINENGINE_OPENROUTER_PROVIDER")
+    # Как шлюз принимает уровень размышлений: `openrouter` — `reasoning: {effort}`; `openai` — верхнеуровневый
+    # `reasoning_effort` (OpenAI-совместимый шлюз игнорирует первый вариант: dev, 20.10.2026).
+    reasoning_style: str = Field("openrouter", alias="FINENGINE_REASONING_STYLE", validation_alias="FINENGINE_REASONING_STYLE")
 
     # Модель дайджеста: и классификация новостей, и перевод заголовков
     # регуляторов. Классификация — сотни вызовов за прогон и основная статья

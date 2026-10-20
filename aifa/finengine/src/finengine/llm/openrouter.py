@@ -134,7 +134,10 @@ def _extra_body(
         eff = (reasoning_effort or _REASONING_CTX.get() or _REASONING_EFFORT).lower()
         if eff not in ("low", "medium", "high"):
             eff = _REASONING_EFFORT
-        out["reasoning"] = {"effort": eff}
+        if settings.reasoning_style == "openai":
+            out["reasoning_effort"] = eff
+        else:
+            out["reasoning"] = {"effort": eff}
     # OpenRouter routes the same model across multiple providers; different
     # backends introduce micro-variance even at temp=0 (we observed
     # 18-of-103 metrics drifting between two duplicate AIFA runs). Pinning
