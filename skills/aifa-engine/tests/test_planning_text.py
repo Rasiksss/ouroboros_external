@@ -56,20 +56,20 @@ def test_the_cycle_starts_only_from_the_code_that_opens_it_and_a_ready_answer_ne
     assert "aifa_finish" in ready and "не вызывай" in ready
 
 
-def codes_table() -> list[tuple[str, str, str]]:
-    """Строки таблицы `references/codes.md`: (код, инструменты, действие)."""
+def codes_table() -> list[tuple[str, str, str, str]]:
+    """Строки таблицы `references/codes.md`: (код, инструменты, условие, действие)."""
     raw = (PLANNING / "references" / "codes.md").read_text(encoding="utf-8")
     rows = [line for line in raw.splitlines() if line.startswith("| `")]
-    return [tuple(cell.strip() for cell in row.strip("|").split("|", 2)) for row in rows]  # type: ignore[misc]
+    return [tuple(cell.strip() for cell in row.strip().strip("|").split("|", 3)) for row in rows]  # type: ignore[misc]
 
 
-def action_for(code: str, tool: str, *, condition: str = "") -> str:
+def action_for(code: str, tool: str, *, condition: str = "всегда") -> str:
     found = [
         action
-        for row_code, tools, action in codes_table()
-        if code in row_code and f"`{tool}`" in tools and condition in tools
+        for row_code, tools, row_condition, action in codes_table()
+        if code in row_code and f"`{tool}`" in tools and row_condition == condition
     ]
-    assert len(found) == 1, f"{code} × {tool} {condition}: строк {len(found)}"
+    assert len(found) == 1, f"{code} × {tool} × {condition}: строк {len(found)}"
     return found[0]
 
 
@@ -81,6 +81,7 @@ def test_a_ready_answer_of_a_move_or_a_read_is_not_the_end_of_the_cycle() -> Non
     for tool in ("aifa_move", "aifa_doc", "aifa_state"):
         assert "не конец" in action_for("ГОТОВО", tool, condition="в цикле")
     assert "не вызывай" in action_for("ГОТОВО", "aifa_goal")
+    assert "не конец" in guide()
 
 
 def test_the_result_of_a_wait_is_read_by_the_rules_of_the_call_that_was_waited_for() -> None:
@@ -98,26 +99,37 @@ def test_after_the_limit_the_skill_finishes_at_once_and_the_collect_it_rules_giv
 
     assert "вызови его сразу" in limit and "give_up" in limit and "не завершай, собери" in limit
     assert "если это не `ЛИМИТ`" in guide()
-    assert "`aifa_finish` сразу" in action_for("ЛИМИТ", "aifa_move")
+    assert "`aifa_finish` сразу" in action_for("ЛИМИТ", "aifa_move", condition="в цикле")
 
 
-def test_a_service_fault_is_handled_per_tool_without_a_closed_loop() -> None:
-    """Ревью 14-r3 Р2, 14-r4 Г3: у `aifa_wait` повторяют `aifa_wait`, у `aifa_finish` выход — сказать пользователю."""
-    assert "закрой его `aifa_finish` (`give_up`)" in action_for("СБОЙ_СЛУЖБЫ", "aifa_move")
-    assert "исходный вызов не повторяй" in action_for("СБОЙ_СЛУЖБЫ", "aifa_wait")
+def test_a_service_fault_is_handled_per_tool_without_a_closed_loop_or_a_lost_result() -> None:
+    """Ревью 14-r3 Р2, r4 Г3, r5 Д2 и З-r5-1: выход есть у каждого инструмента, полученное не теряется."""
+    in_cycle = action_for("СБОЙ_СЛУЖБЫ", "aifa_move", condition="в цикле")
+    assert "finalize" in in_cycle and "give_up" in in_cycle and "имеющимся" in in_cycle
+    assert "расчёт сейчас недоступен" in action_for("СБОЙ_СЛУЖБЫ", "aifa_move", condition="вне цикла")
+    wait = action_for("СБОЙ_СЛУЖБЫ", "aifa_wait")
+    assert "повтори `aifa_wait`" in wait and "повтори исходный вызов" in wait
     finish = action_for("СБОЙ_СЛУЖБЫ", "aifa_finish")
     assert "скажи пользователю" in finish and "give_up" not in finish
 
 
+def test_a_wait_refusal_about_its_own_arguments_is_told_from_the_outcome_of_the_waited_call() -> None:
+    """Ревью 14-r5, Д1: отказ хода, пришедший итогом `aifa_wait`, не лечится исправлением `job_id` и повтором ожидания."""
+    own = action_for("неверные_аргументы", "aifa_wait", condition="свои аргументы")
+    outcome = action_for("неверные_аргументы", "aifa_wait", condition="итог ждавшего вызова")
+
+    assert "`job_id`" in own and "`wait_sec`" in own and "задание живо" in own
+    assert "`aifa_wait` не повторяй" in outcome and "читай по строке того вызова" in outcome
+
+
 def test_every_refusal_a_tool_gives_for_its_own_arguments_has_a_row_of_that_tool() -> None:
     """Ревью 14-r4, Г1, Г2: отказы по аргументам чтения и ожидания не наследуют правила хода."""
-    for tool in ("aifa_doc", "aifa_state", "aifa_wait", "aifa_move", "aifa_goal"):
-        assert action_for("неверные_аргументы", tool)
-    assert "задание живо" in action_for("неверные_аргументы", "aifa_wait")
+    for tool, condition in (("aifa_doc", "всегда"), ("aifa_state", "всегда"), ("aifa_goal", "всегда")):
+        assert action_for("неверные_аргументы", tool, condition=condition)
     assert "ход не потрачен" in action_for("неверные_аргументы", "aifa_state")
-    assert "тратит ход" in action_for("неверные_аргументы", "aifa_move")
-    assert "`doc_id` из списка" in action_for("нет_документа", "aifa_doc")
-    assert "подождать" in action_for("нет_документа", "aifa_goal")
+    assert "тратит ход" in action_for("неверные_аргументы", "aifa_move", condition="в цикле")
+    assert "`doc_id` из списка" in action_for("нет_документа", "aifa_doc", condition="документа нет")
+    assert "подождать" in action_for("нет_документа", "aifa_doc", condition="текст не готов")
 
 
 def test_the_document_is_read_by_pages_and_search_not_whole() -> None:
