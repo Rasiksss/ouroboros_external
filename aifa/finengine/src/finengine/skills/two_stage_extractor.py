@@ -1641,6 +1641,7 @@ async def _call_json_llm(
     prompt_name: str,
     response_name: str,
     max_output: int | None = None,
+    reasoning_effort: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], str]:
     if "json" not in f"{system}\n{prompt}".lower():
         prompt = prompt.rstrip() + "\n\nReturn valid JSON only."
@@ -1654,6 +1655,7 @@ async def _call_json_llm(
         response_format={"type": "json_object"},
         max_output=max_output,
         omit_max_output=max_output is None,
+        reasoning_effort=reasoning_effort,
     )
     elapsed = time.time() - t0
     _write_debug_file(debug_dir, response_name, raw)

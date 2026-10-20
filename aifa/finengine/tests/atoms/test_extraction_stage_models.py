@@ -68,3 +68,53 @@ def test_read_value_calls_the_model_named_in_its_setting(monkeypatch, configured
     graph_atoms._read_value_batch_real([NodeArgs(concept=_KEY, document_version="v1")], _ctx([locator]))
 
     assert seen == {"model_id": expected}
+
+
+@pytest.mark.parametrize(("configured", "expected"), [("low", "low"), ("", None)])
+def test_locate_asks_the_model_with_the_reasoning_level_from_its_setting(monkeypatch, configured, expected):
+    """Рассуждение `high` у GLM на полном отчёте съедало весь вывод, ответа не оставалось (dev, 20.10.2026)."""
+    import asyncio
+
+    from finengine.skills import two_stage_extractor
+    from finengine.skills.atoms import locate
+
+    seen: dict = {}
+
+    async def fake_call_json_llm(**kwargs):
+        seen["reasoning_effort"] = kwargs.get("reasoning_effort")
+        return {}, {}, "{}"
+
+    monkeypatch.setattr(two_stage_extractor, "_call_json_llm", fake_call_json_llm)
+    monkeypatch.setattr(two_stage_extractor, "_build_main_compression_prompt", lambda **kwargs: "prompt")
+    monkeypatch.setattr(
+        two_stage_extractor, "_enrich_compression_with_alias_table_matches", lambda compression, **kwargs: compression,
+    )
+    monkeypatch.setattr(locate.settings, "locate_reasoning_effort", configured)
+
+    asyncio.run(locate._locate_shard(
+        asyncio.Semaphore(1), [_ROW], document_text="x", tables=[], system_prompt="s", period_current="FY 2021",
+        period_prev="FY 2020", periods_detected=[], language="ru", model_id=None,
+    ))
+
+    assert seen == {"reasoning_effort": expected}
+
+
+def test_a_json_call_passes_its_reasoning_level_to_the_model(monkeypatch):
+    import asyncio
+
+    from finengine.skills import two_stage_extractor
+
+    seen: dict = {}
+
+    async def fake_complete_with_usage(**kwargs):
+        seen["reasoning_effort"] = kwargs.get("reasoning_effort")
+        return "{}", {}
+
+    monkeypatch.setattr(two_stage_extractor.llm, "complete_with_usage", fake_complete_with_usage)
+
+    asyncio.run(two_stage_extractor._call_json_llm(
+        prompt="json", system="s", model_id=None, stage="locate", debug_dir=None,
+        prompt_name="p", response_name="r.json", reasoning_effort="low",
+    ))
+
+    assert seen == {"reasoning_effort": "low"}
