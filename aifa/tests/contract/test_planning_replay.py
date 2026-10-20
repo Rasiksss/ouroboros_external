@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -48,6 +49,7 @@ CUSTOM_INTENT = {
 FINAL = "Выручка за 2024 год — 987654 млн руб. (по таблице результатов цикла)."
 # Лента планировщика на экране; вызовы инструментов, текст и сессия по построению разные.
 CYCLE_KINDS = {"dynamic_move", "plan_graph", "node_run", "plan_step", "typed_result", "typed_error"}
+LABEL = re.compile(r"<id:\d+>")
 ALL_REPLAYS = pytest.mark.parametrize("replay", replays(), ids=[item["name"] for item in replays()])
 
 
@@ -102,9 +104,16 @@ async def run_turn(
 
 
 def cycle_of(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """События ленты цикла в виде, который видит экран (нормализатор F5)."""
+    """События ленты цикла в виде, который видит экран (нормализатор F5).
+
+    Метки id нумеруются по порядку появления: два независимых узла одного ключа, завершившиеся
+    в другом порядке, получили бы разные номера: сравнение идёт без номеров (ревью 14, В3)."""
     turn = normalize_turn(events)
-    return [_blank_final_words(event) for event in turn.events if event.get("type") in CYCLE_KINDS]
+    cycle = [_blank_final_words(event) for event in turn.events if event.get("type") in CYCLE_KINDS]
+    masked: list[dict[str, Any]] = json.loads(
+        LABEL.sub("<id>", json.dumps(cycle, ensure_ascii=False))
+    )
+    return masked
 
 
 def _blank_final_words(event: dict[str, Any]) -> dict[str, Any]:
@@ -339,3 +348,39 @@ async def test_a_long_document_is_read_by_search_and_pages_and_never_whole(
     assert "Следующие: aifa_doc" in whole and f"===PAGE {PAGES}===" not in whole
     # Контекст модели не переполнен: ни один результат инструмента не вышел за предел ответа.
     assert all(len(result) <= 12_000 for result in results.values() if result)
+
+
+FIRST_ID = "11111111-1111-1111-1111-111111111111"
+SECOND_ID = "22222222-2222-2222-2222-222222222222"
+
+
+def verified_node(evidence: str) -> dict[str, Any]:
+    return {
+        "event_type": "node_run",
+        "plan_graph_hash": "g",
+        "node_run": {
+            "atom": "verify.bounds",
+            "status": "done",
+            "produced_evidence_ids": [evidence],
+        },
+    }
+
+
+def test_the_order_in_which_independent_nodes_finish_does_not_change_the_compared_cycle() -> None:
+    """Ревью 14, В3: id названы раньше узлов, узлы одного ключа завершились в другом порядке."""
+    named = {
+        "event_type": "legacy",
+        "legacy_event": {
+            "type": "dynamic_move",
+            "status": "done",
+            "action": "execute",
+            "details": f"{FIRST_ID} {SECOND_ID}",
+        },
+    }
+    first = [named, verified_node(FIRST_ID), verified_node(SECOND_ID)]
+    second = [named, verified_node(SECOND_ID), verified_node(FIRST_ID)]
+
+    assert normalize_turn(first).events != normalize_turn(second).events, (
+        "иначе тест ничего не ловит"
+    )
+    assert cycle_of(first) == cycle_of(second)

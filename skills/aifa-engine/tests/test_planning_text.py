@@ -50,10 +50,20 @@ def test_the_guide_names_every_engine_tool_a_root_may_call_and_no_unknown_tool()
 
 def test_the_cycle_starts_only_from_the_code_that_opens_it_and_a_ready_answer_needs_no_finish() -> None:
     """ADR-0043 п. 5: после `ГОТОВО`/`УТОЧНИ` цикла нет — корень отвечает без `aifa_finish`."""
-    ready = guide().split("`ГОТОВО`", 1)[1].split("`НУЖЕН_ЦИКЛ`", 1)[0]
+    ready = guide().split("`ГОТОВО` у `aifa_goal`", 1)[1].split("`НУЖЕН_ЦИКЛ`", 1)[0]
 
     assert "НУЖЕН_ЦИКЛ" in guide() and "Цикл открывает только" in guide()
     assert "aifa_finish" in ready and "не вызывай" in ready
+
+
+def test_a_ready_answer_of_a_move_or_a_read_is_not_the_end_of_the_cycle() -> None:
+    """Ревью 14, В1: `ГОТОВО` — первая строка и у `aifa_move`, `aifa_doc`; правило «отвечай сразу» только для `aifa_goal`."""
+    rule_three = guide().split("3. Первая строка ответа", 1)[1].split("4. Ответ по", 1)[0]
+    cycle = guide().split("## Цикл", 1)[1]
+
+    assert "ответа `aifa_goal`" in rule_three
+    assert "`ГОТОВО` у `aifa_move`, `aifa_doc`, `aifa_state`" in cycle and "не конец" in cycle
+    assert "пользователю не отвечай" in cycle
 
 
 def test_the_document_is_read_by_pages_and_search_not_whole() -> None:
@@ -123,5 +133,10 @@ def test_the_planner_rules_that_moved_into_the_skill_are_all_there() -> None:
         "до десяти строк",
         "предположением",
         "Условие завершения, которое назвал пользователь",
+        "не цитируется",  # строка формы роли без id
+        "файл по плану собран — сразу `aifa_finish`",
+        "нескольких ключевых показателей",
+        "id находок или скачанной страницы укажи в `evidence_ids`",
+        "не называй коды отказов и ошибок",
     ):
         assert rule.lower() in text.lower(), rule
