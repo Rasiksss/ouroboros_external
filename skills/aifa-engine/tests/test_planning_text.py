@@ -11,7 +11,7 @@ from aifa_engine_support import SKILL_DIR, load_plugin
 PLANNING = SKILL_DIR.parent / "aifa-planning"
 GUIDE = PLANNING / "SKILL.md"
 GUIDE_LIMIT = 9_000  # знаков: навык читают на каждом сообщении, подробности — в справочниках
-HAND_WRITTEN = ("moves.md", "external-data.md", "new-atom.md")
+HAND_WRITTEN = ("moves.md", "external-data.md", "new-atom.md", "codes.md")
 GENERATED = ("atoms.md", "metrics.md")
 DEVELOPMENT_WORDS = ("ADR-", "CONTRACTS", "DynamicRun", "dynamic_run", "PROGRESS", "build-plan", "LoopSession")
 
@@ -56,23 +56,39 @@ def test_the_cycle_starts_only_from_the_code_that_opens_it_and_a_ready_answer_ne
     assert "aifa_finish" in ready and "не вызывай" in ready
 
 
+def codes_table() -> list[tuple[str, str, str]]:
+    """Строки таблицы `references/codes.md`: (код, инструменты, действие)."""
+    raw = (PLANNING / "references" / "codes.md").read_text(encoding="utf-8")
+    rows = [line for line in raw.splitlines() if line.startswith("| `")]
+    return [tuple(cell.strip() for cell in row.strip("|").split("|", 2)) for row in rows]  # type: ignore[misc]
+
+
+def action_for(code: str, tool: str, *, condition: str = "") -> str:
+    found = [
+        action
+        for row_code, tools, action in codes_table()
+        if code in row_code and f"`{tool}`" in tools and condition in tools
+    ]
+    assert len(found) == 1, f"{code} × {tool} {condition}: строк {len(found)}"
+    return found[0]
+
+
 def test_a_ready_answer_of_a_move_or_a_read_is_not_the_end_of_the_cycle() -> None:
-    """Ревью 14, В1: `ГОТОВО` — первая строка и у `aifa_move`, `aifa_doc`; правило «отвечай сразу» только для `aifa_goal`."""
+    """Ревью 14, В1: `ГОТОВО` — первая строка и у `aifa_move`, `aifa_doc`; «отвечай сразу» только для `aifa_goal`."""
     rule_three = guide().split("3. Первая строка ответа", 1)[1].split("4. Ответ по", 1)[0]
-    cycle = guide().split("## Цикл", 1)[1]
 
     assert "ответа `aifa_goal`" in rule_three
-    assert "`ГОТОВО` у `aifa_move`, `aifa_doc`, `aifa_state`" in cycle and "не конец" in cycle
-    assert "пользователю не отвечай" in cycle
+    for tool in ("aifa_move", "aifa_doc", "aifa_state"):
+        assert "не конец" in action_for("ГОТОВО", tool, condition="в цикле")
+    assert "не вызывай" in action_for("ГОТОВО", "aifa_goal")
 
 
 def test_the_result_of_a_wait_is_read_by_the_rules_of_the_call_that_was_waited_for() -> None:
     """Ревью 14-r2, Н1: путь `aifa_goal` → `ЖДИ` → `aifa_wait` → `ГОТОВО` кончается ответом, а не `aifa_finish`."""
-    cycle = guide().split("## Цикл", 1)[1]
-    not_the_end = cycle.split("не конец", 1)[1].split("- `aifa_wait`", 1)[0]
+    intro = (PLANNING / "references" / "codes.md").read_text(encoding="utf-8").split("| Код |", 1)[0]
 
-    assert "итог `aifa_wait`" not in not_the_end
-    assert "итог того вызова, который ждал" in cycle and "ждал `aifa_goal` — правило 3" in cycle
+    assert "итог того вызова, который ждал" in intro
+    assert "не конец" not in action_for("ЖДИ", "aifa_wait")
 
 
 def test_after_the_limit_the_skill_finishes_at_once_and_the_collect_it_rules_give_way() -> None:
@@ -82,36 +98,26 @@ def test_after_the_limit_the_skill_finishes_at_once_and_the_collect_it_rules_giv
 
     assert "вызови его сразу" in limit and "give_up" in limit and "не завершай, собери" in limit
     assert "если это не `ЛИМИТ`" in guide()
+    assert "`aifa_finish` сразу" in action_for("ЛИМИТ", "aifa_move")
 
 
-def test_a_service_fault_inside_a_cycle_ends_with_a_finish_and_a_wait_fault_repeats_the_call() -> None:
-    """Ревью 14-r3, Р2: после неудачного повтора цикл закрывает `aifa_finish`; `aifa_wait` не повторяют."""
-    cycle = guide().split("## Цикл", 1)[1]
-    fault = cycle.split("`СБОЙ_СЛУЖБЫ` у любого инструмента", 1)[1].split("\n- ", 1)[0]
-
-    assert "у `aifa_wait` — исходный вызов, не `aifa_wait`" in fault
-    assert "закрой его `aifa_finish` (`give_up`)" in fault
-
-
-def test_the_read_codes_promised_by_rule_three_are_in_the_cycle_section() -> None:
-    """Ревью 14-r3, Р3, Р4: коды чтения описаны в «Цикле», «не конец» — только внутри цикла."""
-    cycle = guide().split("## Цикл", 1)[1]
-
-    assert "`aifa_doc`: `ОТКАЗ нет_документа`" in cycle and "`doc_id` из списка" in cycle
-    assert "Внутри цикла `ГОТОВО` у `aifa_move`" in cycle
+def test_a_service_fault_is_handled_per_tool_without_a_closed_loop() -> None:
+    """Ревью 14-r3 Р2, 14-r4 Г3: у `aifa_wait` повторяют `aifa_wait`, у `aifa_finish` выход — сказать пользователю."""
+    assert "закрой его `aifa_finish` (`give_up`)" in action_for("СБОЙ_СЛУЖБЫ", "aifa_move")
+    assert "исходный вызов не повторяй" in action_for("СБОЙ_СЛУЖБЫ", "aifa_wait")
+    finish = action_for("СБОЙ_СЛУЖБЫ", "aifa_finish")
+    assert "скажи пользователю" in finish and "give_up" not in finish
 
 
-def test_every_code_a_cycle_tool_can_answer_with_has_an_instruction() -> None:
-    """Ревью 14-r2, Н2: `СБОЙ_СЛУЖБЫ` у инструментов цикла, `ЖДИ` у `aifa_finish`, `нет_цикла`."""
-    cycle = guide().split("## Цикл", 1)[1]
-
-    for phrase in (
-        "`ЖДИ job=<id>` бывает и у `aifa_finish`",
-        "`СБОЙ_СЛУЖБЫ` у любого инструмента",
-        "`ОТКАЗ нет_цикла`",
-    ):
-        assert phrase in cycle, phrase
-    assert "`нет_цикла`" in references()["moves.md"]
+def test_every_refusal_a_tool_gives_for_its_own_arguments_has_a_row_of_that_tool() -> None:
+    """Ревью 14-r4, Г1, Г2: отказы по аргументам чтения и ожидания не наследуют правила хода."""
+    for tool in ("aifa_doc", "aifa_state", "aifa_wait", "aifa_move", "aifa_goal"):
+        assert action_for("неверные_аргументы", tool)
+    assert "задание живо" in action_for("неверные_аргументы", "aifa_wait")
+    assert "ход не потрачен" in action_for("неверные_аргументы", "aifa_state")
+    assert "тратит ход" in action_for("неверные_аргументы", "aifa_move")
+    assert "`doc_id` из списка" in action_for("нет_документа", "aifa_doc")
+    assert "подождать" in action_for("нет_документа", "aifa_goal")
 
 
 def test_the_document_is_read_by_pages_and_search_not_whole() -> None:

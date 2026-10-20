@@ -4,6 +4,7 @@
 руками их не пишут. Тест сверяет файлы навыка с выводом генератора, поэтому правка реестра без
 перегенерации ссылок краснит набор.
 """
+
 from __future__ import annotations
 
 import re
@@ -23,10 +24,14 @@ def test_a_generated_reference_equals_the_generator_output(name: str) -> None:
     """Дрейф: файл навыка совпадает с тем, что пишет генератор сейчас."""
     on_disk = (SKILL / "references" / name).read_text(encoding="utf-8")
 
-    assert on_disk == skill_references.REFERENCES[name](), f"устарело: {name}; обновить — {REGENERATE}"
+    assert on_disk == skill_references.REFERENCES[name](), (
+        f"устарело: {name}; обновить — {REGENERATE}"
+    )
 
 
-def test_a_changed_atom_description_makes_the_reference_stale(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_a_changed_atom_description_makes_the_reference_stale(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Защита от дрейфа сама проверяется: правка реестра атомов меняет вывод генератора."""
     before = skill_references.atoms_reference()
     monkeypatch.setitem(atom_catalog.ATOM_DESCRIPTIONS, "read.value", "Другое описание атома.")

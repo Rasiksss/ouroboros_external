@@ -259,6 +259,7 @@ REFERENCES = (
     "references/new-atom.md",
     "references/atoms.md",
     "references/metrics.md",
+    "references/codes.md",
 )
 
 
