@@ -373,6 +373,9 @@ class Settings(BaseSettings):
     # routes across multiple providers and we observed micro-variance in
     # outputs even at temperature=0. Empty = no pinning (default routing).
     openrouter_provider: str = Field("", alias="FINENGINE_OPENROUTER_PROVIDER", validation_alias="FINENGINE_OPENROUTER_PROVIDER")
+    # Как шлюз принимает уровень размышлений: `openrouter` — `reasoning: {effort}`; `openai` — верхнеуровневый
+    # `reasoning_effort` (OpenAI-совместимый шлюз игнорирует первый вариант: dev, 20.10.2026).
+    reasoning_style: str = Field("openrouter", alias="FINENGINE_REASONING_STYLE", validation_alias="FINENGINE_REASONING_STYLE")
 
     # Модель дайджеста: и классификация новостей, и перевод заголовков
     # регуляторов. Классификация — сотни вызовов за прогон и основная статья
