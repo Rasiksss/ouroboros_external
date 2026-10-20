@@ -194,7 +194,8 @@ async def test_an_ambiguous_goal_is_a_clarification(monkeypatch: pytest.MonkeyPa
 async def test_when_the_standard_path_cannot_plan_the_service_runs_the_cycle_itself(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """ADR-0029, этап 2: цель без производителя в графе → нынешний `DynamicRun` целиком, итог — ответ."""
+    """ADR-0029, этап 2: при `loop_driver=engine` (откат) цель без производителя в графе → `DynamicRun` целиком, итог — ответ."""
+    monkeypatch.setattr("finengine.config.settings.loop_driver", "engine")
     set_intent(monkeypatch, CUSTOM)
     with_revenue(monkeypatch)
     planner = SequenceModel([GIVE_UP])
