@@ -13,7 +13,7 @@ from typing import Any
 import pytest
 
 from new_core.tools.interfaces import NullToolEvents, ToolEvents
-from ouroboros.agent_events.interfaces import LlmUsageReported, SkillLifecycle
+from ouroboros.agent_events.interfaces import LlmUsageReported, SkillLifecycle, SubtaskRequested
 from ouroboros.tools.events import PublishedToolEvents
 from tests.helpers.agent_events import RecordingAgentEvents
 from tests.helpers.audit_events import sql_audit_event_repository
@@ -222,6 +222,34 @@ def test_unknown_lifecycle_type_is_recorded_but_not_republished(monkeypatch, tmp
     assert published == []
 
 
+# --- subtask requests --------------------------------------------------------------------
+
+
+def _subtask_request() -> SubtaskRequested:
+    return SubtaskRequested(scope=TEST_SCOPE, task_id="child-1", description="Do the thing", depth=1)
+
+
+def test_a_subtask_request_is_handed_to_the_supervisor_at_once(sink: RecordingAgentEvents) -> None:
+    events = PublishedToolEvents(sink, task_id="t-1", scope=TEST_SCOPE, audit_event_repository=None)
+    request = _subtask_request()
+
+    assert events.request_subtask(request) is True
+
+    assert sink.published == [request]
+
+
+def test_a_subtask_request_without_a_publisher_stays_with_the_caller() -> None:
+    events = PublishedToolEvents(None, task_id="t-1", audit_event_repository=None)
+
+    assert events.request_subtask(_subtask_request()) is False
+
+
+def test_a_subtask_request_the_transport_refuses_stays_with_the_caller() -> None:
+    events = PublishedToolEvents(_BrokenPublisher(), task_id="t-1", scope=TEST_SCOPE, audit_event_repository=None)
+
+    assert events.request_subtask(_subtask_request()) is False
+
+
 # --- the no-op default -------------------------------------------------------------------
 
 
@@ -255,3 +283,4 @@ def test_null_events_emits_nothing_and_satisfies_the_interface() -> None:
     assert isinstance(events, ToolEvents)
     assert events.usage("m", {"prompt_tokens": 1}) is None
     assert events.lifecycle("x", {}) is None
+    assert events.request_subtask(SubtaskRequested(scope=TEST_SCOPE)) is False

@@ -287,6 +287,16 @@ class ToolEvents(ABC):
         grows with skills rather than with this interface.
         """
 
+    def request_subtask(self, request: Any) -> bool:
+        """Hand a persisted subtask request to the supervisor now, not when the run ends.
+
+        ``True`` means the request left through the run's transport and the caller must not
+        also keep it in ``ToolContext.pending_events``; ``False`` — nothing took it, and the
+        caller reports it with the run result as before. Not abstract: a context with no
+        supervisor behind it has nowhere to hand the request, and that is the default.
+        """
+        return False
+
 
 class ToolOutbound(ABC):
     """Persist history and publish stored file references for a run."""

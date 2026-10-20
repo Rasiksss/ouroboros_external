@@ -149,15 +149,15 @@ async def test_c2_4_a_notification_and_a_subtask_answer_are_not_the_final(
     assert subtask["transport"]["source_message_id"] == request.run_id
 
 
-async def test_c2_4_ouroboros_starts_a_subtask_only_after_its_root_has_finished(
+async def test_c2_4_ouroboros_starts_a_subtask_while_its_root_still_works(
     stand: ContractStand, stub: StubModelAdmin
 ) -> None:
-    """C2.4 / P50: подзадачу принимают, когда корень закончил, — её ответ позже финала корня.
+    """C2.4 / P50 (ADR-0052): подзадача стартует, пока корень работает, — `aifa_wait` из корня возможен.
 
-    Пока корень работает 50 кругов, подзадача не стартует: `schedule_task` кладёт запрос в
-    `pending_events` задачи, а supervisor берёт его из результата (`ouroboros/agent/core.py`,
-    возврат `_pending_events`). Если ouroboros это изменит, тест упадёт — и ожидание подзадачи
-    из корня (`aifa_wait`, ADR-0041 п. 3) станет возможным; до тех пор оно не завершится.
+    Корень делает 50 кругов после `schedule_task`; запрос подзадачи уходит supervisor'у в конце вызова
+    (`ouroboros/tools/service/orchestration.py`), а не с результатом run, поэтому первый запрос
+    подзадачи к модели приходит раньше последнего круга корня. До правки ядра он шёл после него
+    (ADR-0046): тест был пломбой «подзадача стартует после корня» и инвертирован этим шагом.
     """
     rules = [
         {"id": "title", "when": {"model": "stub-light"}, "reply": {"text": "Подзадача"}},
@@ -205,8 +205,10 @@ async def test_c2_4_ouroboros_starts_a_subtask_only_after_its_root_has_finished(
 
     users = [str(e["user"]) for e in stub.journal() if e["model"] == "stub-main"]
     first_subtask = next(i for i, user in enumerate(users) if user.startswith("Задача подзадачи"))
-    assert first_subtask == 50, "корень сделал все 50 кругов до первого запроса подзадачи"
-    assert all(user.startswith("Задача подзадачи") for user in users[first_subtask:])
+    assert first_subtask < 50, "первый запрос подзадачи пришёл раньше последнего круга корня"
+    assert any(not user.startswith("Задача подзадачи") for user in users[first_subtask:]), (
+        "корень продолжил работать после старта подзадачи"
+    )
 
 
 async def test_c2_5_progress_is_marked_and_stays_off_the_screen(
