@@ -15,6 +15,7 @@ from finengine.assistant.goal_tools import reply_of
 from finengine.assistant.jobs import JobBoard
 from finengine.assistant.loop_desk import LoopDesk, OpenLoop
 from finengine.assistant.ouro_view import Refusal
+from finengine.assistant.subtask_waits import SubtaskWaits
 from finengine.assistant.tool_call import BoundCall
 from finengine.config import settings
 from finengine.skills.production_runtime import publish_result
@@ -95,6 +96,10 @@ class FinishTool(ExclusiveTool):
     name = "aifa_finish"
     root_only = True
 
+    def __init__(self, board: JobBoard, desk: LoopDesk, subtasks: SubtaskWaits) -> None:
+        super().__init__(board, desk)
+        self._subtasks = subtasks
+
     def _execute(self, loop: OpenLoop, args: dict[str, Any]) -> str:
         session = loop.session
         if session.closed:
@@ -120,4 +125,4 @@ class FinishTool(ExclusiveTool):
             result, refused = session.finish(checked), ""
         self._desk.save(loop.run_id)
         publish_result(result, session.event_sink, case_id=session.case_id, document_id=loop.origin.document_id)
-        return ouro_view.accepted(result, reason=refused)
+        return ouro_view.accepted(result, reason=refused, unfinished=self._subtasks.unfinished(loop.run_id))

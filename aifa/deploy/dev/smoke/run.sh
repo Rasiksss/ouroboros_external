@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Дымовые проверки контура aifa-sym (этап 0.6; 6–9 — шаг 12, профиль app).
-# Запуск на dev-хосте из корня клона:  aifa/deploy/dev/smoke/run.sh [1|2|3|4|5|6|7|8|9]...
+# Дымовые проверки контура aifa-sym (этап 0.6; 6–9 — шаг 12, профиль app; 10 — шаг 16, подзадачи).
+# Запуск на dev-хосте из корня клона:  aifa/deploy/dev/smoke/run.sh [1|2|…|10]...
 # Контейнеры одноразовые, в сети aifa-sym-internal; имена без `prod`; порты не публикуются.
 set -uo pipefail
 
@@ -12,7 +12,7 @@ IMAGE=aifa-sym-ouroboros:dev
 READY_URL=${AIFA_SYM_READY_URL:-http://127.0.0.1:18180/ready}
 FRONTEND_URL=${AIFA_SYM_FRONTEND_URL:-http://127.0.0.1:13000}
 CHECKS=("$@")
-[ ${#CHECKS[@]} -eq 0 ] && CHECKS=(1 2 3 4 5 6 7 8 9)
+[ ${#CHECKS[@]} -eq 0 ] && CHECKS=(1 2 3 4 5 6 7 8 9 10)
 FAILED=0
 
 # Секреты из .env рядом с compose.yml: попадают только в окружение одноразового контейнера.
@@ -93,6 +93,10 @@ for check in "${CHECKS[@]}"; do
     9)
       AIFA_SYM_QA_PASSWORD=$AIFA_SYM_QA_A_PASSWORD api hello --user qa-a --prompt "привет"
       result 9 "ход «привет» доходит до ouroboros и обратно (UI-ручки)" $?
+      ;;
+    10)
+      inside ws_chat.py --chat smoke-subtask --subtask --timeout 420 --prompt         "Запусти подзадачу инструментом schedule_task с описанием «Ответь одним словом: ОК». Больше ничего не делай и ответь: запустил."
+      result 10 "ADR-0052: подзадача schedule_task стартует и отдаёт итог" $?
       ;;
     *) echo "неизвестная проверка: $check"; FAILED=1 ;;
   esac

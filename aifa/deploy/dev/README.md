@@ -130,6 +130,7 @@ loopback-порт фронтенда; пароль `qa-a` — из `~/aifa-sym-q
 | 7 | `/build-id` фронтенда | равен `AIFA_SYM_BUILD_ID` из `.env` |
 | 8 | вход `qa-a` | `/auth/login` и `/auth/me` — 200 |
 | 9 | ход «привет» (`POST /chat/turns` → поток событий) | `completed` и непустой ответ ouroboros |
+| 10 | подзадача (`ws_chat.py --subtask`, шаг 16) | уведомление «Scheduled task», затем итог подзадачи с другим `task_id` |
 
 Пределы Workstation (ADR-0039) держит контейнер, а не песочница: её cgroup-настройки
 (`SESSION_MEMORY_MAX` и др.) в контейнере не действуют, действуют только rlimit одного exec и
@@ -200,6 +201,15 @@ ouroboros зарегистрированы шесть инструментов `
 (`python -m finengine.assistant.skill_references`, тест `tests/skill_references` держит их равными реестрам). Навыки лежат
 в образе `ouroboros`, поэтому выкатка пересобирает его; `engine` при выкатке — заменой `/app/src`, если полная сборка
 не укладывается в диск (P92). Откат: `FINENGINE_LOOP_DRIVER=engine` и `docker compose … up -d --no-build engine`.
+
+### Шаг 16 (20.10.2026)
+
+Подзадачи включены: `schedule_task` убран из `OUROBOROS_DISABLED_TOOLS` примера и снимка F9 (в `ouroboros.env` на сервере — той же
+правкой, руками: файл с секретами, из репозитория не копируется); `send_user_message` остаётся выключенным. Корень ждёт подзадачу
+`aifa_wait(task_id)`, а она стартует, пока корень работает, — для этого в ядре запрос подзадачи уходит supervisor'у в конце вызова
+`schedule_task` (ADR-0052). `OUROBOROS_WORKER_SLOTS=4` (≥ 2) нужны именно этому: корень занимает слот, подзадача — второй. Дымовая 10
+(`smoke/run.sh 10`): корень запускает `schedule_task`, ждём уведомление «Scheduled task» и итог подзадачи; зависит от настоящей модели.
+Выкатка пересобирает `ouroboros` (ядро и плагин) и `engine` (код службы).
 
 ### Известные ограничения
 

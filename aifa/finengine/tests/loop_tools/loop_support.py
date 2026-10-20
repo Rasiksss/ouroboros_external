@@ -17,6 +17,7 @@ from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 from tool_harness import CHAT, ROOT, OpenRun, Plugin, ctx_of, open_run
 
 from finengine.assistant.loop_desk import LoopDesk, LoopEmitter
+from finengine.assistant.subtask_waits import SubtaskWaits
 from finengine.assistant.tool_api import ToolApi
 from finengine.contracts import GoalIR
 from finengine.skills.atoms.graph_atoms import build_registry, default_policy
@@ -86,9 +87,11 @@ class Cycle:
     events: list[dict[str, Any]] = field(default_factory=list)
     calls: list[tuple[str, str]] = field(default_factory=list)
 
-    async def call(self, tool: str, args: dict[str, Any] | None = None, *, depth: int = 0) -> str:
+    async def call(
+        self, tool: str, args: dict[str, Any] | None = None, *, depth: int = 0, task: str = "sub-task",
+    ) -> str:
         ctx = ctx_of(self.run.run_id) if depth == 0 else ctx_of(
-            self.run.run_id, task_id="sub-task", root_task_id=ROOT, task_depth=depth
+            self.run.run_id, task_id=task, root_task_id=ROOT, task_depth=depth
         )
         response = await self.plugin.call(tool, ctx, args)
         self.calls.append((tool, response.text))
@@ -109,6 +112,7 @@ async def open_cycle(
     base, *, scenario: Callable[[str], Any] | None = None, author: Any = None,
     limits: RunLimits = RunLimits(), passport: Any = None, doc_ids: tuple[str, ...] = (),
     message: str = "сложный вопрос", entry_stage: str = "planning", document_text: str = "",
+    subtasks: SubtaskWaits | None = None,
 ) -> Cycle:
     """Цикл, открытый так, как его открывает `aifa_goal` при `НУЖЕН_ЦИКЛ`: сессия принята `LoopDesk`."""
     run = open_run(user_id=OWNER, case_id=CASE, doc_ids=doc_ids, message=message)
@@ -124,7 +128,7 @@ async def open_cycle(
         run.run_id, OWNER, LoopEmitter.here(run.run_id), session,
         LoopOrigin(owner_id=OWNER, case_id=CASE, document_id="doc:v1", goal=goal, target=target),
     )
-    cycle = Cycle(run, desk, session, Plugin(ToolApi(Gateway(), _NoGoal(), desk)))
+    cycle = Cycle(run, desk, session, Plugin(ToolApi(Gateway(), _NoGoal(), desk, subtasks)))
     session.event_sink.target = cycle.events.append  # type: ignore[attr-defined]
     return cycle
 

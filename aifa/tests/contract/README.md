@@ -12,6 +12,20 @@ ouroboros (`CONTRACTS.md` §2): живой ouroboros, модель подста�
 `aifa_doc` → `aifa_move` (сценарий хода → конвейер) → `aifa_finish` → финал; сценарий подставной модели —
 `scenarios/loop.json`, модель планировщика службы в нём вызвать нельзя. Сохранение цикла после хода проверяется там же.
 
+Шаг 16: `test_subtasks_end_to_end.py` — корень → `schedule_task` → подзадача по навыку-фикстуре → `aifa_state`,
+`aifa_report`, `aifa_register_atom` (отказ, затем `ГОТОВО`), `aifa_report done` → корень получает итог в `aifa_wait(task_id)` →
+`aifa_move` с `eph`-атомом → `aifa_finish` (C4.1, C4.3, C4.4, C4.6, C4.7); молчащая подзадача и `cancel_task` (C4.9). Код атома
+исполняет `room_stub.py` (локальный интерпретатор вместо Workstation: в профиле Workstation нет). Сценарии —
+`scenarios/delegation.json`, `silent_subtask.json`; корень берёт `task_id` из ответа `schedule_task` полем
+`arguments_from_last_tool_result` подставной модели. C4.2 (та же сессия Workstation, сокет наружу закрыт) — живой, на стенде
+с Workstation; в профиле его нет, тест не написан (`PROGRESS.md` §4).
+
+**Навык-фикстура C4.7.** `skills/contract-fixture-role/SKILL.md` (`type: instruction`) лежит здесь, а не в `skills/`, и
+подключается только профилем `contract`: `compose.contract.yml` монтирует каталог в `/app/skills/contract-fixture-role:ro`
+(каталог навыков контейнера) и добавляет `distribution:contract-fixture-role` к `OUROBOROS_USER_ENABLED_SKILL_IDS`
+(допуск dev + фикстура). `test_contract_compose.py` держит оба значения; служба навыка не знает
+(`finengine/tests/architecture/test_service_knows_no_subtask_skill.py`).
+
 Шаг 11: `test_catalog_files.py` — C6.1–C6.4 настоящим `CatalogFiles` службы на каталоге ouroboros;
 `test_files_end_to_end.py` — загрузка документа через ручку службы → каталог → распознавание → ход с этим
 документом → файл-результат (атом `out.file`) в каталоге → выдача через ручку → история чата → удаление.

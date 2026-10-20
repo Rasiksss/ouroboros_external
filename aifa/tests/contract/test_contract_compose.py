@@ -20,10 +20,11 @@ PROJECT = "aifa-sym-contract"
 PROD_MARKERS = ("prod", "finengine-caddy", "openclaw", "infproxy")
 LOOPBACK = "127.0.0.1:"
 # Что профиль вправе задать поверх `ouroboros.env.example`: адрес и имена моделей, адрес службы
-# расчётов и
-# заглушки секретов (в примере там CHANGE_ME), и список отключённых инструментов без `schedule_task`
-# (C2.4:
-# подзадача; на dev он включается шагом 16, ADR-0044 п. 3). Остальное из примера — как на dev.
+# расчётов, заглушки секретов (в примере там CHANGE_ME) и допуск навыка-фикстуры C4.7 — наш навык
+# лежит в `aifa/tests/contract/skills/` и подключается только здесь (том + допуск). Остальное из
+# примера —
+# как на dev; список отключённых инструментов тот же: `schedule_task` включён самим примером (шаг
+# 16).
 ALLOWED_ENVIRONMENT = frozenset(
     {
         "OUROBOROS_ENV",
@@ -41,9 +42,11 @@ ALLOWED_ENVIRONMENT = frozenset(
         "WORKSTATION_CREATE_SECRET",
         "AIFA_ENGINE_URL",
         "AIFA_ENGINE_TOKEN",
-        "OUROBOROS_DISABLED_TOOLS",
+        "OUROBOROS_USER_ENABLED_SKILL_IDS",
     }
 )
+FIXTURE_SKILL = "contract-fixture-role"
+FIXTURE_SKILL_DIR = Path(__file__).resolve().parent / "skills" / FIXTURE_SKILL
 SUBTASK_TOOL = "schedule_task"
 
 
@@ -81,13 +84,20 @@ def contract_violations(compose: Mapping[str, Any]) -> list[str]:
         problems.append(
             "ouroboros читает не ouroboros.env.example — набор настроек разошёлся с dev"
         )
-    example_tools = _example_value("OUROBOROS_DISABLED_TOOLS").split(",")
-    expected_tools = [tool for tool in example_tools if tool != SUBTASK_TOOL]
-    if str(environment.get("OUROBOROS_DISABLED_TOOLS", "")).split(",") != expected_tools:
+    dev_skills = _example_value("OUROBOROS_USER_ENABLED_SKILL_IDS").split(",")
+    if str(environment.get("OUROBOROS_USER_ENABLED_SKILL_IDS", "")).split(",") != [
+        *dev_skills,
+        f"distribution:{FIXTURE_SKILL}",
+    ]:
         problems.append(
-            f"OUROBOROS_DISABLED_TOOLS профиля — не список dev без {SUBTASK_TOOL}: "
-            "профиль меняет ровно одно имя"
+            "OUROBOROS_USER_ENABLED_SKILL_IDS профиля — не список dev плюс навык-фикстура: "
+            "профиль добавляет ровно один навык"
         )
+    skill_mounts = [str(v) for v in ouroboros.get("volumes") or [] if "/app/skills/" in str(v)]
+    if skill_mounts != [
+        f"../../tests/contract/skills/{FIXTURE_SKILL}:/app/skills/{FIXTURE_SKILL}:ro"
+    ]:
+        problems.append("каталог навыков контейнера: ровно навык-фикстура, только для чтения")
     if environment.get("CLOUDRU_FOUNDATION_MODELS_BASE_URL") != "http://stub-model:8000/v1":
         problems.append("модель ouroboros не направлена на сервис stub-model")
     if not all(
@@ -136,13 +146,33 @@ def test_contract_check_catches_a_changed_dev_setting() -> None:
     assert any("OUROBOROS_DISABLED_TOOLS" in p for p in contract_violations(compose))
 
 
-def test_contract_profile_enables_only_the_subtask_tool() -> None:
-    """C2.4: от списка dev профиль отличается одним именем: подзадачи включены."""
+def test_contract_profile_keeps_the_tool_list_of_dev_and_adds_one_skill() -> None:
+    """C4.7: список отключённых инструментов — как на dev (подзадачи включены самим примером), а
+    допуск — dev плюс фикстура."""
     environment = _load()["services"]["ouroboros"]["environment"]
-    profile = set(str(environment["OUROBOROS_DISABLED_TOOLS"]).split(","))
-    dev = set(_example_value("OUROBOROS_DISABLED_TOOLS").split(","))
-    assert dev - profile == {SUBTASK_TOOL}
-    assert profile - dev == set()
+    assert "OUROBOROS_DISABLED_TOOLS" not in environment
+    assert SUBTASK_TOOL not in _example_value("OUROBOROS_DISABLED_TOOLS").split(",")
+    assert "send_user_message" in _example_value("OUROBOROS_DISABLED_TOOLS").split(",")
+    allowed = str(environment["OUROBOROS_USER_ENABLED_SKILL_IDS"]).split(",")
+    assert set(allowed) - set(_example_value("OUROBOROS_USER_ENABLED_SKILL_IDS").split(",")) == {
+        f"distribution:{FIXTURE_SKILL}"
+    }
+
+
+def test_the_fixture_skill_exists_only_in_the_contract_tests() -> None:
+    """C4.7: навык-фикстура лежит в `aifa/tests/contract/skills/`, не в `skills/`, и не называет
+    навыков службы."""
+    manifest = (FIXTURE_SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+    assert "type: instruction" in manifest
+    assert not (Path(__file__).resolve().parents[3] / "skills" / FIXTURE_SKILL).exists()
+
+
+def test_contract_check_catches_a_second_skill_mounted_into_the_container() -> None:
+    compose = copy.deepcopy(_load())
+    compose["services"]["ouroboros"]["volumes"].append(
+        "../../tests/contract/skills/other:/app/skills/other:ro"
+    )
+    assert any("каталог навыков" in p for p in contract_violations(compose))
 
 
 def test_contract_check_catches_a_port_outside_loopback() -> None:

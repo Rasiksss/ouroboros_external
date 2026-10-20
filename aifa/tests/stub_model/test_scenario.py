@@ -140,3 +140,87 @@ def test_duplicate_rule_ids_are_refused() -> None:
 def test_scenario_without_rules_is_refused() -> None:
     with pytest.raises(ScenarioError, match="rules"):
         parse_scenario({"name": "t", "rules": []})
+
+
+def test_an_argument_can_be_taken_from_the_last_tool_result() -> None:
+    """Шаг 16: корень узнаёт `task_id` подзадачи только из ответа `schedule_task` — аргумент берётся
+    из результата."""
+    scenario = parse_scenario(
+        {
+            "rules": [
+                {
+                    "id": "wait-for-the-child",
+                    "when": {"last_tool_result_starts_with": "Task request queued"},
+                    "reply": {
+                        "tool_calls": [
+                            {
+                                "name": "aifa_wait",
+                                "arguments": {"wait_sec": 30},
+                                "arguments_from_last_tool_result": {
+                                    "task_id": "queued ([0-9a-f]+):"
+                                },
+                            }
+                        ]
+                    },
+                }
+            ]
+        }
+    )
+    view = request_view(
+        _payload(_user("q"), {"role": "tool", "content": "Task request queued ab12cd34: Навык: x"})
+    )
+
+    rule = scenario.pick(view)
+    assert rule is not None
+    (call,) = rule.reply.tool_calls
+
+    assert call.arguments_for(view) == {"wait_sec": 30, "task_id": "ab12cd34"}
+
+
+def test_an_argument_that_the_result_does_not_give_is_left_empty_not_invented() -> None:
+    scenario = parse_scenario(
+        {
+            "rules": [
+                {
+                    "id": "wait",
+                    "when": {},
+                    "reply": {
+                        "tool_calls": [
+                            {
+                                "name": "aifa_wait",
+                                "arguments_from_last_tool_result": {
+                                    "task_id": "queued ([0-9a-f]+):"
+                                },
+                            }
+                        ]
+                    },
+                }
+            ]
+        }
+    )
+    view = request_view(_payload(_user("q"), {"role": "tool", "content": "ничего похожего"}))
+
+    rule = scenario.pick(view)
+    assert rule is not None
+    (call,) = rule.reply.tool_calls
+
+    assert call.arguments_for(view) == {"task_id": ""}
+
+
+def test_a_pattern_without_one_group_is_refused_when_the_scenario_loads() -> None:
+    with pytest.raises(ScenarioError, match="одну группу"):
+        parse_scenario(
+            {
+                "rules": [
+                    {
+                        "id": "bad",
+                        "when": {},
+                        "reply": {
+                            "tool_calls": [
+                                {"name": "t", "arguments_from_last_tool_result": {"a": "без групп"}}
+                            ]
+                        },
+                    }
+                ]
+            }
+        )

@@ -1,0 +1,314 @@
+{
+  "name": "delegation",
+  "rules": [
+    {
+      "id": "title-by-light-model",
+      "when": {
+        "model": "stub-light"
+      },
+      "reply": {
+        "text": "Выручка"
+      }
+    },
+    {
+      "id": "sub-reads-the-state",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Навык: contract-fixture-role",
+        "round": 1
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_state",
+            "arguments": {}
+          }
+        ]
+      }
+    },
+    {
+      "id": "sub-may-not-finish",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Навык: contract-fixture-role",
+        "round": 2
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_finish",
+            "arguments": {
+              "action": "give_up"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "sub-reports-an-attempt",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Навык: contract-fixture-role",
+        "round": 3
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_report",
+            "arguments": {
+              "label": "eph.revenue_double",
+              "status": "error",
+              "note": "первая проба: деление на ноль",
+              "code": "def run(inputs):\n    return {'revenue_x2': 1 / 0}\n"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "sub-registers-bad-code",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Навык: contract-fixture-role",
+        "round": 4
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_register_atom",
+            "arguments": {
+              "name": "eph.revenue_double",
+              "purpose": "удвоенная выручка",
+              "requires": [
+                {
+                  "input_type": "ExtractedMetric",
+                  "concept": "SALES_REVENUE"
+                }
+              ],
+              "output_type": "dyn:revenue_x2",
+              "output_schema": {
+                "type": "object",
+                "required": [
+                  "revenue_x2"
+                ],
+                "properties": {
+                  "revenue_x2": {
+                    "type": "number",
+                    "x-unit": "RUB_MLN"
+                  }
+                }
+              },
+              "code": "def run(inputs):\n    return {'revenue_x2': 1 / 0}\n"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "sub-registers-good-code",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Навык: contract-fixture-role",
+        "round": 5
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_register_atom",
+            "arguments": {
+              "name": "eph.revenue_double",
+              "purpose": "удвоенная выручка",
+              "requires": [
+                {
+                  "input_type": "ExtractedMetric",
+                  "concept": "SALES_REVENUE"
+                }
+              ],
+              "output_type": "dyn:revenue_x2",
+              "output_schema": {
+                "type": "object",
+                "required": [
+                  "revenue_x2"
+                ],
+                "properties": {
+                  "revenue_x2": {
+                    "type": "number",
+                    "x-unit": "RUB_MLN"
+                  }
+                }
+              },
+              "code": "def run(inputs):\n    metric = next(m for m in inputs['ExtractedMetric'] if m['concept'] == 'SALES_REVENUE')\n    return {'revenue_x2': metric['scalar_fact']['value'] * 2}\n"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "sub-reports-done",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Навык: contract-fixture-role",
+        "round": 6
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_report",
+            "arguments": {
+              "label": "итог",
+              "status": "done",
+              "note": "Атом eph.revenue_double принят службой."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "sub-answers",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Навык: contract-fixture-role",
+        "round": 7
+      },
+      "reply": {
+        "text": "Готово: атом eph.revenue_double сдан."
+      }
+    },
+    {
+      "id": "root-goal",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Нужен атом",
+        "round": 1
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_goal",
+            "arguments": {}
+          }
+        ]
+      }
+    },
+    {
+      "id": "root-extracts",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Нужен атом",
+        "round": 2,
+        "last_tool_result_starts_with": "НУЖЕН_ЦИКЛ"
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_move",
+            "arguments": {
+              "objective": "получить выручку за 2024 год",
+              "reason": "она нужна атому",
+              "scenarios": [
+                "Извлеки выручку за 2024 год"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "root-delegates",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Нужен атом",
+        "round": 3,
+        "last_tool_result_starts_with": "ГОТОВО"
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "schedule_task",
+            "arguments": {
+              "description": "Навык: contract-fixture-role. Сдай атом eph.revenue_double: удвой выручку SALES_REVENUE."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "root-waits",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Нужен атом",
+        "round": 4,
+        "last_tool_result_starts_with": "Task request queued"
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_wait",
+            "arguments": {
+              "wait_sec": 60
+            },
+            "arguments_from_last_tool_result": {
+              "task_id": "queued ([0-9a-f]+):"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "root-uses-the-atom",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Нужен атом",
+        "round": 5,
+        "last_tool_result_starts_with": "ГОТОВО"
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_move",
+            "arguments": {
+              "objective": "удвоить выручку",
+              "reason": "атом принят",
+              "steps": [
+                {
+                  "atom": "eph.revenue_double"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "root-finishes",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Нужен атом",
+        "round": 6,
+        "last_tool_result_starts_with": "ГОТОВО"
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_finish",
+            "arguments": {
+              "action": "finalize"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "root-answers",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Нужен атом",
+        "round": 7,
+        "last_tool_result_starts_with": "ПРИНЯТО"
+      },
+      "reply": {
+        "text": "Удвоенная выручка посчитана атомом eph.revenue_double."
+      }
+    }
+  ]
+}

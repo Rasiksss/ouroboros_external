@@ -253,7 +253,9 @@ async def test_a_job_nobody_waits_for_is_stopped_with_the_turn(plugin_with) -> N
         {"job_id": "abc"},
         {"job_id": "abc", "wait_sec": "много"},
         {"job_id": "abc", "wait_sec": 241},
-        {"task_id": "sub-1", "wait_sec": 10},
+        {"task_id": "", "wait_sec": 10},
+        {"task_id": "sub-1", "job_id": "abc", "wait_sec": 10},
+        {"task_id": "sub-1"},
     ],
 )
 async def test_aifa_wait_refuses_arguments_outside_the_contract(plugin_with, args: dict) -> None:

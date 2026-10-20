@@ -101,7 +101,7 @@ def completion_body(
                 "type": "function",
                 "function": {
                     "name": call.name,
-                    "arguments": json.dumps(call.arguments, ensure_ascii=False),
+                    "arguments": json.dumps(call.arguments_for(view), ensure_ascii=False),
                 },
             }
             for index, call in enumerate(reply.tool_calls)

@@ -18,12 +18,14 @@ from pydantic import ValidationError
 from finengine.assistant import ouro_view
 from finengine.assistant.binding import Binding, Refused, RootSink
 from finengine.assistant.events import tool_call_event, tool_output_event
+from finengine.assistant.atom_tools import RegisterTool, ReportTool
 from finengine.assistant.goal_tools import GoalSource, GoalTool, RunEmitter, WaitTool
 from finengine.assistant.jobs import JobBoard
 from finengine.assistant.loop_desk import LoopDesk
 from finengine.assistant.loop_tools import FinishTool, MoveTool
 from finengine.assistant.ouro_view import Code, Refusal
 from finengine.assistant.read_tools import DocTool, StateTool
+from finengine.assistant.subtask_waits import SubtaskWaits
 from finengine.assistant.tool_call import BoundCall, ToolCall
 from finengine.config import settings
 
@@ -49,13 +51,17 @@ class Tool(Protocol):
 
 
 class ToolApi:
-    def __init__(self, gateway: RootSink, goal: GoalSource, desk: LoopDesk | None = None) -> None:
+    def __init__(
+        self, gateway: RootSink, goal: GoalSource, desk: LoopDesk | None = None, subtasks: SubtaskWaits | None = None,
+    ) -> None:
         board = JobBoard(settings.ouroboros_run_watch_sec)
         desk = desk or LoopDesk()
+        self._subtasks = subtasks or SubtaskWaits()
         self._binding = Binding(gateway)
         tools: tuple[Tool, ...] = (
-            GoalTool(board, goal), WaitTool(board), StateTool(board, desk), DocTool(board, desk),
-            MoveTool(board, desk), FinishTool(board, desk),
+            GoalTool(board, goal), WaitTool(board, self._subtasks, desk), StateTool(board, desk), DocTool(board, desk),
+            MoveTool(board, desk), RegisterTool(board, desk), ReportTool(desk, self._subtasks),
+            FinishTool(board, desk, self._subtasks),
         )
         self._tools: dict[str, Tool] = {tool.name: tool for tool in tools}
 
@@ -73,6 +79,9 @@ class ToolApi:
         bound = self._binding.bind(call)
         if isinstance(bound, Refused):
             return Reply(ouro_view.refusal(bound.code, bound.why))
+        if not bound.is_root:
+            # Подзадачу хода служба запоминает по первому её вызову (ADR-0041 п. 3): навыка она не знает.
+            self._subtasks.remember(bound.ctx.run_id, bound.ctx.task_id)
         if tool.root_only and not bound.is_root:
             return Reply(ouro_view.refusal(Refusal.NOT_THE_ROLE, f"{tool.name} вызывает только корень хода."))
         emit = RunEmitter(bound.ctx.run_id)

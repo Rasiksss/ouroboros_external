@@ -1,0 +1,100 @@
+{
+  "name": "silent_subtask",
+  "rules": [
+    {
+      "id": "title-by-light-model",
+      "when": {
+        "model": "stub-light"
+      },
+      "reply": {
+        "text": "Тишина"
+      }
+    },
+    {
+      "id": "sub-works-and-stays-silent",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Навык: contract-fixture-role"
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "list_available_tools",
+            "arguments": {}
+          }
+        ]
+      }
+    },
+    {
+      "id": "root-delegates",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Нужна тишина",
+        "round": 1
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "schedule_task",
+            "arguments": {
+              "description": "Навык: contract-fixture-role. Работай долго."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "root-waits",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Нужна тишина",
+        "round": 2,
+        "last_tool_result_starts_with": "Task request queued"
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_wait",
+            "arguments": {
+              "wait_sec": 30
+            },
+            "arguments_from_last_tool_result": {
+              "task_id": "queued ([0-9a-f]+):"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "root-cancels",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Нужна тишина",
+        "round": 3,
+        "last_tool_result_starts_with": "ОТКАЗ подзадача_не_ответила"
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "cancel_task",
+            "arguments": {},
+            "arguments_from_last_tool_result": {
+              "task_id": "Подзадача ([0-9a-f]+) не ответила"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "root-answers",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "Нужна тишина",
+        "round": 4
+      },
+      "reply": {
+        "text": "Подзадача не ответила, я её снял."
+      }
+    }
+  ]
+}

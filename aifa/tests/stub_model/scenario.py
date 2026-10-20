@@ -8,8 +8,9 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -80,8 +81,23 @@ class When:
 
 @dataclass(frozen=True)
 class ToolCall:
+    """Вызов инструмента. `from_result` — аргументы, которые модель «прочитала» в последнем
+    результате инструмента
+    (имя аргумента → шаблон с одной группой): так корень узнаёт `task_id` подзадачи из ответа
+    `schedule_task`."""
+
     name: str
     arguments: Mapping[str, Any]
+    from_result: Mapping[str, str] = field(default_factory=dict)
+
+    def arguments_for(self, view: RequestView) -> dict[str, Any]:
+        """Постоянные аргументы и найденные в результате; не найденное — пустая строка, а не
+        выдумка."""
+        found = {}
+        for name, pattern in self.from_result.items():
+            match = re.search(pattern, view.last_tool_result)
+            found[name] = match.group(1) if match else ""
+        return {**self.arguments, **found}
 
 
 @dataclass(frozen=True)
@@ -141,7 +157,19 @@ def _parse_tool_call(rule_id: str, raw: Any) -> ToolCall:
     arguments = raw.get("arguments", {})
     if not isinstance(arguments, Mapping):
         raise ScenarioError(f"правило {rule_id!r}: arguments вызова {raw['name']!r} — объект")
-    return ToolCall(name=raw["name"], arguments=dict(arguments))
+    from_result = raw.get("arguments_from_last_tool_result", {})
+    if not isinstance(from_result, Mapping) or not all(
+        isinstance(name, str) and isinstance(pattern, str) for name, pattern in from_result.items()
+    ):
+        raise ScenarioError(
+            f"правило {rule_id!r}: {raw['name']!r}: arguments_from_last_tool_result — имя → шаблон"
+        )
+    for name, pattern in from_result.items():
+        if re.compile(pattern).groups != 1:
+            raise ScenarioError(
+                f"правило {rule_id!r}: шаблон аргумента {name!r} должен иметь ровно одну группу"
+            )
+    return ToolCall(name=raw["name"], arguments=dict(arguments), from_result=dict(from_result))
 
 
 def _parse_reply(rule_id: str, raw: Any) -> Reply:

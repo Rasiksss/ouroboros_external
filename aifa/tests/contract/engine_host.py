@@ -54,6 +54,7 @@ def running_engine(
     pipeline_fixture.install(monkeypatch, tmp_path, doc=doc, real_documents=real_documents)
     monkeypatch.setattr(settings, "ouroboros_url", stand.ouro_http_url)
     monkeypatch.setattr(settings, "aifa_engine_token", ENGINE_TOKEN)
+    composition.subtask_waits.cache_clear()
     composition.turn_gateway.cache_clear()
     composition.tool_api.cache_clear()
     composition.loop_desk.cache_clear()
@@ -79,6 +80,7 @@ def running_engine(
         server.should_exit = True
         thread.join(timeout=10)
         app_main.app.dependency_overrides.pop(get_current_user, None)
+        composition.subtask_waits.cache_clear()
         composition.turn_gateway.cache_clear()
         composition.tool_api.cache_clear()
         composition.loop_desk.cache_clear()

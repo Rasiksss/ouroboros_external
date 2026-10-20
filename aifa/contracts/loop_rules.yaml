@@ -1,7 +1,7 @@
 # Карта правил цикла (F8, ADR-0023, ADR-0040, ADR-0044 п. 9): у каждого правила, действующего в цикле, — тест.
 #
 # Источники: раздел 8 плана 34 (`aifa/finengine/docs/build-plan/34-…md`, колонка `plan34` — первая ячейка строки)
-# и столбец «Правила» §3.1 `CONTRACTS.md` для инструментов цикла `aifa_state`, `aifa_doc`, `aifa_move`, `aifa_finish`
+# и столбец «Правила» §3.1 `CONTRACTS.md` для инструментов цикла `aifa_state`, `aifa_doc`, `aifa_move`, `aifa_register_atom`, `aifa_report`, `aifa_finish`
 # (колонка `cell` — фрагмент ячейки между `;` верхнего уровня; `contract` — фрагмент текста §3.0). Тест — путь от `aifa/finengine/` и имя функции.
 # Правила, которые вводят шаги 16, 17, лежат в `deferred` с номером шага; снять строку оттуда и завести правило
 # выше — работа того шага. Тесты каталога `tests/loop_tools/` проходят через API инструментов и называют
@@ -134,6 +134,54 @@ rules:
   - id: LR-41
     cell: "`evidence_ids` условием не служат — служба пишет в журнал прогона, существует ли каждая (ADR-0040 п. 1)"
     test: tests/loop_tools/test_loop_rules.py::test_a_finish_with_a_missing_reference_is_accepted_and_the_journal_says_it_is_missing
+  - id: LR-42
+    cell: "контракт — правила `check_request` (имя `eph.<snake_case>`, `dyn:*`-тип, `x-unit` у чисел, у кода есть `requires`)"
+    test: tests/loop_tools/test_register_atom.py::test_a_contract_that_breaks_the_rules_is_refused_before_the_room
+  - id: LR-43
+    cell: "входы `requires` есть в `Case` («входов ещё нет»)"
+    test: tests/loop_tools/test_register_atom.py::test_an_atom_without_inputs_in_the_case_is_refused
+  - id: LR-44
+    cell: "≤ 3 неудачных регистрации одного имени за ход цикла (`лимит_попыток`, ADR-0043 п. 6), новые атомы — `RunLimits` (`лимит_атомов`)"
+    test: tests/loop_tools/test_register_atom.py::test_the_fourth_failed_registration_of_a_name_in_one_move_is_refused_by_the_limit
+  - id: LR-45
+    cell: "код — только в разовой комнате W без сети, без окружения (`env: {}`)"
+    test: tests/dynamic_run/test_sealed_room.py::test_exec_body_carries_entry_point_and_base64_stdin
+  - id: LR-46
+    cell: "вход — только `ctx.dependencies()`"
+    test: tests/dynamic_run/test_ephemeral_atoms.py::test_execute_runs_the_code_on_dependencies_and_wraps_the_result
+  - id: LR-47
+    cell: "результат по `output_schema` (`schema_problem`)"
+    test: tests/loop_tools/test_register_atom.py::test_a_result_of_the_wrong_shape_is_a_failed_registration
+  - id: LR-48
+    cell: "версия = хэш контракта и кода"
+    test: tests/loop_tools/test_register_atom.py::test_a_working_atom_is_registered_under_its_name_and_version
+  - id: LR-49
+    cell: "исходник в `Case`"
+    test: tests/loop_tools/test_register_atom.py::test_the_source_of_a_registered_atom_is_kept_in_the_case
+  - id: LR-50
+    cell: "`_origin` — в обёртке"
+    test: tests/loop_tools/test_loop_rules.py::test_the_result_of_an_atom_carries_its_version_and_the_origin_the_wrapper_computed
+  - id: LR-51
+    cell: "файлы из `out/` — пределы `sealed_room`"
+    test: tests/dynamic_run/test_room_files.py::test_more_files_than_the_limit_is_an_error_for_the_author
+  - id: LR-52
+    cell: "сбой станции попытку не тратит"
+    test: tests/loop_tools/test_register_atom.py::test_a_station_fault_does_not_spend_an_attempt
+  - id: LR-53
+    cell: "событие `author_attempt` на каждую проверку"
+    test: tests/loop_tools/test_register_atom.py::test_reports_and_registrations_of_one_name_share_one_counter_per_move
+  - id: LR-54
+    cell: "`done` — только из подзадачи (из корня — `не_та_роль`), событий экрана нет, завершает её ожидание"
+    test: tests/loop_tools/test_subtask_waits.py::test_done_is_for_a_subtask_only_and_the_root_is_not_the_role
+  - id: LR-55
+    cell: "шаг с `eph`-атомом из `aifa_register_atom` исполняется как любой атом"
+    test: tests/loop_tools/test_register_atom.py::test_a_registered_atom_runs_as_a_step_of_the_next_move
+  - id: LR-56
+    cell: "`ok`/`error` — без открытого цикла `нет_цикла`, иначе событие `author_attempt` (`atom` = `label`, номер попытки — общий с `aifa_register_atom` счётчик на пару (ход цикла, имя), увеличение атомарно, `move` — последний начатый ход цикла, `code` — если передан)"
+    test: tests/loop_tools/test_register_atom.py::test_reports_and_registrations_of_one_name_share_one_counter_per_move
+  - id: LR-57
+    cell: "≤ 20 отчётов `ok`/`error` на задачу ouroboros (`лимит_отчётов`), `done` в счёт не входит (ADR-0053)"
+    test: tests/loop_tools/test_subtask_waits.py::test_reports_of_one_task_are_limited_but_done_is_always_taken
 
 # Правила, которые вводят другие шаги; до них тестов нет и быть не должно.
 deferred:
@@ -141,5 +189,3 @@ deferred:
     cell: "атом с кодом в `new_atoms` — только до шага 17 (автор в службе, ADR-0029), затем `ОТКАЗ неверные_аргументы` с подсказкой «подзадача и `aifa_register_atom`»"
   - step: "17"
     cell: "подсказки цикла («входов ещё нет», файл не собран) после шага 17 ведут к подзадаче и `aifa_register_atom`"
-  - step: "16"
-    cell: "шаг с `eph`-атомом из `aifa_register_atom` исполняется как любой атом"

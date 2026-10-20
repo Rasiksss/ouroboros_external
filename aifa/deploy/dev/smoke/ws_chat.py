@@ -5,6 +5,7 @@
 
     python ws_chat.py --url ws://ouroboros:8080/ws --prompt "привет"
     python ws_chat.py --url ws://ouroboros:8080/ws --no-owner     # ждёт отказ рукопожатия
+    python ws_chat.py --subtask --prompt "..."                    # ждёт старт и итог подзадачи (шаг 16)
 """
 
 from __future__ import annotations
@@ -59,6 +60,39 @@ async def _turn(ws, prompt: str, timeout: float) -> tuple[str, list[str]]:  # ty
             return str(frame.get("content", "")), seen
 
 
+async def _subtask_turn(ws, prompt: str, timeout: float) -> tuple[list[str], str]:  # type: ignore[no-untyped-def]
+    """Ход, в котором корень запускает подзадачу: ждём уведомление «Scheduled task» (пустой `task_id`) и итог
+    подзадачи — непрогрессный кадр ассистента с другим `task_id`, чем у корня. Вернуть (кадры, итог подзадачи)."""
+    await ws.send(
+        json.dumps(
+            {"type": "chat", "content": prompt, "client_message_id": f"smoke-{uuid.uuid4().hex[:8]}"},
+            ensure_ascii=False,
+        )
+    )
+    deadline = time.monotonic() + timeout
+    seen: list[str] = []
+    scheduled = False
+    final_ids: list[str] = []
+    while True:
+        left = deadline - time.monotonic()
+        if left <= 0:
+            raise TimeoutError(f"подзадача не завершилась за {timeout:.0f} с; запущена: {scheduled}; кадры: {seen}")
+        frame = json.loads(await asyncio.wait_for(ws.recv(), left))
+        kind = frame.get("type")
+        seen.append(f"{kind}:{frame.get('role', '')}{':progress' if frame.get('is_progress') else ''}")
+        if kind == "error":
+            raise RuntimeError(f"кадр error: {frame}")
+        if kind != "chat" or frame.get("role") != "assistant" or frame.get("is_progress"):
+            continue
+        task_id = str(frame.get("task_id") or "")
+        if not task_id:
+            scheduled = scheduled or "Scheduled task" in str(frame.get("content", ""))
+        elif final_ids and task_id not in final_ids:
+            return seen, str(frame.get("content", ""))
+        else:
+            final_ids.append(task_id)
+
+
 def _is_refusal(exc: Exception) -> bool:
     """Отказ контура: 403 до accept или закрытие 1008; недоступный хост и таймаут — не отказ (P39)."""
     code = getattr(getattr(exc, "response", None), "status_code", None)
@@ -82,6 +116,15 @@ async def main(args: argparse.Namespace) -> int:
         return 1
 
     ws = await _connect(args)
+    if args.subtask:
+        try:
+            frames, reply = await _subtask_turn(ws, args.prompt, args.timeout)
+        finally:
+            await ws.close()
+        print(f"кадры: {' '.join(frames)}")
+        print(f"итог подзадачи ({len(reply)} знаков): {reply[: args.show]}")
+        print("OK подзадача запущена и дала итог" if reply.strip() else "FAIL итог подзадачи пуст")
+        return 0 if reply.strip() else 1
     try:
         reply, frames = await _turn(ws, args.prompt, args.timeout)
     finally:
@@ -108,6 +151,7 @@ def parse() -> argparse.Namespace:
     parser.add_argument("--timeout", type=float, default=240)
     parser.add_argument("--show", type=int, default=600, help="сколько знаков ответа печатать")
     parser.add_argument("--no-owner", action="store_true")
+    parser.add_argument("--subtask", action="store_true", help="ждать старт и итог подзадачи (schedule_task)")
     return parser.parse_args()
 
 

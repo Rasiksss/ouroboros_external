@@ -152,9 +152,11 @@ async def test_c2_4_a_notification_and_a_subtask_answer_are_not_the_final(
 async def test_c2_4_ouroboros_starts_a_subtask_while_its_root_still_works(
     stand: ContractStand, stub: StubModelAdmin
 ) -> None:
-    """C2.4 / P50 (ADR-0052): подзадача стартует, пока корень работает, — `aifa_wait` из корня возможен.
+    """C2.4 / P50 (ADR-0052): подзадача стартует, пока корень работает, — `aifa_wait` из корня
+    возможен.
 
-    Корень делает 50 кругов после `schedule_task`; запрос подзадачи уходит supervisor'у в конце вызова
+    Корень делает 50 кругов после `schedule_task`; запрос подзадачи уходит supervisor'у в конце
+    вызова
     (`ouroboros/tools/service/orchestration.py`), а не с результатом run, поэтому первый запрос
     подзадачи к модели приходит раньше последнего круга корня. До правки ядра он шёл после него
     (ADR-0046): тест был пломбой «подзадача стартует после корня» и инвертирован этим шагом.
