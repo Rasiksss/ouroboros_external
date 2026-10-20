@@ -16,9 +16,9 @@ from pydantic import BaseModel
 import finengine.contracts as contracts
 from finengine.config import settings
 from finengine.llm.budget import BudgetExceeded
-from finengine.skills.spec import sealed_room
-from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom, group_inputs, schema_problem
-from finengine.skills.spec.room_files import FileSpec, expected_files_problem, files_problem
+from finengine.skills.spec.atom_intake import check_code
+from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom, group_inputs
+from finengine.skills.spec.room_files import FileSpec
 from finengine.skills.spec.target import InputSpec
 from finengine.store.cases import evidence_id_of
 
@@ -83,15 +83,11 @@ class AtomAuthor:
                 error = reason = f"ответ не в формате {{code, example_inputs}}: {exc!r}"
                 _report_attempt(on_attempt, number, "bad_format", error, code)
                 continue
-            result = sealed_room.run_code(code, real_inputs or example, collect_files=True, trace_id=trace_id)
-            if result.station_fault:
-                _report_attempt(on_attempt, number, "station_fault", result.error, code)
-                return None, StationFault(result.error)
-            # Файлы из out/ проверяются тем же правилом, что и в узле графа: повреждённый файл — ошибка автора здесь.
-            error = reason = (
-                result.error or schema_problem(result.output, request.output_schema) or files_problem(result.files)
-                or expected_files_problem(result.files, expected_files)
-            )
+            verdict = check_code(request, code, real_inputs or example, expected_files=expected_files, trace_id=trace_id)
+            if verdict.station_fault:
+                _report_attempt(on_attempt, number, "station_fault", verdict.error, code)
+                return None, StationFault(verdict.error)
+            error = reason = verdict.error
             _report_attempt(on_attempt, number, "ok" if error is None else "error", error, code)
             if error is None:
                 return EphemeralAtom(request=request, code=code), None

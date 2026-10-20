@@ -39,7 +39,7 @@ from finengine.skills.atoms.web_search import PRODUCER_PREFIX as WEB_SEARCH_PROD
 from finengine.skills.atoms.web_search import describe_hits
 from finengine.skills.case_runtime import CaseRuntime, PlanInfeasible
 from finengine.skills.metric_schema import registry_for_passport
-from finengine.skills.result_events import author_attempt_event, dynamic_move_event, dynamic_plan_event
+from finengine.skills.result_events import dynamic_move_event, dynamic_plan_event
 from finengine.skills.spec.atom_author import (
     AtomAuthor,
     StationFault,
@@ -49,13 +49,20 @@ from finengine.skills.spec.atom_author import (
     without_markdown_fence,
 )
 from finengine.skills.spec.atom_catalog import NOT_PLANNABLE, catalog_text
+from finengine.skills.spec.atom_intake import (
+    AtomIntake,
+    Refused,
+    Registered,
+    StationDown,
+    inputs_missing,
+    refusal_code,
+)
 from finengine.skills.spec.atom_registry import AtomDef, AtomRegistry, NodeArgs
 from finengine.skills.spec.ephemeral import (
     DOWNLOAD_SCHEMA,
     STATION_FAULT_PREFIX,
     AtomRequest,
     EphemeralAtom,
-    check_request,
     to_atom_def,
 )
 from finengine.skills.spec.graph_executor import ExecutionResult, RunInputs
@@ -401,6 +408,8 @@ class LoopSession:
         self.plan: tuple[str, ...] = ()
         self.expected_files: tuple[FileSpec, ...] = ()
         self.build_attempts = 0
+        self._moving = False                 # ход исполняется сейчас: его номер — `next_number`
+        self.intake = AtomIntake(self, self._emit, partial(save_source, runtime.store, owner_id, case_id))
         self.initial_evidence_ids = self._evidence_ids()
         self.initial_file_ids = self._file_ids()
 
@@ -440,6 +449,30 @@ class LoopSession:
     @property
     def next_number(self) -> int:
         return self.turns + 1
+
+    @property
+    def last_started_move(self) -> int:
+        """Номер последнего начатого хода: исполняемого сейчас, иначе прошлого (до первого хода — первого)."""
+        return self.next_number if self._moving else max(self.turns, 1)
+
+    @property
+    def registry(self) -> AtomRegistry:
+        return self.runtime.registry
+
+    @property
+    def max_new_atoms(self) -> int:
+        return self.limits.max_new_atoms
+
+    @property
+    def trace_id(self) -> str:
+        return self.inputs.extra.get("trace_id", "")
+
+    def register_atom(self, request: AtomRequest, code: str) -> Registered | Refused | StationDown:
+        """Сдача атома с кодом подзадачей ouroboros (`aifa_register_atom`); проверка — та же, что у автора службы."""
+        return self.intake.submit(request, code, partial(self._real_inputs, request))
+
+    def _real_inputs(self, request: AtomRequest) -> dict | None:
+        return case_inputs(self.runtime.store, self.owner_id, self.case_id, request, atoms=self.atoms)
 
     def reject(self, reason: str, *, counted: bool = True, feedback: str | None = None) -> None:
         """Ответ не принят: ход потрачен, причина — в ленту и в «Итог прошлого хода». Молчание модели
@@ -487,7 +520,11 @@ class LoopSession:
         self.rejected = 0
         self._emit(self._move_event(number, "running", decision))
         before = self._artifact_count()
-        outcome = self._move(decision)
+        self._moving = True
+        try:
+            outcome = self._move(decision)
+        finally:
+            self._moving = False
         self._emit(self._move_event(
             number, "done", decision, outcome=outcome.headline, details=outcome.details,
         ))
@@ -626,10 +663,9 @@ class LoopSession:
             ],
         )
 
-    def _report_author_attempt(self, atom: str, number: int, status: str, error: str | None, code: str) -> None:
-        self._emit(author_attempt_event(
-            move=self.next_number, atom=atom, attempt=number, status=status, error=error, code=code,
-        ))
+    def _report_author_attempt(self, atom: str, _number: int, status: str, error: str | None, code: str) -> None:
+        """Попытка автора службы — в ленту хода; номер даёт общий счётчик приёмки, не цикл автора."""
+        self.intake.report(atom, status, error, code, move=self.next_number)
 
     def _move(self, decision: Decision) -> MoveOutcome:
         known = self._progress_ids()
@@ -748,7 +784,7 @@ class LoopSession:
                 f"атомы не созданы: {', '.join(atom_problems)}", problems, failed=True,
                 transient=any("комната станции недоступна" in problem for problem in atom_problems.values()),
                 uncreated_atoms=tuple(atom_problems),
-                refusal=next((code for code in map(_refusal_code, atom_problems.values()) if code), ""),
+                refusal=next((code for code in map(refusal_code, atom_problems.values()) if code), ""),
             )
         known = self._progress_ids()
         runtime = self.runtime.with_atoms([self._atom_def(atom) for atom in self.atoms.values()])
@@ -812,28 +848,20 @@ class LoopSession:
         known = self.atoms.get(request.name)
         if known and known.request == request and request.name not in self.failures:
             return None
-        if known is None and self.created >= self.limits.max_new_atoms:
-            return "исчерпан лимит новых атомов — используй существующие"
-        problems = check_request(request, self.runtime.registry)
-        if problems:
-            return "контракт отклонён: " + "; ".join(problems)
+        refused = self.intake.admission(request)
+        if refused is not None:
+            return refused.why
         if request.is_download:
             atom, error = EphemeralAtom(request=request), None
         else:
-            real = case_inputs(
-                self.runtime.store, self.owner_id, self.case_id, request, atoms=self.atoms,
-            )
+            real = self._real_inputs(request)
             if real is None:
-                needs = ", ".join(f"{spec.input_type}:{spec.concept or '*'}" for spec in request.requires)
-                return (
-                    f"входов атома {request.name} в Case ещё нет (нужны: {needs}) — получи их "
-                    "сценарием или шагом, а атом с кодом опиши следующим ходом"
-                )
+                return inputs_missing(request) + " — получи их сценарием или шагом, а атом с кодом опиши следующим ходом"
             observer: _AuthorExtras = (
                 {
                     "on_attempt": partial(self._report_author_attempt, request.name),
                     "expected_files": self.expected_files,
-                    "trace_id": self.inputs.extra.get("trace_id", ""),
+                    "trace_id": self.trace_id,
                 }
                 if isinstance(self.author, AtomAuthor) else {}
             )
@@ -846,11 +874,7 @@ class LoopSession:
             return f"комната станции недоступна, код не проверить: {error}"
         if atom is None:
             return f"автор не написал рабочий код за {self.author.attempts} попытки: {error}"
-        self.failures.pop(request.name, None)
-        if known is None:
-            self.created += 1
-        self.atoms[request.name] = atom
-        save_source(self.runtime.store, self.owner_id, self.case_id, atom)
+        self.intake.register(atom)
         return None
 
     def _files_as_deliverables(self, decision: Decision) -> Decision:
@@ -1112,7 +1136,7 @@ def decision_from_data(
     raw_atoms = data.get("new_atoms", [])
     if not isinstance(raw_atoms, list):
         raise ValueError("new_atoms должен быть списком")
-    new_atoms = tuple(_parse_atom_request(item, index) for index, item in enumerate(raw_atoms))
+    new_atoms = tuple(parse_atom_request(item, f"new_atoms[{index}]") for index, item in enumerate(raw_atoms))
     answer = str(data.get("answer") or "").strip()
     evidence_ids = _string_tuple(data.get("evidence_ids", []), "evidence_ids")
     deliverables = _string_tuple(data.get("deliverables", []), "deliverables")
@@ -1205,12 +1229,13 @@ def _input_concept(value) -> str | None:
     return None if text in ("", "*") else text
 
 
-def _parse_atom_request(item, index: int) -> AtomRequest:
+def parse_atom_request(item, where: str) -> AtomRequest:
+    """Контракт атома из объекта: `where` называет место в сообщении об ошибке (`new_atoms[0]`, `аргументы`)."""
     if not isinstance(item, dict):
-        raise ValueError(f"new_atoms[{index}] — не объект")
+        raise ValueError(f"{where} — не объект")
     requires_raw = item.get("requires", [])
     if not isinstance(requires_raw, list):
-        raise ValueError(f"new_atoms[{index}].requires — не список")
+        raise ValueError(f"{where}.requires — не список")
     try:
         requires = tuple(
             InputSpec(
@@ -1220,7 +1245,7 @@ def _parse_atom_request(item, index: int) -> AtomRequest:
             for spec in requires_raw
         )
     except (KeyError, TypeError, ValueError) as exc:
-        raise ValueError(f"new_atoms[{index}].requires невалиден: {exc}") from exc
+        raise ValueError(f"{where}.requires невалиден: {exc}") from exc
     url = str(item.get("url") or "").strip()
     schema = DOWNLOAD_SCHEMA if url else _usable_schema(item.get("output_schema"))
     return AtomRequest(
@@ -1555,17 +1580,6 @@ def _without_noise(value):
     if isinstance(value, list):
         return [_without_noise(item) for item in value]
     return value
-
-
-# Правило атома, из-за которого ход не исполнялся, — по тексту отказа; коды — закрытый список §3.0.
-_REFUSAL_MARKS = (
-    ("входов атома", "нет_входов"), ("лимит новых атомов", "лимит_атомов"),
-    ("только dyn:*", "не_dyn_тип"), ("без x-unit", "нет_единицы"), ("контракт отклонён", "неверные_аргументы"),
-)
-
-
-def _refusal_code(problem: str) -> str:
-    return next((code for mark, code in _REFUSAL_MARKS if mark in problem), "")
 
 
 def _outcome_text(outcome: MoveOutcome) -> str:
