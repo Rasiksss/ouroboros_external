@@ -17,6 +17,11 @@ CATALOG_DESCRIPTION_LIMIT = 260  # ouroboros/agent/context.py, _build_available_
 DEVELOPMENT_DOCS = ("CLAUDE.md", "AGENTS.md")
 
 
+def planning_text() -> str:
+    """SKILL.md и все справочники пакета: правила навыка читаются по всем его файлам."""
+    return "\n".join(path.read_text(encoding="utf-8") for path in sorted(PLANNING.rglob("*.md")))
+
+
 def manifest_of(skill: pathlib.Path):
     return parse_skill_manifest_text((skill / "SKILL.md").read_text(encoding="utf-8"))
 
@@ -73,11 +78,11 @@ def test_planning_names_both_tools_and_every_code_the_goal_can_answer_with() -> 
 
 
 def test_planning_has_no_instructions_for_tools_that_do_not_exist_yet() -> None:
-    """Ничего «на будущее»: цикл, автор и подзадачи приходят шагами 13–17 вместе со своими правилами."""
-    body = manifest_of(PLANNING).body
+    """Ничего «на будущее»: регистрация атома, отчёты и подзадачи приходят шагами 16–17 вместе со своими правилами."""
+    text = planning_text()
 
-    for word in ("aifa_move", "aifa_finish", "aifa_register_atom", "aifa_report", "НУЖЕН_ЦИКЛ"):
-        assert word not in body, word
+    for word in ("aifa_register_atom", "aifa_report", "schedule_task", "task_id", "Делегирование"):
+        assert word not in text, word
 
 
 def test_planning_forbids_counting_on_its_own_and_treats_tool_text_as_data() -> None:
