@@ -6,6 +6,7 @@
 """
 from __future__ import annotations
 
+import json
 from types import SimpleNamespace
 
 import pytest
@@ -97,6 +98,34 @@ def test_locate_asks_the_model_with_the_reasoning_level_from_its_setting(monkeyp
     ))
 
     assert seen == {"reasoning_effort": expected}
+
+
+@pytest.mark.parametrize(("configured", "expected"), [("minimal", "minimal"), ("", None)])
+def test_read_value_asks_the_model_with_the_reasoning_level_from_its_setting(monkeypatch, configured, expected):
+    """Без своей настройки `read.value` шёл с умолчанием `high`: 41 показатель ЛУКОЙЛа читался 6 мин (dev, 21.10.2026)."""
+    from finengine.skills import two_stage_extractor
+    from finengine.skills.atoms import read_value
+
+    seen: list = []
+
+    answer = {_KEY: {"values": {"2024": "500"}, "unit_text": "RUB"}}
+
+    async def fake_call_json_llm(**kwargs):
+        seen.append(kwargs.get("reasoning_effort"))
+        return answer, {}, json.dumps(answer)
+
+    monkeypatch.setattr(two_stage_extractor, "_call_json_llm", fake_call_json_llm)
+    monkeypatch.setattr(read_value.settings, "read_value_reasoning_effort", configured)
+    locator = CandidateLocator(
+        produced_by_atom="locate", produced_by_atom_version="1.0.0", document_id="d", document_version="v1",
+        concept=_KEY, locator=SourceLocator(page=1, text_fragment="x"), confidence=0.9, origin="model",
+    )
+
+    read_value.read_value_batch(
+        [_KEY], {_KEY: [locator]}, metrics=[_ROW], document_version="v1", period_current="2024", period_prev="2023",
+    )
+
+    assert seen and set(seen) == {expected}
 
 
 def test_a_json_call_passes_its_reasoning_level_to_the_model(monkeypatch):

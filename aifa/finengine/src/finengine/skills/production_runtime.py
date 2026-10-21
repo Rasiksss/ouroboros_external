@@ -440,6 +440,14 @@ _FULL_ANALYSIS_BUDGET = ExecutionBudget(max_wall_seconds=1800.0)
 # become runnable.  Keep the 300 s guard for a single metric, but let an
 # explicitly compound request survive one such transient stall.
 _COMPOUND_METRIC_BUDGET = ExecutionBudget(max_wall_seconds=600.0)
+
+
+def _with_wall_floor(budget: ExecutionBudget | None) -> ExecutionBudget | None:
+    """Бюджет вида цели, поднятый до `settings.graph_min_wall_seconds`; `None` — умолчание графа."""
+    current = budget or ExecutionBudget()
+    if current.max_wall_seconds >= settings.graph_min_wall_seconds:
+        return budget
+    return replace(current, max_wall_seconds=settings.graph_min_wall_seconds)
 _FORM_OUTPUT_TYPE = "FormOutput"
 # Код итоговой ошибки `CaseRuntime.execute`, когда корень графа не получил результата.
 _GRAPH_FAILED_CODE = "graph_execution_failed"
@@ -1064,6 +1072,7 @@ def execute_routed_goal(
         budget = _FULL_ANALYSIS_BUDGET
     elif deterministic and (len(goal.targets) > 1 or len(clauses) > 1):
         budget = _COMPOUND_METRIC_BUDGET
+    budget = _with_wall_floor(budget)
     context = prepare_production_context(
         owner_id=owner_id, case_id=case_id, document_id=document_id, document_text=document_text,
         goal_ir=goal, methodology_version=methodology_version, store=store,
