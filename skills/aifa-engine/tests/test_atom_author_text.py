@@ -205,3 +205,11 @@ def test_the_skill_does_not_promise_the_graph_will_give_the_code_the_same_object
     code = step(3)
     assert "в другой упаковке" in code and "читай ключи защитно" in code
     assert "`raise ValueError`" in code and "чего не хватило" in code
+
+
+def test_the_author_does_not_send_the_file_to_the_user_itself() -> None:
+    """Шаг 18, живой S1: `file_read` на файле отправляет его мимо службы, пользователь не получает ничего."""
+    body = text()
+
+    assert "отдавать файл пользователю не нужно и нельзя" in body
+    assert "`file_read` на таком файле отправляет его мимо службы" in body
