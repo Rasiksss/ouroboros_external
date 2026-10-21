@@ -209,3 +209,15 @@ def test_the_planner_rules_that_moved_into_the_skill_are_all_there() -> None:
         "при файле в `evidence_ids` достаточно нескольких ключевых показателей",
     ):
         assert rule.lower() in text.lower(), rule
+
+
+def test_a_file_built_in_the_sandbox_is_a_fallback_and_is_called_attached_only_when_accepted() -> None:
+    """ADR-0059: файл из песочницы (`file_read`) служба прикладывает, но листы и формулы в нём не проверены.
+
+    Шаг 18, живой S1: корень назвал файл приложенным, когда его никто не принял."""
+    assert "Файл из песочницы приложится без проверки" in guide()
+    assert "«приложен» — только файл из `ПРИНЯТО` или с ответом `file_read` «attachment accepted»" in guide()
+    rule = references()["new-atom.md"]
+    assert "Файл пользователю отдаёт служба — из `out/` принятого атома" in rule
+    assert "`code_exec`, затем `file_read`" in rule and "запасной путь" in rule
+    assert "Цикл исчерпан, а файла нет — так и скажи" in rule

@@ -71,5 +71,13 @@ def test_openai_style_sends_the_level_as_a_top_level_parameter(monkeypatch):
     assert body == {"reasoning_effort": "low"}
 
 
+def test_minimal_is_a_level_the_request_carries():
+    """GLM-5.3 в OpenRouter не даёт выключить размышления (400 «Reasoning is mandatory»); `minimal` —
+    наименьший принимаемый уровень, у извлечения 0 токенов размышлений (dev, 21.10.2026)."""
+    body = _extra_body(settings.openrouter_model, reasoning_effort="minimal")
+
+    assert body["reasoning"]["effort"] == "minimal"
+
+
 def test_openrouter_style_stays_the_default():
     assert settings.reasoning_style == "openrouter"

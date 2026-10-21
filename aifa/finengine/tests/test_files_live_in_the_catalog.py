@@ -52,6 +52,13 @@ def upload_document(client, name="отчёт.pdf", blob=MIN_PDF, defer="1"):
     )
 
 
+def catalog_upload(client, name, blob):
+    """Файл, который положил в каталог сам ouroboros (вложение агента): служба его не загружала."""
+    from finengine.assistant.ouro_files import catalog as catalog_client
+
+    return catalog_client().upload(str(OWNER), name, blob).file_id
+
+
 def upload_source(client, name="план.csv", blob=b"a;b\n1;2\n"):
     return client.post("/projects/p1/sources/upload", files={"file": (name, blob, "text/csv")})
 
@@ -251,6 +258,23 @@ class TestSources:
         assert result_events.source_file_id(location) == meta.file_id
         got = client.get(f"/projects/p1/sources/{meta.file_id}/file")
         assert got.status_code == 200 and got.content == OOXML
+
+    def test_a_file_the_agent_sent_becomes_a_source_without_a_second_upload(self, client, catalog):
+        """Dev, 21.10.2026: агент собрал xlsx в песочнице и отправил `file_read`; файл уже в каталоге, служба
+        только заводит карточку, по которой его отдаёт `/sources/{id}/file`."""
+        stored = catalog_upload(client, "итоги.xlsx", OOXML)
+        uploads = len([r for r in catalog.requests if r[0] == "POST"])
+
+        meta = sources.adopt_catalog_file(OWNER, "p1", stored, "итоги.xlsx", "", len(OOXML))
+
+        assert len([r for r in catalog.requests if r[0] == "POST"]) == uploads, "второй загрузки нет"
+        assert meta.catalog_file_id == stored
+        got = client.get(f"/projects/p1/sources/{meta.file_id}/file")
+        assert got.status_code == 200 and got.content == OOXML
+
+    def test_an_executable_the_agent_sent_is_not_adopted(self, client, catalog):
+        with pytest.raises(ValueError, match="executables"):
+            sources.adopt_catalog_file(OWNER, "p1", "f1", "setup.exe", "", 1)
 
     def test_a_source_of_another_project_or_user_is_not_served(self, client, catalog):
         card = upload_source(client).json()

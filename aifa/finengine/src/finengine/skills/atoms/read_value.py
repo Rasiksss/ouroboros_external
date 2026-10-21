@@ -237,6 +237,7 @@ def read_value_batch(
                     debug_dir=None,
                     prompt_name=f"read_value_batch_{batch_no:03d}_attempt_{attempt:02d}_prompt",
                     response_name=f"read_value_batch_{batch_no:03d}_attempt_{attempt:02d}_response.json",
+                    reasoning_effort=settings.read_value_reasoning_effort or None,
                 )
             except Exception as exc:  # noqa: BLE001 — локальный retry модельной границы шарда.
                 last_error = f"llm_error: {type(exc).__name__}: {exc}"

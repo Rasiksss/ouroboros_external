@@ -156,10 +156,33 @@ async def test_a_document_without_text_is_a_refusal_not_an_empty_answer(
 ) -> None:
     set_intent(monkeypatch, REVENUE)
     monkeypatch.setattr("finengine.store.blobs.document_text", lambda doc_id, **_: None)
+    monkeypatch.setattr(standard_path, "TEXT_WAIT_SEC", 0.05)
+    monkeypatch.setattr(standard_path, "TEXT_POLL_SEC", 0.01)
 
     result = await StandardPath()(record_of(), lambda event: None)
 
     assert result.verdict is Verdict.NO_DOCUMENT
+
+
+async def test_the_goal_waits_for_the_text_of_a_report_parsed_with_the_turn(
+    monkeypatch: pytest.MonkeyPatch, severstal_text: str,  # noqa: F811 — фикстура из conftest
+) -> None:
+    """Скан распознаётся фоном с отправки хода (`defer_parse`): текст ложится позже вызова `aifa_goal`."""
+    set_intent(monkeypatch, REVENUE)
+    with_revenue(monkeypatch)
+    polls: list[str] = []
+
+    def text_after_ocr(doc_id: str, **_: Any) -> str | None:
+        polls.append(doc_id)
+        return severstal_text if len(polls) > 2 else None
+
+    monkeypatch.setattr("finengine.store.blobs.document_text", text_after_ocr)
+    monkeypatch.setattr(standard_path, "TEXT_POLL_SEC", 0.01)
+
+    result = await StandardPath()(record_of(), lambda event: None)
+
+    assert result.verdict is Verdict.ANSWERED
+    assert set(metric_values(result.rows)) == {987_654.0}
 
 
 async def test_a_metric_missing_from_the_report_is_a_result_not_a_cycle(

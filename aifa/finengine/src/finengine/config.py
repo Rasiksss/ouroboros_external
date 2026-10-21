@@ -342,6 +342,15 @@ class Settings(BaseSettings):
     locate_reasoning_effort: str = Field(
         "", alias="FINENGINE_LOCATE_REASONING_EFFORT", validation_alias="FINENGINE_LOCATE_REASONING_EFFORT",
     )
+    # То же для `read.value` (minimal | low | medium | high). Пусто — умолчание `llm.openrouter` (`high`).
+    read_value_reasoning_effort: str = Field(
+        "", alias="FINENGINE_READ_VALUE_REASONING_EFFORT", validation_alias="FINENGINE_READ_VALUE_REASONING_EFFORT",
+    )
+    # Нижний предел времени графа стандартного пути, с. 0 — бюджеты вида цели как есть (`production_runtime`);
+    # длинные бюджеты (полный анализ) предел не укорачивает.
+    graph_min_wall_seconds: float = Field(
+        0.0, alias="FINENGINE_GRAPH_MIN_WALL_SECONDS", validation_alias="FINENGINE_GRAPH_MIN_WALL_SECONDS",
+    )
     # Атом `web.search` цикла гибридного планировщика: сколько находок просить у поисковика и сколько
     # знаков фрагмента хранить в артефакте.
     web_search_max_results: int = Field(

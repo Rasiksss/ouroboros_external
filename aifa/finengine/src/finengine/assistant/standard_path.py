@@ -33,6 +33,10 @@ from finengine.store.cases import CasePersistenceError, get_case_store
 log = logging.getLogger(__name__)
 
 PARTIAL_STATUSES = frozenset({"partial", "missing", "conflicting", "failed"})
+# Документ хода распознаётся фоном с отправки сообщения (`defer_parse`), скан — секунды на страницу.
+# Срок — как у прежнего чата (`llm/tools._fe_doc_text_wait`); дольше держит задание `aifa_goal` (`ЖДИ`).
+TEXT_WAIT_SEC = 240.0
+TEXT_POLL_SEC = 1.0
 
 
 @dataclass(frozen=True)
@@ -58,7 +62,7 @@ class StandardPath:
         gate_doc = _gate_document(record)
         if not gate_doc:
             return self._without_scope(record, emit)
-        text = await asyncio.to_thread(_document_text, gate_doc)
+        text = await _document_text(gate_doc)
         if not text:
             return GoalResult(
                 Verdict.NO_DOCUMENT,
@@ -168,10 +172,10 @@ def _gate_document(record: TurnRecord) -> str:
     return record.active_doc_id if record.active_doc_id in record.doc_ids else ""
 
 
-def _document_text(doc_id: str) -> str:
-    from finengine.store.blobs import document_text  # noqa: PLC0415 — тяжёлый слой хранилища
+async def _document_text(doc_id: str) -> str:
+    from finengine.store.blobs import document_text_when_ready  # noqa: PLC0415 — тяжёлый слой хранилища
 
-    return document_text(doc_id) or ""
+    return await document_text_when_ready(doc_id, timeout_s=TEXT_WAIT_SEC, poll_s=TEXT_POLL_SEC) or ""
 
 
 def _ingress_context(record: TurnRecord) -> IngressContext:

@@ -492,6 +492,37 @@ def test_full_analysis_gets_a_longer_execution_budget_than_a_single_metric(monke
     assert budgets["extract"] is None, "для одного показателя бюджет остаётся прежним (по умолчанию)"
 
 
+def test_the_graph_budget_floor_from_settings_lifts_short_budgets_only(monkeypatch):
+    """Dev, 21.10.2026: «извлеки показатели» по ЛУКОЙЛу — 41 показатель, locate + read.value ~9 мин при
+    бюджете 300 с; владелец поднял бюджет графа до 15 мин настройкой, а не правкой кода."""
+    from finengine.config import settings
+
+    monkeypatch.setattr(settings, "graph_min_wall_seconds", 900.0)
+    budgets: dict[str, object] = {}
+
+    def _capture(kind: str):
+        def _prepare(**kwargs):
+            budgets[kind] = kwargs.get("budget")
+            raise RuntimeError("остановка после захвата бюджета")
+        return _prepare
+
+    for kind, payload in (
+        ("full_analysis", {"intent_kind": "full_analysis", "targets": []}),
+        ("extract", {"intent_kind": "extract_registered_metric", "targets": [{"concept": "SALES_REVENUE"}]}),
+    ):
+        _intent(monkeypatch, {
+            **payload, "entity_ref": None, "period_ref": "p-2024-fy", "role": "other",
+            "unresolved": [], "ambiguities": [],
+        })
+        monkeypatch.setattr("finengine.skills.production_runtime.prepare_production_context", _capture(kind))
+        turn = _Turn()
+        turn.arm(monkeypatch)
+        turn.run("сделай анализ за 2024 год" if kind == "full_analysis" else "какая выручка за 2024 год?")
+
+    assert budgets["extract"].max_wall_seconds == 900.0
+    assert budgets["full_analysis"].max_wall_seconds == 1800.0, "длинный бюджет нижний предел не укорачивает"
+
+
 def test_registered_kind_with_only_an_unresolved_phrase_is_a_typed_clarification_not_a_bypass(monkeypatch):
     """Срез 30: real-model smoke дал для «покажи <термин вне реестра>» вид
     `extract_registered_metric` + пустые targets + фраза в `unresolved` — раньше

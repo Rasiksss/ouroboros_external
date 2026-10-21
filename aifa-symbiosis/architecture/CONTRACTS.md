@@ -70,7 +70,7 @@
 | `chat`, `assistant`, `is_progress: true` | прогресс («💬 …», «⏱️ …») | служебное событие в журнал; на экран не идёт (строка «размышляю» снята, ADR-0015) |
 | `chat`, `assistant`, `is_progress: false`, `task_id == корень` | **финальный ответ** (ADR-0021) | `text_delta` (весь текст) + `text_segment_end`; `done` (сверки с каноническим текстом нет, ADR-0040) |
 | `chat`, `assistant`, `is_progress: false`, `task_id` подзадачи хода, `transport.source_message_id == run_id` | итог подзадачи (текст «⚠️ Error during processing…» — итог «подзадача упала») | служебное событие в журнал; завершает `aifa_wait(task_id)` (ADR-0041 п. 3, ADR-0043 п. 3); кадры с чужим `source_message_id` (другой ход того же чата) не учитываются |
-| `chat`, `assistant`, `is_progress: false`, пустой `task_id` | уведомление | служебное событие в журнал |
+| `chat`, `assistant`, `is_progress: false`, пустой `task_id` | уведомление | служебное событие в журнал; вложения (`attachments`, `ready`) этого кадра и финала — файл, отправленный агентом: карточка источника проекта на файл каталога и событие экрана `file` (ADR-0059) |
 | `typing` | действие | игнор |
 | `heartbeat` | биение | продлевает срок соединения |
 | `error` (`code`) | отказ транспорта | `message_too_long` и т. п. → `error` хода с понятным текстом |

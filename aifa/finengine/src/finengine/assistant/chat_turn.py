@@ -6,15 +6,20 @@
 
 from __future__ import annotations
 
+import asyncio
+import logging
 import time
 from collections.abc import AsyncGenerator
 from dataclasses import dataclass
+from pathlib import PurePath
 
-from finengine.assistant.events import Event
+from finengine.assistant.events import SERVICE_EVENT, Event
 from finengine.assistant.session_turns import RootRecorder
 from finengine.assistant.turn_gateway import TurnGateway, TurnRequest
 
 ARCH = "ouroboros"
+
+log = logging.getLogger(__name__)
 
 
 def chat_of(project_id: str | None, session_id: str) -> str:
@@ -56,8 +61,27 @@ class OuroTurn:
                 elif event.get("type") == "error":
                     failure = str(event.get("message") or event.get("error") or "")
                 yield event
+                if event.get("type") == SERVICE_EVENT and event.get("kind") == "attachment":
+                    button = await self._file_button(event)
+                    if button is not None:
+                        yield button
         finally:
             self._audit("".join(answer), failure, started_at)
+
+    async def _file_button(self, attachment: Event) -> Event | None:
+        """Файл, отправленный агентом, — кнопка скачивания проекта, как у файла конвейера (ADR-0059)."""
+        from finengine.skills import sources  # noqa: PLC0415 — тяжёлый слой хранилища
+
+        filename = str(attachment["filename"])
+        try:
+            meta = await asyncio.to_thread(
+                sources.adopt_catalog_file, self.user_id, self.project_id, str(attachment["catalog_file_id"]),
+                filename, str(attachment["mime"]), int(attachment["size"]),
+            )
+        except Exception:  # noqa: BLE001 — файл не стал кнопкой, ход продолжается
+            log.warning("ход %s: вложение агента «%s» не стало кнопкой", self.run["run_id"][:8], filename, exc_info=True)
+            return None
+        return {"type": "file", "file_id": meta.file_id, "filename": meta.filename, "kind": PurePath(filename).suffix.lstrip(".").lower()}
 
     def _audit(self, response: str, failure: str, started_at: float) -> None:
         from finengine.skills.run_logger import log_chat_turn  # noqa: PLC0415 — тяжёлый слой журналов

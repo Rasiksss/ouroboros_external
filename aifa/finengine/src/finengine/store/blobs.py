@@ -418,7 +418,7 @@ async def document_text_when_ready(
 
     начало = _time.monotonic()
     while True:
-        текст = document_text(doc_id, limit)
+        текст = document_text(doc_id, limit=limit)
         if текст is not None:
             return текст
         прошло = _time.monotonic() - начало

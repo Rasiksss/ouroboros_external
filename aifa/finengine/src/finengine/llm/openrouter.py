@@ -130,9 +130,10 @@ def _extra_body(
     out: dict = {}
     if _is_reasoning_model(model):
         # Resolution: per-call kwarg > per-request contextvar > module default.
-        # Allowed values per OpenRouter: "low" | "medium" | "high".
+        # Allowed values per OpenRouter: "minimal" | "low" | "medium" | "high". `none` GLM-5.3 отклоняет
+        # (400 «Reasoning is mandatory»), `minimal` — наименьший принимаемый (dev, 21.10.2026).
         eff = (reasoning_effort or _REASONING_CTX.get() or _REASONING_EFFORT).lower()
-        if eff not in ("low", "medium", "high"):
+        if eff not in ("minimal", "low", "medium", "high"):
             eff = _REASONING_EFFORT
         if settings.reasoning_style == "openai":
             out["reasoning_effort"] = eff

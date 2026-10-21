@@ -90,3 +90,8 @@
 | [0052](0052-zapros-podzadachi-uhodit-srazu.md) | Запрос подзадачи уходит supervisor'у в конце вызова `schedule_task` (правка ядра, ADR-0046 вариант B) | принято (владелец, 21.10.2026) |
 | [0053](0053-snimok-skhem-shaga-16-i-utochneniya-instrumentov-podzadach.md) | Снимок схем шага 16 и уточнения инструментов подзадач | принято (владелец, 21.10.2026) |
 | [0054](0054-avtor-atomov-stanovitsya-navykom.md) | Автор атомов с кодом — навык подзадачи `aifa-atom-author`; автор службы, его модель и атом с кодом в `new_atoms` удаляются | предложено (шаг 17) |
+| [0055](0055-dev-holy-deepseek.md) | Все активные LLM-роли dev — Holy API и deepseek-v4.1-flash | живое окружение заменено ADR-0056 (21.10.2026) |
+| [0056](0056-dev-openrouter-infproxy.md) | Живой dev — OpenRouter через существующий infproxy, deepseek/deepseek-v4-flash | маршрут принят владельцем, модель выбрана исполнителем для прогона (21.10.2026) |
+| [0057](0057-dev-glm53-openrouter.md) | Живой dev — GLM-5.3 через OpenRouter; разрешённое расширение allowlist infproxy | принято (владелец, 21.10.2026); модель извлечения заменена ADR-0058 |
+| [0058](0058-dev-modeli-po-rolyam.md) | Живой dev: GLM-5.3 на всех ролях, извлечение с размышлениями `minimal`, нижний предел бюджета графа 900 с | принято (владелец, 21.10.2026) |
+| [0059](0059-fayl-agenta-dohodit-do-ekrana.md) | Файл, отправленный агентом (`file_read`), служба отдаёт экрану событием `file` | принято (владелец, 21.10.2026) |

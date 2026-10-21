@@ -34,11 +34,13 @@ LOOPBACK = ("127.0.0.1:", "[::1]:")
 # ouroboros — только /ready (ADR-0028); фронтенд — вход пользователей по SSH-туннелю (шаг 12):
 # оба строго на loopback, остальным сервисам порты запрещены.
 PUBLISHING_SERVICES = frozenset({"ouroboros", "frontend"})
-# ADR-0050: модели службы — как у старого AIFA на dev (сверено 19.10.2026), напрямую в Cloud.ru.
+# ADR-0055: один endpoint и одна модель для всех активных ролей dev.
 SERVICE_MODELS = {
-    "FINENGINE_OPENROUTER_MODEL": "deepseek-ai/DeepSeek-V4-Pro",
-    "FINENGINE_NEWS_CLASSIFY_MODEL": "deepseek-ai/DeepSeek-V4-Pro",
-    "FINENGINE_PLANNER_MODEL": "zai-org/GLM-5.2",
+    "FINENGINE_OPENROUTER_MODEL": "deepseek-v4.1-flash",
+    "FINENGINE_NEWS_CLASSIFY_MODEL": "deepseek-v4.1-flash",
+    "FINENGINE_PLANNER_MODEL": "deepseek-v4.1-flash",
+    "FINENGINE_LOCATE_MODEL": "deepseek-v4.1-flash",
+    "FINENGINE_READ_VALUE_MODEL": "deepseek-v4.1-flash",
     "FINENGINE_PLANNER_REASONING_EFFORT": "medium",
 }
 MIN_S3_VOLUMES = 30  # две корзины (`ouroboros`, `finengine`) по семь томов роста, с запасом
@@ -110,6 +112,33 @@ def secret_violations(name: str, env: Mapping[str, str]) -> list[str]:
     return problems
 
 
+def test_dev_uses_holy_flash_for_every_active_llm_role() -> None:
+    ouro = parse_env(DEV_DIR / "ouroboros.env.example")
+    engine = parse_env(DEV_DIR / "engine.env.example")
+    assert ouro["CLOUDRU_FOUNDATION_MODELS_BASE_URL"] == "https://api.holyapi.workers.dev/v1"
+    assert engine["FINENGINE_OPENROUTER_BASE_URL"] == ouro["CLOUDRU_FOUNDATION_MODELS_BASE_URL"]
+    for key in ("OUROBOROS_MODEL", "OUROBOROS_MODEL_LIGHT", "OUROBOROS_MODEL_FALLBACK"):
+        assert ouro[key] == "cloudru::deepseek-v4.1-flash"
+    for key in (
+        "FINENGINE_OPENROUTER_MODEL",
+        "FINENGINE_PLANNER_MODEL",
+        "FINENGINE_LOCATE_MODEL",
+        "FINENGINE_READ_VALUE_MODEL",
+        "FINENGINE_NEWS_CLASSIFY_MODEL",
+    ):
+        assert engine[key] == "deepseek-v4.1-flash"
+
+
+def test_f9_catches_a_service_using_another_llm_endpoint(tmp_path: Path) -> None:
+    dev = _copy_dev(tmp_path)
+    _edit(
+        dev / "engine.env.example", "https://api.holyapi.workers.dev/v1", "https://example.org/v1"
+    )
+    assert any(
+        "FINENGINE_OPENROUTER_BASE_URL" in p for p in dev_config_violations(dev, load_snapshot())
+    )
+
+
 def env_violations(
     ouro: Mapping[str, str], engine: Mapping[str, str], snapshot: Mapping[str, Any]
 ) -> list[str]:
@@ -136,10 +165,14 @@ def env_violations(
             if key not in env
         )
     problems.extend(
-        f"F9 (ADR-0050): {key}={engine.get(key)!r} в примере, у старого AIFA {expected!r}"
+        f"F9 (ADR-0055): {key}={engine.get(key)!r} в примере, ожидалось {expected!r}"
         for key, expected in SERVICE_MODELS.items()
         if engine.get(key) != expected
     )
+    if engine.get("FINENGINE_OPENROUTER_BASE_URL") != ouro.get(
+        "CLOUDRU_FOUNDATION_MODELS_BASE_URL"
+    ):
+        problems.append("F9 (ADR-0055): FINENGINE_OPENROUTER_BASE_URL не равен endpoint ouroboros")
     if int(ouro.get("OUROBOROS_WORKER_SLOTS", "0") or 0) < 2:
         problems.append(
             "F9 (ADR-0008, ADR-0027): OUROBOROS_WORKER_SLOTS < 2 — автору не хватит слота"
@@ -489,15 +522,15 @@ def test_f9_catches_an_s3_left_with_the_disk_derived_volume_limit(tmp_path: Path
     assert any("-volume.max" in p for p in problems)
 
 
-def test_f9_catches_a_service_model_drifting_from_the_old_aifa(tmp_path: Path) -> None:
-    """F9: нарушитель — модель службы расходится со старым AIFA (ADR-0050): нет модели новостей."""
+def test_f9_catches_a_service_model_drifting_from_the_dev_decision(tmp_path: Path) -> None:
+    """F9: модель новостей должна следовать решению владельца ADR-0055."""
     dev = _copy_dev(tmp_path)
     path = dev / "engine.env.example"
     lines = path.read_text(encoding="utf-8").splitlines()
     kept = [ln for ln in lines if not ln.startswith("FINENGINE_NEWS_CLASSIFY_MODEL=")]
     path.write_text("\n".join(kept) + "\n", encoding="utf-8")
     problems = dev_config_violations(dev, load_snapshot())
-    assert any("ADR-0050" in p and "FINENGINE_NEWS_CLASSIFY_MODEL" in p for p in problems)
+    assert any("ADR-0055" in p and "FINENGINE_NEWS_CLASSIFY_MODEL" in p for p in problems)
 
 
 def test_f9_catches_a_port_on_the_workstation(tmp_path: Path) -> None:
