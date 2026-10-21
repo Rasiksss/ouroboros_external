@@ -399,12 +399,21 @@ def test_f9_catches_a_planning_skill_the_owner_cannot_read(tmp_path: Path) -> No
     assert any("OUROBOROS_USER_ENABLED_SKILL_IDS" in p and "aifa-planning" in p for p in problems)
 
 
+def test_f9_catches_an_atom_author_skill_the_subtask_cannot_read(tmp_path: Path) -> None:
+    """F9: нарушитель — `aifa-atom-author` не допущен владельцам (ADR-0036, ADR-0041 п. 5): навык-инструкция без
+    допуска не виден подзадаче, `skill_read` отвечает отказом, и код атома некому писать."""
+    dev = _copy_dev(tmp_path)
+    _edit(dev / "ouroboros.env.example", ",distribution:aifa-atom-author", "")
+    problems = dev_config_violations(dev, load_snapshot())
+    assert any("OUROBOROS_USER_ENABLED_SKILL_IDS" in p and "aifa-atom-author" in p for p in problems)
+
+
 def test_f9_catches_an_engine_extension_the_owner_cannot_call(tmp_path: Path) -> None:
     """F9: нарушитель — `aifa-engine` не допущен владельцам: доверенный список ADR-0038 делает его
     видимым
     ядру, но задача без допуска получает `TOOL_UNAVAILABLE` на каждый вызов `aifa_goal`."""
     dev = _copy_dev(tmp_path)
-    _edit(dev / "ouroboros.env.example", ",distribution:aifa-engine\n", "\n")
+    _edit(dev / "ouroboros.env.example", ",distribution:aifa-engine,", ",")
     problems = dev_config_violations(dev, load_snapshot())
     assert any("OUROBOROS_USER_ENABLED_SKILL_IDS" in p and "aifa-engine" in p for p in problems)
 

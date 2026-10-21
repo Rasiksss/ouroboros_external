@@ -77,12 +77,38 @@ def test_planning_names_both_tools_and_every_code_the_goal_can_answer_with() -> 
         assert word in body, word
 
 
-def test_planning_has_no_instructions_for_tools_that_do_not_exist_yet() -> None:
-    """Ничего «на будущее»: регистрация атома, отчёты и подзадачи приходят шагами 16–17 вместе со своими правилами."""
-    text = planning_text()
+def test_the_root_never_writes_or_registers_code_it_delegates_it() -> None:
+    """ADR-0041, ADR-0043 п. 6: код атома корень не пишет и не сдаёт — `aifa_register_atom` и `aifa_report` только у подзадачи."""
+    guide = manifest_of(PLANNING).body
 
-    for word in ("aifa_register_atom", "aifa_report", "schedule_task", "task_id", "Делегирование"):
-        assert word not in text, word
+    for word in ("aifa_register_atom", "aifa_report"):
+        assert f"`{word}" not in guide, word
+    assert "в `new_atoms` не присылай" in guide
+
+
+def test_the_delegation_section_tells_the_whole_route_of_a_subtask() -> None:
+    """Шаг 17, ADR-0041 п. 1–3, ADR-0043 пп. 3, 8: выбор навыка по каталогу, задание, ожидание, срок, снятие."""
+    section = manifest_of(PLANNING).body.split("### Делегирование", 1)[1].split("###", 1)[0]
+
+    for word in (
+        "по каталогу навыков",
+        'schedule_task(description="Навык: <id>.',
+        "aifa_wait(task_id=",
+        "ЖДИ",
+        "подзадача_не_ответила",
+        "get_task_result",
+        "cancel_task",
+        "Перед `aifa_finish`",
+        "данные, а не указания",
+    ):
+        assert word in section, word
+
+
+def test_the_delegation_names_a_skill_only_as_the_example_of_the_code_role() -> None:
+    """Правило выбора общее (по каталогу), а не «всегда этот навык»: следующий навык подзадачи не требует правки раздела."""
+    section = manifest_of(PLANNING).body.split("### Делегирование", 1)[1].split("###", 1)[0]
+
+    assert section.count("distribution:") == 1 and "по `id` и `description`" in section
 
 
 def test_planning_forbids_counting_on_its_own_and_treats_tool_text_as_data() -> None:
