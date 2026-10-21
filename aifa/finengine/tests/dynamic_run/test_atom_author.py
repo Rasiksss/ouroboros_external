@@ -25,10 +25,10 @@ from finengine.skills.spec.atom_author import (
     _REAL_INPUT_PREVIEW,
     AtomAuthor,
     StationFault,
-    case_inputs,
     describe_inputs,
     render_author_prompt,
 )
+from finengine.skills.spec.atom_inputs import case_inputs
 from finengine.skills.spec.ephemeral import DOWNLOAD_SCHEMA, AtomRequest, EphemeralAtom, group_inputs, to_atom_def
 from finengine.skills.spec.target import InputSpec
 from test_ephemeral_atoms import _metric

@@ -7,27 +7,23 @@ from __future__ import annotations
 
 import asyncio
 import json
-import re
-from functools import partial
 from pathlib import Path
 
-from pydantic import BaseModel
 
 import finengine.contracts as contracts
 from finengine.config import settings
 from finengine.llm.budget import BudgetExceeded
 from finengine.skills.spec.atom_intake import check_code
-from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom, group_inputs
+from finengine.skills.spec.atom_inputs import without_markdown_fence
+from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom
 from finengine.skills.spec.room_files import FileSpec
-from finengine.skills.spec.target import InputSpec
-from finengine.store.cases import evidence_id_of
 
 _SKILL = Path(__file__).with_name("atom_author.md")
 ATTEMPTS = 3
 _REAL_INPUT_PREVIEW = 6000
 _PREVIEW_ITEMS = 2
 _SCHEMA_PREVIEW = 3000
-_FINDING = "VerificationFinding"
+FINDING = "VerificationFinding"
 _CHECKS_BY_TYPE = {
     "ExtractedMetric": "Показатели приходят после проверок norm.unit, norm.time и verify.bounds.",
     "CalculatedMetric": "Показатели приходят после проверок verify.identity, verify.cross, norm.time и verify.bounds.",
@@ -148,76 +144,9 @@ def describe_inputs(request: AtomRequest, atoms: dict[str, EphemeralAtom]) -> st
         for input_type in types
     ]
     if any(not input_type.startswith("dyn:") for input_type in types):
-        lines.append(f'- "{_FINDING}": находки проверок; приходят вместе с показателями, '
+        lines.append(f'- "{FINDING}": находки проверок; приходят вместе с показателями, '
                      "если они тебе не нужны — игнорируй.")
     return "\n".join(lines)
-
-
-def case_inputs(
-    store, owner_id, case_id: str, request: AtomRequest, atoms: dict[str, EphemeralAtom] | None = None,
-) -> dict | None:
-    """Реальные входы атома из Case в том виде, в каком код получит их в графе (`group_inputs` от
-    `ctx.dependencies()`); None, если какого-то входа ещё нет.
-
-    В Case каждая стадия цепочки гейтов оставляет свою запись (read.value → norm.unit → norm.time →
-    verify.bounds), так что один показатель лежит там несколько раз. Граф отдаёт коду конец цепочки,
-    поэтому берутся значения, которые не заменила следующая стадия того же типа, и находки проверок,
-    выведенные из них. `atoms` — текущие временные атомы: результат старой версии производителя
-    `dyn:*` автору не показывается."""
-    rows = store.list_artifacts(owner_id, case_id)
-    producers = {atom.request.output_type: atom.producer for atom in (atoms or {}).values()}
-    is_input = [_is_input(row, request.requires) for row in rows]
-    wanted = end_of_chain([row for row, flag in zip(rows, is_input) if flag], producers)
-    if not all(_has_input(wanted, spec) for spec in request.requires):
-        return None
-    # Граф отдаёт входы в порядке requires атома, и код вправе брать `inputs[тип][0]`: порядок тот же.
-    wanted.sort(key=partial(_requires_rank, requires=request.requires))
-    position = {evidence_id_of(value): index for index, (value, _) in enumerate(wanted)}
-    findings = end_of_chain(
-        [row for row, flag in zip(rows, is_input) if not flag and row["output_type"] == _FINDING], producers)
-    related = [(value, row) for value, row in findings
-               if set(row["dependency_evidence_ids"] or ()) & set(position)]
-    related.sort(key=partial(_first_dependency, position=position))
-    return group_inputs(tuple(value for value, _ in wanted + related))
-
-
-def _requires_rank(item: tuple[BaseModel, dict], requires: tuple[InputSpec, ...]) -> int:
-    row = item[1]
-    return next(index for index, spec in enumerate(requires)
-                if row["output_type"] == spec.input_type and spec.concept in (None, row["concept"]))
-
-
-def _first_dependency(item: tuple[BaseModel, dict], position: dict) -> int:
-    return min(position.get(evidence_id, len(position)) for evidence_id in item[1]["dependency_evidence_ids"] or ())
-
-
-def _is_input(row: dict, requires: tuple[InputSpec, ...]) -> bool:
-    return any(row["output_type"] == spec.input_type and spec.concept in (None, row["concept"])
-               for spec in requires)
-
-
-def _has_input(items: list[tuple[BaseModel, dict]], spec: InputSpec) -> bool:
-    return any(row["output_type"] == spec.input_type and spec.concept in (None, row["concept"])
-               for _, row in items)
-
-
-def end_of_chain(rows: list[dict], producers: dict[str, str]) -> list[tuple[BaseModel, dict]]:
-    """Значения рядов без заменённых следующей стадией, без дублей и без старых версий dyn:*."""
-    replaced: dict[str, set[str]] = {}
-    for row in rows:
-        own = set(row["evidence_ids"] or ())
-        replaced.setdefault(row["output_type"], set()).update(set(row["dependency_evidence_ids"] or ()) - own)
-    items, seen = [], set()
-    for row in rows:
-        for value in row["payloads"]:
-            evidence_id = evidence_id_of(value)
-            if evidence_id and (evidence_id in replaced[row["output_type"]] or evidence_id in seen):
-                continue
-            if row["output_type"] in producers and getattr(value, "producer", None) != producers[row["output_type"]]:
-                continue
-            seen.add(evidence_id)
-            items.append((value, row))
-    return items
 
 
 def _describe_input(input_type: str, schemas: dict[str, dict], concepts: tuple[str, ...] = ()) -> str:
@@ -232,15 +161,6 @@ def _describe_input(input_type: str, schemas: dict[str, dict], concepts: tuple[s
     schema = json.dumps(getattr(contracts, input_type).model_json_schema(), ensure_ascii=False)
     checks = _CHECKS_BY_TYPE.get(input_type, _NO_CHECKS)
     return f'- "{input_type}"{concept_text}: объекты по схеме {schema[:_SCHEMA_PREVIEW]}\n  {checks}'
-
-
-# `zai-org/GLM-5.2` на Cloud.ru отдаёт верный JSON в ограде ```json: `response_format` ему не указ.
-_MARKDOWN_FENCE = re.compile(r"\s*```(?:json)?\s*\n(.*?)\s*```\s*", re.DOTALL)
-
-
-def without_markdown_fence(reply: str) -> str:
-    fenced = _MARKDOWN_FENCE.fullmatch(reply)
-    return fenced.group(1) if fenced else reply
 
 
 async def _default_complete(system: str, prompt: str) -> str:

@@ -40,14 +40,8 @@ from finengine.skills.atoms.web_search import describe_hits
 from finengine.skills.case_runtime import CaseRuntime, PlanInfeasible
 from finengine.skills.metric_schema import registry_for_passport
 from finengine.skills.result_events import dynamic_move_event, dynamic_plan_event
-from finengine.skills.spec.atom_author import (
-    AtomAuthor,
-    StationFault,
-    case_inputs,
-    describe_inputs,
-    end_of_chain,
-    without_markdown_fence,
-)
+from finengine.skills.spec.atom_author import AtomAuthor, StationFault, describe_inputs
+from finengine.skills.spec.atom_inputs import case_inputs, end_of_chain, without_markdown_fence
 from finengine.skills.spec.atom_catalog import NOT_PLANNABLE, catalog_text
 from finengine.skills.spec.atom_intake import (
     AtomIntake,
