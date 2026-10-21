@@ -17,7 +17,7 @@ from tests.integration.ingress_support import (  # noqa: F401
 )
 
 from dynamic_support import assert_event_fixture, normalized_events
-from subtask_support import SubtaskCodes, patch_subtask
+from subtask_support import Visit, patch_subtask
 from test_download_atom import _serve
 
 
@@ -145,16 +145,18 @@ def test_finalized_with_cards_and_text_matches_shared_fixture(
     }
     planner = _arm_dynamic(monkeypatch, [
         _execute({"atom": "read.value", "concept": "SALES_REVENUE"}),
-        _execute({"atom": atom["name"]}, new_atoms=(atom,)),
+        _execute({"atom": atom["name"]}),
         _finalize_cv,
     ])
-    patch_subtask(monkeypatch, SubtaskCodes([
+    patch_subtask(monkeypatch, Visit.of(
+        atom,
         "def run(inputs):\n"
         "    xs = [m['scalar_fact']['value'] for m in inputs['ExtractedMetric']]\n"
         "    mean = sum(xs) / len(xs)\n"
         "    sd = (sum((x - mean) ** 2 for x in xs) / len(xs)) ** 0.5\n"
-        "    return {'mean': mean, 'population_sd': sd, 'cv_pct': sd / mean * 100}\n"
-    ]))
+        "    return {'mean': mean, 'population_sd': sd, 'cv_pct': sd / mean * 100}\n",
+        before=2,
+    ))
 
     turn, events = _run_turn(monkeypatch, "Рассчитай CV выручки по двум периодам")
 

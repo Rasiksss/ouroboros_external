@@ -39,8 +39,9 @@ from finengine.skills.spec.target import InputSpec
 from finengine.skills.spec.target import Target
 from finengine.skills.atoms.run_passport import build_run_passport, classification_from_cell
 from finengine.contracts import NodeKey
+from finengine.skills.spec.atom_intake import Refused, Registered
 from dynamic_support import BAD_CODE, Script
-from subtask_support import SubtaskCodes, delegate
+from subtask_support import Visit, delegate
 from test_download_atom import CSV, _csv_ok, _serve
 from test_ephemeral_atoms import _metric
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
@@ -239,10 +240,10 @@ def test_three_move_run_executes_scenario_download_repairs_code_and_finalizes(
     planner = Script([
         _move(scenarios=("Извлеки EBITDA и выручку",), atoms=(download,),
               steps=({"atom": download.name},)),
-        _move(atoms=(calc,), steps=({"atom": download.name}, {"atom": calc.name})),
+        _move(steps=({"atom": download.name}, {"atom": calc.name})),
         _finalize(final_id),
     ])
-    subtask = SubtaskCodes([BAD_CODE, CALC_CODE])
+    subtask = Visit(calc, (BAD_CODE, CALC_CODE), before=2)
     goal = GoalIR(raw_query="сопоставь маржу с Brent", intent_kind="document_qa")
     passport = build_run_passport(
         "financial report", goal_ir_id=goal.goal_id,
@@ -263,13 +264,14 @@ def test_three_move_run_executes_scenario_download_repairs_code_and_finalizes(
     assert result.status == "finalized" and result.answer == "Маржа рассчитана."
     assert len(result.journal) == 2 and scenario.calls == 1
     assert len(seen_http) == 1, "готовая загрузка во втором ходе не исполняется повторно"
-    assert subtask.submitted == [BAD_CODE, CALC_CODE], "подзадача сдала код дважды: отказ, затем принятый"
+    assert subtask.kinds == ["неверные_аргументы", "принят"], "подзадача сдала код дважды: отказ, затем принятый"
+    assert "осталось попыток: 2" in subtask.outcomes[0].why
     assert "content_type=text/csv" in planner.prompts[1]
     assert f"длина текста={len(CSV)}" in planner.prompts[1]
 
 
 def _run(
-    base, replies, *, scenario=None, author=None, limits=RunLimits(), run_passport=None,
+    base, replies, *, scenario=None, visits=(), limits=RunLimits(), run_passport=None,
 ) -> tuple[DynamicRun, Script]:
     planner = Script(list(replies))
     dynamic = DynamicRun(
@@ -279,8 +281,8 @@ def _run(
         run_scenario=scenario, complete_fn=planner, limits=limits,
         run_passport=run_passport,
     )
-    if author is not None:
-        delegate(dynamic, author)
+    if visits:
+        delegate(dynamic, *visits)
     return dynamic, planner
 
 
@@ -660,21 +662,7 @@ def test_journal_names_executed_scenarios_and_atoms_with_their_outcomes(base, mo
     assert "eph.journal_data" in outcome and "dyn:journal_data" in outcome
 
 
-@dataclass
-class SequenceAuthor:
-    replies: list
-    attempts: int = 3
-    calls: list | None = None
-
-    def __post_init__(self) -> None:
-        self.calls = []
-
-    def write(self, request, **kwargs):
-        self.calls.append(kwargs)
-        return self.replies.pop(0)
-
-
-def test_station_fault_is_feedback_and_does_not_create_an_atom_or_failure(base, monkeypatch) -> None:
+def test_station_fault_on_registration_creates_no_atom_failure_or_spent_attempt(base, monkeypatch) -> None:
     request = AtomRequest(
         name="eph.metric_calc", purpose="расчёт", output_type="dyn:metric_calc",
         output_schema=CALC_SCHEMA, requires=(InputSpec("ExtractedMetric", "EBITDA"),),
@@ -683,21 +671,22 @@ def test_station_fault_is_feedback_and_does_not_create_an_atom_or_failure(base, 
         sealed_room, "run_code",
         lambda code, inputs, **kwargs: sealed_room.CodeRun(None, "timeout", station_fault=True),
     )
-    scenario = ExtractScenario(base, None)
+    subtask = Visit(request, (CALC_CODE,), before=2)
     dynamic, planner = _run(
         base,
-        [_move(scenarios=("Извлеки",), atoms=(request,), steps=({"atom": request.name},)), _give_up()],
-        scenario=scenario, author=SubtaskCodes([CALC_CODE]),
+        [_move(scenarios=("Извлеки",)), _move(steps=({"atom": request.name},)), _give_up()],
+        scenario=ExtractScenario(base, None), visits=(subtask,),
     )
 
     result = dynamic.run(deterministic_error="нет пути")
 
-    assert result.status == "gave_up"
-    assert "комната станции недоступна" in planner.prompts[1]
+    assert result.status == "gave_up" and subtask.kinds == ["станция"]
     assert request.name not in dynamic.atoms and request.name not in dynamic.failures
+    assert dynamic.intake.log.failures(1, request.name) == 0, "сбой станции не тратит попытку"
+    assert "шаги отклонены" in result.journal[1].outcome and "заводит подзадача автора" in planner.prompts[2]
 
 
-def test_missing_same_move_input_runs_the_download_then_writes_code_next_move(
+def test_a_code_atom_next_to_a_download_is_refused_and_the_subtask_writes_it_after_the_download(
     base, local_room, monkeypatch,
 ) -> None:
     seen_http = _serve(monkeypatch, _csv_ok)
@@ -709,24 +698,23 @@ def test_missing_same_move_input_runs_the_download_then_writes_code_next_move(
         name="eph.parse_source", purpose="разобрать", output_type="dyn:parsed_source",
         output_schema=CALC_SCHEMA, requires=(InputSpec("dyn:source_csv"),),
     )
-    made = EphemeralAtom(request=calc, code="def run(inputs):\n    return {'margin_pct': 1.0}\n")
-    author = SequenceAuthor([(made, None)])
+    subtask = Visit(calc, ("def run(inputs):\n    return {'margin_pct': 1.0}\n",), before=2)
     dynamic, planner = _run(
         base,
         [
             _move(atoms=(download, calc), steps=({"atom": download.name}, {"atom": calc.name})),
-            _move(atoms=(calc,), steps=({"atom": calc.name},)),
+            _move(steps=({"atom": calc.name},)),
             _give_up(),
         ],
-        author=author,
+        visits=(subtask,),
     )
 
     result = dynamic.run(deterministic_error="нет пути")
 
-    assert result.status == "gave_up" and len(author.calls) == 1
+    assert result.status == "gave_up" and subtask.kinds == ["принят"]
     assert dynamic.created == 2 and calc.name in dynamic.atoms
-    assert len(seen_http) == 1
-    assert "входов атома" in planner.prompts[1]
+    assert len(seen_http) == 1, "загрузка исполнилась, код атома в том же ходе отклонён"
+    assert "заводит подзадача" in planner.prompts[1]
 
 
 def _created_atoms_block(prompt: str) -> str:
@@ -794,19 +782,17 @@ def test_atom_limit_rejects_only_new_atoms_and_saved_sources_load_again(base) ->
     assert load_case_atoms(base.store, OWNER, CASE)[first.request.name] == first
 
 
-def test_healthy_equal_code_atom_is_reused_and_download_never_calls_the_subtask(base) -> None:
+def test_a_registered_code_atom_is_reused_for_the_same_contract_and_a_download_is_accepted(base) -> None:
     request = AtomRequest(
         name="eph.parse_source", purpose="разобрать", output_type="dyn:parsed_source",
         output_schema=CALC_SCHEMA, requires=(InputSpec("dyn:source_csv"),),
     )
     known = EphemeralAtom(request, "def run(inputs):\n    return {'margin_pct': 1.0}\n")
-    author = SequenceAuthor([])
-    dynamic, _ = _run(base, [_give_up()], author=author)
+    dynamic, _ = _run(base, [_give_up()])
     dynamic.atoms[request.name] = known
 
     assert dynamic._ensure_atom(request) is None
     assert dynamic._ensure_atom(_download("eph.source_csv").request) is None
-    assert author.calls == []
 
 
 def test_run_called_from_a_worker_thread_completes(base) -> None:
@@ -836,62 +822,59 @@ def test_plan_and_execution_failures_become_feedback(base, monkeypatch, failure,
     assert result.status == "gave_up" and feedback in planner.prompts[1]
 
 
-def test_graph_failure_is_sent_with_previous_code_when_the_same_atom_is_repaired(base, local_room) -> None:
-    request = AtomRequest(
-        name="eph.metric_calc", purpose="расчёт", output_type="dyn:metric_calc",
-        output_schema=CALC_SCHEMA, requires=(InputSpec("dyn:seed"),),
-    )
-    bad = EphemeralAtom(request, "def run(inputs):\n    raise ValueError('graph boom')\n")
-    good = EphemeralAtom(request, "def run(inputs):\n    return {'margin_pct': 1.0}\n")
-    author = SequenceAuthor([(bad, None), (good, None)])
-    scenario = DynamicScenario(base)
+GRAPH_ONLY_BOOM = "def run(inputs):\n    return {'margin_pct': 2.0}\n"   # проходит проверку при сдаче, в графе падает
+FIXED_CODE = "def run(inputs):\n    return {'margin_pct': 1.0}\n"
+REPAIRED_REQUEST = AtomRequest(
+    name="eph.metric_calc", purpose="расчёт", output_type="dyn:metric_calc",
+    output_schema=CALC_SCHEMA, requires=(InputSpec("dyn:seed"),),
+)
+
+
+def test_a_graph_failure_of_a_registered_atom_is_cleared_by_the_next_registration_of_the_name(
+    base, graph_failing_room,
+) -> None:
+    graph_failing_room.broken.add(GRAPH_ONLY_BOOM)
+    request = REPAIRED_REQUEST
+    first, second = Visit(request, (GRAPH_ONLY_BOOM,), before=2), Visit(request, (FIXED_CODE,), before=3)
+    step = _move(steps=({"atom": request.name},))
     dynamic, planner = _run(
-        base,
-        [
-            _move(scenarios=("Извлеки",), atoms=(request,), steps=({"atom": request.name},)),
-            _move(atoms=(request,), steps=({"atom": request.name},)),
-            _give_up(),
-        ],
-        scenario=scenario, author=author,
+        base, [_move(scenarios=("Извлеки",)), step, step, _give_up()],
+        scenario=DynamicScenario(base), visits=(first, second),
     )
 
     result = dynamic.run(deterministic_error="нет пути")
 
-    assert result.status == "gave_up" and len(author.calls) == 2, (
-        dynamic.failures, dynamic.journal, planner.prompts,
-    )
-    assert "graph boom" in author.calls[1]["error"]
-    assert author.calls[1]["previous_code"] == bad.code
-    assert request.name not in dynamic.failures
+    assert result.status == "gave_up" and first.kinds == ["принят"] and second.kinds == ["принят"]
+    assert "graph boom" in planner.prompts[2], "планировщик видит, чем упал принятый атом"
+    assert request.name not in dynamic.failures and dynamic.atoms[request.name].code == FIXED_CODE
+    assert result.journal[2].outcome.startswith("✓ 1 новых результатов"), "тот же шаг после новой сдачи исполняется"
 
 
-def test_author_failure_does_not_erase_the_graph_error_for_the_next_attempt(base, monkeypatch) -> None:
+def test_a_refused_registration_does_not_erase_the_graph_error_of_the_atom(base, local_room, monkeypatch) -> None:
     request = AtomRequest(
         name="eph.metric_calc", purpose="расчёт", output_type="dyn:metric_calc",
         output_schema=CALC_SCHEMA, requires=(InputSpec("ExtractedMetric", "EBITDA"),),
     )
     known = EphemeralAtom(request, "def run(inputs):\n    raise ValueError('boom')\n")
-    author = SequenceAuthor([(None, "still bad"), (known, None)])
-    dynamic, _ = _run(base, [_give_up()], author=author)
+    dynamic, _ = _run(base, [_give_up()])
     dynamic.atoms[request.name] = known
     dynamic.failures[request.name] = "graph error"
     monkeypatch.setattr(dynamic_run_module, "case_inputs", lambda *args, **kwargs: {"ExtractedMetric": [{}]})
 
-    assert "подзадача не сдала рабочий код" in dynamic._ensure_atom(request)
-    assert dynamic._ensure_atom(request) is None
+    refused = dynamic.register_atom(request, "def run(inputs):\n    raise ValueError('still bad')\n")
 
-    assert [call["error"] for call in author.calls] == ["graph error", "graph error"]
+    assert isinstance(refused, Refused) and dynamic.failures[request.name] == "graph error"
+    assert isinstance(dynamic.register_atom(request, FIXED_CODE), Registered)
+    assert request.name not in dynamic.failures
 
 
-def test_current_atoms_are_passed_to_case_inputs(base, monkeypatch) -> None:
+def test_current_atoms_are_passed_to_case_inputs(base, local_room, monkeypatch) -> None:
     source = _download("eph.source_csv")
     request = AtomRequest(
         name="eph.parse_source", purpose="разобрать", output_type="dyn:parsed_source",
         output_schema=CALC_SCHEMA, requires=(InputSpec("dyn:source_csv"),),
     )
-    made = EphemeralAtom(request, "def run(inputs):\n    return {'margin_pct': 1.0}\n")
-    author = SequenceAuthor([(made, None)])
-    dynamic, _ = _run(base, [_give_up()], author=author)
+    dynamic, _ = _run(base, [_give_up()])
     dynamic.atoms[source.request.name] = source
     seen = []
     monkeypatch.setattr(
@@ -899,7 +882,7 @@ def test_current_atoms_are_passed_to_case_inputs(base, monkeypatch) -> None:
         lambda *args, **kwargs: seen.append(kwargs["atoms"]) or {"dyn:source_csv": [{}]},
     )
 
-    assert dynamic._ensure_atom(request) is None
+    assert isinstance(dynamic.register_atom(request, FIXED_CODE), Registered)
     assert seen == [dynamic.atoms]
 
 
@@ -918,27 +901,25 @@ def test_problems_of_every_rejected_atom_reach_the_planner_by_name(base) -> None
     assert "eph.bad_0" in planner.prompts[1] and "eph.bad_1" in planner.prompts[1]
 
 
-def test_repairs_that_only_rewrite_code_do_not_count_as_progress(base, local_room) -> None:
-    request = AtomRequest(
-        name="eph.metric_calc", purpose="расчёт", output_type="dyn:metric_calc",
-        output_schema=CALC_SCHEMA, requires=(InputSpec("dyn:seed"),),
-    )
-    versions = [
-        EphemeralAtom(request, f"def run(inputs):\n    raise ValueError('boom {index}')\n")
-        for index in range(4)
-    ]
-    author = SequenceAuthor([(atom, None) for atom in versions])
-    repair = _move(atoms=(request,), steps=({"atom": request.name},))
+def test_repairs_that_only_rewrite_code_do_not_count_as_progress(base, graph_failing_room) -> None:
+    versions = [f"def run(inputs):\n    return {{'margin_pct': {index}.0}}\n" for index in range(2, 5)]
+    graph_failing_room.broken.update(versions)
+    visits = tuple(Visit(REPAIRED_REQUEST, (code,), before=index + 2) for index, code in enumerate(versions))
+    repair = _move(steps=({"atom": REPAIRED_REQUEST.name},))
+    events = []
     dynamic, _ = _run(
-        base, [_move(scenarios=("Извлеки",), atoms=(request,), steps=({"atom": request.name},)),
-               repair, repair, repair],
-        scenario=DynamicScenario(base), author=author, limits=RunLimits(max_moves=4, idle_moves=2),
+        base, [_move(scenarios=("Извлеки",)), repair, repair, repair],
+        scenario=DynamicScenario(base), visits=visits, limits=RunLimits(max_moves=4, idle_moves=2),
     )
+    dynamic.event_sink = events.append
 
     result = dynamic.run(deterministic_error="нет пути")
 
+    steps_run = [e for e in events if e["type"] == "dynamic_move" and e["status"] == "running" and e["steps"]]
     assert result.status == "stopped" and STOPPED_LINE in result.answer
-    assert len(author.calls) == 3
+    refusals = [event["details"] for event in events if event.get("status") == "rejected"]
+    assert len(steps_run) == 2, "новая сдача снимает тупик шага: второй такой же ход не отклонён как повтор"
+    assert len(refusals) == 1 and "остановки цикла" in refusals[0], "отклонено только последнее слово"
 
 
 def test_a_repeated_move_does_not_report_reused_artifacts_as_new(base, monkeypatch) -> None:
@@ -1112,11 +1093,10 @@ def test_station_fault_inside_the_graph_is_not_remembered_as_a_code_failure(base
         sealed_room, "run_code",
         lambda code, inputs, **kwargs: sealed_room.CodeRun(None, "timeout", station_fault=True),
     )
-    author = SequenceAuthor([])
     dynamic, planner = _run(
         base,
         [_move(scenarios=("Извлеки",), steps=({"atom": request.name},)), _give_up()],
-        scenario=DynamicScenario(base), author=author,
+        scenario=DynamicScenario(base),
     )
     dynamic.atoms[request.name] = healthy
 
@@ -1158,7 +1138,7 @@ def test_download_with_a_rejected_contract_can_be_resent_with_a_valid_address(ba
     assert _rejections(events) == [], "шаг не исполнялся: атома не было, повтором это не считается"
 
 
-def test_code_atom_the_subtask_failed_to_register_can_be_resent_with_a_clearer_purpose(base) -> None:
+def test_a_code_atom_refused_in_new_atoms_can_be_resent_with_a_clearer_purpose(base) -> None:
     DynamicScenario(base)("seed")
     request = AtomRequest(
         name="eph.metric_calc", purpose="расчёт", output_type="dyn:metric_calc",
@@ -1168,7 +1148,6 @@ def test_code_atom_the_subtask_failed_to_register_can_be_resent_with_a_clearer_p
         name=request.name, purpose="расчёт, уточнён способ", output_type=request.output_type,
         output_schema=CALC_SCHEMA, requires=request.requires,
     )
-    author = SequenceAuthor([(None, "код не прошёл проверку"), (None, "код снова не прошёл")])
     events = []
     dynamic, _ = _run(
         base,
@@ -1177,14 +1156,14 @@ def test_code_atom_the_subtask_failed_to_register_can_be_resent_with_a_clearer_p
             _move(atoms=(clearer,), steps=({"atom": request.name},)),
             _give_up(),
         ],
-        author=author, limits=RunLimits(max_moves=4, idle_moves=3),
+        limits=RunLimits(max_moves=4, idle_moves=3),
     )
     dynamic.event_sink = events.append
 
-    dynamic.run(deterministic_error="нет пути")
+    result = dynamic.run(deterministic_error="нет пути")
 
-    assert _rejections(events) == []
-    assert len(author.calls) == 2, "подзадача должна получить уточнённое описание"
+    assert _rejections(events) == [], "шаг не исполнялся: атома не было, повтором это не считается"
+    assert "атом с кодом в new_atoms не принимается" in result.journal[1].outcome
 
 
 @dataclass

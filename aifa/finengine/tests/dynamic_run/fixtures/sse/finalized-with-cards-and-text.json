@@ -612,19 +612,20 @@
     "type": "dynamic_move"
   },
   {
+    "atom": "eph.calc_cv_sales_revenue",
+    "attempt": 1,
+    "code": "def run(inputs):\n    xs = [m['scalar_fact']['value'] for m in inputs['ExtractedMetric']]\n    mean = sum(xs) / len(xs)\n    sd = (sum((x - mean) ** 2 for x in xs) / len(xs)) ** 0.5\n    return {'mean': mean, 'population_sd': sd, 'cv_pct': sd / mean * 100}\n",
+    "error": null,
+    "move": 1,
+    "status": "ok",
+    "type": "author_attempt"
+  },
+  {
     "action": "execute",
     "details": "",
     "goals": [],
     "move": 2,
-    "new_atoms": [
-      {
-        "kind": "code",
-        "name": "eph.calc_cv_sales_revenue",
-        "output_type": "dyn:cv_sales_revenue",
-        "purpose": "коэффициент вариации выручки",
-        "url": null
-      }
-    ],
+    "new_atoms": [],
     "objective": "получить данные",
     "outcome": "",
     "reason": "они нужны для ответа",
@@ -638,15 +639,6 @@
       }
     ],
     "type": "dynamic_move"
-  },
-  {
-    "atom": "eph.calc_cv_sales_revenue",
-    "attempt": 1,
-    "code": "def run(inputs):\n    xs = [m['scalar_fact']['value'] for m in inputs['ExtractedMetric']]\n    mean = sum(xs) / len(xs)\n    sd = (sum((x - mean) ** 2 for x in xs) / len(xs)) ** 0.5\n    return {'mean': mean, 'population_sd': sd, 'cv_pct': sd / mean * 100}\n",
-    "error": null,
-    "move": 2,
-    "status": "ok",
-    "type": "author_attempt"
   },
   {
     "graph_hash": "sha256:12c5b47494468f7566fcdba45477fce2161f85a0f0dc723c7043deaaea81bc94",
@@ -779,15 +771,7 @@
     "details": "✓ verify.bounds SALES_REVENUE → ExtractedMetric, VerificationFinding (4); уже было; evidence_ids=<uuid-7>, <uuid-9>, <uuid-12>, <uuid-13>\n✓ eph.calc_cv_sales_revenue  → dyn:cv_sales_revenue (1); evidence_ids=<uuid-14>",
     "goals": [],
     "move": 2,
-    "new_atoms": [
-      {
-        "kind": "code",
-        "name": "eph.calc_cv_sales_revenue",
-        "output_type": "dyn:cv_sales_revenue",
-        "purpose": "коэффициент вариации выручки",
-        "url": null
-      }
-    ],
+    "new_atoms": [],
     "objective": "получить данные",
     "outcome": "✓ 1 новых результатов",
     "reason": "они нужны для ответа",

@@ -15,17 +15,16 @@ from finengine.skills.atoms.run_passport import build_run_passport, classificati
 from finengine.skills.case_runtime import CaseRuntime
 from finengine.skills.spec.atom_registry import AtomRegistry
 from finengine.skills.spec.dynamic_run import DynamicRun
-from finengine.skills.spec.ephemeral import DOWNLOAD_SCHEMA, AtomRequest, EphemeralAtom
+from finengine.skills.spec.ephemeral import DOWNLOAD_SCHEMA, AtomRequest
 from finengine.skills.spec.graph_executor import RunInputs
 from finengine.skills.spec.target import InputSpec, Target
 from dynamic_support import BAD_CODE, Script, assert_event_fixture
-from subtask_support import SubtaskCodes, delegate
+from subtask_support import Visit, delegate
 from test_dynamic_run import (
     CALC_CODE,
     CALC_SCHEMA,
     DynamicScenario,
     ExtractScenario,
-    SequenceAuthor,
     _give_up,
     _move,
     _run,
@@ -116,22 +115,21 @@ def test_execute_move_is_traced_before_and_after_it_runs(base, monkeypatch) -> N
     assert done["outcome"].startswith("✓") and not done["details"].startswith("✓ ✓")
 
 
-def test_failed_step_graph_only_emits_progress_events(base, local_room) -> None:
+def test_failed_step_graph_only_emits_progress_events(base, graph_failing_room) -> None:
     request = AtomRequest(
         name="eph.failed_step", purpose="неуспешный шаг", output_type="dyn:failed_step",
         output_schema=CALC_SCHEMA, requires=(InputSpec("dyn:seed"),),
     )
-    failed = EphemeralAtom(request, "def run(inputs):\n    raise ValueError('step boom')\n")
+    code = "def run(inputs):\n    return {'margin_pct': 3.0}\n"   # при сдаче проходит, в графе падает
+    graph_failing_room.broken.add(code)
     dynamic, _ = _run(
         base,
         [
-            _move(
-                scenarios=("Подготовь вход",), atoms=(request,),
-                steps=({"atom": request.name},),
-            ),
+            _move(scenarios=("Подготовь вход",)),
+            _move(steps=({"atom": request.name},)),
             _give_up(),
         ],
-        scenario=DynamicScenario(base), author=SequenceAuthor([(failed, None)]),
+        scenario=DynamicScenario(base), visits=(Visit(request, (code,), before=2),),
     )
     events: list[dict] = []
     dynamic.event_sink = events.append
@@ -209,7 +207,7 @@ def test_registration_attempts_are_traced_with_the_error_and_then_the_working_co
     )
     planner = Script([
         _move(scenarios=("Извлеки EBITDA и выручку",), atoms=(download,), steps=({"atom": download.name},)),
-        _move(atoms=(calc,), steps=({"atom": download.name}, {"atom": calc.name})),
+        _move(steps=({"atom": download.name}, {"atom": calc.name})),
         _give_up(),
     ])
     goal = GoalIR(raw_query="сопоставь маржу с Brent", intent_kind="document_qa")
@@ -223,13 +221,13 @@ def test_registration_attempts_are_traced_with_the_error_and_then_the_working_co
         inputs=RunInputs(document_text="отчёт"), run_scenario=ExtractScenario(base, passport),
         complete_fn=planner, run_passport=passport, event_sink=events.append,
     )
-    delegate(run, SubtaskCodes([BAD_CODE, CALC_CODE]))
+    delegate(run, Visit(calc, (BAD_CODE, CALC_CODE), before=2))
 
     run.run(deterministic_error="нет производителя")
 
     attempts = _of(events, "author_attempt")
     assert [(a["move"], a["atom"], a["attempt"], a["status"]) for a in attempts] == [
-        (2, "eph.margin_with_brent", 1, "error"), (2, "eph.margin_with_brent", 2, "ok"),
-    ]
+        (1, "eph.margin_with_brent", 1, "error"), (1, "eph.margin_with_brent", 2, "ok"),
+    ], "сдача между ходами 1 и 2 относится к последнему начатому ходу — первому"
     assert "ZeroDivisionError" in attempts[0]["error"] and attempts[0]["code"] == BAD_CODE
     assert attempts[1]["error"] is None and attempts[1]["code"] == CALC_CODE

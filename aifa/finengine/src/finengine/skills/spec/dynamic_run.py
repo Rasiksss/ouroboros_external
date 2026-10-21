@@ -762,7 +762,6 @@ class LoopSession:
         if not raw_steps:
             return MoveOutcome(
                 f"атомы не созданы: {', '.join(atom_problems)}", problems, failed=True,
-                transient=any("комната станции недоступна" in problem for problem in atom_problems.values()),
                 uncreated_atoms=tuple(atom_problems),
                 refusal=next((code for code in map(refusal_code, atom_problems.values()) if code), ""),
             )
@@ -796,9 +795,7 @@ class LoopSession:
                 f"{outcome.details}\n{problems}",
                 failed=True,
                 empty_atoms=outcome.empty_atoms,
-                transient=transient or any(
-                    "комната станции недоступна" in problem for problem in atom_problems.values()
-                ),
+                transient=transient,
                 uncreated_atoms=tuple(atom_problems),
             )
         return MoveOutcome(

@@ -37,7 +37,9 @@
 4. **`aifa_move`.** Атом с кодом в `new_atoms` — `ОТКАЗ неверные_аргументы`: «атом с кодом заводит подзадача: поручи её
    навыку автора, она сдаст код `aifa_register_atom`». Атомы-загрузки (`url`) остаются в `new_atoms`. Подсказки цикла
    («входов ещё нет», «пришли его описание с тем же name», обещанный файл не собран — `_with_promised_files`) ведут к
-   подзадаче и `aifa_register_atom`, а не к `new_atoms`.
+   подзадаче и `aifa_register_atom`, а не к `new_atoms`. Отказ `нет_входов` у `aifa_register_atom` адресован двоим:
+   подзадача заканчивает итогом (`aifa_report done`) и называет недостающие входы, планировщик получает их ходом
+   `aifa_move` и поручает атом заново; ходы цикла подзадача не делает — они тратят общие лимиты корня.
 5. **Удаляются** `skills/spec/atom_author.py`, `atom_author.md`, поля `Settings` `atom_author_model` и
    `atom_author_model_timeout_seconds` (`FINENGINE_ATOM_AUTHOR_MODEL*` в окружении службы, compose и снимках),
    параметр `author` у `LoopSession` и `DynamicRun`. `case_inputs`, `end_of_chain` и `without_markdown_fence` переносятся

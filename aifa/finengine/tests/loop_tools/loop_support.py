@@ -13,7 +13,6 @@ from typing import Any
 
 from pathlib import Path
 
-from subtask_support import delegate
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 from tool_harness import CHAT, ROOT, OpenRun, Plugin, ctx_of, open_run
 
@@ -26,6 +25,7 @@ from finengine.skills.atoms.run_passport import build_run_passport, classificati
 from finengine.skills.case_runtime import CaseRuntime
 from finengine.skills.production_runtime import SwitchSink
 from finengine.skills.spec.dynamic_run import LoopSession, RunLimits
+from finengine.skills.spec.ephemeral import AtomRequest
 from finengine.skills.spec.graph_executor import ExecutionBudget, RunInputs
 from finengine.skills.spec.loop_state import LoopOrigin
 from finengine.skills.spec.target import Target
@@ -77,6 +77,15 @@ def finish_args(raw: str) -> dict[str, Any]:
     }
 
 
+def registration_args(request: AtomRequest, code: str) -> dict[str, Any]:
+    """Аргументы `aifa_register_atom` для контракта `request` и кода `code`."""
+    return {
+        "name": request.name, "purpose": request.purpose, "output_type": request.output_type,
+        "output_schema": request.output_schema, "code": code,
+        "requires": [{"input_type": spec.input_type, "concept": spec.concept} for spec in request.requires],
+    }
+
+
 @dataclass
 class Cycle:
     """Открытый цикл хода и клиент-ouroboros. `events` — события цикла, как их получил бы экран."""
@@ -104,13 +113,17 @@ class Cycle:
     async def finish(self, raw: str) -> str:
         return await self.call("aifa_finish", finish_args(raw))
 
+    async def submit(self, request: AtomRequest, code: str) -> str:
+        """Подзадача сдаёт код между ходами: настоящий вызов `aifa_register_atom` с глубиной 1 (ADR-0054)."""
+        return await self.call("aifa_register_atom", registration_args(request, code), depth=1)
+
     async def close(self) -> None:
         await self.plugin.close()
         await self.run.end()
 
 
 async def open_cycle(
-    base, *, scenario: Callable[[str], Any] | None = None, author: Any = None,
+    base, *, scenario: Callable[[str], Any] | None = None,
     limits: RunLimits = RunLimits(), passport: Any = None, doc_ids: tuple[str, ...] = (),
     message: str = "сложный вопрос", entry_stage: str = "planning", document_text: str = "",
     subtasks: SubtaskWaits | None = None,
@@ -123,8 +136,6 @@ async def open_cycle(
         runtime=base, owner_id=OWNER, case_id=CASE, goal=goal, target=target, inputs=RunInputs(document_text=document_text),
         run_scenario=scenario, limits=limits, run_passport=passport, event_sink=SwitchSink(), entry_stage=entry_stage,  # type: ignore[arg-type]
     )
-    if author is not None:
-        delegate(session, author)
     session.open(deterministic_error="нет пути")
     desk = LoopDesk()
     desk.adopt(
@@ -143,4 +154,4 @@ class _NoGoal:
         raise AssertionError("aifa_goal не должен вызываться")
 
 
-__all__ = ["make_passport", "new_runtime", "CHAT", "CASE", "ENTITY", "OWNER", "ROOT", "Cycle", "args_of", "finish_args", "open_cycle"]
+__all__ = ["make_passport", "new_runtime", "CHAT", "CASE", "ENTITY", "OWNER", "ROOT", "Cycle", "args_of", "finish_args", "open_cycle", "registration_args"]

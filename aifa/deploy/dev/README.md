@@ -223,6 +223,13 @@ ouroboros зарегистрированы шесть инструментов `
 `docker tag aifa-sym-engine:step16 aifa-sym-engine:dev` и `up -d --no-build engine`. Живой сценарий с новым атомом — S2 (`~/aifa-sym-s12/s2.json`,
 коэффициент вариации и медиана темпов роста EBITDA): `run_scenario.sh` из шага 12, по событиям — `author_attempt` в ленте.
 
+Доработка по ревью (21.10.2026): навык автора 1.1.0 (правила контракта атома, пределы отчёта, ответы без возможности сдачи) и текст отказа
+`нет_входов` (подзадаче — закончить итогом, планировщику — получить входы). Выкатка: `git bundle 11fe747..HEAD` → `git fetch <bundle> HEAD` и
+`git merge --ff-only FETCH_HEAD` в `~/aifa-sym`; прежний `engine` протегирован `aifa-sym-engine:step17` (откат — `docker tag … :dev` и
+`up -d --no-build engine`); `engine` — derived-образ поверх него (`COPY src /app/src`, удалённых модулей нет), `ouroboros` — `compose build ouroboros`
+(навыки лежат в образе); затем `docker builder prune -f` (на диске было 507 МБ). Дымовые 1–10 PASS. Живой C4.2 (корень пишет файл в сессию
+Workstation, подзадача читает его и пробует сокет, в журнале Workstation одна сессия на ход) отложен до освобождения стенда.
+
 ### Известные ограничения
 
 - Диск dev: 2,9–5,3 ГБ свободно; полная пересборка трёх образов занимает до 4 ГБ кэша — после неё `docker builder prune -f`

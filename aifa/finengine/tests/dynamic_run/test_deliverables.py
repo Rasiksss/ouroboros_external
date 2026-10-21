@@ -10,11 +10,11 @@ import pytest
 from finengine.config import settings
 from finengine.contracts import FileArtifact, GoalIR, NodeKey
 from finengine.skills.spec.dynamic_run import DynamicRun, parse_decision
-from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom
+from finengine.skills.spec.ephemeral import AtomRequest
 from finengine.skills.spec.graph_executor import RunInputs
 from finengine.skills.spec.target import InputSpec, Target
-from subtask_support import delegate
-from test_dynamic_run import DynamicScenario, SequenceAuthor, _atom_doc
+from subtask_support import Visit, delegate
+from test_dynamic_run import DynamicScenario
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 
 BOOK_CODE = '''
@@ -47,24 +47,39 @@ def _local_blobs(tmp_path, monkeypatch, catalog):  # оригиналы файл
 
 @dataclass
 class Planner:
-    """Планировщик по ролям: ход 1 собирает книгу, затем действует по `finish(prompt)` на состоянии хода."""
+    """Планировщик по ролям: ход 1 получает исходные данные, ход 2 собирает книгу, затем действует по
+    `finish(prompt)` на состоянии хода."""
 
     finish: object
     prompts: list[str] = field(default_factory=list)
 
     async def __call__(self, system: str, prompt: str) -> str:
         self.prompts.append(prompt)
-        if len(self.prompts) == 1:
-            return _move()
+        if len(self.prompts) <= 2:
+            return (_move, _build)[len(self.prompts) - 1]()
         return self.finish(prompt)
 
 
 def _move() -> str:
     return json.dumps({
-        "objective": "собрать Excel", "reason": "нужен файл", "action": "execute",
-        "scenarios": ["Извлеки"], "new_atoms": [_atom_doc(REQUEST)], "steps": [{"atom": REQUEST.name}],
+        "objective": "получить данные", "reason": "из них собирается файл", "action": "execute",
+        "scenarios": ["Извлеки"], "new_atoms": [], "steps": [],
         "answer": "", "evidence_ids": [], "deliverables": [],
     }, ensure_ascii=False)
+
+
+def _build() -> str:
+    """Ход сборки: атом уже сдан подзадачей, поэтому только шаг (описание кода в `new_atoms` служба отклонит)."""
+    return json.dumps({
+        "objective": "собрать Excel", "reason": "нужен файл", "action": "execute",
+        "scenarios": [], "new_atoms": [], "steps": [{"atom": REQUEST.name}],
+        "answer": "", "evidence_ids": [], "deliverables": [],
+    }, ensure_ascii=False)
+
+
+def book_visit(code: str = BOOK_CODE, *, before: int = 2) -> Visit:
+    """Подзадача сдаёт код атома сборки книги перед `before`-м вопросом к планировщику (1 — первый)."""
+    return Visit(REQUEST, (code,), before=before)
 
 
 def _terminal(action: str = "finalize", *, evidence_ids=(), deliverables=(), answer: str = "Книга собрана.") -> str:
@@ -80,7 +95,8 @@ def _file_id(prompt: str) -> str:
     return row.split("|")[0].strip()
 
 
-def _dynamic(base, planner, **kwargs) -> DynamicRun:
+def _dynamic(base, planner, *visits: Visit, **kwargs) -> DynamicRun:
+    """Цикл сборки файла; `visits` — кто и когда сдаёт код атома (по умолчанию книгу собирает ход 2)."""
     run = DynamicRun(
         runtime=base, owner_id=OWNER, case_id=CASE,
         goal=GoalIR(raw_query="собери Excel", intent_kind="custom_analysis"),
@@ -88,7 +104,7 @@ def _dynamic(base, planner, **kwargs) -> DynamicRun:
         inputs=RunInputs(extra={"owner_id": OWNER, "project_id": CASE}),
         run_scenario=DynamicScenario(base), complete_fn=planner, **kwargs,
     )
-    return delegate(run, SequenceAuthor([(EphemeralAtom(REQUEST, BOOK_CODE), None)]))
+    return delegate(run, *(visits or (book_visit(),)))
 
 
 def _file_artifact() -> FileArtifact:
@@ -126,7 +142,7 @@ def test_the_state_table_lists_the_file_with_its_id_name_and_structure(base, loc
     planner = Planner(lambda prompt: _terminal(deliverables=[_file_id(prompt)]))
     _dynamic(base, planner).run(deterministic_error="нет пути")
 
-    state = planner.prompts[1]
+    state = planner.prompts[2]
     row = next(line for line in state.split("## Полученные артефакты")[1].splitlines() if "FileArtifact" in line)
 
     assert "итоги.xlsx" in row and "листов 2" in row and "формул 1" in row
@@ -166,8 +182,8 @@ def test_an_unknown_file_id_is_rejected_with_a_reason_the_planner_can_act_on(bas
 
         async def __call__(self, system, prompt):
             self.prompts.append(prompt)
-            if len(self.prompts) == 1:
-                return _move()
+            if len(self.prompts) <= 2:
+                return (_move, _build)[len(self.prompts) - 1]()
             return next(replies) or _terminal("give_up", answer="Не вышло.")
 
     planner = Script2()
