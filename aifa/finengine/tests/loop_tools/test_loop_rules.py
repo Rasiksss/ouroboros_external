@@ -314,7 +314,10 @@ async def test_the_hints_of_the_cycle_lead_to_the_subtask_and_not_to_new_atoms(b
         assert "опиши атом с кодом в new_atoms" not in hint and "пришли его описание" not in hint, hint
     assert "подзадач" in no_file and "aifa_register_atom" in no_file
     assert "подзадач" in no_atom and "aifa_register_atom" in no_atom
-    assert "входов атома eph.probe" in no_inputs and "aifa_move" in no_inputs and "сдай атом снова" in no_inputs
+    assert "входов атома eph.probe" in no_inputs
+    assert "Подзадача: закончи работу итогом" in no_inputs and "aifa_report done" in no_inputs
+    assert "Планировщик: получи входы ходом aifa_move и поручи атом заново" in no_inputs
+    assert "сдай атом снова" not in no_inputs, "подзадача, послушавшись текста, повела бы ходы цикла корня"
     await cycle.close()
 
 
