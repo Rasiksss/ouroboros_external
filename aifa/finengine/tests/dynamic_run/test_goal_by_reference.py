@@ -30,7 +30,8 @@ from tests.integration.ingress_support import (  # noqa: F401
     set_intent_sequence,
 )
 
-from test_chat_outcome_contract import SequenceModel, _arm_dynamic
+from subtask_support import SubtaskCodes, patch_subtask
+from test_chat_outcome_contract import _arm_dynamic
 from test_download_atom import _csv_ok, _serve
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 
@@ -113,10 +114,7 @@ def _row(prompt: str, marker: str, concept: str) -> list[str] | None:
 def _arm(monkeypatch, replies: list, *, classifier=None):
     locate, read = _make_fake_locate_and_read_value_executors(EBITDA_VALUES)
     patched_build_registry(monkeypatch, locate, read)
-    monkeypatch.setattr(
-        "finengine.skills.spec.atom_author._default_complete",
-        SequenceModel([{"code": STATS_CODE, "example_inputs": {}}]),
-    )
+    patch_subtask(monkeypatch, SubtaskCodes([STATS_CODE]))
     classifier = classifier or set_intent_sequence(monkeypatch, [EBITDA_FORM, EXTRACT_REPARSE])
     return classifier, _arm_dynamic(monkeypatch, replies)
 

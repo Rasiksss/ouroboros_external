@@ -21,7 +21,6 @@ from finengine.llm.budget import BudgetExceeded
 from finengine.skills import run_logger
 from finengine.skills.case_runtime import PlanInfeasible
 from finengine.skills.production_runtime import _dynamic_outcome
-from finengine.skills.spec.atom_author import AtomAuthor
 from finengine.skills.spec import dynamic_run as dynamic_run_module
 from finengine.skills.spec.dynamic_run import (
     _shown_value,
@@ -40,7 +39,8 @@ from finengine.skills.spec.target import InputSpec
 from finengine.skills.spec.target import Target
 from finengine.skills.atoms.run_passport import build_run_passport, classification_from_cell
 from finengine.contracts import NodeKey
-from test_atom_author import BAD_CODE, Script
+from dynamic_support import BAD_CODE, Script
+from subtask_support import SubtaskCodes, delegate
 from test_download_atom import CSV, _csv_ok, _serve
 from test_ephemeral_atoms import _metric
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
@@ -242,10 +242,7 @@ def test_three_move_run_executes_scenario_download_repairs_code_and_finalizes(
         _move(atoms=(calc,), steps=({"atom": download.name}, {"atom": calc.name})),
         _finalize(final_id),
     ])
-    author = Script([
-        json.dumps({"code": BAD_CODE, "example_inputs": {}}, ensure_ascii=False),
-        json.dumps({"code": CALC_CODE, "example_inputs": {}}, ensure_ascii=False),
-    ])
+    subtask = SubtaskCodes([BAD_CODE, CALC_CODE])
     goal = GoalIR(raw_query="сопоставь маржу с Brent", intent_kind="document_qa")
     passport = build_run_passport(
         "financial report", goal_ir_id=goal.goal_id,
@@ -257,15 +254,16 @@ def test_three_move_run_executes_scenario_download_repairs_code_and_finalizes(
         goal=goal,
         target=Target(output_type="dyn:margin_with_brent", entity_ref=ENTITY, period_ref="2024"),
         inputs=RunInputs(document_text="отчёт"), run_scenario=scenario,
-        complete_fn=planner, author=AtomAuthor(author), run_passport=passport,
+        complete_fn=planner, run_passport=passport,
     )
+    delegate(run, subtask)
 
     result = run.run(deterministic_error="нет производителя")
 
     assert result.status == "finalized" and result.answer == "Маржа рассчитана."
     assert len(result.journal) == 2 and scenario.calls == 1
     assert len(seen_http) == 1, "готовая загрузка во втором ходе не исполняется повторно"
-    assert len(author.prompts) == 2 and "ZeroDivisionError" in author.prompts[1]
+    assert subtask.submitted == [BAD_CODE, CALC_CODE], "подзадача сдала код дважды: отказ, затем принятый"
     assert "content_type=text/csv" in planner.prompts[1]
     assert f"длина текста={len(CSV)}" in planner.prompts[1]
 
@@ -278,9 +276,11 @@ def _run(
         runtime=base, owner_id=OWNER, case_id=CASE,
         goal=GoalIR(raw_query="сложный вопрос", intent_kind="document_qa"),
         target=Target(output_type="QuoteEvidence", entity_ref=ENTITY), inputs=RunInputs(),
-        run_scenario=scenario, complete_fn=planner, author=author, limits=limits,
+        run_scenario=scenario, complete_fn=planner, limits=limits,
         run_passport=run_passport,
     )
+    if author is not None:
+        delegate(dynamic, author)
     return dynamic, planner
 
 
@@ -679,7 +679,6 @@ def test_station_fault_is_feedback_and_does_not_create_an_atom_or_failure(base, 
         name="eph.metric_calc", purpose="расчёт", output_type="dyn:metric_calc",
         output_schema=CALC_SCHEMA, requires=(InputSpec("ExtractedMetric", "EBITDA"),),
     )
-    author_script = Script([json.dumps({"code": CALC_CODE, "example_inputs": {}})])
     monkeypatch.setattr(
         sealed_room, "run_code",
         lambda code, inputs, **kwargs: sealed_room.CodeRun(None, "timeout", station_fault=True),
@@ -688,7 +687,7 @@ def test_station_fault_is_feedback_and_does_not_create_an_atom_or_failure(base, 
     dynamic, planner = _run(
         base,
         [_move(scenarios=("Извлеки",), atoms=(request,), steps=({"atom": request.name},)), _give_up()],
-        scenario=scenario, author=AtomAuthor(author_script),
+        scenario=scenario, author=SubtaskCodes([CALC_CODE]),
     )
 
     result = dynamic.run(deterministic_error="нет пути")
@@ -795,7 +794,7 @@ def test_atom_limit_rejects_only_new_atoms_and_saved_sources_load_again(base) ->
     assert load_case_atoms(base.store, OWNER, CASE)[first.request.name] == first
 
 
-def test_healthy_equal_code_atom_is_reused_and_download_never_calls_the_author(base) -> None:
+def test_healthy_equal_code_atom_is_reused_and_download_never_calls_the_subtask(base) -> None:
     request = AtomRequest(
         name="eph.parse_source", purpose="разобрать", output_type="dyn:parsed_source",
         output_schema=CALC_SCHEMA, requires=(InputSpec("dyn:source_csv"),),
@@ -878,7 +877,7 @@ def test_author_failure_does_not_erase_the_graph_error_for_the_next_attempt(base
     dynamic.failures[request.name] = "graph error"
     monkeypatch.setattr(dynamic_run_module, "case_inputs", lambda *args, **kwargs: {"ExtractedMetric": [{}]})
 
-    assert "автор не написал" in dynamic._ensure_atom(request)
+    assert "подзадача не сдала рабочий код" in dynamic._ensure_atom(request)
     assert dynamic._ensure_atom(request) is None
 
     assert [call["error"] for call in author.calls] == ["graph error", "graph error"]
@@ -902,23 +901,6 @@ def test_current_atoms_are_passed_to_case_inputs(base, monkeypatch) -> None:
 
     assert dynamic._ensure_atom(request) is None
     assert seen == [dynamic.atoms]
-
-
-def test_budget_exceeded_from_the_author_escapes_the_cycle(base) -> None:
-    request = AtomRequest(
-        name="eph.metric_calc", purpose="расчёт", output_type="dyn:metric_calc",
-        output_schema=CALC_SCHEMA, requires=(InputSpec("ExtractedMetric", "EBITDA"),),
-    )
-    scenario = ExtractScenario(base, None)
-    author = AtomAuthor(Script([BudgetExceeded("author runaway")]))
-    dynamic, _ = _run(
-        base,
-        [_move(scenarios=("Извлеки",), atoms=(request,), steps=({"atom": request.name},))],
-        scenario=scenario, author=author,
-    )
-
-    with pytest.raises(BudgetExceeded, match="author runaway"):
-        dynamic.run(deterministic_error="нет пути")
 
 
 def test_problems_of_every_rejected_atom_reach_the_planner_by_name(base) -> None:
@@ -1176,7 +1158,7 @@ def test_download_with_a_rejected_contract_can_be_resent_with_a_valid_address(ba
     assert _rejections(events) == [], "шаг не исполнялся: атома не было, повтором это не считается"
 
 
-def test_code_atom_the_author_failed_to_write_can_be_resent_with_a_clearer_purpose(base) -> None:
+def test_code_atom_the_subtask_failed_to_register_can_be_resent_with_a_clearer_purpose(base) -> None:
     DynamicScenario(base)("seed")
     request = AtomRequest(
         name="eph.metric_calc", purpose="расчёт", output_type="dyn:metric_calc",
@@ -1202,7 +1184,7 @@ def test_code_atom_the_author_failed_to_write_can_be_resent_with_a_clearer_purpo
     dynamic.run(deterministic_error="нет пути")
 
     assert _rejections(events) == []
-    assert len(author.calls) == 2, "автор должен получить уточнённое описание"
+    assert len(author.calls) == 2, "подзадача должна получить уточнённое описание"
 
 
 @dataclass

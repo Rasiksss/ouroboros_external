@@ -13,14 +13,13 @@ from pathlib import Path
 from finengine.contracts import GoalIR
 from finengine.skills.atoms.run_passport import build_run_passport, classification_from_cell
 from finengine.skills.case_runtime import CaseRuntime
-from finengine.skills.spec.atom_author import AtomAuthor
 from finengine.skills.spec.atom_registry import AtomRegistry
 from finengine.skills.spec.dynamic_run import DynamicRun
 from finengine.skills.spec.ephemeral import DOWNLOAD_SCHEMA, AtomRequest, EphemeralAtom
 from finengine.skills.spec.graph_executor import RunInputs
 from finengine.skills.spec.target import InputSpec, Target
-from test_atom_author import BAD_CODE, Script
-from dynamic_support import assert_event_fixture
+from dynamic_support import BAD_CODE, Script, assert_event_fixture
+from subtask_support import SubtaskCodes, delegate
 from test_dynamic_run import (
     CALC_CODE,
     CALC_SCHEMA,
@@ -196,7 +195,7 @@ def test_empty_read_failed_step_then_give_up_matches_sse_fixture(base) -> None:
     assert_event_fixture("empty-read-then-give-up.json", normalized)
 
 
-def test_author_attempts_are_traced_with_the_error_and_then_the_working_code(base, local_room, monkeypatch) -> None:
+def test_registration_attempts_are_traced_with_the_error_and_then_the_working_code(base, local_room, monkeypatch) -> None:
     _serve(monkeypatch, _csv_ok)
     download = AtomRequest(
         name="eph.brent_csv", purpose="ряд Brent", output_type="dyn:brent_csv",
@@ -213,10 +212,6 @@ def test_author_attempts_are_traced_with_the_error_and_then_the_working_code(bas
         _move(atoms=(calc,), steps=({"atom": download.name}, {"atom": calc.name})),
         _give_up(),
     ])
-    author = Script([
-        json.dumps({"code": BAD_CODE, "example_inputs": {}}, ensure_ascii=False),
-        json.dumps({"code": CALC_CODE, "example_inputs": {}}, ensure_ascii=False),
-    ])
     goal = GoalIR(raw_query="сопоставь маржу с Brent", intent_kind="document_qa")
     passport = build_run_passport(
         "financial report", goal_ir_id=goal.goal_id, classification=classification_from_cell("ifrs_nf_ru"),
@@ -226,8 +221,9 @@ def test_author_attempts_are_traced_with_the_error_and_then_the_working_code(bas
         runtime=base, owner_id=OWNER, case_id=CASE, goal=goal,
         target=Target(output_type="dyn:margin_with_brent", entity_ref=ENTITY, period_ref="2024"),
         inputs=RunInputs(document_text="отчёт"), run_scenario=ExtractScenario(base, passport),
-        complete_fn=planner, author=AtomAuthor(author), run_passport=passport, event_sink=events.append,
+        complete_fn=planner, run_passport=passport, event_sink=events.append,
     )
+    delegate(run, SubtaskCodes([BAD_CODE, CALC_CODE]))
 
     run.run(deterministic_error="нет производителя")
 

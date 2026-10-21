@@ -13,7 +13,7 @@ from finengine.skills.spec.dynamic_run import DynamicRun, RunLimits
 from finengine.skills.spec.graph_executor import RunInputs
 from finengine.skills.spec.room_files import FileSpec
 from finengine.skills.spec.target import Target
-from test_atom_author import Script
+from dynamic_support import Script
 from test_dynamic_run import _give_up
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 

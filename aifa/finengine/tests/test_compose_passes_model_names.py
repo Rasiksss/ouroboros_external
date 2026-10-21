@@ -51,7 +51,6 @@ def test_compose_defaults_equal_config_defaults():
 
 
 ROLE_VARS = {"FINENGINE_PLANNER_MODEL": "planner_model",
-             "FINENGINE_ATOM_AUTHOR_MODEL": "atom_author_model",
              "FINENGINE_LOCATE_MODEL": "locate_model",
              "FINENGINE_READ_VALUE_MODEL": "read_value_model"}
 

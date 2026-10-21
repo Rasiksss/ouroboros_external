@@ -78,7 +78,7 @@ TOOLS = (
     ),
     Tool(
         name="aifa_move",
-        description="Один ход цикла: сценарии, части цели и шаги атомов; новые атомы — в new_atoms.",
+        description="Один ход цикла: сценарии, части цели и шаги атомов; атомы-загрузки — в new_atoms.",
         schema={
             "type": "object",
             "properties": {

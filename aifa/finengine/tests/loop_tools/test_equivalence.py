@@ -6,11 +6,11 @@
 from __future__ import annotations
 
 import asyncio
-import json
 
 from dynamic_support import normalized_events
 from loop_support import make_passport, new_runtime, open_cycle
-from test_atom_author import Script
+from dynamic_support import Script
+from subtask_support import SubtaskCodes, delegate
 from test_dynamic_run import (
     CALC_CODE,
     CALC_SCHEMA,
@@ -22,7 +22,6 @@ from test_dynamic_run import (
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 
 from finengine.contracts import GoalIR
-from finengine.skills.spec.atom_author import AtomAuthor
 from finengine.skills.spec.dynamic_run import DynamicRun
 from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom
 from finengine.skills.spec.graph_executor import RunInputs
@@ -36,8 +35,8 @@ MARGIN = AtomRequest(
 MARGIN_ID = EphemeralAtom(MARGIN, CALC_CODE).version
 
 
-def _author() -> AtomAuthor:
-    return AtomAuthor(Script([json.dumps({"code": CALC_CODE, "example_inputs": {}}, ensure_ascii=False)]))
+def _author() -> SubtaskCodes:
+    return SubtaskCodes([CALC_CODE])
 
 
 def _decisions() -> list[str]:
@@ -67,8 +66,9 @@ async def test_recorded_decisions_give_the_same_outcome_and_events_through_the_t
         goal=GoalIR(raw_query="сложный вопрос", intent_kind="document_qa"),
         target=Target(output_type="QuoteEvidence", entity_ref=ENTITY), inputs=RunInputs(),
         run_scenario=ExtractScenario(engine_runtime, passport), complete_fn=Script(_decisions()),
-        author=_author(), run_passport=passport, event_sink=events.append,
+        run_passport=passport, event_sink=events.append,
     )
+    delegate(engine, _author())
     expected = await asyncio.to_thread(engine.run, deterministic_error="нет пути")
 
     cycle = await open_cycle(base, scenario=ExtractScenario(base, passport), author=_author(), passport=passport)

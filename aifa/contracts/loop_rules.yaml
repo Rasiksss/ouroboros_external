@@ -3,8 +3,8 @@
 # Источники: раздел 8 плана 34 (`aifa/finengine/docs/build-plan/34-…md`, колонка `plan34` — первая ячейка строки)
 # и столбец «Правила» §3.1 `CONTRACTS.md` для инструментов цикла `aifa_state`, `aifa_doc`, `aifa_move`, `aifa_register_atom`, `aifa_report`, `aifa_finish`
 # (колонка `cell` — фрагмент ячейки между `;` верхнего уровня; `contract` — фрагмент текста §3.0). Тест — путь от `aifa/finengine/` и имя функции.
-# Правила, которые вводят шаги 16, 17, лежат в `deferred` с номером шага; снять строку оттуда и завести правило
-# выше — работа того шага. Тесты каталога `tests/loop_tools/` проходят через API инструментов и называют
+# Правила следующих шагов лежат в `deferred` с номером шага; снять строку оттуда и завести правило выше — работа того шага.
+# Шаги 16 и 17 завершены (LR-42…LR-59), `deferred` пуст. Тесты каталога `tests/loop_tools/` проходят через API инструментов и называют
 # идентификатор правила в строке документации; тесты исполнителя (комната, загрузчик, версия) — своего уровня.
 
 rules:
@@ -182,10 +182,12 @@ rules:
   - id: LR-57
     cell: "≤ 20 отчётов `ok`/`error` на задачу ouroboros (`лимит_отчётов`), `done` в счёт не входит (ADR-0053)"
     test: tests/loop_tools/test_subtask_waits.py::test_reports_of_one_task_are_limited_but_done_is_always_taken
+  - id: LR-58
+    cell: "атом с кодом в `new_atoms` — `ОТКАЗ неверные_аргументы` с подсказкой «подзадача и `aifa_register_atom`» (ADR-0054)"
+    test: tests/loop_tools/test_loop_rules.py::test_a_code_atom_in_new_atoms_is_refused_and_the_hint_names_the_subtask
+  - id: LR-59
+    cell: "подсказки цикла («входов ещё нет», файл не собран) ведут к подзадаче и `aifa_register_atom`"
+    test: tests/loop_tools/test_loop_rules.py::test_the_hints_of_the_cycle_lead_to_the_subtask_and_not_to_new_atoms
 
 # Правила, которые вводят другие шаги; до них тестов нет и быть не должно.
-deferred:
-  - step: "17"
-    cell: "атом с кодом в `new_atoms` — только до шага 17 (автор в службе, ADR-0029), затем `ОТКАЗ неверные_аргументы` с подсказкой «подзадача и `aifa_register_atom`»"
-  - step: "17"
-    cell: "подсказки цикла («входов ещё нет», файл не собран) после шага 17 ведут к подзадаче и `aifa_register_atom`"
+deferred: []

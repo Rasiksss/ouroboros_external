@@ -23,6 +23,7 @@ from tests.integration.ingress_support import (  # noqa: F401
 )
 
 from dynamic_support import assert_event_fixture, normalized_events
+from subtask_support import SubtaskCodes, patch_subtask
 from test_chat_outcome_contract import (
     SequenceModel,
     _arm_dynamic,
@@ -73,10 +74,7 @@ CV_CODE = (
 def _arm_models(monkeypatch, replies: list) -> SequenceModel:
     locate, _ = _make_fake_locate_and_read_value_executors({"SALES_REVENUE": 1.0})
     patched_build_registry(monkeypatch, locate, _two_period_read_value)
-    monkeypatch.setattr(
-        "finengine.skills.spec.atom_author._default_complete",
-        SequenceModel([{"code": CV_CODE, "example_inputs": {}}]),
-    )
+    patch_subtask(monkeypatch, SubtaskCodes([CV_CODE]))
     return _arm_dynamic(monkeypatch, replies)
 
 

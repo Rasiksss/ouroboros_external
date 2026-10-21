@@ -39,7 +39,6 @@ SERVICE_MODELS = {
     "FINENGINE_OPENROUTER_MODEL": "deepseek-ai/DeepSeek-V4-Pro",
     "FINENGINE_NEWS_CLASSIFY_MODEL": "deepseek-ai/DeepSeek-V4-Pro",
     "FINENGINE_PLANNER_MODEL": "zai-org/GLM-5.2",
-    "FINENGINE_ATOM_AUTHOR_MODEL": "zai-org/GLM-5.2",
     "FINENGINE_PLANNER_REASONING_EFFORT": "medium",
 }
 MIN_S3_VOLUMES = 30  # две корзины (`ouroboros`, `finengine`) по семь томов роста, с запасом
@@ -400,12 +399,14 @@ def test_f9_catches_a_planning_skill_the_owner_cannot_read(tmp_path: Path) -> No
 
 
 def test_f9_catches_an_atom_author_skill_the_subtask_cannot_read(tmp_path: Path) -> None:
-    """F9: нарушитель — `aifa-atom-author` не допущен владельцам (ADR-0036, ADR-0041 п. 5): навык-инструкция без
-    допуска не виден подзадаче, `skill_read` отвечает отказом, и код атома некому писать."""
+    """F9: нарушитель — `aifa-atom-author` не допущен владельцам (ADR-0036, ADR-0041 п. 5):
+    без допуска навык-инструкция не виден подзадаче и код атома некому писать."""
     dev = _copy_dev(tmp_path)
     _edit(dev / "ouroboros.env.example", ",distribution:aifa-atom-author", "")
     problems = dev_config_violations(dev, load_snapshot())
-    assert any("OUROBOROS_USER_ENABLED_SKILL_IDS" in p and "aifa-atom-author" in p for p in problems)
+    assert any(
+        "OUROBOROS_USER_ENABLED_SKILL_IDS" in p and "aifa-atom-author" in p for p in problems
+    )
 
 
 def test_f9_catches_an_engine_extension_the_owner_cannot_call(tmp_path: Path) -> None:

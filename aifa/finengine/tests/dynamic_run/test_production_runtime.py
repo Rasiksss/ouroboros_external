@@ -250,7 +250,8 @@ def test_local_chat_path_builds_a_dynamic_manifest_without_a_station(base, local
     продуктового локального fallback здесь нет.
     """
     from finengine.skills import production_runtime as production
-    from finengine.skills.spec import atom_author, dynamic_run
+    from finengine.skills.spec import dynamic_run
+    from subtask_support import SubtaskCodes, patch_subtask
 
     planner_calls: list[str] = []
     moves = [
@@ -288,19 +289,13 @@ def test_local_chat_path_builds_a_dynamic_manifest_without_a_station(base, local
             "evidence_ids": [evidence_id],
         }, ensure_ascii=False)
 
-    async def _author(system: str, prompt: str) -> str:
-        return json.dumps({
-            "code": (
-                "def run(inputs):\n"
-                "    metric = inputs['ExtractedMetric'][0]\n"
-                "    return {'value': metric['scalar_fact']['value'] * 2}\n"
-            ),
-            "example_inputs": {},
-        }, ensure_ascii=False)
-
     monkeypatch.setattr(production, "build_registry", lambda **kwargs: base.registry)
     monkeypatch.setattr(dynamic_run, "_default_complete", _planner)
-    monkeypatch.setattr(atom_author, "_default_complete", _author)
+    patch_subtask(monkeypatch, SubtaskCodes([
+        "def run(inputs):\n"
+        "    metric = inputs['ExtractedMetric'][0]\n"
+        "    return {'value': metric['scalar_fact']['value'] * 2}\n"
+    ]))
     events: list[dict] = []
 
     outcome = execute_routed_goal(

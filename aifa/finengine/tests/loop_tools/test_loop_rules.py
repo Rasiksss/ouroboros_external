@@ -9,7 +9,8 @@ import json
 from dataclasses import dataclass, field
 
 from loop_support import Cycle, make_passport, open_cycle
-from test_atom_author import BAD_SCHEMA_CODE, Script
+from dynamic_support import BAD_SCHEMA_CODE
+from subtask_support import SubtaskCodes
 from test_deliverables import _file_artifact
 from test_dynamic_run import (
     CALC_SCHEMA,
@@ -24,7 +25,6 @@ from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 
 from finengine.contracts import GoalIR, NodeKey, VerificationFinding
 from finengine.skills import run_logger
-from finengine.skills.spec.atom_author import AtomAuthor
 from finengine.skills.spec.dynamic_run import RunLimits, ScenarioResult, artifact_content
 from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom
 from finengine.skills.spec.target import InputSpec
@@ -56,6 +56,18 @@ def _atom(**changes) -> AtomRequest:
 
 def _refused_move(atom: AtomRequest) -> str:
     return _move(atoms=(atom,), steps=({"atom": atom.name},))
+
+
+NOOP_CODE = "def run(inputs):\n    return {}\n"
+
+
+def _registration(atom: AtomRequest, code: str = NOOP_CODE) -> dict:
+    """Аргументы `aifa_register_atom` для контракта `atom` (подзадача сдаёт код, ADR-0054)."""
+    return {
+        "name": atom.name, "purpose": atom.purpose, "output_type": atom.output_type,
+        "output_schema": atom.output_schema, "code": code,
+        "requires": [{"input_type": spec.input_type, "concept": spec.concept} for spec in atom.requires],
+    }
 
 
 def _put_file(base) -> str:
@@ -93,18 +105,33 @@ async def test_a_number_of_the_result_needs_its_unit(base) -> None:
     cycle = await open_cycle(base)
     request = _atom(url="", output_schema=UNIT_LESS, requires=(InputSpec("ExtractedMetric", "EBITDA"),))
 
-    assert code_of(await cycle.move(_refused_move(request))) == "ОТКАЗ нет_единицы"
+    reply = await cycle.call("aifa_register_atom", _registration(request))
+
+    assert code_of(reply) == "ОТКАЗ нет_единицы"
     await cycle.close()
 
 
 async def test_a_code_atom_needs_inputs_that_are_already_in_the_case(base) -> None:
-    """LR-24: атом с кодом пишется, когда его входы уже в Case; иначе `нет_входов`, а не вызов автора."""
+    """LR-24: код атома принимают, когда его входы уже в Case; иначе `нет_входов`, а не прогон кода."""
+    cycle = await open_cycle(base)
+    request = _atom(url="", requires=(InputSpec("ExtractedMetric", "EBITDA"),))
+
+    reply = await cycle.call("aifa_register_atom", _registration(request))
+
+    assert code_of(reply) == "ОТКАЗ нет_входов" and "входов атома eph.probe" in reply
+    await cycle.close()
+
+
+async def test_a_code_atom_in_new_atoms_is_refused_and_the_hint_names_the_subtask(base) -> None:
+    """LR-58, ADR-0054 п. 4 (CONTRACTS §3.1): атом с кодом в `new_atoms` — `неверные_аргументы`; подсказка — подзадача и
+    `aifa_register_atom`, а не новое описание в `new_atoms`."""
     cycle = await open_cycle(base)
     request = _atom(url="", requires=(InputSpec("ExtractedMetric", "EBITDA"),))
 
     reply = await cycle.move(_refused_move(request))
 
-    assert code_of(reply) == "ОТКАЗ нет_входов" and "входов атома eph.probe" in reply
+    assert code_of(reply) == "ОТКАЗ неверные_аргументы"
+    assert "подзадача" in reply and "aifa_register_atom" in reply and "eph.probe" not in cycle.session.atoms
     await cycle.close()
 
 
@@ -271,6 +298,27 @@ async def test_the_promised_file_must_be_built_before_the_finish(base) -> None:
     await cycle.close()
 
 
+async def test_the_hints_of_the_cycle_lead_to_the_subtask_and_not_to_new_atoms(base) -> None:
+    """LR-59 (ADR-0054): подсказки цикла — файл не собран, входов ещё нет, шаг без атома — ведут к подзадаче и
+    `aifa_register_atom`; описать атом с кодом в `new_atoms` они не советуют."""
+    cycle = await open_cycle(base, scenario=ExtractScenario(base, None))
+    arguments = json.loads(_move(scenarios=("Извлеки EBITDA",)))
+    arguments.update(plan=["получить показатели", "собрать Excel"], files=[{"kind": "xlsx", "parts": 0, "formulas": False}])
+    await cycle.call("aifa_move", arguments)
+    no_file = await cycle.finish(_finalize(cited(base)))
+    no_atom = await cycle.move(_move(steps=({"atom": "eph.nowhere"},)))
+    no_inputs = await cycle.call(
+        "aifa_register_atom", _registration(_atom(url="", requires=(InputSpec("ExtractedMetric", "NET_DEBT"),)))
+    )
+
+    for hint in (no_file, no_atom, no_inputs):
+        assert "опиши атом с кодом в new_atoms" not in hint and "пришли его описание" not in hint, hint
+    assert "подзадач" in no_file and "aifa_register_atom" in no_file
+    assert "подзадач" in no_atom and "aifa_register_atom" in no_atom
+    assert "входов атома eph.probe" in no_inputs and "aifa_move" in no_inputs and "сдай атом снова" in no_inputs
+    await cycle.close()
+
+
 async def test_a_built_file_is_published_to_the_screen_with_the_finish(base) -> None:
     """LR-32: собранный файл уходит в ответ сам и публикуется событием `file` при `aifa_finish`."""
     file_id = _put_file(base)
@@ -373,8 +421,8 @@ def _dynamic_content(base, output_type: str) -> str:
     return artifact_content(payload)
 
 
-def _echo_author() -> AtomAuthor:
-    return AtomAuthor(Script([json.dumps({"code": ECHO_CODE, "example_inputs": {}}, ensure_ascii=False)]))
+def _echo_author() -> SubtaskCodes:
+    return SubtaskCodes([ECHO_CODE])
 
 
 def _echo_request() -> AtomRequest:
@@ -421,8 +469,7 @@ async def test_the_result_of_an_atom_carries_its_version_and_the_origin_the_wrap
 
 async def test_a_result_of_the_wrong_shape_is_a_failed_attempt_and_no_atom(base, local_room) -> None:
     """LR-10: результат обязан соответствовать `output_schema`; код автора, не прошедший проверку, атомом не становится."""
-    wrong = json.dumps({"code": BAD_SCHEMA_CODE, "example_inputs": {}}, ensure_ascii=False)
-    cycle = await open_cycle(base, scenario=ExtractScenario(base, None), author=AtomAuthor(Script([wrong] * 3)))
+    cycle = await open_cycle(base, scenario=ExtractScenario(base, None), author=SubtaskCodes([BAD_SCHEMA_CODE] * 3))
     request = AtomRequest(
         name="eph.margin_with_brent", purpose="маржа", output_type="dyn:margin_with_brent", output_schema=CALC_SCHEMA,
         requires=(InputSpec("ExtractedMetric", "EBITDA"), InputSpec("ExtractedMetric", "REVENUE")),
@@ -486,7 +533,7 @@ async def test_a_code_atom_needs_inputs_by_contract(base) -> None:
     """LR-23: у атома с кодом есть `requires` — иначе ему не из чего считать, контракт отклонён."""
     cycle = await open_cycle(base)
 
-    reply = await cycle.move(_refused_move(_atom(url="", requires=())))
+    reply = await cycle.call("aifa_register_atom", _registration(_atom(url="", requires=())))
 
     assert code_of(reply) == "ОТКАЗ неверные_аргументы" and "без входов" in reply
     await cycle.close()

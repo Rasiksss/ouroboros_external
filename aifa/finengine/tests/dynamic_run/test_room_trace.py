@@ -1,13 +1,12 @@
 """Трасса хода идёт от контекста узла временного атома в комнату станции (ADR-0007, CONTRACTS.md §5)."""
 from __future__ import annotations
 
-import json
 from types import SimpleNamespace
 
 import pytest
 
 from finengine.skills.spec import sealed_room
-from finengine.skills.spec.atom_author import AtomAuthor
+from finengine.skills.spec.atom_intake import Registered, check_code
 from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom, to_atom_def
 from finengine.skills.spec.graph_executor import NodeArgs, RunInputs
 
@@ -44,39 +43,36 @@ def test_a_run_without_a_turn_gives_the_room_no_trace(monkeypatch: pytest.Monkey
     assert call["trace_id"] == ""
 
 
-def test_the_self_check_of_the_author_runs_in_the_room_with_the_trace_of_the_turn(
+def test_the_check_of_a_registered_code_runs_in_the_room_with_the_trace_of_the_turn(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """ADR-0007: попытка автора — тоже вызов станции этого хода; её видно в журнале станции по трассе."""
+    """ADR-0007: проверка кода подзадачи — тоже вызов станции этого хода; её видно в журнале станции по трассе."""
     calls: list[dict] = []
 
     def room(code: str, inputs: dict, **kwargs: object) -> sealed_room.CodeRun:
         calls.append(kwargs)
         return sealed_room.CodeRun({}, None)
 
-    async def reply(_system: str, _prompt: str) -> str:
-        return json.dumps({"code": "def run(inputs):" + chr(10) + "    return {}", "example_inputs": {}})
-
     monkeypatch.setattr(sealed_room, "run_code", room)
     request = AtomRequest(
         name="eph.echo", purpose="эхо", output_type="dyn:echo", output_schema={"type": "object"}, requires=(),
     )
 
-    atom, error = AtomAuthor(reply).write(request, inputs_doc="", real_inputs={}, trace_id="trace-of-the-turn")
+    verdict = check_code(request, "def run(inputs):" + chr(10) + "    return {}", {}, trace_id="trace-of-the-turn")
 
-    assert atom is not None and error is None
+    assert verdict.error is None
     assert calls[0]["trace_id"] == "trace-of-the-turn"
 
 
-def test_the_cycle_gives_the_author_the_trace_of_its_turn(
+def test_the_cycle_gives_the_registration_the_trace_of_its_turn(
     base, severstal_text, local_room, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Цикл несёт трассу хода из входов прогона в самопроверку автора."""
+    """Цикл несёт трассу хода из входов прогона в проверку кода, который сдаёт подзадача."""
     from dynamic_support import MARGIN_CODE, margin_request
     from finengine.contracts import GoalIR
     from finengine.skills.spec.dynamic_run import DynamicRun
     from finengine.skills.spec.target import Target
-    from test_atom_author import _run_echo
+    from test_atom_inputs import _run_echo
     from test_ephemeral_in_graph import CASE, OWNER
     from tests.dynamic_run.conftest import local_run_code
 
@@ -87,18 +83,15 @@ def test_the_cycle_gives_the_author_the_trace_of_its_turn(
         calls.append(kwargs)
         return local_run_code(code, inputs, **kwargs)
 
-    async def reply(_system: str, _prompt: str) -> str:
-        return json.dumps({"code": MARGIN_CODE, "example_inputs": {}})
-
     monkeypatch.setattr(sealed_room, "run_code", room)
     cycle = DynamicRun(
         runtime=runtime, owner_id=OWNER, case_id=CASE,
         goal=GoalIR(raw_query="вопрос", intent_kind="document_qa"),
         target=Target(output_type="QuoteEvidence", entity_ref="e"),
-        inputs=RunInputs(extra={"trace_id": "trace-of-the-turn"}), author=AtomAuthor(reply),
+        inputs=RunInputs(extra={"trace_id": "trace-of-the-turn"}),
     )
 
-    problem = cycle._ensure_atom(margin_request())
+    outcome = cycle.register_atom(margin_request(), MARGIN_CODE)
 
-    assert problem is None
+    assert isinstance(outcome, Registered)
     assert calls and {call["trace_id"] for call in calls} == {"trace-of-the-turn"}

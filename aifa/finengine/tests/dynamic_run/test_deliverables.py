@@ -13,6 +13,7 @@ from finengine.skills.spec.dynamic_run import DynamicRun, parse_decision
 from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom
 from finengine.skills.spec.graph_executor import RunInputs
 from finengine.skills.spec.target import InputSpec, Target
+from subtask_support import delegate
 from test_dynamic_run import DynamicScenario, SequenceAuthor, _atom_doc
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 
@@ -80,14 +81,14 @@ def _file_id(prompt: str) -> str:
 
 
 def _dynamic(base, planner, **kwargs) -> DynamicRun:
-    return DynamicRun(
+    run = DynamicRun(
         runtime=base, owner_id=OWNER, case_id=CASE,
         goal=GoalIR(raw_query="собери Excel", intent_kind="custom_analysis"),
         target=Target(output_type="NarrativeOutput", entity_ref=ENTITY),
         inputs=RunInputs(extra={"owner_id": OWNER, "project_id": CASE}),
-        run_scenario=DynamicScenario(base), complete_fn=planner,
-        author=SequenceAuthor([(EphemeralAtom(REQUEST, BOOK_CODE), None)]), **kwargs,
+        run_scenario=DynamicScenario(base), complete_fn=planner, **kwargs,
     )
+    return delegate(run, SequenceAuthor([(EphemeralAtom(REQUEST, BOOK_CODE), None)]))
 
 
 def _file_artifact() -> FileArtifact:
@@ -211,14 +212,13 @@ def test_the_planner_prompt_and_the_response_schema_agree_on_deliverables() -> N
     assert "deliverables" in prompt and "FileArtifact" in prompt and "out/" in prompt
 
 
-def test_the_author_prompt_promises_only_libraries_the_station_image_installs() -> None:
-    """К16.7: окружение комнаты описано в `deploy/workstation-aifa/Dockerfile`, промпт автора не обещает лишнего."""
+def test_the_author_skill_promises_only_libraries_the_station_image_installs() -> None:
+    """К16.7: окружение комнаты описано в `aifa/deploy/dev/workstation/Dockerfile`, навык автора не обещает лишнего."""
     from pathlib import Path
 
-    from finengine.skills.spec import atom_author
-
-    prompt = atom_author._SKILL.read_text(encoding="utf-8")
-    image = (Path(__file__).parents[2] / "deploy" / "workstation-aifa" / "Dockerfile").read_text(encoding="utf-8")
+    skill = Path(__file__).parents[4] / "skills" / "aifa-atom-author" / "SKILL.md"
+    prompt = skill.read_text(encoding="utf-8")
+    image = (Path(__file__).parents[3] / "deploy" / "dev" / "workstation" / "Dockerfile").read_text(encoding="utf-8")
     promised = ("openpyxl", "pandas", "numpy", "python-pptx", "python-docx")
 
     for library in promised:

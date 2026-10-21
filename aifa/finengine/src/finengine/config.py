@@ -319,8 +319,7 @@ class Settings(BaseSettings):
         alias="FINENGINE_PLANNER_MODEL_TIMEOUT_SECONDS",
         validation_alias="FINENGINE_PLANNER_MODEL_TIMEOUT_SECONDS",
     )
-    # Модели планировщика цикла и автора временных атомов (решение владельца 08.10.2026): задачи
-    # разные, и модель им ставят порознь. Пусто — модель бэкенда (`openrouter_model`).
+    # Модель планировщика цикла (решение владельца 08.10.2026). Пусто — модель бэкенда (`openrouter_model`).
     planner_model: str = Field(
         "", alias="FINENGINE_PLANNER_MODEL", validation_alias="FINENGINE_PLANNER_MODEL",
     )
@@ -328,9 +327,6 @@ class Settings(BaseSettings):
     # размышления идут в тот же бюджет вывода, ответ — короткий JSON.
     planner_reasoning_effort: str = Field(
         "high", alias="FINENGINE_PLANNER_REASONING_EFFORT", validation_alias="FINENGINE_PLANNER_REASONING_EFFORT",
-    )
-    atom_author_model: str = Field(
-        "", alias="FINENGINE_ATOM_AUTHOR_MODEL", validation_alias="FINENGINE_ATOM_AUTHOR_MODEL",
     )
     # Модели двух стадий извлечения (решение владельца 09.10.2026): `locate` ищет кандидатов,
     # `read.value` достаёт значения. Пусто — модель бэкенда (`openrouter_model`).
@@ -345,13 +341,6 @@ class Settings(BaseSettings):
     # остальных вызовов (`llm.openrouter`).
     locate_reasoning_effort: str = Field(
         "", alias="FINENGINE_LOCATE_REASONING_EFFORT", validation_alias="FINENGINE_LOCATE_REASONING_EFFORT",
-    )
-    # Автор временных атомов пишет код целиком и в 120 с на dev не укладывался (08.10.2026). Предел
-    # отдельный от планировщика: у автора до трёх попыток на атом, и его крутят независимо.
-    atom_author_model_timeout_seconds: float = Field(
-        300.0,
-        alias="FINENGINE_ATOM_AUTHOR_MODEL_TIMEOUT_SECONDS",
-        validation_alias="FINENGINE_ATOM_AUTHOR_MODEL_TIMEOUT_SECONDS",
     )
     # Атом `web.search` цикла гибридного планировщика: сколько находок просить у поисковика и сколько
     # знаков фрагмента хранить в артефакте.
