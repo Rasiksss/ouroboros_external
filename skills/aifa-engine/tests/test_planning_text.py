@@ -209,3 +209,12 @@ def test_the_planner_rules_that_moved_into_the_skill_are_all_there() -> None:
         "при файле в `evidence_ids` достаточно нескольких ключевых показателей",
     ):
         assert rule.lower() in text.lower(), rule
+
+
+def test_a_file_built_outside_the_service_is_never_called_attached() -> None:
+    """Шаг 18, живой S1: после `ЛИМИТ` корень собрал xlsx в песочнице, `file_read` отправил его мимо службы, ответ сказал «приложен»."""
+    assert "собранный мимо службы" in guide() and "«приложен» пиши только про файл из `ПРИНЯТО`" in guide()
+    rule = references()["new-atom.md"]
+    assert "Файл пользователю отдаёт только служба" in rule
+    assert "`code_exec`, затем `file_read`" in rule and "пользователь его не получит" in rule
+    assert "Цикл исчерпан, а файла нет — так и скажи" in rule
