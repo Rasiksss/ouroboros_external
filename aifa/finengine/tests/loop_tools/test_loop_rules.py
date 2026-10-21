@@ -403,7 +403,7 @@ async def test_the_code_of_an_atom_sees_only_the_results_of_its_inputs(base, loc
 
 
 async def test_the_result_of_an_atom_carries_its_version_and_the_origin_the_wrapper_computed(base, local_room) -> None:
-    """LR-09, LR-11: результат — от конкретного кода (`eph.<имя>@<хэш контракта и кода>`), происхождение — из входов."""
+    """LR-09, LR-11, LR-50: результат — от конкретного кода (`eph.<имя>@<хэш контракта и кода>`), происхождение — из входов."""
     passport = make_passport()
     cycle = await open_cycle(
         base, scenario=ExtractScenario(base, passport), author=_echo_author(), passport=passport, document_text="отчёт",

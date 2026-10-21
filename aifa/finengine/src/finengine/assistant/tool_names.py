@@ -14,6 +14,8 @@ SCREEN_NAMES: dict[str, str] = {
     "aifa_state": "read_source",
     "aifa_doc": "read_source",
     "aifa_move": "financial_pipeline",
+    "aifa_register_atom": "financial_pipeline",
+    "aifa_report": "financial_pipeline",
     "aifa_finish": "financial_pipeline",
 }
 

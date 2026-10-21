@@ -43,14 +43,18 @@ TOOLS = (
     ),
     Tool(
         name="aifa_wait",
-        description="Дождаться итога фонового задания службы по job_id из ответа «ЖДИ job=…».",
+        description=(
+            "Дождаться итога фонового задания службы (job_id из ответа «ЖДИ job=…») либо подзадачи (task_id "
+            "из schedule_task); укажи что-то одно."
+        ),
         schema={
             "type": "object",
             "properties": {
                 "job_id": {"type": "string"},
+                "task_id": {"type": "string"},
                 "wait_sec": {"type": "integer", "minimum": 10, "maximum": 240},
             },
-            "required": ["job_id", "wait_sec"],
+            "required": ["wait_sec"],
         },
         capability_class="read_only",
     ),
@@ -132,6 +136,48 @@ TOOLS = (
                 },
             },
             "required": ["objective", "reason"],
+        },
+        capability_class="mutative",
+    ),
+    Tool(
+        name="aifa_register_atom",
+        description=(
+            "Сдать временный атом с кодом: служба проверит контракт, прогонит код в комнате на данных Case "
+            "и зарегистрирует eph.<имя>@<версия>."
+        ),
+        schema={
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "purpose": {"type": "string"},
+                "requires": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {"input_type": {"type": "string"}, "concept": {"type": "string"}},
+                        "required": ["input_type"],
+                    },
+                },
+                "output_type": {"type": "string"},
+                "output_schema": {"type": "object"},
+                "code": {"type": "string"},
+            },
+            "required": ["name", "purpose", "requires", "output_type", "output_schema", "code"],
+        },
+        capability_class="mutative",
+    ),
+    Tool(
+        name="aifa_report",
+        description="Отчёт подзадачи: ok или error — попытка в ленту хода; done — итог подзадачи (note).",
+        schema={
+            "type": "object",
+            "properties": {
+                "label": {"type": "string"},
+                "status": {"type": "string", "enum": ["ok", "error", "done"]},
+                "note": {"type": "string"},
+                "code": {"type": "string"},
+            },
+            "required": ["label", "status"],
         },
         capability_class="mutative",
     ),

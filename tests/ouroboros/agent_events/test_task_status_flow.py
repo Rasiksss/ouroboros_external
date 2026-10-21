@@ -152,6 +152,73 @@ def test_schedule_task_creates_requested_status_file(tmp_path):
     assert data["context"] == "Model focus A"
 
 
+class _StatusAtPublish:
+    """A publisher that records what the task record said when the request reached it."""
+
+    def __init__(self, drive_root):
+        self.drive_root = drive_root
+        self.seen = []
+
+    def publish(self, event):
+        from ouroboros.storage.task_results import load_task_result
+
+        self.seen.append((event, (load_task_result(self.drive_root, event.task_id) or {}).get("status")))
+
+
+def _publishing_ctx(tmp_path, publisher, **overrides):
+    from ouroboros.tools.events import PublishedToolEvents
+
+    return _task_ctx(
+        tmp_path,
+        events=PublishedToolEvents(publisher, scope=TEST_SCOPE, audit_event_repository=None),
+        **overrides,
+    )
+
+
+def test_schedule_task_hands_the_request_to_the_supervisor_before_the_run_ends(tmp_path):
+    """P50 (ADR-0052): the child must start while its parent still runs, so the request leaves with the call."""
+    from ouroboros.storage.runtime_persistence import runtime_persistence
+    from ouroboros.storage.task_results import STATUS_REQUESTED
+    from ouroboros.tools.service.orchestration import _schedule_task
+
+    runtime_persistence.initialize()
+    publisher = _StatusAtPublish(tmp_path)
+    ctx = _publishing_ctx(tmp_path, publisher)
+
+    result = _schedule_task(ctx, "Do the thing")
+
+    [(event, status_then)] = publisher.seen
+    assert isinstance(event, SubtaskRequested)
+    assert event.task_id in result
+    assert status_then == STATUS_REQUESTED, "the record must exist before the supervisor hears of the child"
+    assert ctx.pending_events == [], "a request already handed over must not be reported again when the run ends"
+
+
+def test_schedule_task_keeps_the_request_pending_when_nobody_can_take_it(tmp_path):
+    from ouroboros.tools.service.orchestration import _schedule_task
+
+    ctx = _task_ctx(tmp_path)  # no `events`: the context of a run without a publisher
+
+    _schedule_task(ctx, "Do the thing")
+
+    [event] = ctx.pending_events
+    assert isinstance(event, SubtaskRequested)
+
+
+def test_schedule_task_of_a_detached_job_still_reports_through_the_run_result(tmp_path, monkeypatch):
+    """A durable job closes its attempt with the list of its children (`pending_child_ids`)."""
+    from ouroboros.tools.service.orchestration import _schedule_task
+
+    monkeypatch.setattr("ouroboros.tools.service.orchestration.write_task_result", lambda *_a, **_k: None)
+    publisher = _StatusAtPublish(tmp_path)
+    ctx = _publishing_ctx(tmp_path, publisher, detached=True, execution_claim="claim-1", job_id="job-1")
+
+    _schedule_task(ctx, "Do the thing")
+
+    assert publisher.seen == []
+    assert [type(event) for event in ctx.pending_events] == [SubtaskRequested]
+
+
 def test_cross_owner_parent_cannot_supply_lineage(tmp_path):
     from ouroboros.storage.runtime_models import TaskRequest
     from ouroboros.storage.runtime_persistence import runtime_persistence

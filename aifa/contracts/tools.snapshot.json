@@ -1,8 +1,8 @@
 {
   "snapshot_version": 1,
-  "adr": "ADR-0051",
-  "note": "Снимок схем инструментов навыка aifa-engine (F4): шаг 10 — aifa_goal, aifa_wait; шаг 13 — aifa_state, aifa_doc, aifa_move, aifa_finish. Шаг 16 добавит aifa_register_atom и aifa_report вместе с ADR.",
-  "budget_chars": 2823,
+  "adr": "ADR-0053",
+  "note": "Снимок схем инструментов навыка aifa-engine (F4): шаг 10 — aifa_goal, aifa_wait; шаг 13 — aifa_state, aifa_doc, aifa_move, aifa_finish; шаг 16 — aifa_register_atom, aifa_report и task_id в aifa_wait.",
+  "budget_chars": 3950,
   "tools": {
     "aifa_goal": {
       "arguments": [],
@@ -15,10 +15,10 @@
     "aifa_wait": {
       "arguments": [
         "job_id",
+        "task_id",
         "wait_sec"
       ],
       "required": [
-        "job_id",
         "wait_sec"
       ],
       "safety_policy": "skip",
@@ -62,6 +62,44 @@
       "required": [
         "objective",
         "reason"
+      ],
+      "safety_policy": "skip",
+      "capability_class": "mutative",
+      "timeout_sec": 300,
+      "result_limit": 12000
+    },
+    "aifa_register_atom": {
+      "arguments": [
+        "code",
+        "name",
+        "output_schema",
+        "output_type",
+        "purpose",
+        "requires"
+      ],
+      "required": [
+        "code",
+        "name",
+        "output_schema",
+        "output_type",
+        "purpose",
+        "requires"
+      ],
+      "safety_policy": "skip",
+      "capability_class": "mutative",
+      "timeout_sec": 300,
+      "result_limit": 12000
+    },
+    "aifa_report": {
+      "arguments": [
+        "code",
+        "label",
+        "note",
+        "status"
+      ],
+      "required": [
+        "label",
+        "status"
       ],
       "safety_policy": "skip",
       "capability_class": "mutative",

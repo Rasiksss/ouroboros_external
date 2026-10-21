@@ -149,6 +149,17 @@ class PublishedToolEvents(ToolEvents):
                 log.debug("Could not publish the %s lifecycle event", event_type, exc_info=True)
         self._record_lifecycle(event_type, event)
 
+    def request_subtask(self, request: Any) -> bool:
+        if self._events is None:
+            return False
+        try:
+            self._events.publish(request)
+        except Exception:
+            # Not reported at all would lose the child; the caller keeps it for the run result.
+            log.warning("Could not hand subtask %s to the supervisor", getattr(request, "task_id", ""), exc_info=True)
+            return False
+        return True
+
     def _record_lifecycle(self, event_type: str, event: dict[str, Any]) -> None:
         """Do what the consuming component's handler would have done, in this process."""
         if self._audit_event_repository is not None:

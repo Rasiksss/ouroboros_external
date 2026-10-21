@@ -7,6 +7,7 @@ from functools import cache
 from finengine.assistant.loop_desk import LoopDesk
 from finengine.assistant.ouro_client import OuroClient
 from finengine.assistant.standard_path import StandardPath
+from finengine.assistant.subtask_waits import SubtaskWaits
 from finengine.assistant.tool_api import ToolApi
 from finengine.assistant.turn_gateway import TurnGateway, TurnTimings
 from finengine.config import settings
@@ -18,8 +19,13 @@ def ouro_client() -> OuroClient:
 
 
 @cache
+def subtask_waits() -> SubtaskWaits:
+    return SubtaskWaits()
+
+
+@cache
 def turn_gateway() -> TurnGateway:
-    return TurnGateway(ouro_client(), TurnTimings.from_settings(settings))
+    return TurnGateway(ouro_client(), TurnTimings.from_settings(settings), subtask_waits())
 
 
 @cache
@@ -29,4 +35,4 @@ def loop_desk() -> LoopDesk:
 
 @cache
 def tool_api() -> ToolApi:
-    return ToolApi(turn_gateway(), StandardPath(loop_desk()), loop_desk())
+    return ToolApi(turn_gateway(), StandardPath(loop_desk()), loop_desk(), subtask_waits())

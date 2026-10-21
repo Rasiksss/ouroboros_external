@@ -148,3 +148,38 @@ def test_the_handler_is_what_the_dispatcher_calls_with_a_leading_context() -> No
         parameters = list(inspect.signature(tool.handler).parameters)
         assert parameters[0] == "ctx", name
         assert inspect.iscoroutinefunction(tool.handler.__call__), name
+
+
+@pytest.mark.parametrize(
+    ("tool", "args"),
+    [
+        ("aifa_wait", {"task_id": "child-1", "wait_sec": 30}),
+        (
+            "aifa_report",
+            {"label": "eph.margin", "status": "error", "note": "деление на ноль", "code": "def run(i): ..."},
+        ),
+        (
+            "aifa_register_atom",
+            {
+                "name": "eph.margin",
+                "purpose": "маржа",
+                "requires": [{"input_type": "ExtractedMetric", "concept": "EBITDA"}],
+                "output_type": "dyn:margin",
+                "output_schema": {"type": "object"},
+                "code": "def run(i): return {}",
+            },
+        ),
+    ],
+)
+def test_the_tools_of_a_subtask_pass_their_arguments_to_the_service_as_they_are(tool: str, args: dict) -> None:
+    """Шаг 16, §3.1: плагин остаётся тонким клиентом — ни разбора, ни правил; аргументы подзадачи уходят в `args` как есть."""
+    seen: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(json.loads(request.content))
+        return httpx.Response(200, text="ГОТОВО")
+
+    run(tool, handler, tool_context(root_task_id="parent-root", task_depth=1), **args)
+
+    assert seen[0]["args"] == args
+    assert seen[0]["ctx"]["task_depth"] == 1

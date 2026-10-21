@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import json
 from enum import StrEnum
 
 from finengine.assistant.doc_pages import Match, Page
@@ -28,6 +29,7 @@ TAIL_RESERVE = 1_000
 # Разделы состояния, которые уступают место таблице, когда состояние не помещается в предел (по порядку).
 _SHRINKABLE = ("Реестр показателей", "Каталог атомов")
 _SHRINK_FLOOR = 300
+_REGISTER_PREVIEW = 400
 
 
 class Code(StrEnum):
@@ -70,6 +72,39 @@ def waiting(job_id: str) -> str:
     return (
         f"{Code.WAIT} job={job_id}\n"
         "Задание идёт фоном. Вызови aifa_wait с этим job_id (wait_sec от 10 до 240) и жди итог."
+    )
+
+
+_SUBTASK_HINT = "Состояние подзадачи — get_task_result, снять её — cancel_task."
+
+
+def waiting_subtask(task_id: str) -> str:
+    return (
+        f"{Code.WAIT} task={task_id}\n"
+        "Подзадача ещё работает. Вызови aifa_wait с этим task_id (wait_sec от 10 до 240) и жди итог. " + _SUBTASK_HINT
+    )
+
+
+def subtask_silent(task_id: str, seconds: float) -> str:
+    return refusal(
+        Refusal.SUBTASK_SILENT,
+        f"Подзадача {task_id} не ответила за {seconds:g} с. {_SUBTASK_HINT} Продолжай план без её итога.",
+    )
+
+
+def subtask_result(task_id: str, text: str, *, failed: bool, limit: int) -> str:
+    """Итог подзадачи: её последнее сообщение или `note` её `aifa_report done`; упавшая — с пометкой."""
+    title = f"Итог подзадачи {task_id}: подзадача упала" if failed else f"Итог подзадачи {task_id}"
+    body = text if len(text) <= limit - TAIL_RESERVE else text[: limit - TAIL_RESERVE] + "…[итог обрезан]"
+    return f"{Code.READY}\n## {title}\n{body}"
+
+
+def registered(atom_name: str, version: str, output: dict | None) -> str:
+    """Ответ `aifa_register_atom`: имя с версией и краткий итог проверочного прогона."""
+    shown = json.dumps(output, ensure_ascii=False)[:_REGISTER_PREVIEW] if output is not None else "—"
+    return (
+        f"{Code.READY}\nАтом {atom_name}@{version} зарегистрирован.\n"
+        f"Итог проверочного прогона на входах Case: {shown}\nСлужба исполнит его шагом aifa_move."
     )
 
 
@@ -207,9 +242,13 @@ def limited(reason: str) -> str:
     return f"{Code.LIMIT}\nЦикл исчерпан: {reason}. Исполнять новые ходы нельзя — принимается только aifa_finish."
 
 
-def accepted(result: DynamicRunResult, *, reason: str = "") -> str:
-    """Ответ `aifa_finish`: цикл закрыт; текст ответа пользователю пишет ouroboros (ADR-0044 п. 2)."""
+def accepted(result: DynamicRunResult, *, reason: str = "", unfinished: list[str] | None = None) -> str:
+    """Ответ `aifa_finish`: цикл закрыт; текст ответа пользователю пишет ouroboros (ADR-0044 п. 2).
+
+    `unfinished` — подзадачи хода, которых служба не видела завершёнными (ADR-0043 п. 8): их снимает `cancel_task`."""
     lines = [f"{Code.ACCEPTED}", "Цикл закрыт."]
+    if unfinished:
+        lines.append(f"Подзадачи хода, которые ещё не закончили: {', '.join(unfinished)} — сними их cancel_task.")
     if result.deliverables:
         lines.append("Файлы опубликованы: " + ", ".join(file.filename for file in result.deliverables) + ".")
     if reason:

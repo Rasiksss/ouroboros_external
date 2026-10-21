@@ -49,15 +49,17 @@ services:
       # Служба расчётов — процесс сквозного теста на хосте (aifa/tests/contract/engine_host.py); секрет — заглушка.
       AIFA_ENGINE_URL: http://host.docker.internal:18183
       AIFA_ENGINE_TOKEN: contract-engine-token
-      # C2.4 нужна подзадача, а на dev `schedule_task` выключен до шага 16 (ADR-0044 п. 3). Список —
-      # пример без этого имени; `test_contract_compose.py` держит их равными.
-      OUROBOROS_DISABLED_TOOLS: attachment_read,vlm_query,data_read,data_list,data_write,send_file,send_image,send_photo,send_user_message,gigasearch,browse_page,browser_action,image_generate,memory_save,memory_read,memory_list,memory_delete,create_scheduled_task,create_reminder,list_schedules,edit_schedule,cancel_schedule,pause_schedule,resume_schedule,confirm_schedule,move_schedule_here
+      # C4.7: навык-фикстура (том ниже) допущен владельцам поверх допуска dev. Список инструментов — как на dev:
+      # подзадачи включены самим примером (ADR-0043 п. 1); `test_contract_compose.py` держит оба значения.
+      OUROBOROS_USER_ENABLED_SKILL_IDS: distribution:workstation,distribution:aifa-planning,distribution:aifa-engine,distribution:contract-fixture-role
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
       - "127.0.0.1:18181:8080"
     volumes:
       - ouro-data:/data
+      # C4.7: навык подзадачи, не связанный с автором кода, — только в этом профиле, не в `skills/`.
+      - ../../tests/contract/skills/contract-fixture-role:/app/skills/contract-fixture-role:ro
     depends_on:
       ouro-postgres:
         condition: service_healthy

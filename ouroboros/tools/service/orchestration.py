@@ -172,6 +172,12 @@ def _schedule_task(ctx: ToolContext, description: str, context: str = "", parent
             if isinstance(exc, STORE_FAILURES):
                 raise ExecutionClaimUnavailable(str(ctx.task_id or "")) from exc
             return "⚠️ SCHEDULE_TASK_BLOCKED: task request was not persisted."
+    else:
+        # The child starts while this run is still going (ADR-0052): the request leaves now, after the record
+        # it names exists. A durable job keeps the run-result path, which closes its attempt over its children.
+        events = getattr(ctx, "events", None)
+        if not detached and events is not None and events.request_subtask(requested):
+            ctx.pending_events[:] = [event for event in ctx.pending_events if event is not requested]
     return f"Task request queued {task_id}: {description}"
 
 

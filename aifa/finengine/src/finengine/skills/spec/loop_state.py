@@ -60,6 +60,7 @@ def state_of(session: LoopSession) -> dict[str, Any]:
         "goal_status": dict(session.goal_status), "failures": dict(session.failures),
         "initial_evidence_ids": sorted(session.initial_evidence_ids),
         "initial_file_ids": sorted(session.initial_file_ids),
+        "attempts": session.intake.log.to_doc(),
     }
 
 
@@ -76,3 +77,4 @@ def restore_state(session: LoopSession, doc: dict[str, Any]) -> None:
     session.goal_status, session.failures = dict(doc["goal_status"]), dict(doc["failures"])
     session.initial_evidence_ids = frozenset(doc["initial_evidence_ids"])
     session.initial_file_ids = frozenset(doc["initial_file_ids"])
+    session.intake.log.restore(doc.get("attempts", []))  # сохранённое до шага 16 счётчика не знает

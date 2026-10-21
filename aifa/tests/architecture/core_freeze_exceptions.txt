@@ -14,3 +14,13 @@ openspec/changes/trusted-distribution-executable-skills/proposal.md ADR-0038
 openspec/changes/trusted-distribution-executable-skills/design.md ADR-0038
 openspec/changes/trusted-distribution-executable-skills/tasks.md ADR-0038
 openspec/changes/trusted-distribution-executable-skills/specs/multiuser-mode/spec.md ADR-0038
+# ADR-0052: запрос подзадачи уходит supervisor'у в конце вызова `schedule_task` (ADR-0046, вариант B).
+new_core/tools/interfaces.py ADR-0052
+ouroboros/tools/events.py ADR-0052
+ouroboros/tools/service/orchestration.py ADR-0052
+tests/ouroboros/tools/test_tool_events.py ADR-0052
+tests/ouroboros/agent_events/test_task_status_flow.py ADR-0052
+openspec/changes/subtask-request-during-parent-run/proposal.md ADR-0052
+openspec/changes/subtask-request-during-parent-run/design.md ADR-0052
+openspec/changes/subtask-request-during-parent-run/tasks.md ADR-0052
+openspec/changes/subtask-request-during-parent-run/specs/task-lifecycle/spec.md ADR-0052
