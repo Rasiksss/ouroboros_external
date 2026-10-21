@@ -90,3 +90,4 @@
 | [0052](0052-zapros-podzadachi-uhodit-srazu.md) | Запрос подзадачи уходит supervisor'у в конце вызова `schedule_task` (правка ядра, ADR-0046 вариант B) | принято (владелец, 21.10.2026) |
 | [0053](0053-snimok-skhem-shaga-16-i-utochneniya-instrumentov-podzadach.md) | Снимок схем шага 16 и уточнения инструментов подзадач | принято (владелец, 21.10.2026) |
 | [0054](0054-avtor-atomov-stanovitsya-navykom.md) | Автор атомов с кодом — навык подзадачи `aifa-atom-author`; автор службы, его модель и атом с кодом в `new_atoms` удаляются | предложено (шаг 17) |
+| [0055](0055-dev-holy-deepseek.md) | Все активные LLM-роли dev — Holy API и deepseek-v4.1-flash | принято (владелец, 21.10.2026) |

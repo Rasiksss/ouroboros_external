@@ -1,5 +1,5 @@
 {
-  "adr": "ADR-0027, ADR-0036, ADR-0038, ADR-0039, ADR-0042, ADR-0043, ADR-0044, ADR-0047",
+  "adr": "ADR-0027, ADR-0036, ADR-0038, ADR-0039, ADR-0042, ADR-0043, ADR-0044, ADR-0047, ADR-0055",
   "note": "Снимок F9 (aifa/tests/architecture/test_dev_config.py). Списки отключённых инструментов и навыков сверены с живым экземпляром на шаге 04 (P3, ADR-0036); изменение набора — новая ADR (F13).",
   "required": {
     "OUROBOROS_MULTIUSER": "true",
@@ -8,10 +8,11 @@
     "OUROBOROS_HARD_TIMEOUT_SEC": "2700",
     "OUROBOROS_MEMORY_DISTILL": "false",
     "OUROBOROS_TOOL_CONFIRMATION_ENABLED": "false",
-    "OUROBOROS_MODEL": "cloudru::zai-org/GLM-5.2",
-    "OUROBOROS_MODEL_LIGHT": "cloudru::zai-org/GLM-5.2",
-    "OUROBOROS_MODEL_FALLBACK": "cloudru::zai-org/GLM-5.2",
-    "AIFA_ENGINE_URL": "http://engine:8000"
+    "OUROBOROS_MODEL": "cloudru::deepseek-v4.1-flash",
+    "OUROBOROS_MODEL_LIGHT": "cloudru::deepseek-v4.1-flash",
+    "OUROBOROS_MODEL_FALLBACK": "cloudru::deepseek-v4.1-flash",
+    "AIFA_ENGINE_URL": "http://engine:8000",
+    "CLOUDRU_FOUNDATION_MODELS_BASE_URL": "https://api.holyapi.workers.dev/v1"
   },
   "lists": {
     "OUROBOROS_ENABLED_TOOLS": [
