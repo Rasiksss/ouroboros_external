@@ -87,5 +87,5 @@
 | [0049](0049-sluzhba-hodit-v-cloudru-napryamuyu.md) | Служба ходит к моделям в Cloud.ru напрямую, без `infproxy` | принято (владелец, 19.10.2026) |
 | [0050](0050-sluzhba-snova-na-deepseek.md) | Разбор запроса и извлечение службы — снова на DeepSeek-V4-Pro (напрямую, ADR-0049); заменяет ADR-0048 | принято (владелец, 19.10.2026) |
 | [0051](0051-snimok-skhem-shaga-13-i-ispolnenie-instrumentov-cikla.md) | Снимок схем шага 13 и исполнение инструментов цикла: состояние в хранилище службы, отказ тратит ход, предел цикла, чтение | принято (владелец, 19.10.2026) |
-| [0052](0052-zapros-podzadachi-uhodit-srazu.md) | Запрос подзадачи уходит supervisor'у в конце вызова `schedule_task` (правка ядра, ADR-0046 вариант B) | предложено (шаг 16) |
-| [0053](0053-snimok-skhem-shaga-16-i-utochneniya-instrumentov-podzadach.md) | Снимок схем шага 16 и уточнения инструментов подзадач | предложено (шаг 16) |
+| [0052](0052-zapros-podzadachi-uhodit-srazu.md) | Запрос подзадачи уходит supervisor'у в конце вызова `schedule_task` (правка ядра, ADR-0046 вариант B) | принято (владелец, 21.10.2026) |
+| [0053](0053-snimok-skhem-shaga-16-i-utochneniya-instrumentov-podzadach.md) | Снимок схем шага 16 и уточнения инструментов подзадач | принято (владелец, 21.10.2026) |
