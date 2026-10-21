@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import os
 import re
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from finengine.skills.spec.ephemeral import AtomRequest
@@ -75,3 +76,24 @@ class _StableEventNormalizer:
         if value not in self.ids:
             self.ids[value] = f"<uuid-{len(self.ids) + 1}>"
         return self.ids[value]
+
+
+BAD_CODE = "def run(inputs):\n    return {'margin_pct': 1 / 0}\n"
+BAD_SCHEMA_CODE = "def run(inputs):\n    return {'margin_pct': 'много'}\n"
+
+
+@dataclass
+class Script:
+    """`complete_fn` с записанными ответами; исключение в списке — сбой шлюза на этом вызове."""
+
+    replies: list
+    prompts: list[str] = field(default_factory=list)
+    systems: list[str] = field(default_factory=list)
+
+    async def __call__(self, system: str, prompt: str) -> str:
+        self.systems.append(system)
+        self.prompts.append(prompt)
+        reply = self.replies.pop(0)
+        if isinstance(reply, Exception):
+            raise reply
+        return reply

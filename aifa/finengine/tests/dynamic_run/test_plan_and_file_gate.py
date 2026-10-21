@@ -13,11 +13,11 @@ import pytest
 from finengine.config import settings
 from finengine.contracts import FormOutput, NodeKey, VerificationFinding
 from finengine.skills.spec import dynamic_run
-from finengine.skills.spec.atom_author import AtomAuthor, render_author_prompt
+from finengine.skills.spec.atom_intake import check_code
 from finengine.skills.spec.dynamic_run import parse_decision
 from finengine.skills.spec.ephemeral import EphemeralAtom
 from finengine.skills.spec.room_files import FileSpec
-from test_atom_author import Script
+from subtask_support import delegate
 from test_deliverables import BOOK_CODE, REQUEST, _dynamic, _events
 from test_dynamic_run import SequenceAuthor, _atom_doc
 from test_ephemeral_atoms import _metric
@@ -148,7 +148,7 @@ def test_finalize_is_refused_while_the_promised_file_is_not_built(base, local_ro
     result = dynamic.run(deterministic_error="нет пути")
 
     refusal = _rejections(events)[0]
-    assert "xlsx" in refusal and "new_atoms" in refusal and "out.file" in refusal
+    assert "xlsx" in refusal and "подзадач" in refusal and "aifa_register_atom" in refusal and "out.file" in refusal
     assert result.status == "finalized"
     assert [item.filename for item in result.deliverables] == ["итоги.xlsx"], "файл по плану уходит в ответ сам"
 
@@ -160,7 +160,7 @@ def test_a_file_poorer_than_the_plan_does_not_pass_as_the_promised_one(base, loc
         _reply("finalize", answer="Книга собрана."),
     ])
     dynamic = _dynamic(base, planner)
-    dynamic.author = SequenceAuthor([(EphemeralAtom(REQUEST, PLAIN_BOOK_CODE), None)])
+    delegate(dynamic, SequenceAuthor([(EphemeralAtom(REQUEST, PLAIN_BOOK_CODE), None)]))
     events = _events(dynamic)
 
     dynamic.run(deterministic_error="нет пути")
@@ -177,7 +177,7 @@ def test_after_two_failed_attempts_to_build_the_file_the_planner_may_answer_with
         _answer_by_seed("Показатели получены, файл собрать не удалось."),
     ])
     dynamic = _dynamic(base, planner)
-    dynamic.author = SequenceAuthor([failed, failed])
+    delegate(dynamic, SequenceAuthor([failed, failed]))
 
     result = dynamic.run(deterministic_error="нет пути")
 
@@ -228,44 +228,27 @@ def test_the_state_table_keeps_what_an_answer_can_cite_and_drops_the_plumbing(ba
     assert "не цитируется" in form_row
 
 
-# ───────────────────────── автор ─────────────────────────
+# ───────────────────────── приёмка файла подзадачи ─────────────────────────
 
-def test_the_author_sees_a_sample_of_every_input_type_not_the_head_of_the_first() -> None:
-    inputs = {
-        "ExtractedMetric": [{"concept": f"METRIC_{index}", "note": "x" * 400} for index in range(50)],
-        "CalculatedMetric": [{"derived_fact": {"expression": "A / B", "inputs": ["id-1", "id-2"]}}],
-    }
-
-    prompt = render_author_prompt(REQUEST, "ВХОДЫ", inputs, None, None)
-
-    assert "METRIC_0" in prompt and '"expression": "A / B"' in prompt
-    assert "ExtractedMetric: 50" in prompt and "CalculatedMetric: 1" in prompt
-    assert "METRIC_49" not in prompt
+INPUTS = {"dyn:seed": [{"payload": {"value": 100}}]}
 
 
-def test_the_author_is_told_what_the_file_must_contain_and_fixes_a_poorer_one(local_room) -> None:
-    script = Script([json.dumps({"code": code, "example_inputs": {}}) for code in (PLAIN_BOOK_CODE, BOOK_CODE)])
-    inputs = {"dyn:seed": [{"payload": {"value": 100}}]}
+def test_the_intake_tells_what_the_file_must_contain_and_accepts_the_richer_one(local_room) -> None:
+    """ADR-0054: файл беднее плана — отказ приёмки с причиной (листы, формулы); достаточный — принимается."""
+    wanted = (FileSpec("xlsx", 2, True),)
 
-    atom, error = AtomAuthor(script).write(
-        REQUEST, inputs_doc="ВХОДЫ", real_inputs=inputs, expected_files=(FileSpec("xlsx", 2, True),),
-    )
+    poorer = check_code(REQUEST, PLAIN_BOOK_CODE, INPUTS, expected_files=wanted)
+    richer = check_code(REQUEST, BOOK_CODE, INPUTS, expected_files=wanted)
 
-    assert error is None and atom.code == BOOK_CODE
-    assert "## Требования к файлу" in script.prompts[0] and "формул" in script.prompts[0]
-    assert "итоги.xlsx" in script.prompts[1] and "формул" in script.prompts[1].split("## Ошибка")[1]
+    assert poorer.error is not None and "итоги.xlsx" in poorer.error and "формул" in poorer.error
+    assert richer.error is None
 
 
 def test_a_calculation_atom_is_not_blamed_for_the_file_another_atom_will_build(local_room) -> None:
-    code = "def run(inputs):\n    return {}\n"
-    script = Script([json.dumps({"code": code, "example_inputs": {}})])
+    verdict = check_code(REQUEST, "def run(inputs):\n    return {}\n", {"dyn:seed": [{"payload": {"value": 1}}]},
+                         expected_files=(FileSpec("xlsx", 2, True),))
 
-    atom, error = AtomAuthor(script).write(
-        REQUEST, inputs_doc="ВХОДЫ", real_inputs={"dyn:seed": [{"payload": {"value": 1}}]},
-        expected_files=(FileSpec("xlsx", 2, True),),
-    )
-
-    assert error is None and atom is not None
+    assert verdict.error is None
 
 
 # ───────────────────────── вход «любой показатель» в графе ─────────────────────────
@@ -307,9 +290,9 @@ def test_an_atom_that_takes_any_metric_gets_the_metrics_already_in_the_case(base
         runtime=base, owner_id=OWNER, case_id=CASE, goal=goal,
         target=Target(output_type="dyn:all_metrics", entity_ref=ENTITY, period_ref="2024"),
         inputs=RunInputs(document_text="отчёт"), run_scenario=ExtractScenario(base, passport),
-        complete_fn=planner, author=SequenceAuthor([(EphemeralAtom(request, ALL_METRICS_CODE), None)]),
-        run_passport=passport,
+        complete_fn=planner, run_passport=passport,
     )
+    delegate(dynamic, SequenceAuthor([(EphemeralAtom(request, ALL_METRICS_CODE), None)]))
 
     dynamic.run(deterministic_error="нет пути")
 

@@ -17,7 +17,7 @@ from dataclasses import asdict, dataclass, replace
 from functools import partial
 from pathlib import Path
 from time import monotonic
-from typing import Literal, Protocol, TypedDict
+from typing import Literal, Protocol
 
 from pydantic import BaseModel
 
@@ -40,21 +40,14 @@ from finengine.skills.atoms.web_search import describe_hits
 from finengine.skills.case_runtime import CaseRuntime, PlanInfeasible
 from finengine.skills.metric_schema import registry_for_passport
 from finengine.skills.result_events import dynamic_move_event, dynamic_plan_event
-from finengine.skills.spec.atom_author import (
-    AtomAuthor,
-    StationFault,
-    case_inputs,
-    describe_inputs,
-    end_of_chain,
-    without_markdown_fence,
-)
+from finengine.skills.spec.atom_inputs import case_inputs, end_of_chain, without_markdown_fence
 from finengine.skills.spec.atom_catalog import NOT_PLANNABLE, catalog_text
 from finengine.skills.spec.atom_intake import (
+    CODE_BY_SUBTASK,
     AtomIntake,
     Refused,
     Registered,
     StationDown,
-    inputs_missing,
     refusal_code,
 )
 from finengine.skills.spec.atom_registry import AtomDef, AtomRegistry, NodeArgs
@@ -225,14 +218,6 @@ _PLANNER_RESPONSE_FORMAT = {
 }
 
 
-class _AuthorExtras(TypedDict, total=False):
-    """Что `AtomAuthor.write` принимает сверх общего протокола автора."""
-
-    on_attempt: Callable[[int, str, str | None, str], None]
-    expected_files: tuple[FileSpec, ...]
-    trace_id: str
-
-
 @dataclass(frozen=True)
 class RunLimits:
     max_moves: int = 12
@@ -372,7 +357,7 @@ class LoopSession:
         self, *, runtime: CaseRuntime, owner_id, case_id: str, goal: GoalIR, target: Target,
         inputs: RunInputs, run_passport: RunPassport | None = None, root_extra=None,
         event_sink=None, run_scenario: ScenarioRunner | None = None,
-        run_goals: GoalRunner | None = None, author: AtomAuthor | None = None,
+        run_goals: GoalRunner | None = None,
         limits: RunLimits = RunLimits(), entry_stage: Literal["planning", "execution"] = "planning",
         is_cancelled: Callable[[], bool] | None = None,
     ):
@@ -385,7 +370,6 @@ class LoopSession:
         self.run_passport = run_passport
         self.root_extra = root_extra or {}
         self.event_sink = event_sink
-        self.author = author or AtomAuthor()
         self.limits = limits
         self.entry_stage = entry_stage
         self.is_cancelled = is_cancelled
@@ -468,7 +452,7 @@ class LoopSession:
         return self.inputs.extra.get("trace_id", "")
 
     def register_atom(self, request: AtomRequest, code: str) -> Registered | Refused | StationDown:
-        """Сдача атома с кодом подзадачей ouroboros (`aifa_register_atom`); проверка — та же, что у автора службы."""
+        """Сдача атома с кодом подзадачей ouroboros (`aifa_register_atom`): единственный путь кода в цикл (ADR-0054)."""
         return self.intake.submit(request, code, partial(self._real_inputs, request))
 
     def _real_inputs(self, request: AtomRequest) -> dict | None:
@@ -663,10 +647,6 @@ class LoopSession:
             ],
         )
 
-    def _report_author_attempt(self, atom: str, _number: int, status: str, error: str | None, code: str) -> None:
-        """Попытка автора службы — в ленту хода; номер даёт общий счётчик приёмки, не цикл автора."""
-        self.intake.report(atom, status, error, code, move=self.next_number)
-
     def _move(self, decision: Decision) -> MoveOutcome:
         known = self._progress_ids()
         lines = []
@@ -845,36 +825,16 @@ class LoopSession:
         return replace(definition, requires=requires)
 
     def _ensure_atom(self, request: AtomRequest) -> str | None:
+        """Загрузка заводится ходом; атом с кодом — только подзадачей (`aifa_register_atom`, ADR-0054 п. 4)."""
         known = self.atoms.get(request.name)
         if known and known.request == request and request.name not in self.failures:
             return None
+        if not request.is_download:
+            return CODE_BY_SUBTASK
         refused = self.intake.admission(request)
         if refused is not None:
             return refused.why
-        if request.is_download:
-            atom, error = EphemeralAtom(request=request), None
-        else:
-            real = self._real_inputs(request)
-            if real is None:
-                return inputs_missing(request) + " — получи их сценарием или шагом, а атом с кодом опиши следующим ходом"
-            observer: _AuthorExtras = (
-                {
-                    "on_attempt": partial(self._report_author_attempt, request.name),
-                    "expected_files": self.expected_files,
-                    "trace_id": self.trace_id,
-                }
-                if isinstance(self.author, AtomAuthor) else {}
-            )
-            atom, error = self.author.write(
-                request, inputs_doc=describe_inputs(request, self.atoms), real_inputs=real,
-                previous_code=known.code if known else None, error=self.failures.get(request.name),
-                **observer,
-            )
-        if isinstance(error, StationFault):
-            return f"комната станции недоступна, код не проверить: {error}"
-        if atom is None:
-            return f"автор не написал рабочий код за {self.author.attempts} попытки: {error}"
-        self.intake.register(atom)
+        self.intake.register(EphemeralAtom(request=request))
         return None
 
     def _files_as_deliverables(self, decision: Decision) -> Decision:
@@ -900,11 +860,12 @@ class LoopSession:
                     attached.append(file.artifact_id)
             elif self.build_attempts < _FILE_BUILD_ATTEMPTS:
                 if problem:
-                    return f"{problem}; исправь атом — пришли его описание с тем же name и запусти шагом"
+                    return f"{problem}; поручи подзадаче автора исправить атом (тот же name) и запусти его шагом"
                 return (
-                    f"по плану ответ отдаёт файл {spec.text()}, а в этом прогоне он не собран: опиши атом с кодом "
-                    "в new_atoms (входы — уже полученные показатели, структура файла — в purpose) и вызови его "
-                    "шагом этого же хода; out.file для этого не годится — он выгружает форму одним листом без формул"
+                    f"по плану ответ отдаёт файл {spec.text()}, а в этом прогоне он не собран: поручи подзадаче автора "
+                    "атом с кодом (входы — уже полученные показатели, структура файла — в задании), он сдаётся "
+                    "aifa_register_atom; затем вызови его шагом; out.file для этого не годится — он выгружает форму "
+                    "одним листом без формул"
                 )
         return replace(decision, deliverables=tuple(attached))
 
@@ -1285,8 +1246,8 @@ def _parse_step(index: int, item: dict, registry: AtomRegistry) -> AtomStep:
     atom = registry.get(atom_name)
     if atom is None and atom_name.startswith("eph."):
         raise InvalidSteps(
-            f"шаг {index}: атом {atom_name!r} не создан — опиши его в new_atoms этого же хода "
-            "(name, purpose, output_type и url либо requires) и оставь шаг с ним"
+            f"шаг {index}: атом {atom_name!r} не создан — атом-загрузку опиши в new_atoms этого же хода (name, purpose, "
+            "output_type и url) и оставь шаг с ним; атом с кодом заводит подзадача автора, её код сдаётся aifa_register_atom"
         )
     if atom is None:
         raise InvalidSteps(f"шаг {index}: неизвестный атом {atom_name!r} — используй только атомы каталога")

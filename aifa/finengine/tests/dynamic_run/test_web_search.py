@@ -35,6 +35,7 @@ from tests.integration.ingress_support import (  # noqa: F401
     set_intent,
 )
 
+from subtask_support import SubtaskCodes, patch_subtask
 from test_chat_outcome_contract import SequenceModel, _arm_dynamic
 from test_download_atom import _atom as _download_atom
 from test_download_atom import _csv_ok, _serve
@@ -418,10 +419,7 @@ LINK_CODE = (
 def _arm_cycle(monkeypatch, replies: list) -> SequenceModel:
     locate, read = _make_fake_locate_and_read_value_executors({"SALES_REVENUE": 1000.0})
     patched_build_registry(monkeypatch, locate, read)
-    monkeypatch.setattr(
-        "finengine.skills.spec.atom_author._default_complete",
-        SequenceModel([{"code": LINK_CODE, "example_inputs": {}}]),
-    )
+    patch_subtask(monkeypatch, SubtaskCodes([LINK_CODE]))
     set_intent(monkeypatch, SINGLE)
     return _arm_dynamic(monkeypatch, replies)
 

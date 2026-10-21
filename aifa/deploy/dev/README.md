@@ -51,7 +51,8 @@ cp infra.env.example .env          # compose читает его сам
 контейнера `s3` и у обоих продуктов); секрет Workstation — в `.env` и в `ouroboros.env`; `AIFA_ENGINE_TOKEN` —
 одно значение в `ouroboros.env` и `engine.env` (пустой секрет закрывает внутренний API службы целиком, ADR-0028).
 `OUROBOROS_USER_ENABLED_SKILL_IDS` в `ouroboros.env` на dev обновляется при выкатке шага 12: без допуска
-`aifa-planning` и `aifa-engine` корень не прочитает навык, а `aifa_goal` отвечает `TOOL_UNAVAILABLE` (ADR-0047).
+`aifa-planning` и `aifa-engine` корень не прочитает навык, а `aifa_goal` отвечает `TOOL_UNAVAILABLE` (ADR-0047); без допуска
+`aifa-atom-author` подзадача не прочитает навык автора и код нового атома писать будет некому (шаг 17, ADR-0054).
 
 ## Проверка и сборка
 
@@ -210,6 +211,17 @@ ouroboros зарегистрированы шесть инструментов `
 `schedule_task` (ADR-0052). `OUROBOROS_WORKER_SLOTS=4` (≥ 2) нужны именно этому: корень занимает слот, подзадача — второй. Дымовая 10
 (`smoke/run.sh 10`): корень запускает `schedule_task`, ждём уведомление «Scheduled task» и итог подзадачи; зависит от настоящей модели.
 Выкатка пересобирает `ouroboros` (ядро и плагин) и `engine` (код службы).
+
+### Шаг 17 (21.10.2026)
+
+Код новых атомов пишет подзадача ouroboros по навыку `aifa-atom-author` (`skills/aifa-atom-author`), который планировщик выбирает по
+каталогу навыков (раздел «Делегирование» навыка `aifa-planning`); автора и его модели в службе нет (ADR-0054). Допуск навыка —
+`distribution:aifa-atom-author` в `OUROBOROS_USER_ENABLED_SKILL_IDS` (в `ouroboros.env` на сервере — той же правкой руками, копия до —
+`~/aifa-sym-ouroboros.env.before17`); из `engine.env` убрана `FINENGINE_ATOM_AUTHOR_MODEL` (копия до — `~/aifa-sym-engine.env.before17`;
+служба неизвестные переменные игнорирует). Выкатка пересобирает `ouroboros` (навыки лежат в образе) и `engine`: заменой `/app/src` поверх
+`aifa-sym-engine:step16` (derived `Dockerfile` из `/tmp`, модули `atom_author.*` из слоя удалены `RUN rm`). Откат службы —
+`docker tag aifa-sym-engine:step16 aifa-sym-engine:dev` и `up -d --no-build engine`. Живой сценарий с новым атомом — S2 (`~/aifa-sym-s12/s2.json`,
+коэффициент вариации и медиана темпов роста EBITDA): `run_scenario.sh` из шага 12, по событиям — `author_attempt` в ленте.
 
 ### Известные ограничения
 

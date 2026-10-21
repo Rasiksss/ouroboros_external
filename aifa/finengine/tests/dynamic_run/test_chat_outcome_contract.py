@@ -17,6 +17,7 @@ from tests.integration.ingress_support import (  # noqa: F401
 )
 
 from dynamic_support import assert_event_fixture, normalized_events
+from subtask_support import SubtaskCodes, patch_subtask
 from test_download_atom import _serve
 
 
@@ -147,17 +148,13 @@ def test_finalized_with_cards_and_text_matches_shared_fixture(
         _execute({"atom": atom["name"]}, new_atoms=(atom,)),
         _finalize_cv,
     ])
-    author = SequenceModel([{
-        "code": (
-            "def run(inputs):\n"
-            "    xs = [m['scalar_fact']['value'] for m in inputs['ExtractedMetric']]\n"
-            "    mean = sum(xs) / len(xs)\n"
-            "    sd = (sum((x - mean) ** 2 for x in xs) / len(xs)) ** 0.5\n"
-            "    return {'mean': mean, 'population_sd': sd, 'cv_pct': sd / mean * 100}\n"
-        ),
-        "example_inputs": {},
-    }])
-    monkeypatch.setattr("finengine.skills.spec.atom_author._default_complete", author)
+    patch_subtask(monkeypatch, SubtaskCodes([
+        "def run(inputs):\n"
+        "    xs = [m['scalar_fact']['value'] for m in inputs['ExtractedMetric']]\n"
+        "    mean = sum(xs) / len(xs)\n"
+        "    sd = (sum((x - mean) ** 2 for x in xs) / len(xs)) ** 0.5\n"
+        "    return {'mean': mean, 'population_sd': sd, 'cv_pct': sd / mean * 100}\n"
+    ]))
 
     turn, events = _run_turn(monkeypatch, "Рассчитай CV выручки по двум периодам")
 

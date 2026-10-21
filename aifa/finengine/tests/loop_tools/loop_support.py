@@ -13,6 +13,7 @@ from typing import Any
 
 from pathlib import Path
 
+from subtask_support import delegate
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 from tool_harness import CHAT, ROOT, OpenRun, Plugin, ctx_of, open_run
 
@@ -120,8 +121,10 @@ async def open_cycle(
     target = Target(output_type="QuoteEvidence", entity_ref=ENTITY)
     session = LoopSession(
         runtime=base, owner_id=OWNER, case_id=CASE, goal=goal, target=target, inputs=RunInputs(document_text=document_text),
-        run_scenario=scenario, author=author, limits=limits, run_passport=passport, event_sink=SwitchSink(), entry_stage=entry_stage,  # type: ignore[arg-type]
+        run_scenario=scenario, limits=limits, run_passport=passport, event_sink=SwitchSink(), entry_stage=entry_stage,  # type: ignore[arg-type]
     )
+    if author is not None:
+        delegate(session, author)
     session.open(deterministic_error="нет пути")
     desk = LoopDesk()
     desk.adopt(

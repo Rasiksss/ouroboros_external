@@ -1,0 +1,38 @@
+{
+  "source": "Ответы автора для атома «удвоенная выручка»: ошибка деления на ноль — как BAD_CODE в aifa/finengine/tests/dynamic_run (журналы прогонов старого AIFA, author_attempt status=error), затем исправление причины. Перенесены без правок логики; имя концепта — как в фикстуре конвейера контрактных тестов.",
+  "atom": {
+    "name": "eph.revenue_double",
+    "purpose": "удвоенная выручка",
+    "requires": [
+      {
+        "input_type": "ExtractedMetric",
+        "concept": "SALES_REVENUE"
+      }
+    ],
+    "output_type": "dyn:revenue_x2",
+    "output_schema": {
+      "type": "object",
+      "required": [
+        "revenue_x2"
+      ],
+      "properties": {
+        "revenue_x2": {
+          "type": "number",
+          "x-unit": "RUB_MLN"
+        }
+      }
+    }
+  },
+  "replies": [
+    {
+      "status": "error",
+      "note": "первая проба: деление на ноль",
+      "code": "def run(inputs):\n    return {'revenue_x2': 1 / 0}\n"
+    },
+    {
+      "status": "ok",
+      "note": "исправлено: берётся значение выручки из входа",
+      "code": "def run(inputs):\n    metric = next(m for m in inputs['ExtractedMetric'] if m['concept'] == 'SALES_REVENUE')\n    return {'revenue_x2': metric['scalar_fact']['value'] * 2}\n"
+    }
+  ]
+}
