@@ -10,7 +10,7 @@ import asyncio
 from dynamic_support import normalized_events
 from loop_support import make_passport, new_runtime, open_cycle
 from dynamic_support import Script
-from subtask_support import SubtaskCodes, delegate
+from subtask_support import Visit, delegate
 from test_dynamic_run import (
     CALC_CODE,
     CALC_SCHEMA,
@@ -35,14 +35,10 @@ MARGIN = AtomRequest(
 MARGIN_ID = EphemeralAtom(MARGIN, CALC_CODE).version
 
 
-def _author() -> SubtaskCodes:
-    return SubtaskCodes([CALC_CODE])
-
-
 def _decisions() -> list[str]:
     return [
         _move(scenarios=("Извлеки EBITDA и выручку",)),
-        _move(atoms=(MARGIN,), steps=({"atom": MARGIN.name},)),
+        _move(steps=({"atom": MARGIN.name},)),
         _finalize(MARGIN_ID),
     ]
 
@@ -68,15 +64,16 @@ async def test_recorded_decisions_give_the_same_outcome_and_events_through_the_t
         run_scenario=ExtractScenario(engine_runtime, passport), complete_fn=Script(_decisions()),
         run_passport=passport, event_sink=events.append,
     )
-    delegate(engine, _author())
+    delegate(engine, Visit(MARGIN, (CALC_CODE,), before=2))
     expected = await asyncio.to_thread(engine.run, deterministic_error="нет пути")
 
-    cycle = await open_cycle(base, scenario=ExtractScenario(base, passport), author=_author(), passport=passport)
+    cycle = await open_cycle(base, scenario=ExtractScenario(base, passport), passport=passport)
     first, second, last = _decisions()
-    replies = [await cycle.move(first), await cycle.move(second), await cycle.finish(last)]
+    replies = [await cycle.move(first), await cycle.submit(MARGIN, CALC_CODE), await cycle.move(second)]
+    replies.append(await cycle.finish(last))
 
     assert expected.status == "finalized"
-    assert [reply.split("\n", 1)[0] for reply in replies] == ["ГОТОВО", "ГОТОВО", "ПРИНЯТО"]
+    assert [reply.split("\n", 1)[0] for reply in replies] == ["ГОТОВО", "ГОТОВО", "ГОТОВО", "ПРИНЯТО"]
     assert cycle.session.closed and tuple(cycle.session.journal) == expected.journal
     assert normalized_events(_without_final_words(cycle.events)) == normalized_events(
         _without_final_words(events)

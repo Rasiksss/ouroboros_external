@@ -94,6 +94,26 @@ def counting_room(monkeypatch: pytest.MonkeyPatch) -> CountingRoom:
     return room
 
 
+@dataclass
+class GraphFailingRoom:
+    """`local_room`, в которой код из `broken` проходит первый запуск (проверку при сдаче атома), а в графе падает."""
+    broken: set[str] = field(default_factory=set)
+    seen: set[str] = field(default_factory=set)
+
+    def __call__(self, code: str, inputs: dict, **kwargs) -> sealed_room.CodeRun:
+        if code in self.broken and code in self.seen:
+            return sealed_room.CodeRun(None, "ValueError: graph boom")
+        self.seen.add(code)
+        return local_run_code(code, inputs, **kwargs)
+
+
+@pytest.fixture
+def graph_failing_room(monkeypatch: pytest.MonkeyPatch) -> GraphFailingRoom:
+    room = GraphFailingRoom()
+    monkeypatch.setattr(sealed_room, "run_code", room)
+    return room
+
+
 @pytest.fixture
 def room_entry():
     """Запуск точки входа локально: вызов `room_entry(request) -> CompletedProcess`."""

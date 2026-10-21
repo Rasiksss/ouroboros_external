@@ -35,7 +35,7 @@ from tests.integration.ingress_support import (  # noqa: F401
     set_intent,
 )
 
-from subtask_support import SubtaskCodes, patch_subtask
+from subtask_support import Visit, patch_subtask
 from test_chat_outcome_contract import SequenceModel, _arm_dynamic
 from test_download_atom import _atom as _download_atom
 from test_download_atom import _csv_ok, _serve
@@ -45,7 +45,7 @@ from test_dynamic_run import _move as _move_reply
 from test_dynamic_run import _run as _cycle
 from test_ephemeral_in_graph import _stored
 from test_goal_by_reference import MESSAGE as BRENT_MESSAGE
-from test_goal_by_reference import BRENT_ATOM, STATS_ATOM, _arm, _finalize_stats, _ids, _move, _text, _turn
+from test_goal_by_reference import BRENT_ATOM, _arm, _finalize_stats, _ids, _move, _text, _turn, stats_visit
 
 ROOT = Path(__file__).resolve().parents[2]
 MESSAGE = (
@@ -416,10 +416,10 @@ LINK_CODE = (
 )
 
 
-def _arm_cycle(monkeypatch, replies: list) -> SequenceModel:
+def _arm_cycle(monkeypatch, replies: list, *visits: Visit) -> SequenceModel:
     locate, read = _make_fake_locate_and_read_value_executors({"SALES_REVENUE": 1000.0})
     patched_build_registry(monkeypatch, locate, read)
-    patch_subtask(monkeypatch, SubtaskCodes([LINK_CODE]))
+    patch_subtask(monkeypatch, *visits)
     set_intent(monkeypatch, SINGLE)
     return _arm_dynamic(monkeypatch, replies)
 
@@ -445,9 +445,9 @@ def test_P19_1_the_original_phrase_search_download_code_finalize_with_sources(mo
     planner = _arm_cycle(monkeypatch, [
         _move(steps=[REVENUE_STEP, _search_step(RATE_QUERY)]),
         _download_the_first_hit,
-        _move(new_atoms=[LINK_ATOM], steps=[{"atom": "eph.rate_vs_revenue"}]),
+        _move(steps=[{"atom": "eph.rate_vs_revenue"}]),
         _finalize_with_sources,
-    ])
+    ], Visit.of(LINK_ATOM, LINK_CODE, before=3))
 
     turn, events = _turn(monkeypatch, MESSAGE)
 
@@ -509,9 +509,9 @@ def test_P19_3_the_brent_chain_with_the_toggle_on_works_as_before(monkeypatch, l
     _, planner = _arm(monkeypatch, [
         _move(goals=["goal-1"]),
         _move(new_atoms=[BRENT_ATOM], steps=[{"atom": "eph.brent_csv"}]),
-        _move(new_atoms=[STATS_ATOM], steps=[{"atom": "eph.ebitda_brent"}]),
+        _move(steps=[{"atom": "eph.ebitda_brent"}]),
         _finalize_stats,
-    ])
+    ], visits=(stats_visit(3),))
 
     turn, events = _turn(monkeypatch, BRENT_MESSAGE)
 

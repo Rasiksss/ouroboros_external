@@ -15,11 +15,10 @@ from finengine.contracts import FormOutput, NodeKey, VerificationFinding
 from finengine.skills.spec import dynamic_run
 from finengine.skills.spec.atom_intake import check_code
 from finengine.skills.spec.dynamic_run import parse_decision
-from finengine.skills.spec.ephemeral import EphemeralAtom
 from finengine.skills.spec.room_files import FileSpec
-from subtask_support import delegate
-from test_deliverables import BOOK_CODE, REQUEST, _dynamic, _events
-from test_dynamic_run import SequenceAuthor, _atom_doc
+from subtask_support import Visit, delegate
+from test_deliverables import BOOK_CODE, REQUEST, _dynamic, _events, book_visit
+from test_dynamic_run import _atom_doc
 from test_ephemeral_atoms import _metric
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
 
@@ -40,7 +39,7 @@ def _reply(action: str = "execute", *, plan=(), files=(), scenarios=(), build: b
     return json.dumps({
         "objective": "ход", "reason": "нужно для ответа", "action": action, "plan": list(plan),
         "files": list(files), "scenarios": list(scenarios),
-        "new_atoms": [_atom_doc(REQUEST)] if build else [], "steps": [{"atom": REQUEST.name}] if build else [],
+        "new_atoms": [], "steps": [{"atom": REQUEST.name}] if build else [],
         "answer": answer, "evidence_ids": list(evidence_ids), "deliverables": [],
     }, ensure_ascii=False)
 
@@ -107,7 +106,7 @@ def test_a_reply_recorded_before_the_plan_existed_still_parses() -> None:
 def test_the_plan_of_the_first_move_is_shown_on_every_later_move(base, local_room) -> None:
     planner = Replies([_reply(plan=PLAN, files=[BOOK], scenarios=["Извлеки"]), _reply(build=True)])
 
-    _dynamic(base, planner).run(deterministic_error="нет пути")
+    _dynamic(base, planner, book_visit()).run(deterministic_error="нет пути")
 
     assert "плана нет" in _section(planner.prompts[0], "План")
     for prompt in planner.prompts[1:3]:
@@ -142,7 +141,7 @@ def test_finalize_is_refused_while_the_promised_file_is_not_built(base, local_ro
         _reply(build=True),
         _reply("finalize", answer="Книга собрана."),
     ])
-    dynamic = _dynamic(base, planner)
+    dynamic = _dynamic(base, planner, book_visit(before=3))
     events = _events(dynamic)
 
     result = dynamic.run(deterministic_error="нет пути")
@@ -153,35 +152,40 @@ def test_finalize_is_refused_while_the_promised_file_is_not_built(base, local_ro
     assert [item.filename for item in result.deliverables] == ["итоги.xlsx"], "файл по плану уходит в ответ сам"
 
 
-def test_a_file_poorer_than_the_plan_does_not_pass_as_the_promised_one(base, local_room) -> None:
+def test_a_file_poorer_than_the_plan_is_refused_at_registration_and_is_not_the_promised_one(base, local_room) -> None:
     planner = Replies([
         _reply(plan=PLAN, files=[BOOK], scenarios=["Извлеки"]),
         _reply(build=True),
         _reply("finalize", answer="Книга собрана."),
     ])
-    dynamic = _dynamic(base, planner)
-    delegate(dynamic, SequenceAuthor([(EphemeralAtom(REQUEST, PLAIN_BOOK_CODE), None)]))
+    poorer = book_visit(PLAIN_BOOK_CODE)
+    dynamic = _dynamic(base, planner, poorer)
     events = _events(dynamic)
 
-    dynamic.run(deterministic_error="нет пути")
+    result = dynamic.run(deterministic_error="нет пути")
 
-    assert any("итоги.xlsx" in text and "формул" in text for text in _rejections(events))
+    assert poorer.kinds == ["неверные_аргументы"] and REQUEST.name not in dynamic.atoms
+    assert "итоги.xlsx" in poorer.outcomes[0].why and "формул" in poorer.outcomes[0].why
+    assert any("xlsx" in text and "не собран" in text for text in _rejections(events))
+    assert result.deliverables == ()
 
 
-def test_after_two_failed_attempts_to_build_the_file_the_planner_may_answer_without_it(base, local_room) -> None:
-    failed = (None, "ValueError: единицы несовместимы")
+def test_after_two_failed_attempts_to_build_the_file_the_planner_may_answer_without_it(
+    base, graph_failing_room,
+) -> None:
+    graph_failing_room.broken.update({BOOK_CODE, BOOK_CODE + "# вторая версия\n"})
     planner = Replies([
         _reply(plan=PLAN, files=[BOOK], scenarios=["Извлеки"]),
         _reply(build=True),
         _reply(build=True),
         _answer_by_seed("Показатели получены, файл собрать не удалось."),
     ])
-    dynamic = _dynamic(base, planner)
-    delegate(dynamic, SequenceAuthor([failed, failed]))
+    dynamic = _dynamic(base, planner, book_visit(), book_visit(BOOK_CODE + "# вторая версия\n", before=3))
 
     result = dynamic.run(deterministic_error="нет пути")
 
     assert result.status == "finalized" and result.deliverables == ()
+    assert dynamic.build_attempts == 2
     assert result.answer == "Показатели получены, файл собрать не удалось."
 
 
@@ -282,7 +286,7 @@ def test_an_atom_that_takes_any_metric_gets_the_metrics_already_in_the_case(base
         _reply(scenarios=["Извлеки"]),
         json.dumps({
             "objective": "собрать", "reason": "нужно", "action": "execute", "plan": [], "files": [],
-            "scenarios": [], "new_atoms": [_atom_doc(request)], "steps": [{"atom": request.name}],
+            "scenarios": [], "new_atoms": [], "steps": [{"atom": request.name}],
             "answer": "", "evidence_ids": [], "deliverables": [],
         }, ensure_ascii=False),
     ])
@@ -292,7 +296,7 @@ def test_an_atom_that_takes_any_metric_gets_the_metrics_already_in_the_case(base
         inputs=RunInputs(document_text="отчёт"), run_scenario=ExtractScenario(base, passport),
         complete_fn=planner, run_passport=passport,
     )
-    delegate(dynamic, SequenceAuthor([(EphemeralAtom(request, ALL_METRICS_CODE), None)]))
+    delegate(dynamic, Visit(request, (ALL_METRICS_CODE,), before=2))
 
     dynamic.run(deterministic_error="нет пути")
 
@@ -374,7 +378,7 @@ def test_a_silent_model_does_not_count_as_a_refused_answer(base, local_room) -> 
         _reply("finalize", answer="Книга собрана."),
     ])
 
-    result = _dynamic(base, planner).run(deterministic_error="нет пути")
+    result = _dynamic(base, planner, book_visit()).run(deterministic_error="нет пути")
 
     assert result.status == "finalized" and [item.filename for item in result.deliverables] == ["итоги.xlsx"]
 
@@ -392,7 +396,7 @@ def _stray_file(base) -> None:
 def test_once_the_promised_file_is_built_the_state_tells_the_planner_to_answer(base, local_room) -> None:
     planner = Replies([_reply(plan=PLAN, files=[BOOK], scenarios=["Извлеки"]), _reply(build=True)])
 
-    _dynamic(base, planner).run(deterministic_error="нет пути")
+    _dynamic(base, planner, book_visit()).run(deterministic_error="нет пути")
 
     assert "finalize" not in _section(planner.prompts[1], "План")
     assert "следующим ходом — finalize" in _section(planner.prompts[2], "План")
@@ -411,7 +415,7 @@ def test_a_stopped_cycle_hands_over_the_promised_file_and_says_so(base, local_ro
         "не JSON", "не JSON", "не JSON", "не JSON",
     ])
 
-    result = _dynamic(base, planner).run(deterministic_error="нет пути")
+    result = _dynamic(base, planner, book_visit()).run(deterministic_error="нет пути")
 
     assert result.status == "stopped"
     assert [item.filename for item in result.deliverables] == ["итоги.xlsx"]

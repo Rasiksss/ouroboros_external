@@ -111,6 +111,13 @@ def test_the_delegation_names_a_skill_only_as_the_example_of_the_code_role() -> 
     assert section.count("distribution:") == 1 and "по `id` и `description`" in section
 
 
+def test_the_delegation_tells_the_planner_to_name_only_dyn_types_in_the_task() -> None:
+    """P118: в живом S2 корень написал в задании `output_type` — `CalculatedMetric` и получил отказ службы."""
+    section = " ".join(manifest_of(PLANNING).body.split("### Делегирование", 1)[1].split("###", 1)[0].split())
+
+    assert "`output_type` (только `dyn:<snake_case>`, не `CalculatedMetric` и другие типы отчётности)" in section
+
+
 def test_planning_forbids_counting_on_its_own_and_treats_tool_text_as_data() -> None:
     body = manifest_of(PLANNING).body
 

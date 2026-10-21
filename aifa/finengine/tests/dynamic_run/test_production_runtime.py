@@ -251,9 +251,18 @@ def test_local_chat_path_builds_a_dynamic_manifest_without_a_station(base, local
     """
     from finengine.skills import production_runtime as production
     from finengine.skills.spec import dynamic_run
-    from subtask_support import SubtaskCodes, patch_subtask
+    from subtask_support import Visit, patch_subtask
 
     planner_calls: list[str] = []
+    double = {
+        "name": "eph.double_ebitda", "purpose": "удвоить EBITDA",
+        "requires": [{"input_type": "ExtractedMetric", "concept": "EBITDA"}],
+        "output_type": "dyn:double_ebitda",
+        "output_schema": {
+            "type": "object", "required": ["value"],
+            "properties": {"value": {"type": "number", "x-unit": "RUB"}},
+        },
+    }
     moves = [
         {
             "objective": "извлечь EBITDA", "reason": "это вход расчёта", "action": "execute",
@@ -263,16 +272,7 @@ def test_local_chat_path_builds_a_dynamic_manifest_without_a_station(base, local
         },
         {
             "objective": "удвоить EBITDA", "reason": "это просил пользователь", "action": "execute",
-            "scenarios": [],
-            "new_atoms": [{
-                "name": "eph.double_ebitda", "purpose": "удвоить EBITDA",
-                "requires": [{"input_type": "ExtractedMetric", "concept": "EBITDA"}],
-                "output_type": "dyn:double_ebitda",
-                "output_schema": {
-                    "type": "object", "required": ["value"],
-                    "properties": {"value": {"type": "number", "x-unit": "RUB"}},
-                },
-            }],
+            "scenarios": [], "new_atoms": [],
             "steps": [{"atom": "eph.double_ebitda"}], "answer": "", "evidence_ids": [],
         },
     ]
@@ -291,11 +291,13 @@ def test_local_chat_path_builds_a_dynamic_manifest_without_a_station(base, local
 
     monkeypatch.setattr(production, "build_registry", lambda **kwargs: base.registry)
     monkeypatch.setattr(dynamic_run, "_default_complete", _planner)
-    patch_subtask(monkeypatch, SubtaskCodes([
+    patch_subtask(monkeypatch, Visit.of(
+        double,
         "def run(inputs):\n"
         "    metric = inputs['ExtractedMetric'][0]\n"
-        "    return {'value': metric['scalar_fact']['value'] * 2}\n"
-    ]))
+        "    return {'value': metric['scalar_fact']['value'] * 2}\n",
+        before=2,
+    ))
     events: list[dict] = []
 
     outcome = execute_routed_goal(
