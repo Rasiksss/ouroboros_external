@@ -123,7 +123,7 @@ def app_of(api: ToolApi) -> FastAPI:
 
 
 class Plugin:
-    """Клиент, играющий плагин: `await plugin.call("aifa_goal", ctx)` → `httpx.Response`."""
+    """Клиент, играющий плагин: `await plugin.call("aifa_open", ctx)` → `httpx.Response`."""
 
     def __init__(self, api: ToolApi) -> None:
         self._client = httpx.AsyncClient(

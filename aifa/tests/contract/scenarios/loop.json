@@ -3,42 +3,124 @@
   "rules": [
     {
       "id": "title-by-light-model",
-      "when": {"model": "stub-light"},
-      "reply": {"text": "Выручка"}
+      "when": {
+        "model": "stub-light"
+      },
+      "reply": {
+        "text": "Выручка"
+      }
     },
     {
       "id": "read-the-planning-skill",
-      "when": {"model": "stub-main", "user_contains": "какая выручка", "round": 1},
-      "reply": {"tool_calls": [{"name": "skill_read", "arguments": {"skill": "distribution:aifa-planning"}}]}
+      "when": {
+        "model": "stub-main",
+        "user_contains": "какая выручка",
+        "round": 1
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "skill_read",
+            "arguments": {
+              "skill": "distribution:aifa-planning"
+            }
+          }
+        ]
+      }
     },
     {
       "id": "goal-first",
-      "when": {"model": "stub-main", "user_contains": "какая выручка", "round": 2},
-      "reply": {"tool_calls": [{"name": "ext_13_r_aifa-engine_aifa_goal", "arguments": {}}]}
+      "when": {
+        "model": "stub-main",
+        "user_contains": "какая выручка",
+        "round": 2
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_open",
+            "arguments": {}
+          }
+        ]
+      }
     },
     {
       "id": "read-the-document",
-      "when": {"model": "stub-main", "user_contains": "какая выручка", "round": 3, "last_tool_result_starts_with": "НУЖЕН_ЦИКЛ"},
-      "reply": {"tool_calls": [{"name": "ext_13_r_aifa-engine_aifa_doc", "arguments": {}}]}
+      "when": {
+        "model": "stub-main",
+        "user_contains": "какая выручка",
+        "round": 3,
+        "last_tool_result_starts_with": "ГОТОВО"
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_doc",
+            "arguments": {}
+          }
+        ]
+      }
     },
     {
       "id": "move-by-a-scenario",
-      "when": {"model": "stub-main", "user_contains": "какая выручка", "round": 4, "last_tool_result_starts_with": "ГОТОВО"},
-      "reply": {"tool_calls": [{"name": "ext_13_r_aifa-engine_aifa_move", "arguments": {
-        "objective": "получить выручку за 2024 год",
-        "reason": "она нужна для ответа",
-        "scenarios": ["Извлеки выручку за 2024 год"]
-      }}]}
+      "when": {
+        "model": "stub-main",
+        "user_contains": "какая выручка",
+        "round": 4,
+        "last_tool_result_starts_with": "ГОТОВО"
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_move",
+            "arguments": {
+              "objective": "получить выручку за 2024 год",
+              "reason": "она нужна для ответа",
+              "goals": [
+                {
+                  "ref": "revenue",
+                  "scenario": "extract_registered_metric",
+                  "concepts": [
+                    "SALES_REVENUE"
+                  ],
+                  "period": "p-2024-fy"
+                }
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "finish-the-cycle",
-      "when": {"model": "stub-main", "user_contains": "какая выручка", "round": 5, "last_tool_result_starts_with": "ГОТОВО"},
-      "reply": {"tool_calls": [{"name": "ext_13_r_aifa-engine_aifa_finish", "arguments": {"action": "finalize"}}]}
+      "when": {
+        "model": "stub-main",
+        "user_contains": "какая выручка",
+        "round": 5,
+        "last_tool_result_starts_with": "ГОТОВО"
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_finish",
+            "arguments": {
+              "action": "finalize"
+            }
+          }
+        ]
+      }
     },
     {
       "id": "answer-after-the-finish",
-      "when": {"model": "stub-main", "user_contains": "какая выручка", "round": 6, "last_tool_result_starts_with": "ПРИНЯТО"},
-      "reply": {"text": "Выручка за 2024 год — 987654 млн руб. (по таблице результатов цикла)."}
+      "when": {
+        "model": "stub-main",
+        "user_contains": "какая выручка",
+        "round": 6,
+        "last_tool_result_starts_with": "ПРИНЯТО"
+      },
+      "reply": {
+        "text": "Выручка за 2024 год — 987654 млн руб. (по таблице результатов цикла)."
+      }
     }
   ]
 }

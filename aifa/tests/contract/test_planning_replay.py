@@ -1,11 +1,7 @@
 """Реплей решений планировщика через ouroboros с навыком `aifa-planning` (шаг 14, ADR-0044 п. 7).
 
-Одни записанные решения идут двумя путями через живой ouroboros профиля `contract`: цикл ведёт
-служба (`loop_driver=engine`, решения — ответы её модели) и ведёт ouroboros
-(`loop_driver=ouroboros`, те же решения — вызовы `aifa_move`/`aifa_finish` подставной модели
-после чтения навыка). Меняется
-одна переменная — ведущий: ходы, итоги и события экрана те же. Закрывает связность шага 14
-(PRINCIPLES.md §Б.3): навык ↔ ouroboros ↔ `tool_api` ↔ `LoopSession` ↔ конвейер ↔ журнал хода.
+Записанные решения идут вызовами `aifa_move`/`aifa_finish` через живой ouroboros профиля `contract`.
+Проверяются все ходы и получение показателя; эквивалентность с `DynamicRun` держат тесты службы.
 """
 
 from __future__ import annotations
@@ -53,26 +49,13 @@ LABEL = re.compile(r"<id:\d+>")
 ALL_REPLAYS = pytest.mark.parametrize("replay", replays(), ids=[item["name"] for item in replays()])
 
 
-class Planner:
-    """Модель планировщика службы: отвечает записанными решениями по порядку (путь `engine`)."""
-
-    def __init__(self, decisions: list[dict[str, Any]]) -> None:
-        self._replies = iter(json.dumps(decision, ensure_ascii=False) for decision in decisions)
-
-    async def __call__(self, system: str, prompt: str) -> str:
-        return next(self._replies)
-
-
 @contextmanager
 def service(
     stand: ContractStand,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
-    *,
-    driver: str,
-    decisions: list[dict[str, Any]],
 ) -> Iterator[str]:
-    """Служба с фикстурным конвейером: первый разбор цели открывает цикл, остальные — выручка."""
+    """Служба с фикстурным конвейером и запретом вызова собственного планировщика."""
     from finengine.config import settings
 
     tmp_path.mkdir(parents=True, exist_ok=True)
@@ -82,15 +65,14 @@ def service(
         return json.dumps(next(replies, fixture.INTENT), ensure_ascii=False)
 
     async def planner_of_the_service(system: str, prompt: str) -> str:
-        raise AssertionError("модель-планировщик службы вызвана при loop_driver=ouroboros")
+        raise AssertionError("модель-планировщик службы вызвана в цикле агента")
 
     with running_engine(stand, tmp_path, monkeypatch) as base:
-        monkeypatch.setattr(settings, "loop_driver", driver)
         monkeypatch.setattr(settings, "data_dir", tmp_path)
         monkeypatch.setattr("finengine.skills.atoms.intent._default_complete", parsed)
         monkeypatch.setattr(
             "finengine.skills.spec.dynamic_run._default_complete",
-            Planner(decisions) if driver == "engine" else planner_of_the_service,
+            planner_of_the_service,
         )
         yield base
 
@@ -141,28 +123,38 @@ async def test_recorded_decisions_give_the_same_moves_and_events_when_ouroboros_
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Реплей решений: ходы, итоги и события ленты те же, что у `DynamicRun` (ADR-0044 п. 7)."""
+    """Реплей исполняет каждый ход и получает выручку до завершения цикла."""
     decisions = replay["decisions"]
-    by_service = scenario_of(replay["name"], QUESTION, [*skill_reads(), ("aifa_goal", {})], FINAL)
     by_ouroboros = scenario_of(
         replay["name"],
         QUESTION,
-        [*skill_reads("references/moves.md"), ("aifa_goal", {}), *tool_calls_of(decisions)],
+        [*skill_reads("references/moves.md"), ("aifa_open", {}), *tool_calls_of(decisions)],
         FINAL,
     )
-    with service(
-        stand, tmp_path / "engine", monkeypatch, driver="engine", decisions=decisions
-    ) as base:
-        expected = await run_turn(base, stub, by_service)
-    with service(
-        stand, tmp_path / "ouroboros", monkeypatch, driver="ouroboros", decisions=decisions
-    ) as base:
+    with service(stand, tmp_path, monkeypatch) as base:
         actual = await run_turn(base, stub, by_ouroboros)
 
     assert stub.unmatched() == []
-    assert actual[-1]["status"] == expected[-1]["status"] == "succeeded"
-    assert moves_of(actual) == moves_of(expected)
-    assert cycle_of(actual) == cycle_of(expected)
+    assert actual[-1]["status"] == "succeeded"
+    expected_moves = [
+        event
+        for decision in decisions
+        for event in (
+            [("running", "execute"), ("done", "execute")]
+            if decision["action"] == "execute"
+            else [("done", decision["action"])]
+        )
+    ]
+    assert moves_of(actual) == expected_moves
+    asked = [entry for entry in stub.journal() if entry["model"] == "stub-main"]
+    results = {entry["round"] - 1: entry["last_tool_result"] for entry in asked}
+    calls = [*skill_reads("references/moves.md"), ("aifa_open", {}), *tool_calls_of(decisions)]
+    for number, (tool, args) in enumerate(calls, start=1):
+        if tool == "aifa_move" and args.get("goals"):
+            assert results[number].startswith("ГОТОВО") and "✓" in results[number]
+    assert any(
+        "987654" in reply.replace(" ", "").replace("\u00a0", "") for reply in results.values()
+    )
     terminal = [m for m in moves_of(actual) if m[1] in ("finalize", "give_up")]
     assert terminal and terminal[-1][1] == decisions[-1]["action"]
 
@@ -201,9 +193,10 @@ def test_a_recorded_decision_becomes_tool_arguments_the_service_reads_as_the_sam
     from finengine.skills.spec.dynamic_run import decision_from_data, parse_decision
 
     tool, args = arguments_of(decision)
+    migrated = {**decision, **args, "scenarios": []}
     terminal = decision["action"] != "execute"
     expected = parse_decision(
-        json.dumps(decision, ensure_ascii=False), scenarios_enabled=True, goals_enabled=True
+        json.dumps(migrated, ensure_ascii=False), scenarios_enabled=False, goals_enabled=True
     )
     if terminal:
         data = {
@@ -215,7 +208,7 @@ def test_a_recorded_decision_becomes_tool_arguments_the_service_reads_as_the_sam
     else:
         data = {**args, "action": "execute"}
     actual = decision_from_data(
-        data, scenarios_enabled=True, goals_enabled=True, answer_in_chat=terminal
+        data, scenarios_enabled=False, goals_enabled=True, answer_in_chat=terminal
     )
 
     assert tool == ("aifa_finish" if terminal else "aifa_move")
@@ -224,6 +217,29 @@ def test_a_recorded_decision_becomes_tool_arguments_the_service_reads_as_the_sam
     )
     # `null` в записи — «поля нет»: в вызов он не попадает, на смысл шага не влияет.
     assert actual.raw_steps == tuple(without_nulls(step) for step in expected.raw_steps)
+    assert [
+        (
+            clause.goal_ref,
+            clause.intent_kind,
+            [target.model_dump(exclude={"target_id"}) for target in clause.targets],
+            clause.period_ref,
+            clause.role,
+            clause.depends_on,
+            clause.unresolved,
+        )
+        for clause in actual.new_goals
+    ] == [
+        (
+            clause.goal_ref,
+            clause.intent_kind,
+            [target.model_dump(exclude={"target_id"}) for target in clause.targets],
+            clause.period_ref,
+            clause.role,
+            clause.depends_on,
+            clause.unresolved,
+        )
+        for clause in expected.new_goals
+    ]
     assert (
         actual.action,
         actual.scenarios,
@@ -249,7 +265,7 @@ def test_a_recorded_decision_becomes_tool_arguments_the_service_reads_as_the_sam
 
 @pytest.fixture
 def engine(stand: ContractStand, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[str]:
-    with service(stand, tmp_path, monkeypatch, driver="ouroboros", decisions=[]) as base:
+    with service(stand, tmp_path, monkeypatch) as base:
         yield base
 
 
@@ -319,7 +335,7 @@ async def test_a_long_document_is_read_by_search_and_pages_and_never_whole(
     doc = {"doc_id": fixture.DOC}
     calls = [
         *skill_reads("references/moves.md"),
-        ("aifa_goal", {}),
+        ("aifa_open", {}),
         ("aifa_doc", {}),
         ("aifa_doc", {**doc, "query": "Ромашка"}),
         ("aifa_doc", {**doc, "pages": f"{NEEDLE_PAGE - 1}-{NEEDLE_PAGE + 1}"}),
@@ -334,7 +350,7 @@ async def test_a_long_document_is_read_by_search_and_pages_and_never_whole(
     asked = [e for e in stub.journal() if e["model"] == "stub-main"]
     results = {entry["round"]: entry["last_tool_result"] for entry in asked}
     assert stub.unmatched() == [] and events[-1]["status"] == "succeeded"
-    assert results[4].startswith("НУЖЕН_ЦИКЛ")
+    assert results[4].startswith("ГОТОВО")
     assert f"{fixture.DOC} | Северсталь | страниц:" in results[5]
     assert (
         results[6].startswith("ГОТОВО")

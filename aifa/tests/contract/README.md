@@ -3,12 +3,12 @@
 Тесты границ с настоящими объектами по обе стороны (`PRINCIPLES.md` §Б.3). Здесь — граница служба ↔
 ouroboros (`CONTRACTS.md` §2): живой ouroboros, модель подставная (`../stub_model/README.md`).
 
-Шаг 10: `test_chat_turn_end_to_end.py` — `POST /chat/turns` → ouroboros → `aifa_goal` → конвейер на фикстурном
+Шаг 10 (обновлён ADR-0060): `test_chat_turn_end_to_end.py` — `POST /chat/turns` → ouroboros → `aifa_open` → `aifa_move` → конвейер на фикстурном
 документе → SSE. Служба в нём — **процесс теста** на `127.0.0.1:18183` (`engine_host.py`: настоящее приложение,
 подмены конвейера — `pipeline_fixture.py`), ouroboros-контейнер ходит к ней на хост через
 `host.docker.internal`. На Linux-хосте служба должна слушать адрес моста: `AIFA_CONTRACT_ENGINE_BIND=0.0.0.0`.
 
-Шаг 13: `test_loop_end_to_end.py` — цикл ведёт ouroboros (`loop_driver=ouroboros`): `aifa_goal` → `НУЖЕН_ЦИКЛ` →
+Шаг 13 (обновлён ADR-0060): `test_loop_end_to_end.py` — цикл ведёт ouroboros: `aifa_open` → `ГОТОВО` →
 `aifa_doc` → `aifa_move` (сценарий хода → конвейер) → `aifa_finish` → финал; сценарий подставной модели —
 `scenarios/loop.json`, модель планировщика службы в нём вызвать нельзя. Сохранение цикла после хода проверяется там же.
 

@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
 import math
@@ -40,7 +41,8 @@ from finengine.skills.atoms.web_search import describe_hits
 from finengine.skills.case_runtime import CaseRuntime, PlanInfeasible
 from finengine.skills.metric_schema import registry_for_passport
 from finengine.skills.result_events import dynamic_move_event, dynamic_plan_event
-from finengine.skills.spec.atom_inputs import case_inputs, end_of_chain, without_markdown_fence
+from finengine.skills.spec.agent_goals import goal_clause, registry_problem
+from finengine.skills.spec.atom_inputs import case_input_values, end_of_chain, inputs_in_case, without_markdown_fence
 from finengine.skills.spec.atom_catalog import NOT_PLANNABLE, catalog_text
 from finengine.skills.spec.atom_intake import (
     CODE_BY_SUBTASK,
@@ -56,11 +58,13 @@ from finengine.skills.spec.ephemeral import (
     STATION_FAULT_PREFIX,
     AtomRequest,
     EphemeralAtom,
+    atom_results,
     to_atom_def,
 )
 from finengine.skills.spec.graph_executor import ExecutionResult, RunInputs
 from finengine.skills.spec.graph_planner import AtomStep
 from finengine.skills.spec.room_files import FileSpec, spec_problem
+from finengine.skills.spec.sealed_room import CodeRun
 from finengine.skills.spec.target import InputSpec, Target
 from finengine.store.cases import evidence_id_of
 
@@ -243,6 +247,7 @@ class Decision:
     action: Literal["execute", "finalize", "give_up"]
     scenarios: tuple[str, ...] = ()
     goals: tuple[str, ...] = ()             # goal_ref частей разобранной цели, исполняемых по ссылке (часть 18)
+    new_goals: tuple[GoalClause, ...] = ()  # части, которые этим ходом описал агент (ADR-0060 п. 2); их ref — в goals
     new_atoms: tuple[AtomRequest, ...] = ()
     raw_steps: tuple[dict, ...] = ()
     answer: str = ""
@@ -334,6 +339,14 @@ async def complete_plan(system: str, prompt: str) -> str:
     return await _default_complete(system, prompt, _PLAN_RESPONSE_FORMAT)
 
 
+@dataclass(frozen=True)
+class RegistrationRun:
+    """Исполнение принятой сдачи для `atom_results`: владелец и проект файлов (`inputs.extra`) и номер прогона."""
+
+    inputs: RunInputs
+    run_id: str
+
+
 class Rejection(str):
     """Причина отказа решению. Служба читает её как строку; `code` — код отказа §3.0 для ouroboros."""
 
@@ -358,7 +371,7 @@ class LoopSession:
         inputs: RunInputs, run_passport: RunPassport | None = None, root_extra=None,
         event_sink=None, run_scenario: ScenarioRunner | None = None,
         run_goals: GoalRunner | None = None,
-        limits: RunLimits = RunLimits(), entry_stage: Literal["planning", "execution"] = "planning",
+        limits: RunLimits = RunLimits(), entry_stage: Literal["planning", "execution", "agent"] = "planning",
         is_cancelled: Callable[[], bool] | None = None,
     ):
         self.runtime = runtime
@@ -375,6 +388,10 @@ class LoopSession:
         self.is_cancelled = is_cancelled
         self.run_scenario = run_scenario
         self.run_goals = run_goals
+        # Части цели: из разбора сообщения либо, в цикле агента, те, что он описал ходами (ADR-0060 п. 2).
+        self.clauses: dict[str, GoalClause] = (
+            {} if entry_stage == "agent" else {clause.goal_ref: clause for clause in goal.clauses()}
+        )
         # goal_ref → «получена» / «отказ по ссылке: …» по последнему запуску части в этом прогоне
         self.goal_status: dict[str, str] = {}
         self.atoms = load_case_atoms(runtime.store, owner_id, case_id)
@@ -400,7 +417,10 @@ class LoopSession:
     def open(self, *, deterministic_error: str) -> None:
         """Цикл открыт: время идёт с этой минуты; причина входа — в «Итоге прошлого хода»."""
         self.opened_at = monotonic()
-        if self.entry_stage == "execution":
+        if self.entry_stage == "agent":
+            # ADR-0060 п. 1: цикл открыл агент, служба ничего не разбирала и не считала.
+            self.feedback = "Цикл открыт: служба ещё ничего не считала. Составь план и пришли первый ход."
+        elif self.entry_stage == "execution":
             # «Нулевой ход»: граф собрался и упал. Итог читается так же, как итог хода цикла; уже
             # полученные им артефакты планировщик видит в таблице состояния.
             self.feedback = (
@@ -426,6 +446,10 @@ class LoopSession:
             return f"{self.idle} хода подряд без новых результатов"
         if self.turns >= self.limits.max_moves:
             return "исчерпан лимит ходов"
+        return self.out_of_time()
+
+    def out_of_time(self) -> str | None:
+        """Общее время цикла вышло; сдачу атома останавливает только это и закрытый цикл (ADR-0060 п. 5)."""
         if monotonic() - self.opened_at > self.limits.max_wall_seconds:
             return "исчерпан бюджет времени цикла"
         return None
@@ -452,17 +476,69 @@ class LoopSession:
         return self.inputs.extra.get("trace_id", "")
 
     def register_atom(self, request: AtomRequest, code: str) -> Registered | Refused | StationDown:
-        """Сдача атома с кодом подзадачей ouroboros (`aifa_register_atom`): единственный путь кода в цикл (ADR-0054)."""
-        return self.intake.submit(request, code, partial(self._real_inputs, request))
+        """Сдача атома с кодом подзадачей ouroboros (`aifa_register_atom`): единственный путь кода в цикл (ADR-0054).
+        Принятая сдача — исполнение атома: его результат и файлы ложатся в `Case` (ADR-0060 п. 4)."""
+        outcome = self.intake.submit(request, code, partial(self._real_inputs, request))
+        if isinstance(outcome, Registered):
+            self._keep_registered(outcome)
+        return outcome
 
-    def _real_inputs(self, request: AtomRequest) -> dict | None:
-        return case_inputs(self.runtime.store, self.owner_id, self.case_id, request, atoms=self.atoms)
+    def inputs_in_case(self, request: AtomRequest) -> str:
+        return inputs_in_case(self.runtime.store, self.owner_id, self.case_id, request)
 
-    def reject(self, reason: str, *, counted: bool = True, feedback: str | None = None) -> None:
-        """Ответ не принят: ход потрачен, причина — в ленту и в «Итог прошлого хода». Молчание модели
-        (таймаут, сбой шлюза) в счёт отказов подряд не идёт."""
+    def _real_inputs(self, request: AtomRequest) -> tuple[BaseModel, ...] | None:
+        return case_input_values(self.runtime.store, self.owner_id, self.case_id, request, atoms=self.atoms)
+
+    def _keep_registered(self, registered: Registered) -> None:
+        """Результат проверочного прогона — в `Case` тем же видом, что у узла графа: шагом атом запускать не нужно."""
+        atom, run = registered.atom, registered.run
+        if run is None:
+            raise RuntimeError("принятая сдача без прогона")
+        self.build_attempts += 1
+        advances = self._is_new_result(atom.request.output_type, run)
+        if not advances and any(
+            isinstance(value, DynamicArtifact) and value.producer == atom.producer and value.payload == run.output
+            for row in self.runtime.store.list_artifacts(self.owner_id, self.case_id)
+            if row["output_type"] == atom.request.output_type for value in row["payloads"]
+        ):
+            return
+        produced = atom_results(atom, run, registered.inputs, RegistrationRun(self.inputs, f"register-{atom.version}"))
+        key = NodeKey(atom_name=atom.request.name, atom_version=atom.version, args_fingerprint="registration")
+        grouped: dict[str, list[DynamicArtifact | FileArtifact]] = {}
+        for value in produced:
+            grouped.setdefault(value.output_type if isinstance(value, DynamicArtifact) else "FileArtifact", []).append(value)
+        for output_type, values in grouped.items():
+            self.runtime.store.put_artifact(
+                self.owner_id, self.case_id, node_key=key, output_type=output_type, payloads=values, concept=None,
+                entity_ref=self.target.entity_ref, period_ref=None, basis=None,
+                document_version=self.target.document_version, policy_version=self.runtime.policy.policy_version,
+                dependency_evidence_ids=[eid for eid in map(evidence_id_of, registered.inputs) if eid],
+                passport=self.run_passport,
+            )
+        if advances:
+            self.evidence_generation += 1
+            self.idle = 0
+
+    def _is_new_result(self, output_type: str, run: CodeRun) -> bool:
+        """Прогон дал то, чего в Case ещё нет: другой результат того же типа либо другой файл (по содержимому —
+        id результатов новые при каждом прогоне)."""
+        rows = self.runtime.store.list_artifacts(self.owner_id, self.case_id)
+        payloads = [value.payload for row in rows if row["output_type"] == output_type for value in row["payloads"]]
+        hashes = {
+            value.content_hash for row in rows if row["output_type"] == "FileArtifact" for value in row["payloads"]
+        }
+        return run.output not in payloads or any(
+            hashlib.sha256(file.content).hexdigest() not in hashes for file in run.files
+        )
+
+    def reject(
+        self, reason: str, *, counted: bool = True, feedback: str | None = None, spends_move: bool = True,
+    ) -> None:
+        """Ответ не принят: причина — в ленту и в «Итог прошлого хода». Молчание модели (таймаут, сбой шлюза)
+        в счёт отказов подряд не идёт. Отклонённый вызов инструмента хода не тратит (`spends_move`, ADR-0060 п. 5):
+        его держит счёт отказов подряд; ведущему-службе ход тратится, иначе молчащая модель крутила бы цикл."""
         self._emit_rejection(self.next_number, reason)
-        self.turns += 1
+        self.turns += 1 if spends_move else 0
         self.rejected += 1 if counted else 0
         self.feedback = feedback if feedback is not None else f"Твой ответ не принят: {reason}. Пришли ход заново."
 
@@ -475,10 +551,24 @@ class LoopSession:
 
     def _verdict(self, decision: Decision, last_word: bool) -> Decision | str:
         self._accept_plan(decision.plan, decision.files)
-        known = [clause.goal_ref for clause in self.goal.clauses()]
+        decision = self._with_session_role(decision)
+        problem = next(filter(None, map(self._goal_problem, decision.new_goals)), None)
+        if problem:
+            return problem
+        known = [*self.clauses, *(clause.goal_ref for clause in decision.new_goals)]
         unknown = [ref for ref in decision.goals if ref not in known]
         if unknown:
             return f"goals: нет части {unknown}; в блоке «Разобранная цель» есть {known} — укажи goal_ref оттуда"
+        dangling = [
+            f"{clause.goal_ref} → {ref}" for clause in decision.new_goals for ref in clause.depends_on if ref not in known
+        ]
+        if dangling:
+            return f"goals: depends_on ссылается на неописанные части ({', '.join(dangling)}): опиши их раньше или в этом ходе"
+        described = {**self.clauses, **{clause.goal_ref: clause for clause in decision.new_goals}}
+        try:
+            _dependencies_first(list(described.values()))
+        except ValueError as problem:
+            return str(problem)
         if decision.action in ("finalize", "give_up"):
             decision = self._files_as_deliverables(decision)
         if decision.action == "finalize":
@@ -498,10 +588,31 @@ class LoopSession:
             return Rejection(repeat, "повтор_тупика")
         return decision
 
+    def _with_session_role(self, decision: Decision) -> Decision:
+        """Часть без `role` берёт роль, выбранную пользователем в интерфейсе, — как у разбора сообщения."""
+        if not decision.new_goals or not self.goal.role:
+            return decision
+        return replace(decision, new_goals=tuple(
+            clause if clause.role else clause.model_copy(update={"role": self.goal.role})
+            for clause in decision.new_goals
+        ))
+
+    def _goal_problem(self, clause: GoalClause) -> str | None:
+        """Почему часть, описанную агентом, служба не исполнит: коды реестра, роль, путь графа (ADR-0060 п. 2)."""
+        problem = registry_problem(clause, self.run_passport)
+        if problem is None and self.run_goals is not None:
+            reason = self.run_goals.refusal(clause)
+            problem = f"у сценария {clause.intent_kind} нет детерминированного пути: {reason}" if reason else None
+        return f"goals: часть {clause.goal_ref} — {problem}" if problem else None
+
     def move(self, decision: Decision) -> MoveOutcome:
         """Исполнить принятое решение `execute`: события хода, журнал, счётчики цикла."""
         number = self.next_number
         self.rejected = 0
+        # Описанная заново часть с тем же ref заменяет прежнюю: её статус в прогоне — заново (ADR-0060 п. 2).
+        for clause in decision.new_goals:
+            self.clauses[clause.goal_ref] = clause
+            self.goal_status.pop(clause.goal_ref, None)
         self._emit(self._move_event(number, "running", decision))
         before = self._artifact_count()
         self._moving = True
@@ -598,7 +709,15 @@ class LoopSession:
     def _partial_deliverable_ids(self) -> tuple[str, ...]:
         """Файлы этого прогона (до его начала в Case их не было): обещанные планом, а без них — все собранные."""
         promised = tuple(file.artifact_id for file in self._promised_files())
-        return promised or tuple(sorted(self._file_ids() - self.initial_file_ids))
+        if promised:
+            return promised
+        # Файл, собранный сдачей и ещё раз шагом с тем же атомом, — один файл: уходит последний собранный.
+        latest = {
+            file.filename: file.artifact_id
+            for file in sorted(self._file_artifacts(), key=lambda item: item.created_at)
+            if file.artifact_id not in self.initial_file_ids
+        }
+        return tuple(sorted(latest.values()))
 
     def _promised_files(self) -> list[FileArtifact]:
         found = (self.promised_file(spec)[0] for spec in self.expected_files)
@@ -625,7 +744,7 @@ class LoopSession:
             self.event_sink(event)
 
     def _move_event(self, number: int, status: str, decision: Decision, *, outcome: str = "", details: str = "") -> dict:
-        clauses = {clause.goal_ref: clause for clause in self.goal.clauses()}
+        clauses = {**self.clauses, **{clause.goal_ref: clause for clause in decision.new_goals}}
         return dynamic_move_event(
             move=number, status=status, action=decision.action, objective=decision.objective,
             reason=decision.reason, scenarios=decision.scenarios, outcome=outcome, details=details,
@@ -659,7 +778,7 @@ class LoopSession:
             lines.append(f"части цели {', '.join(decision.goals)}: {result.summary}")
             failed = failed or not result.ok
             if self._progress_ids() == before_goals:
-                dead_end_actions.extend(_goal_signature(ref) for ref in decision.goals)
+                dead_end_actions.extend(_goal_signature(ref, self.clauses.get(ref)) for ref in decision.goals)
         for text in decision.scenarios:
             self._stop_if_cancelled()
             before_scenario = self._progress_ids()
@@ -716,7 +835,9 @@ class LoopSession:
         """Части разобранной цели по ссылке — тем же конвейером, что сообщение чата (Р18.3). Отказ с текстом,
         из которого следует действие, возвращается планировщику, цикл внутри цикла не создаётся (Р18.4).
         Статус «отказ по ссылке» — только у частей, которые конвейер действительно пробовал исполнить."""
-        chosen = [clause for clause in self.goal.clauses() if clause.goal_ref in refs]    # порядок разбора, не ответа
+        if self.run_goals is None:
+            raise RuntimeError("части цели без канала исполнения")
+        chosen = _dependencies_first([clause for clause in self.clauses.values() if clause.goal_ref in refs])
         for clause in chosen:
             reason = self.run_goals.refusal(clause)
             if reason is not None:
@@ -732,21 +853,34 @@ class LoopSession:
                     f"✗ часть {clause.goal_ref} зависит от части {missing[0]}, которая ещё не получена: назови "
                     f"{missing[0]} в goals этого же хода либо получи её отдельным ходом по ссылке."
                 ))
-        result = self.run_goals(chosen)
-        if result.ok:
-            self.goal_status.update({clause.goal_ref: GOAL_OBTAINED for clause in chosen})
-            return result
-        return self._goal_refused(chosen, ScenarioResult(False, (
-            f"{result.summary}\nПо ссылке часть не получена; ту же ссылку не повторяй. Показатель, который "
-            "есть в «Реестре показателей», получи сценарием в `scenarios` (рассчитываемый — «Рассчитай …», "
-            "извлекаемый — «Извлеки …»), не шагами locate и read.value: то, чего не нашёл конвейер, они не найдут. "
+        # Каждая часть — свой граф по порядку зависимостей: общий граф частей с одним узлом и разными
+        # аргументами не собирается (`conflicting NodeArgs`, ход 21.10.2026), а готовое следующая часть берёт из Case.
+        lines, ok = [], True
+        for clause in chosen:
+            blocked = [dep for dep in clause.depends_on if self.goal_status.get(dep) != GOAL_OBTAINED]
+            result = (
+                ScenarioResult(False, f"✗ не исполнялась: часть {blocked[0]} не получена") if blocked
+                else self.run_goals([clause])
+            )
+            ok = ok and result.ok
+            lines.append(f"{clause.goal_ref}: {result.summary}" if len(chosen) > 1 else result.summary)
+            if result.ok:
+                self.goal_status[clause.goal_ref] = GOAL_OBTAINED
+            else:
+                self.goal_status[clause.goal_ref] = f"отказ по ссылке: {result.summary.splitlines()[0][:160]}"
+        summary = "\n".join(lines)
+        if ok:
+            return ScenarioResult(True, summary)
+        how = (
+            "частью цели в goals (сценарий extract_registered_metric или calculate_registered_metric)"
+            if self.entry_stage == "agent" else
+            "сценарием в `scenarios` (рассчитываемый — «Рассчитай …», извлекаемый — «Извлеки …»)"
+        )
+        return ScenarioResult(False, (
+            f"{summary}\nПо ссылке часть не получена; ту же ссылку не повторяй. Показатель, который есть в «Реестре "
+            f"показателей», получи {how}, не шагами locate и read.value: то, чего не нашёл конвейер, они не найдут. "
             "Показателя нет в реестре — новый атом либо give_up."
-        )))
-
-    def _goal_refused(self, chosen: list[GoalClause], result: ScenarioResult) -> ScenarioResult:
-        reason = result.summary.splitlines()[0][:160]
-        self.goal_status.update({clause.goal_ref: f"отказ по ссылке: {reason}" for clause in chosen})
-        return result
+        ))
 
     def _run_steps(self, decision: Decision) -> MoveOutcome:
         atom_problems: dict[str, str] = {}
@@ -891,7 +1025,7 @@ class LoopSession:
 
     def _repeated_dead_end(self, decision: Decision) -> str | None:
         repeated = [
-            signature for signature in _decision_signatures(decision)
+            signature for signature in _decision_signatures(decision, self.clauses)
             if self.dead_end_actions.get(signature) == self.evidence_generation
             and not self._rewrites_ephemeral(decision, signature)
         ]
@@ -979,7 +1113,7 @@ class LoopSession:
 
 
 class DynamicRun(LoopSession):
-    """Ведущий цикла — модель службы (`loop_driver=engine`): ответ модели → `check` → `move`/`finish`."""
+    """Ведущий цикла — модель службы (прежний чат без ouroboros): ответ модели → `check` → `move`/`finish`."""
 
     def __init__(self, *, complete_fn: CompleteFn | None = None, plan_fn: CompleteFn | None = None, **session):
         super().__init__(**session)
@@ -1066,11 +1200,13 @@ def parse_decision(raw: str, *, scenarios_enabled: bool, goals_enabled: bool = F
 
 def decision_from_data(
     data: dict, *, scenarios_enabled: bool, goals_enabled: bool = False, answer_in_chat: bool = False,
+    raw_query: str = "часть цели",
 ) -> Decision:
     """Решение из разобранного объекта — путь модели службы (`parse_decision`) и путь аргументов инструмента.
 
     `answer_in_chat` — ответ пользователю пишет ouroboros, а не решение (ADR-0044 п. 2): `finalize` не
-    требует `answer`, `give_up` не подменяет его причиной."""
+    требует `answer`, `give_up` не подменяет его причиной. Элемент `goals` — ссылка на часть разобранной цели
+    либо объект части, которую описал агент (ADR-0060 п. 2); `raw_query` — сообщение хода для таких частей."""
     objective = str(data.get("objective") or "").strip()
     reason = str(data.get("reason") or "").strip()
     action = data.get("action")
@@ -1081,11 +1217,17 @@ def decision_from_data(
     if action not in ("execute", "finalize", "give_up"):
         raise ValueError(f"неизвестное action={action!r}")
     scenarios = _string_tuple(data.get("scenarios", []), "scenarios")
-    goals = tuple(dict.fromkeys(_string_tuple(data.get("goals", []), "goals")))
+    new_goals = _described_goals(data.get("goals", []), raw_query)
+    goals = tuple(dict.fromkeys(
+        item.strip() if isinstance(item, str) else str(item.get("ref")).strip() for item in data.get("goals", [])
+    ))
     if len(scenarios) + len(goals) > MAX_MOVE_ACTIONS:
         raise ValueError("за ход разрешено не больше трёх действий: сценарии и части цели (goals) вместе")
     if scenarios and not scenarios_enabled:
-        raise ValueError("сценарии недоступны в этом запуске")
+        raise ValueError(
+            "фразы-сценарии в этом запуске не принимаются: сценарий службы — объект части цели в goals "
+            "({ref, scenario, concepts, …})"
+        )
     if goals and not goals_enabled:
         raise ValueError("части цели недоступны в этом запуске: получай их сценариями или шагами")
     raw_steps = data.get("steps", [])
@@ -1113,10 +1255,26 @@ def decision_from_data(
     if action == "give_up" and not answer and not answer_in_chat:
         answer = reason
     return Decision(
-        objective=objective, reason=reason, action=action, scenarios=scenarios, goals=goals,
+        objective=objective, reason=reason, action=action, scenarios=scenarios, goals=goals, new_goals=new_goals,
         new_atoms=new_atoms, raw_steps=tuple(raw_steps), answer=answer, evidence_ids=evidence_ids,
         deliverables=deliverables, plan=plan, files=files,
     )
+
+
+def _described_goals(value, raw_query: str) -> tuple[GoalClause, ...]:
+    """Объекты частей цели из `goals`; строка — ссылка на уже известную часть, её разбирать нечего."""
+    if not isinstance(value, list) or any(
+        not (isinstance(item, dict) or (isinstance(item, str) and item.strip())) for item in value
+    ):
+        raise ValueError("goals должен быть списком: объект части цели {ref, scenario, …} либо ref описанной части")
+    clauses = tuple(
+        goal_clause(item, where=f"goals[{index}]", raw_query=raw_query)
+        for index, item in enumerate(value) if isinstance(item, dict)
+    )
+    refs = [clause.goal_ref for clause in clauses]
+    if len(refs) != len(set(refs)):
+        raise ValueError(f"goals: ref частей повторяются ({refs}) — у каждой части свой ref")
+    return clauses
 
 
 def _file_specs(value) -> tuple[FileSpec, ...]:
@@ -1149,8 +1307,39 @@ def _scenario_signature(text: str) -> tuple[str, ...]:
     return ("scenario", _normalized(text))
 
 
-def _goal_signature(ref: str) -> tuple[str, ...]:
-    return ("goal", ref)
+def _goal_signature(ref: str, clause: GoalClause | None) -> tuple[str, ...]:
+    """Часть — по ref и параметрам: описанная заново с другими параметрами — новое действие, не повтор тупика."""
+    if clause is None:
+        return ("goal", ref, "")
+    shape = {
+        "kind": clause.intent_kind, "concepts": [target.concept for target in clause.targets],
+        "period": clause.period_ref, "role": clause.role, "parameters": _without_ids(clause.parameters),
+        "depends_on": clause.depends_on,
+    }
+    return ("goal", ref, json.dumps(shape, ensure_ascii=False, sort_keys=True, separators=(",", ":")))
+
+
+def _without_ids(value):
+    """Параметры части без `spec_id`: id описания показателя новый при каждом разборе, смысла части он не несёт."""
+    if isinstance(value, dict):
+        return {key: _without_ids(item) for key, item in value.items() if key != "spec_id"}
+    if isinstance(value, list):
+        return [_without_ids(item) for item in value]
+    return value
+
+
+def _dependencies_first(clauses: list[GoalClause]) -> list[GoalClause]:
+    """Части после их зависимостей; цикл зависимостей отклоняется."""
+    ordered: list[GoalClause] = []
+    pending = list(clauses)
+    while pending:
+        refs = {clause.goal_ref for clause in pending}
+        ready = [clause for clause in pending if not refs & set(clause.depends_on)]
+        if not ready:
+            raise ValueError(f"goals: цикл зависимостей между частями {sorted(refs)}")
+        ordered.extend(ready)
+        pending = [clause for clause in pending if clause not in ready]
+    return ordered
 
 
 def _step_signature(item: dict) -> tuple[str, ...]:
@@ -1165,8 +1354,9 @@ def _step_signatures(items: tuple[dict, ...]) -> tuple[tuple[str, ...], ...]:
     return tuple(_step_signature(item) for item in items)
 
 
-def _decision_signatures(decision: Decision) -> tuple[tuple[str, ...], ...]:
-    goals = tuple(_goal_signature(ref) for ref in decision.goals)
+def _decision_signatures(decision: Decision, clauses: dict[str, GoalClause]) -> tuple[tuple[str, ...], ...]:
+    described = {**clauses, **{clause.goal_ref: clause for clause in decision.new_goals}}
+    goals = tuple(_goal_signature(ref, described.get(ref)) for ref in decision.goals)
     scenarios = tuple(_scenario_signature(text) for text in decision.scenarios)
     return goals + scenarios + _step_signatures(decision.raw_steps)
 
@@ -1414,6 +1604,8 @@ def _how_to_get(run: LoopSession, clause: GoalClause) -> str | None:
 def _describe_goal(run: LoopSession) -> str:
     """Разобранная цель для планировщика. У составной — все части со связями и способом получения: без них он
     не знает, что часть можно получить по ссылке, а что — только своими силами."""
+    if run.entry_stage == "agent":
+        return _agent_parts(run)
     goal = run.goal
     clauses = goal.clauses()
     if len(clauses) == 1:
@@ -1436,6 +1628,20 @@ def _describe_goal(run: LoopSession) -> str:
         part += f"; получать: {_how_to_get(run, clause) or 'силами планировщика (сценарий, шаги или новый атом)'}"
         parts.append(part)
     return "\n".join([f"составная цель, частей: {len(clauses)}; сущность={goal.entity_ref}; роль={goal.role}", *parts])
+
+
+def _agent_parts(run: LoopSession) -> str:
+    """Части цели, которые описал агент (ADR-0060 п. 2): сообщение служба не разбирала."""
+    lines = [f"сообщение служба не разбирала; роль пользователя в интерфейсе: {run.goal.role or 'не выбрана'}"]
+    if not run.clauses:
+        lines.append("частей пока нет: опиши их объектами goals хода")
+    for clause in run.clauses.values():
+        status = run.goal_status.get(clause.goal_ref) or "не исполнялась"
+        lines.append(
+            f"- {clause.goal_ref}: {clause.intent_kind} — {describe_clause(clause)}; роль={clause.role}; "
+            f"depends_on={clause.depends_on}; {status}"
+        )
+    return "\n".join(lines)
 
 
 def _describe_atom(atom: EphemeralAtom, ran: bool) -> str:

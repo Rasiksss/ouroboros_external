@@ -26,6 +26,8 @@ PLAN = ["получить показатели", "собрать Excel на дв
 BOOK = {"kind": "xlsx", "parts": 2, "formulas": True}
 # Тот же атом, но расчёт записан числом: листов 2, формул 0 — так автор ответил на dev 07.10.2026.
 PLAIN_BOOK_CODE = BOOK_CODE.replace('"=Данные!B2/Данные!B3"', "2.5")
+# Код проходит проверку, а книгу не пишет: попытка собрать файл есть, файла нет.
+NO_BOOK_CODE = 'def run(inputs):\n    return {"filename": "итоги.xlsx"}\n'
 
 
 @pytest.fixture(autouse=True)
@@ -112,7 +114,8 @@ def test_the_plan_of_the_first_move_is_shown_on_every_later_move(base, local_roo
     for prompt in planner.prompts[1:3]:
         plan = _section(prompt, "План")
         assert "1. получить показатели" in plan and "2. собрать Excel на двух листах с формулами" in plan
-    assert "xlsx" in _section(planner.prompts[1], "План") and "не собран" in _section(planner.prompts[1], "План")
+    # Сдача — исполнение атома (ADR-0060 п. 4): книга собрана уже сдачей перед вторым вопросом.
+    assert "собран: итоги.xlsx" in _section(planner.prompts[1], "План")
     assert "собран: итоги.xlsx" in _section(planner.prompts[2], "План")
 
 
@@ -170,17 +173,14 @@ def test_a_file_poorer_than_the_plan_is_refused_at_registration_and_is_not_the_p
     assert result.deliverables == ()
 
 
-def test_after_two_failed_attempts_to_build_the_file_the_planner_may_answer_without_it(
-    base, graph_failing_room,
-) -> None:
-    graph_failing_room.broken.update({BOOK_CODE, BOOK_CODE + "# вторая версия\n"})
+def test_after_two_failed_attempts_to_build_the_file_the_planner_may_answer_without_it(base, local_room) -> None:
+    """Попытка собрать файл — принятая сдача атома (она же его исполнение, ADR-0060 п. 4); две, не давшие книги, —
+    и ответ без файла принимается."""
     planner = Replies([
         _reply(plan=PLAN, files=[BOOK], scenarios=["Извлеки"]),
-        _reply(build=True),
-        _reply(build=True),
         _answer_by_seed("Показатели получены, файл собрать не удалось."),
     ])
-    dynamic = _dynamic(base, planner, book_visit(), book_visit(BOOK_CODE + "# вторая версия\n", before=3))
+    dynamic = _dynamic(base, planner, Visit(REQUEST, (NO_BOOK_CODE, NO_BOOK_CODE + "# вторая версия\n"), before=2))
 
     result = dynamic.run(deterministic_error="нет пути")
 
@@ -398,8 +398,9 @@ def test_once_the_promised_file_is_built_the_state_tells_the_planner_to_answer(b
 
     _dynamic(base, planner, book_visit()).run(deterministic_error="нет пути")
 
-    assert "finalize" not in _section(planner.prompts[1], "План")
-    assert "следующим ходом — finalize" in _section(planner.prompts[2], "План")
+    assert "finalize" not in _section(planner.prompts[0], "План")
+    # Книгу собрала сдача перед вторым вопросом (ADR-0060 п. 4): пора отвечать уже там.
+    assert "следующим ходом — finalize" in _section(planner.prompts[1], "План")
 
 
 def test_a_stopped_cycle_hands_over_the_promised_file_and_says_so(base, local_room) -> None:

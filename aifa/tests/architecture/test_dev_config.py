@@ -423,7 +423,7 @@ def test_f9_catches_a_missing_skill_admission(tmp_path: Path) -> None:
 def test_f9_catches_a_planning_skill_the_owner_cannot_read(tmp_path: Path) -> None:
     """F9: нарушитель — `aifa-planning` не допущен владельцам (ADR-0036, ADR-0047): в multiuser
     навык-инструкция
-    без допуска не виден задаче, и корень не прочитает порядок работы с `aifa_goal` (найдено
+    без допуска не виден задаче, и корень не прочитает порядок работы с `aifa_open` (найдено
     живым прогоном шага 10)."""
     dev = _copy_dev(tmp_path)
     _edit(dev / "ouroboros.env.example", "distribution:aifa-planning,", "")
@@ -445,7 +445,7 @@ def test_f9_catches_an_atom_author_skill_the_subtask_cannot_read(tmp_path: Path)
 def test_f9_catches_an_engine_extension_the_owner_cannot_call(tmp_path: Path) -> None:
     """F9: нарушитель — `aifa-engine` не допущен владельцам: доверенный список ADR-0038 делает его
     видимым
-    ядру, но задача без допуска получает `TOOL_UNAVAILABLE` на каждый вызов `aifa_goal`."""
+    ядру, но задача без допуска получает `TOOL_UNAVAILABLE` на каждый вызов `aifa_open`."""
     dev = _copy_dev(tmp_path)
     _edit(dev / "ouroboros.env.example", ",distribution:aifa-engine,", ",")
     problems = dev_config_violations(dev, load_snapshot())

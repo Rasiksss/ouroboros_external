@@ -1,6 +1,6 @@
-"""Инструменты `aifa_goal` и `aifa_wait` (CONTRACTS.md §3.1, ADR-0042 п. 1).
+"""Инструменты `aifa_open` и `aifa_wait` (CONTRACTS.md §3.1, ADR-0060 п. 1).
 
-Длинное — фоном: `aifa_goal` держит вызов до `ouroboros_goal_wait_sec` (240 с), затем отвечает
+Длинное — фоном: `aifa_open` держит вызов до `ouroboros_goal_wait_sec` (240 с), затем отвечает
 `ЖДИ job=<id>`; дальше — `aifa_wait`, который держит запрос столько, сколько просили (`wait_sec`).
 Срок держит служба; плагин ждёт один запрос и между опросами проверяет остановку (ADR-0022 п. 3, P61).
 """
@@ -10,26 +10,27 @@ from __future__ import annotations
 from typing import Any, Protocol
 
 from finengine.assistant import ouro_view
-from finengine.assistant.events import Emit, Event
-from finengine.assistant.goal_result import GoalResult
+from finengine.assistant.events import Event
 from finengine.assistant.jobs import Job, JobBoard, RunEnded
 from finengine.assistant.loop_desk import LoopDesk
+from finengine.assistant.loop_opening import NoDocument
 from finengine.assistant.ouro_view import Refusal
 from finengine.assistant.subtask_waits import SubtaskWaits, Verdict
 from finengine.assistant.tool_call import BoundCall
 from finengine.assistant.turn_record import TurnRecord
 from finengine.config import settings
 from finengine.skills import run_orchestrator
+from finengine.skills.spec.dynamic_run import LoopSession
 
 WAIT_MIN_SEC = 10
 WAIT_MAX_SEC = 240
-GOAL_KIND = "aifa_goal"
+OPEN_KIND = "aifa_open"
 
 
-class GoalSource(Protocol):
-    """Откуда берётся итог цели хода: стандартный путь службы (шаг 09)."""
+class Opening(Protocol):
+    """Кто открывает цикл хода: служба по документу хода (`LoopOpening`)."""
 
-    async def __call__(self, record: TurnRecord, emit: Emit) -> GoalResult: ...
+    async def __call__(self, record: TurnRecord) -> LoopSession | NoDocument: ...
 
 
 class RunEmitter:
@@ -51,25 +52,29 @@ async def reply_of(board: JobBoard, job: Job, seconds: float) -> str:
     return ouro_view.waiting(job.job_id) if text is None else text
 
 
-class GoalTool:
-    name = GOAL_KIND
+class OpenTool:
+    name = OPEN_KIND
     root_only = True
 
-    def __init__(self, board: JobBoard, goal: GoalSource) -> None:
+    def __init__(self, board: JobBoard, opening: Opening, desk: LoopDesk) -> None:
         self._board = board
-        self._goal = goal
+        self._opening = opening
+        self._desk = desk
 
     async def run(self, call: BoundCall) -> str:
         run_id = call.ctx.run_id
-        # C3.3: повторный вызов в ходе — то же задание и тот же итог, цель заново не разбирается.
-        job = self._board.of_kind(run_id, GOAL_KIND)
+        # C3.3: повторный вызов в ходе — то же задание; открытый цикл не открывается заново, ответ — его состояние.
+        job = self._board.of_kind(run_id, OPEN_KIND)
         if job is None:
-            job = self._board.start(run_id, GOAL_KIND, self._answer(call))
+            job = self._board.start(run_id, OPEN_KIND, self._answer(call))
         return await reply_of(self._board, job, settings.ouroboros_goal_wait_sec)
 
     async def _answer(self, call: BoundCall) -> str:
-        result = await self._goal(call.record, RunEmitter(call.ctx.run_id))
-        return ouro_view.goal(result, limit=settings.ouroboros_result_limit)
+        loop = await self._desk.open_loop_of(call)
+        opened = loop.session if loop is not None else await self._opening(call.record)
+        if isinstance(opened, NoDocument):
+            return ouro_view.refusal(Refusal.NO_DOCUMENT, opened.why)
+        return ouro_view.opened(opened, limit=settings.ouroboros_result_limit)
 
 
 class WaitTool:

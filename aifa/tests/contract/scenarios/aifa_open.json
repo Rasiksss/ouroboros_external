@@ -1,0 +1,107 @@
+{
+  "name": "aifa_open",
+  "rules": [
+    {
+      "id": "title-by-light-model",
+      "when": {
+        "model": "stub-light"
+      },
+      "reply": {
+        "text": "Выручка"
+      }
+    },
+    {
+      "id": "read-the-planning-skill",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "какая выручка",
+        "round": 1
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "skill_read",
+            "arguments": {
+              "skill": "distribution:aifa-planning"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "goal-first",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "какая выручка",
+        "round": 2
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_open",
+            "arguments": {}
+          }
+        ]
+      }
+    },
+    {
+      "id": "execute-revenue",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "какая выручка",
+        "round": 3
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_move",
+            "arguments": {
+              "objective": "получить выручку",
+              "reason": "нужна для ответа",
+              "goals": [
+                {
+                  "ref": "revenue",
+                  "scenario": "extract_registered_metric",
+                  "concepts": [
+                    "SALES_REVENUE"
+                  ],
+                  "period": "p-2024-fy"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "finish",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "какая выручка",
+        "round": 4
+      },
+      "reply": {
+        "tool_calls": [
+          {
+            "name": "ext_13_r_aifa-engine_aifa_finish",
+            "arguments": {
+              "action": "finalize"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "answer-by-the-table",
+      "when": {
+        "model": "stub-main",
+        "user_contains": "какая выручка",
+        "round": 5,
+        "last_tool_result_starts_with": "ПРИНЯТО"
+      },
+      "reply": {
+        "text": "Выручка за 2024 год — 987654 млн руб. (артефакт из таблицы результатов, концепт SALES_REVENUE)."
+      }
+    }
+  ]
+}

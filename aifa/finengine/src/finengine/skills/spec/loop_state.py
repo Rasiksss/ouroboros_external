@@ -9,7 +9,7 @@ from dataclasses import asdict, dataclass, field
 from time import monotonic
 from typing import Any
 
-from finengine.contracts import GoalIR
+from finengine.contracts import GoalClause, GoalIR
 from finengine.skills.spec.dynamic_run import JournalEntry, LoopSession
 from finengine.skills.spec.room_files import FileSpec
 from finengine.skills.spec.target import Target
@@ -58,6 +58,7 @@ def state_of(session: LoopSession) -> dict[str, Any]:
         "plan": list(session.plan), "expected_files": [asdict(spec) for spec in session.expected_files],
         "journal": [asdict(entry) for entry in session.journal],
         "goal_status": dict(session.goal_status), "failures": dict(session.failures),
+        "clauses": [clause.model_dump(mode="json") for clause in session.clauses.values()],
         "initial_evidence_ids": sorted(session.initial_evidence_ids),
         "initial_file_ids": sorted(session.initial_file_ids),
         "attempts": session.intake.log.to_doc(),
@@ -75,6 +76,9 @@ def restore_state(session: LoopSession, doc: dict[str, Any]) -> None:
     session.expected_files = tuple(FileSpec(**spec) for spec in doc["expected_files"])
     session.journal = [JournalEntry(**entry) for entry in doc["journal"]]
     session.goal_status, session.failures = dict(doc["goal_status"]), dict(doc["failures"])
+    if "clauses" in doc:  # сохранённое до ADR-0060 частей агента не знает: они — из цели
+        clauses = (GoalClause.model_validate(item) for item in doc["clauses"])
+        session.clauses = {clause.goal_ref: clause for clause in clauses}
     session.initial_evidence_ids = frozenset(doc["initial_evidence_ids"])
     session.initial_file_ids = frozenset(doc["initial_file_ids"])
     session.intake.log.restore(doc.get("attempts", []))  # сохранённое до шага 16 счётчика не знает

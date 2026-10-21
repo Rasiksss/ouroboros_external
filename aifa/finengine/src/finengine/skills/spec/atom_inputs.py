@@ -20,7 +20,15 @@ def case_inputs(
     store, owner_id, case_id: str, request: AtomRequest, atoms: dict[str, EphemeralAtom] | None = None,
 ) -> dict | None:
     """Реальные входы атома из Case в том виде, в каком код получит их в графе (`group_inputs` от
-    `ctx.dependencies()`); None, если какого-то входа ещё нет.
+    `ctx.dependencies()`); None, если какого-то входа ещё нет."""
+    values = case_input_values(store, owner_id, case_id, request, atoms)
+    return None if values is None else group_inputs(values)
+
+
+def case_input_values(
+    store, owner_id, case_id: str, request: AtomRequest, atoms: dict[str, EphemeralAtom] | None = None,
+) -> tuple[BaseModel, ...] | None:
+    """Значения входов атома из Case в порядке `requires`, затем находки проверок; None, если входа ещё нет.
 
     В Case каждая стадия цепочки гейтов оставляет свою запись (read.value → norm.unit → norm.time →
     verify.bounds), так что один показатель лежит там несколько раз. Граф отдаёт коду конец цепочки,
@@ -41,13 +49,33 @@ def case_inputs(
     related = [(value, row) for value, row in findings
                if set(row["dependency_evidence_ids"] or ()) & set(position)]
     related.sort(key=partial(_first_dependency, position=position))
-    return group_inputs(tuple(value for value, _ in wanted + related))
+    return tuple(value for value, _ in wanted + related)
+
+
+def inputs_in_case(store, owner_id, case_id: str, request: AtomRequest) -> str:
+    """Что из нужных атому типов в Case есть — для отказа `нет_входов`: автор видит, чем поправить `requires`."""
+    rows = store.list_artifacts(owner_id, case_id)
+    lines = []
+    for input_type in dict.fromkeys(spec.input_type for spec in request.requires):
+        concepts = sorted({row["concept"] or "" for row in rows if row["output_type"] == input_type})
+        if not concepts:
+            lines.append(f"{input_type} — нет")
+        elif concepts == [""]:
+            lines.append(f"{input_type} — есть, без концепта (concept не указывай)")
+        else:
+            lines.append(f"{input_type} — концепты: {', '.join(concept for concept in concepts if concept)}")
+    return "; ".join(lines)
+
+
+def _matches(row: dict, spec: InputSpec) -> bool:
+    """У записи без концепта (форма, отчёт, `dyn:*`) концепт запроса не проверяется (ADR-0060 п. 3)."""
+    return row["output_type"] == spec.input_type and (
+        spec.concept is None or not row["concept"] or row["concept"] == spec.concept
+    )
 
 
 def _requires_rank(item: tuple[BaseModel, dict], requires: tuple[InputSpec, ...]) -> int:
-    row = item[1]
-    return next(index for index, spec in enumerate(requires)
-                if row["output_type"] == spec.input_type and spec.concept in (None, row["concept"]))
+    return next(index for index, spec in enumerate(requires) if _matches(item[1], spec))
 
 
 def _first_dependency(item: tuple[BaseModel, dict], position: dict) -> int:
@@ -55,13 +83,11 @@ def _first_dependency(item: tuple[BaseModel, dict], position: dict) -> int:
 
 
 def _is_input(row: dict, requires: tuple[InputSpec, ...]) -> bool:
-    return any(row["output_type"] == spec.input_type and spec.concept in (None, row["concept"])
-               for spec in requires)
+    return any(_matches(row, spec) for spec in requires)
 
 
 def _has_input(items: list[tuple[BaseModel, dict]], spec: InputSpec) -> bool:
-    return any(row["output_type"] == spec.input_type and spec.concept in (None, row["concept"])
-               for _, row in items)
+    return any(_matches(row, spec) for _, row in items)
 
 
 def end_of_chain(rows: list[dict], producers: dict[str, str]) -> list[tuple[BaseModel, dict]]:

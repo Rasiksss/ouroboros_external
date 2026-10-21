@@ -70,7 +70,7 @@ def test_the_skill_names_only_tools_the_plugin_has_and_never_a_root_only_one() -
     mentioned = set(re.findall(r"`(aifa_\w+)", text()))
 
     assert SUBTASK_TOOLS <= mentioned <= tools
-    assert not mentioned & {"aifa_goal", "aifa_finish"} or "недоступны" in text()
+    assert not mentioned & {"aifa_open", "aifa_finish"} or "недоступны" in text()
 
 
 def test_every_code_rule_of_the_service_author_moved_into_the_skill() -> None:
@@ -180,7 +180,7 @@ def test_missing_inputs_end_the_work_and_the_planner_is_the_one_who_gets_them() 
 
     assert "`ОТКАЗ нет_входов`" in inputs and "входы получает планировщик, не ты" in inputs
     assert "Закончи пунктом 8 и назови, каких входов не хватает" in inputs
-    assert "(`aifa_move`) ты не делаешь" in text()
+    assert "`aifa_move`" in text() and "недоступны" in text()
 
 
 def test_the_answers_after_which_nothing_can_be_registered_end_the_work_at_item_8() -> None:
@@ -203,7 +203,8 @@ def test_the_skill_does_not_promise_the_graph_will_give_the_code_the_same_object
     assert "теми же полями" not in body and "эти же объекты" not in body
     assert "Приёмка прогонит код на входах из этих артефактов" in step(2)
     code = step(3)
-    assert "в другой упаковке" in code and "читай ключи защитно" in code
+    assert "Читай ключи входов защитно" in code
+    assert "принят и исполнен" in text() and "запускать его шагом не нужно" in text()
     assert "`raise ValueError`" in code and "чего не хватило" in code
 
 

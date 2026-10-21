@@ -20,7 +20,6 @@ from tool_harness import (  # noqa: F401 — `coordination`: фикстура о
     open_run,
 )
 
-from finengine.assistant.goal_result import GoalResult
 from finengine.assistant.tool_api import ToolApi
 from finengine.assistant.turn_record import TurnRecord, recall
 from finengine.config import settings
@@ -42,7 +41,7 @@ class RootSpy:
 
 
 class NoGoal:
-    async def __call__(self, record: TurnRecord, emit: object) -> GoalResult:  # pragma: no cover
+    async def __call__(self, record: TurnRecord) -> object:  # pragma: no cover
         raise AssertionError("привязка должна была отказать раньше")
 
 
@@ -174,13 +173,13 @@ async def test_a_subtask_of_the_root_of_the_turn_passes_the_binding(plugin: Plug
     await run.end()
 
 
-async def test_aifa_goal_from_a_subtask_is_not_its_role(plugin: Plugin) -> None:
-    """C3.0 / ADR-0043 п. 2: `aifa_goal` — только корень (`task_depth == 0`)."""
+async def test_aifa_open_from_a_subtask_is_not_its_role(plugin: Plugin) -> None:
+    """C3.0 / ADR-0043 п. 2: `aifa_open` — только корень (`task_depth == 0`)."""
     run = open_run()
     await plugin.call("aifa_wait", ctx_of(run.run_id, task_id=ROOT), WAIT)
 
     response = await plugin.call(
-        "aifa_goal", ctx_of(run.run_id, task_id="sub-1", root_task_id=ROOT, task_depth=1)
+        "aifa_open", ctx_of(run.run_id, task_id="sub-1", root_task_id=ROOT, task_depth=1)
     )
 
     assert first_line(response) == "ОТКАЗ не_та_роль"
@@ -190,7 +189,7 @@ async def test_aifa_goal_from_a_subtask_is_not_its_role(plugin: Plugin) -> None:
 async def test_a_foreign_turn_is_refused_before_the_role_is_looked_at(plugin: Plugin) -> None:
     """Привязка раньше ролей: чужому вызову не сообщают, какие роли у хода бывают."""
     response = await plugin.call(
-        "aifa_goal", ctx_of("no-such-run", task_id="sub-1", root_task_id=ROOT, task_depth=1)
+        "aifa_open", ctx_of("no-such-run", task_id="sub-1", root_task_id=ROOT, task_depth=1)
     )
 
     assert first_line(response) == "ОТКАЗ чужой_ход"

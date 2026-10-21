@@ -1,7 +1,7 @@
 """Читающие инструменты цикла `aifa_state` и `aifa_doc` (CONTRACTS.md §3.1, ADR-0040 п. 2, ADR-0043 п. 5).
 
 Вне очереди: чтение не меняет `LoopSession` и отвечает сразу, пока идёт `aifa_move`. Доступны после любого
-`aifa_goal`; без открытого цикла `aifa_state` отдаёт только артефакты по `artifact_ids`.
+`aifa_open`; без открытого цикла `aifa_state` отдаёт только артефакты по `artifact_ids`.
 """
 
 from __future__ import annotations
@@ -11,7 +11,7 @@ from typing import Any
 
 from finengine.assistant import doc_pages, ouro_view
 from finengine.assistant.jobs import JobBoard
-from finengine.assistant.goal_tools import GOAL_KIND
+from finengine.assistant.goal_tools import OPEN_KIND
 from finengine.assistant.loop_desk import LoopDesk
 from finengine.assistant.loop_tools import no_loop
 from finengine.assistant.ouro_view import STATE_BATCH, Refusal
@@ -23,7 +23,7 @@ from finengine.skills.spec.dynamic_run import artifact_content, case_rows
 from finengine.store.blobs import document_text
 from finengine.store.cases import evidence_id_of, get_case_store
 
-BEFORE_GOAL = "Сначала вызови aifa_goal: чтение доступно после него."
+BEFORE_OPEN = "Сначала вызови aifa_open: чтение доступно после него."
 
 
 class StateTool:
@@ -46,8 +46,8 @@ class StateTool:
             if loop is None:
                 return no_loop()
             return await asyncio.to_thread(ouro_view.state, loop.session, limit=limit)
-        if loop is None and self._board.of_kind(call.ctx.run_id, GOAL_KIND) is None:
-            return no_loop(BEFORE_GOAL)
+        if loop is None and self._board.of_kind(call.ctx.run_id, OPEN_KIND) is None:
+            return no_loop(BEFORE_OPEN)
         rows = await asyncio.to_thread(case_rows, get_case_store(), call.record.user_id, call.record.case_id)
         found = _contents(rows, ids)
         missing = [item for item in ids if item not in dict(found)]
@@ -81,8 +81,8 @@ class DocTool:
 
     async def run(self, call: BoundCall) -> str:
         loop = await self._desk.open_loop_of(call)
-        if loop is None and self._board.of_kind(call.ctx.run_id, GOAL_KIND) is None:
-            return no_loop(BEFORE_GOAL)
+        if loop is None and self._board.of_kind(call.ctx.run_id, OPEN_KIND) is None:
+            return no_loop(BEFORE_OPEN)
         doc_id, pages, query = (call.args.get(key) for key in ("doc_id", "pages", "query"))
         if not all(item is None or isinstance(item, str) for item in (doc_id, pages, query)):
             return ouro_view.refusal(Refusal.BAD_ARGUMENTS, "doc_id, pages и query — строки.")

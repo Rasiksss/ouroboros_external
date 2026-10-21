@@ -10,16 +10,20 @@ import threading
 
 import pytest
 from dynamic_support import MARGIN_CODE, margin_request
-from loop_support import Cycle, Gateway, _NoGoal, make_passport, open_cycle
+from loop_support import Cycle, Gateway, _NoGoal, make_passport, open_cycle, registration_args
 from test_dynamic_run import ExtractScenario, _move
 from test_ephemeral_in_graph import CASE, OWNER
 from tool_harness import Plugin, ctx_of, first_line, open_run
 
 from finengine.assistant.loop_desk import LoopDesk
 from finengine.assistant.tool_api import ToolApi
+from finengine.skills.spec.graph_executor import RunInputs
+from finengine.skills.spec.room_files import FileSpec
 from finengine.skills.spec import sealed_room
 from finengine.skills.spec.atom_intake import AttemptLog
+from finengine.skills.spec.atom_inputs import case_input_values
 from finengine.skills.spec.dynamic_run import RunLimits, load_case_atoms
+from finengine.skills.spec.target import InputSpec
 
 WRONG_SHAPE = "def run(inputs):\n    return {'margin_pct': 'много'}\n"
 BAD_CODE = "def run(inputs):\n    return {'margin_pct': 1 / 0}\n"
@@ -134,12 +138,78 @@ async def test_a_contract_that_breaks_the_rules_is_refused_before_the_room(base,
 
 
 async def test_an_atom_without_inputs_in_the_case_is_refused(base, local_room) -> None:
-    """LR-43, C4.3: входов `requires` в `Case` ещё нет — `нет_входов` (подсказка: получи их ходом)."""
+    """LR-43, C4.3: входов `requires` в `Case` ещё нет — `нет_входов` и что из нужных типов в `Case` есть."""
     cycle = await open_cycle(base, scenario=ExtractScenario(base, None))
 
     reply = await cycle.call("aifa_register_atom", register_args(), depth=1)
 
     assert first_line_of(reply) == "ОТКАЗ нет_входов"
+    assert "в Case: ExtractedMetric — нет" in reply, "отказ называет, чего в Case нет"
+    await cycle.close()
+
+
+async def test_an_accepted_atom_is_already_executed_and_its_result_is_in_the_case(base, counting_room) -> None:
+    """LR-60: принятая сдача сохраняет результат без второго прогона."""
+    cycle = await cycle_with_inputs(base)
+    turns = cycle.session.turns
+
+    reply = await cycle.call("aifa_register_atom", register_args(), depth=1)
+
+    rows = [row for row in base.store.list_artifacts(OWNER, CASE) if row["output_type"] == "dyn:ebitda_margin"]
+    assert first_line_of(reply) == "ГОТОВО" and "исполнен" in reply and "dyn:ebitda_margin" in reply
+    assert len(rows) == 1 and rows[0]["payloads"][0].payload == {"margin_pct": 25.0}
+    assert rows[0]["dependency_evidence_ids"], "родословная — входы из Case"
+    assert len(counting_room.codes) == 1, "код прогнан один раз — при сдаче"
+    assert cycle.session.turns == turns and cycle.session.idle == 0, "сдача — продвижение, хода не тратит"
+    await cycle.close()
+
+
+async def test_a_registered_excel_file_is_delivered_without_a_move_or_a_second_run(base, counting_room, catalog) -> None:
+    cycle = await cycle_with_inputs(base)
+    cycle.session.inputs = RunInputs(extra={"owner_id": OWNER, "project_id": CASE})
+    cycle.session.expected_files = (FileSpec("xlsx", 2, True),)
+    code = '''
+def run(inputs):
+    import os
+    from openpyxl import Workbook
+    os.makedirs("out", exist_ok=True)
+    book = Workbook()
+    book.active.title = "Data"
+    book.active["A1"] = inputs["ExtractedMetric"][0]["scalar_fact"]["value"]
+    book.create_sheet("Result")["A1"] = "=Data!A1"
+    book.save("out/result.xlsx")
+    return {"filename": "result.xlsx"}
+'''
+    args = register_args(code)
+    args["output_schema"] = {"type": "object", "properties": {"filename": {"type": "string"}}}
+    registered = await cycle.call("aifa_register_atom", args, depth=1)
+    assert first_line_of(registered) == "ГОТОВО", registered
+    files = [v for row in base.store.list_artifacts(OWNER, CASE)
+             if row["output_type"] == "FileArtifact" for v in row["payloads"]]
+    assert len(files) == 1 and "листов 2" in files[0].summary and "формул 1" in files[0].summary
+    finished = await cycle.call("aifa_finish", {"action": "finalize"})
+    assert first_line_of(finished) == "ПРИНЯТО" and "result.xlsx" in finished
+    assert len(counting_room.codes) == 1
+    assert len([event for event in cycle.events if event["type"] == "file"]) == 1
+    await cycle.close()
+
+
+async def test_an_input_type_without_a_concept_in_the_case_matches_whatever_concept_was_asked(
+    base, local_room,
+) -> None:
+    """ADR-0060 п. 3: у `dyn:*`, форм и отчётов в `Case` концепта нет — концепт запроса им не помеха."""
+    cycle = await cycle_with_inputs(base)
+    await cycle.call("aifa_register_atom", register_args(), depth=1)
+    request = margin_request(
+        name="eph.margin_twice", output_type="dyn:margin_twice",
+        requires=(InputSpec("dyn:ebitda_margin", "маржа EBITDA"),),
+        output_schema={"type": "object", "properties": {"twice": {"type": "number", "x-unit": "%"}}},
+    )
+    code = "def run(inputs):\n    return {'twice': inputs['dyn:ebitda_margin'][0]['payload']['margin_pct'] * 2}\n"
+
+    reply = await cycle.call("aifa_register_atom", registration_args(request, code), depth=1)
+
+    assert first_line_of(reply) == "ГОТОВО", reply
     await cycle.close()
 
 
@@ -189,13 +259,21 @@ async def test_the_limit_of_new_atoms_is_the_limit_of_the_run(base, local_room) 
     await cycle.close()
 
 
-async def test_registration_needs_an_open_cycle_and_stops_at_the_limit_and_after_the_finish(base, local_room) -> None:
-    """C3.8: без цикла — `нет_цикла`, после `ЛИМИТ` — `ЛИМИТ`, после `aifa_finish` — `цикл_закрыт`."""
+async def test_registration_is_not_stopped_by_the_moves_but_by_the_time_and_the_finish(base, local_room) -> None:
+    """C3.8, ADR-0060 п. 5: ходы и простой цикла сдачу не останавливают; общее время — `ЛИМИТ`, после `aifa_finish` —
+    `цикл_закрыт`."""
     cycle = await cycle_with_inputs(base, limits=RunLimits(max_moves=1))
+    assert cycle.session.limit() is not None, "ходы цикла исчерпаны"
 
-    assert first_line_of(await cycle.call("aifa_register_atom", register_args(), depth=1)) == "ЛИМИТ"
+    accepted = await cycle.call("aifa_register_atom", register_args(), depth=1)
+    cycle.session.opened_at -= cycle.session.limits.max_wall_seconds + 1
+    late = await cycle.call("aifa_register_atom", register_args(MARGIN_CODE + "\n# позже\n"), depth=1)
     await cycle.call("aifa_finish", {"action": "give_up"})
-    assert first_line_of(await cycle.call("aifa_register_atom", register_args(), depth=1)) == "ОТКАЗ цикл_закрыт"
+    closed = await cycle.call("aifa_register_atom", register_args(), depth=1)
+
+    assert first_line_of(accepted) == "ГОТОВО"
+    assert first_line_of(late) == "ЛИМИТ" and "бюджет времени" in late
+    assert first_line_of(closed) == "ОТКАЗ цикл_закрыт"
     await cycle.close()
 
 
@@ -208,6 +286,29 @@ async def test_a_new_registration_of_a_name_lifts_its_dead_end(base, local_room)
     await cycle.call("aifa_register_atom", register_args(MARGIN_CODE + "\n# вторая версия\n"), depth=1)
 
     assert not [signature for signature in cycle.session.dead_end_actions if signature[1:2] == (NAME,)]
+    await cycle.close()
+
+
+async def test_a_revised_atom_with_the_same_output_keeps_inputs_for_the_next_atom(base, local_room) -> None:
+    cycle = await cycle_with_inputs(base)
+    await cycle.call("aifa_register_atom", register_args(), depth=1)
+    generation = cycle.session.evidence_generation
+    revised = await cycle.call("aifa_register_atom", register_args(MARGIN_CODE + "\n# revised\n"), depth=1)
+    consumer = margin_request(requires=(InputSpec("dyn:ebitda_margin"),))
+    values = case_input_values(base.store, OWNER, CASE, consumer, atoms=cycle.session.atoms)
+    assert first_line_of(revised) == "ГОТОВО"
+    assert values and values[0].producer == cycle.session.atoms[NAME].producer
+    assert cycle.session.evidence_generation == generation
+    await cycle.close()
+
+
+async def test_repeating_a_successful_registration_does_not_duplicate_consumer_inputs(base, local_room) -> None:
+    cycle = await cycle_with_inputs(base)
+    await cycle.call("aifa_register_atom", register_args(), depth=1)
+    await cycle.call("aifa_register_atom", register_args(), depth=1)
+    consumer = margin_request(requires=(InputSpec("dyn:ebitda_margin"),))
+    values = case_input_values(base.store, OWNER, CASE, consumer, atoms=cycle.session.atoms)
+    assert values and len(values) == 1
     await cycle.close()
 
 

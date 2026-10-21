@@ -20,7 +20,7 @@ TTL_SEC = 6 * 3600.0
 @dataclass(frozen=True)
 class TurnRecord:
     """`owner_id`/`chat_id` — идентичность в ouroboros (ADR-0014); `user_id`/`case_id` — владелец
-    и Case в службе. `message` — исходное сообщение, цель `aifa_goal` (ADR-0004); `doc_ids` —
+    и Case в службе. `message` — исходное сообщение хода (вопрос цикла, ADR-0060); `doc_ids` —
     документы хода, уже проверенные по владельцу (`_chat_turn_docs`)."""
 
     run_id: str

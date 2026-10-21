@@ -1,6 +1,6 @@
 """Цикл и очередь хода (CONTRACTS.md §3.0, C3.0, C3.8, C3.9, ADR-0043 пп. 4–5).
 
-Изменяющие вызовы хода идут по одному, чтение — мимо очереди; цикл открывает только `НУЖЕН_ЦИКЛ`.
+Изменяющие вызовы хода идут по одному, чтение — мимо очереди; цикл открывает только принятый `aifa_open`.
 """
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from test_dynamic_run import ExtractScenario, _finalize, _move
 from test_ephemeral_in_graph import CASE, OWNER
 from tool_harness import Plugin, ctx_of, first_line, open_run
 
-from finengine.assistant.goal_result import GoalResult, Verdict
+from finengine.assistant.loop_opening import NoDocument
 from finengine.assistant.tool_api import ToolApi
 from finengine.config import settings
 from finengine.skills.spec.dynamic_run import ScenarioResult
@@ -126,13 +126,14 @@ async def test_after_the_finish_every_changing_call_is_refused_as_closed(base) -
     await cycle.close()
 
 
-async def test_a_subtask_may_move_the_cycle_but_not_close_it(base) -> None:
-    """LR-28, C3.0: `aifa_finish` из подзадачи — `ОТКАЗ не_та_роль`; ход цикла подзадача делать может (ADR-0043 п. 2)."""
+async def test_a_subtask_neither_moves_nor_closes_the_cycle(base) -> None:
+    """LR-28, C3.0, ADR-0060 п. 5: `aifa_move` и `aifa_finish` из подзадачи — `ОТКАЗ не_та_роль`, пределы цикла
+    корня не тратятся."""
     cycle = await open_cycle(base, scenario=Slow(delay=0.0))
 
     assert first_line_of(await cycle.call("aifa_finish", {"action": "give_up"}, depth=1)) == "ОТКАЗ не_та_роль"
-    assert first_line_of(await cycle.call("aifa_move", {**_args("подзадача")}, depth=1)) == "ГОТОВО"
-    assert not cycle.session.closed
+    assert first_line_of(await cycle.call("aifa_move", {**_args("подзадача")}, depth=1)) == "ОТКАЗ не_та_роль"
+    assert not cycle.session.closed and cycle.session.turns == 0
     await cycle.close()
 
 
@@ -140,21 +141,21 @@ def _args(scenario: str) -> dict:
     return {"objective": "ход", "reason": "нужно", "scenarios": [scenario]}
 
 
-class AnsweredGoal:
-    """`aifa_goal` отвечает `ГОТОВО`: стандартный путь справился, цикл не открыт."""
+class NoReport:
+    """`aifa_open` отказывает: открыть цикл не по чему, цикл не открыт."""
 
-    async def __call__(self, record, emit) -> GoalResult:
-        return GoalResult(Verdict.ANSWERED, "Расчёт выполнен.")
+    async def __call__(self, record) -> NoDocument:
+        return NoDocument("У хода нет отчёта.")
 
 
 async def test_the_cycle_is_opened_only_by_the_answer_that_needs_it(base) -> None:
-    """LR-29, C3.9: после `ГОТОВО` `aifa_move`, `aifa_finish` и `aifa_state` без id — `ОТКАЗ нет_цикла`; чтение по id и
-    `aifa_doc` отвечают."""
+    """LR-29, C3.9: после отказа `aifa_open` `aifa_move`, `aifa_finish` и `aifa_state` без id — `ОТКАЗ нет_цикла`;
+    чтение по id и `aifa_doc` отвечают."""
     run = open_run(user_id=OWNER, case_id=CASE, doc_ids=())
-    plugin = Plugin(ToolApi(Gateway(), AnsweredGoal()))
+    plugin = Plugin(ToolApi(Gateway(), NoReport()))
     ctx = ctx_of(run.run_id)
 
-    assert first_line((await plugin.call("aifa_goal", ctx))) == "ГОТОВО"
+    assert first_line((await plugin.call("aifa_open", ctx))) == "ОТКАЗ нет_документа"
     refused = [
         first_line(await plugin.call(tool, ctx, args))
         for tool, args in (("aifa_move", _args("а")), ("aifa_finish", {"action": "give_up"}), ("aifa_state", {}))
@@ -168,9 +169,9 @@ async def test_the_cycle_is_opened_only_by_the_answer_that_needs_it(base) -> Non
 
 
 async def test_nothing_of_the_cycle_is_readable_before_the_goal_was_asked(base) -> None:
-    """LR-30, §3.0: `aifa_state(artifact_ids)` и `aifa_doc` доступны после любого `aifa_goal`, не раньше."""
+    """LR-30, §3.0: `aifa_state(artifact_ids)` и `aifa_doc` доступны после любого `aifa_open`, не раньше."""
     run = open_run(user_id=OWNER, case_id=CASE, doc_ids=())
-    plugin = Plugin(ToolApi(Gateway(), AnsweredGoal()))
+    plugin = Plugin(ToolApi(Gateway(), NoReport()))
     ctx = ctx_of(run.run_id)
 
     state = await plugin.call("aifa_state", ctx, {"artifact_ids": ["x"]})

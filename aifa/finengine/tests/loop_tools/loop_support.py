@@ -6,6 +6,7 @@
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -24,7 +25,8 @@ from finengine.skills.atoms.graph_atoms import build_registry, default_policy
 from finengine.skills.atoms.run_passport import build_run_passport, classification_from_cell
 from finengine.skills.case_runtime import CaseRuntime
 from finengine.skills.production_runtime import SwitchSink
-from finengine.skills.spec.dynamic_run import LoopSession, RunLimits
+from finengine.contracts import GoalClause
+from finengine.skills.spec.dynamic_run import LoopSession, RunLimits, ScenarioResult
 from finengine.skills.spec.ephemeral import AtomRequest
 from finengine.skills.spec.graph_executor import ExecutionBudget, RunInputs
 from finengine.skills.spec.loop_state import LoopOrigin
@@ -60,12 +62,43 @@ class Gateway:
         return True
 
 
+def scenario_goal(phrase: str) -> dict[str, Any]:
+    """Фраза записанного сценария → часть цели агента (ADR-0060 п. 2): извлечение вне реестра с этим названием.
+    `ref` — от фразы: та же фраза — та же часть, как у сценариев цикла службы."""
+    ref = "s" + hashlib.sha1(phrase.encode("utf-8")).hexdigest()[:8]
+    return {"ref": ref, "scenario": "extract_ad_hoc_metric", "metric": {"name_ru": phrase}}
+
+
 def args_of(raw: str) -> dict[str, Any]:
-    """Записанное решение планировщика (JSON ответа модели) → аргументы вызова `aifa_move`."""
+    """Записанное решение планировщика (JSON ответа модели) → аргументы вызова `aifa_move`; фразы `scenarios`
+    агент передаёт частями цели (`scenario_goal`)."""
     data = json.loads(raw)
     for key in ("action", "answer", "evidence_ids"):
         data.pop(key, None)
+    return agent_args(data)
+
+
+def agent_args(data: dict[str, Any]) -> dict[str, Any]:
+    """Аргументы хода, как их шлёт агент: фразы `scenarios` записанных решений — частями цели в `goals`."""
+    data = dict(data)
+    phrases = data.pop("scenarios", [])
+    if phrases:
+        data["goals"] = [*data.get("goals", []), *(scenario_goal(phrase) for phrase in phrases)]
     return data
+
+
+@dataclass
+class ScenarioGoals:
+    """Канал частей цели для тестов: часть исполняет записанный сценарий тестов `DynamicRun` по её названию."""
+
+    scenario: Callable[[str], Any]
+
+    def refusal(self, clause: GoalClause) -> str | None:
+        return None
+
+    def __call__(self, clauses: list[GoalClause]) -> ScenarioResult:
+        clause = clauses[0]
+        return self.scenario(clause.unresolved[0] if clause.unresolved else clause.raw_query)
 
 
 def finish_args(raw: str) -> dict[str, Any]:
@@ -103,6 +136,8 @@ class Cycle:
         ctx = ctx_of(self.run.run_id) if depth == 0 else ctx_of(
             self.run.run_id, task_id=task, root_task_id=ROOT, task_depth=depth
         )
+        if tool == "aifa_move" and args is not None:
+            args = agent_args(args)
         response = await self.plugin.call(tool, ctx, args)
         self.calls.append((tool, response.text))
         return response.text
@@ -128,13 +163,14 @@ async def open_cycle(
     message: str = "сложный вопрос", entry_stage: str = "planning", document_text: str = "",
     subtasks: SubtaskWaits | None = None,
 ) -> Cycle:
-    """Цикл, открытый так, как его открывает `aifa_goal` при `НУЖЕН_ЦИКЛ`: сессия принята `LoopDesk`."""
+    """Цикл, открытый заранее, как его открывает `aifa_open`: сессия принята `LoopDesk`."""
     run = open_run(user_id=OWNER, case_id=CASE, doc_ids=doc_ids, message=message)
     goal = GoalIR(raw_query=message, intent_kind="document_qa")
     target = Target(output_type="QuoteEvidence", entity_ref=ENTITY)
     session = LoopSession(
         runtime=base, owner_id=OWNER, case_id=CASE, goal=goal, target=target, inputs=RunInputs(document_text=document_text),
-        run_scenario=scenario, limits=limits, run_passport=passport, event_sink=SwitchSink(), entry_stage=entry_stage,  # type: ignore[arg-type]
+        run_scenario=scenario, run_goals=None if scenario is None else ScenarioGoals(scenario), limits=limits,
+        run_passport=passport, event_sink=SwitchSink(), entry_stage=entry_stage,  # type: ignore[arg-type]
     )
     session.open(deterministic_error="нет пути")
     desk = LoopDesk()
@@ -148,10 +184,10 @@ async def open_cycle(
 
 
 class _NoGoal:
-    """Цикл открыт заранее (`open_cycle`); `aifa_goal` в этих тестах не вызывается."""
+    """Цикл открыт заранее (`open_cycle`); `aifa_open` его не открывает заново, а открытие в этих тестах не зовётся."""
 
-    async def __call__(self, record: Any, emit: Any) -> Any:
-        raise AssertionError("aifa_goal не должен вызываться")
+    async def __call__(self, record: Any) -> Any:
+        raise AssertionError("открытие цикла не должно вызываться")
 
 
-__all__ = ["make_passport", "new_runtime", "CHAT", "CASE", "ENTITY", "OWNER", "ROOT", "Cycle", "args_of", "finish_args", "open_cycle", "registration_args"]
+__all__ = ["make_passport", "new_runtime", "CHAT", "CASE", "ENTITY", "OWNER", "ROOT", "Cycle", "ScenarioGoals", "args_of", "finish_args", "open_cycle", "registration_args", "scenario_goal"]

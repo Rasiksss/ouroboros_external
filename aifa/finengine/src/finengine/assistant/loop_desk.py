@@ -1,6 +1,6 @@
 """Открытые циклы ходов: сессии в памяти процесса, сохранение после каждого хода, подъём после перезапуска.
 
-Цикл открывает стандартный путь (`aifa_goal` → `НУЖЕН_ЦИКЛ`, CONTRACTS.md §3.0), дальше его ведут вызовы
+Цикл открывает `aifa_open` (CONTRACTS.md §3.1, ADR-0060), дальше его ведут вызовы
 инструментов. Накопленное лежит в хранилище состояния службы (`state.LOOP_SESSION`, ADR-0023): ход цикла
 может прийти на процесс, который сессию не открывал.
 """
@@ -80,7 +80,7 @@ class LoopDesk:
 
     def adopt(self, run_id: str, user_id: int | str, emitter: LoopEmitter, session: LoopSession, origin: LoopOrigin) -> None:
         self._sweep()
-        session.event_sink.target = emitter  # type: ignore[attr-defined] — `SwitchSink`, ставит `_hand_over_loop`
+        session.event_sink.target = emitter  # type: ignore[attr-defined]  # SwitchSink from the loop opener
         session.is_cancelled = RunClosed(run_id)
         self._open[run_id] = OpenLoop(run_id, session, origin, user_id)
         self.save(run_id)

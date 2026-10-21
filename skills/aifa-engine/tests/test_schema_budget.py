@@ -11,7 +11,7 @@ from ouroboros.storage.settings.schema import AppSettings
 
 TARGET_CHARS = 7000
 EXPECTED_TOOLS = {
-    "aifa_goal",
+    "aifa_open",
     "aifa_wait",
     "aifa_state",
     "aifa_doc",

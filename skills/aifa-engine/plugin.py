@@ -33,10 +33,9 @@ class Tool:
 
 TOOLS = (
     Tool(
-        name="aifa_goal",
+        name="aifa_open",
         description=(
-            "Выполнить цель пользователя стандартным путём службы: разобрать сообщение, посчитать "
-            "показатели по отчёту и вернуть таблицу результатов. Аргументов нет."
+            "Открыть цикл по отчёту хода и получить состояние: профиль, показатели, атомы и артефакты. Аргументов нет."
         ),
         schema={"type": "object", "properties": {}},
         capability_class="mutative",
@@ -78,7 +77,7 @@ TOOLS = (
     ),
     Tool(
         name="aifa_move",
-        description="Один ход цикла: сценарии, части цели и шаги атомов; атомы-загрузки — в new_atoms.",
+        description="Ход корня: сценарии службы по коду в goals, шаги атомов в steps; атомы-загрузки — в new_atoms.",
         schema={
             "type": "object",
             "properties": {
@@ -97,8 +96,41 @@ TOOLS = (
                         "required": ["kind"],
                     },
                 },
-                "goals": {"type": "array", "items": {"type": "string"}},
-                "scenarios": {"type": "array", "items": {"type": "string"}},
+                "goals": {
+                    "type": "array",
+                    "items": {
+                        "anyOf": [
+                            {"type": "string"},
+                            {
+                                "type": "object",
+                                "additionalProperties": False,
+                                "properties": {
+                                    "ref": {"type": "string"},
+                                    "scenario": {
+                                        "type": "string",
+                                        "enum": [
+                                            "extract_registered_metric",
+                                            "extract_ad_hoc_metric",
+                                            "calculate_registered_metric",
+                                            "calculate_ad_hoc_metric",
+                                            "form",
+                                            "full_analysis",
+                                            "monitor_changes",
+                                            "explain_change",
+                                        ],
+                                    },
+                                    "concepts": {"type": "array", "items": {"type": "string"}},
+                                    "period": {"type": "string"},
+                                    "role": {"type": "string"},
+                                    "depends_on": {"type": "array", "items": {"type": "string"}},
+                                    "metric": {"type": "object"},
+                                    "formula": {"type": "object"},
+                                },
+                                "required": ["ref", "scenario"],
+                            },
+                        ],
+                    },
+                },
                 "steps": {
                     "type": "array",
                     "items": {

@@ -399,17 +399,18 @@ TWO_DETERMINISTIC = {
 }
 
 
-def test_R18_5_two_parts_with_depends_on_run_as_one_graph(monkeypatch, local_room) -> None:
-    _, planner = _arm(monkeypatch, [_move(goals=["goal-1", "goal-2"]), _give_up()])
+def test_R18_5_two_parts_with_depends_on_run_one_after_the_other(monkeypatch, local_room) -> None:
+    """ADR-0060 п. 2: части хода — каждая своим графом, опора раньше; общий граф частей с одним узлом и разными
+    аргументами не собирался (`conflicting NodeArgs`, ход 21.10.2026)."""
+    _, planner = _arm(monkeypatch, [_move(goals=["goal-2", "goal-1"]), _give_up()])
     set_intent_sequence(monkeypatch, [TWO_DETERMINISTIC])
     spy = Spy(monkeypatch)
 
     _, events = _turn(monkeypatch, TWO_PARTS_MESSAGE)
 
-    (nested,) = spy.nested
-    assert [clause.goal_ref for clause in nested["goal"].clauses()] == ["goal-1", "goal-2"]
+    assert [[clause.goal_ref for clause in nested["goal"].clauses()] for nested in spy.nested] == [["goal-1"], ["goal-2"]]
     graphs = [event for event in events if event.get("type") == "plan_graph" and "compound" in event.get("planner_version", "")]
-    assert graphs, "одна составная цель — один общий граф"
+    assert not graphs, "составного графа частей нет"
     table = planner.prompts[1]
     assert "| ExtractedMetric | SALES_REVENUE |" in table and "| CalculatedMetric | EBITDA |" in table
 

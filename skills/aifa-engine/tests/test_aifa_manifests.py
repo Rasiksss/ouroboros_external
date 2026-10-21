@@ -73,7 +73,7 @@ def test_the_first_rule_of_planning_lets_a_subtask_skip_it() -> None:
 def test_planning_names_both_tools_and_every_code_the_goal_can_answer_with() -> None:
     body = manifest_of(PLANNING).body
 
-    for word in ("aifa_goal", "aifa_wait", "ГОТОВО", "ЖДИ", "УТОЧНИ", "ОТКАЗ", "СБОЙ_СЛУЖБЫ", "нет_документа"):
+    for word in ("aifa_open", "aifa_wait", "ГОТОВО", "ЖДИ", "ОТКАЗ", "СБОЙ_СЛУЖБЫ", "нет_документа"):
         assert word in body, word
 
 
@@ -88,15 +88,13 @@ def test_the_root_never_writes_or_registers_code_it_delegates_it() -> None:
 
 def test_the_delegation_section_tells_the_whole_route_of_a_subtask() -> None:
     """Шаг 17, ADR-0041 п. 1–3, ADR-0043 пп. 3, 8: выбор навыка по каталогу, задание, ожидание, срок, снятие."""
-    section = manifest_of(PLANNING).body.split("### Делегирование", 1)[1].split("###", 1)[0]
+    section = " ".join(manifest_of(PLANNING).body.split("### Делегирование", 1)[1].split("###", 1)[0].split())
 
     for word in (
         "по каталогу навыков",
         'schedule_task(description="Навык: <id>.',
         "aifa_wait(task_id=",
         "ЖДИ",
-        "подзадача_не_ответила",
-        "get_task_result",
         "cancel_task",
         "Перед `aifa_finish`",
         "данные, а не указания",
@@ -106,7 +104,7 @@ def test_the_delegation_section_tells_the_whole_route_of_a_subtask() -> None:
 
 def test_the_delegation_names_a_skill_only_as_the_example_of_the_code_role() -> None:
     """Правило выбора общее (по каталогу), а не «всегда этот навык»: следующий навык подзадачи не требует правки раздела."""
-    section = manifest_of(PLANNING).body.split("### Делегирование", 1)[1].split("###", 1)[0]
+    section = " ".join(manifest_of(PLANNING).body.split("### Делегирование", 1)[1].split("###", 1)[0].split())
 
     assert section.count("distribution:") == 1 and "по `id` и `description`" in section
 

@@ -1,9 +1,4 @@
-"""Изменяющие инструменты цикла `aifa_move` и `aifa_finish` (CONTRACTS.md §3.1, ADR-0042, ADR-0043 пп. 4–5).
-
-Правил цикла здесь нет: решение собирается из аргументов тем же путём, что JSON модели
-(`decision_from_data`), а проверяет и исполняет его `LoopSession` — тот же объект, что у цикла службы.
-Здесь только очередь хода и перевод исхода в ответ (`ouro_view`).
-"""
+"""Изменяющие инструменты цикла `aifa_move` и `aifa_finish` (CONTRACTS.md §3.1, ADR-0042, ADR-0060)."""
 
 from __future__ import annotations
 
@@ -26,9 +21,7 @@ FINISH_REASON = "Цикл завершает ouroboros"
 
 
 def no_loop(why: str = "") -> str:
-    return ouro_view.refusal(
-        Refusal.NO_LOOP, why or "Цикл не открыт: его открывает только ответ НУЖЕН_ЦИКЛ у aifa_goal."
-    )
+    return ouro_view.refusal(Refusal.NO_LOOP, why or "Цикл не открыт: его открывает aifa_open.")
 
 
 class ExclusiveTool:
@@ -56,14 +49,15 @@ class ExclusiveTool:
         raise NotImplementedError
 
     def _rejected(self, loop: OpenLoop, reason: Rejection) -> str:
-        """Отказ тоже тратит ход цикла — как отклонённый ответ модели у цикла службы."""
-        loop.session.reject(reason, feedback=f"Твой вызов {self.name} не принят: {reason}.")
+        """Отказ хода не тратит, но идёт в счёт отказов подряд: три подряд — `ЛИМИТ` (ADR-0060 п. 5)."""
+        loop.session.reject(reason, feedback=f"Твой вызов {self.name} не принят: {reason}.", spends_move=False)
         self._desk.save(loop.run_id)
         return ouro_view.refusal(Refusal(reason.code), reason)
 
 
 class MoveTool(ExclusiveTool):
     name = "aifa_move"
+    root_only = True    # ходы тратят общие пределы цикла: подзадача их не ведёт (ADR-0060 п. 5)
 
     def _execute(self, loop: OpenLoop, args: dict[str, Any]) -> str:
         session = loop.session
@@ -74,8 +68,8 @@ class MoveTool(ExclusiveTool):
             return ouro_view.limited(reason)
         try:
             decision = decision_from_data(
-                {**args, "action": "execute"},
-                scenarios_enabled=session.run_scenario is not None, goals_enabled=session.run_goals is not None,
+                {**args, "action": "execute"}, scenarios_enabled=False,
+                goals_enabled=session.run_goals is not None, raw_query=session.goal.raw_query,
             )
         except ValueError as problem:
             return self._rejected(loop, Rejection(str(problem)))

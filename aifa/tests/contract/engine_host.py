@@ -91,7 +91,7 @@ def _wait_until_up(base: str) -> None:
     while time.monotonic() < deadline:
         try:
             # Любой ответ, в том числе 401/503 внутреннего API, значит «слушает».
-            httpx.post(f"{base}/internal/ouro/v1/aifa_goal", timeout=1.0)
+            httpx.post(f"{base}/internal/ouro/v1/aifa_open", timeout=1.0)
             return
         except httpx.TransportError:
             time.sleep(0.1)

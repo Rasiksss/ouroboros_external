@@ -144,6 +144,14 @@ def _execute(atom: EphemeralAtom, args: NodeArgs, ctx) -> list[DynamicArtifact |
     )
     if result.error:
         raise RuntimeError(f"{STATION_FAULT_PREFIX}{result.error}" if result.station_fault else result.error)
+    return atom_results(atom, result, evidence, ctx)
+
+
+def atom_results(
+    atom: EphemeralAtom, result: sealed_room.CodeRun, evidence: tuple[BaseModel, ...], ctx,
+) -> list[DynamicArtifact | FileArtifact]:
+    """Удачный прогон кода — результаты атома: один вид у узла графа и у принятой сдачи (ADR-0060 п. 4).
+    `ctx` — `inputs.extra` (владелец и проект файлов) и `run_id`."""
     problem = schema_problem(result.output, atom.request.output_schema)
     if problem:
         raise ValueError(problem)

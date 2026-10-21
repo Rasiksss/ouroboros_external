@@ -199,14 +199,14 @@ C4Component
   Rel(api, ouroclient, "история, файлы")
   Rel(ouroclient, ouro, "WS и HTTP")
   Rel(ouro, toolapi, "вызовы инструментов")
-  Rel(toolapi, pipeline, "aifa_goal")
+  Rel(toolapi, loop, "aifa_open: открыть по документу без разбора запроса")
   Rel(toolapi, loop, "aifa_state, aifa_move, aifa_finish")
   Rel(toolapi, atoms, "aifa_register_atom, aifa_report")
   Rel(toolapi, subtasks, "aifa_wait task_id")
   Rel(turn, subtasks, "кадр итога подзадачи")
   Rel(toolapi, files, "aifa_doc: распознанный текст")
   Rel(toolapi, view, "текст ответа")
-  Rel(loop, pipeline, "шаги, сценарии, части цели")
+  Rel(loop, pipeline, "шаги, сценарии по коду из частей цели агента")
   Rel(atoms, room, "проверка кода")
   Rel(pipeline, room, "атомы eph")
   Rel(room, ws, "HTTP")
@@ -256,7 +256,7 @@ C4Component
 
 ---
 
-## 5. Ход стандартным путём
+## 5. Ход с планом агента (ADR-0060)
 
 ```mermaid
 sequenceDiagram
@@ -274,20 +274,25 @@ sequenceDiagram
   E->>O: chat content=вопрос, client_message_id=run_id
   O-->>E: эхо user
   Note over O: задача корня, skill_read aifa-planning
-  O->>E: aifa_goal (ctx run_id, task_id)
+  O->>E: aifa_open (ctx run_id, task_id)
   E->>E: привязка к ходу, root_task_id
   E-->>F: tool_call
-  E->>P: parse_message, execute_routed_goal (без цикла)
+  E-->>O: ГОТОВО + состояние открытого цикла
+  Note over O: план и подцели: извлеки, посчитай, найди, создай
+  O->>E: aifa_move plan, goals (сценарий по коду), steps
+  E->>P: GoalChannel → execute_routed_goal (без классификатора)
   P-->>F: plan_graph, node_run, typed_result, analysis_card, file
   P-->>E: результаты и ссылки
   E-->>O: ГОТОВО + таблица результатов (через ouro_view)
   E-->>F: tool_output
+  O->>E: aifa_finish finalize
+  E-->>O: ПРИНЯТО
   O-->>E: chat assistant, is_progress=false, task_id=корень
   E-->>F: text_delta (весь текст), text_segment_end, done
   E->>O: закрыть WS
 ```
 
-Если `aifa_goal` дольше 240 с — ответ `ЖДИ job=…` и вызовы `aifa_wait` до итога; экран получает
+Если вызов дольше 240 с — ответ `ЖДИ job=…` и вызовы `aifa_wait` до итога; экран получает
 события конвейера всё это время.
 
 ---
@@ -304,8 +309,8 @@ sequenceDiagram
   participant A as ouroboros, подзадача (навык по выбору корня)
   participant W as Workstation контура
   participant R as Разовая комната
-  O->>E: aifa_goal
-  E-->>O: НУЖЕН_ЦИКЛ + состояние цикла (артефакты со значениями)
+  O->>E: aifa_open
+  E-->>O: ГОТОВО + состояние цикла (артефакты со значениями)
   O->>E: aifa_move plan, files, steps
   E-->>O: итог хода, артефакты, остаток лимитов
   Note over O: шагу нужен новый атом — по каталогу навыков выбран aifa-atom-author
@@ -324,12 +329,12 @@ sequenceDiagram
   A->>E: aifa_register_atom контракт + code
   E->>R: sealed_room: код + входы из Case
   R-->>E: результат по схеме
-  E->>E: регистрация eph-атома, версия = хэш
+  E->>E: регистрация eph-атома, результат и файлы в Case, версия = хэш
   E-->>A: ГОТОВО eph.name@версия
   A->>E: aifa_report done, note = итог
   E-->>O: (aifa_wait) итог подзадачи
-  O->>E: aifa_move steps с eph-атомом
-  E-->>O: итог хода, артефакты, файл
+  O->>E: aifa_state
+  E-->>O: результат атома и файлы без второго исполнения
   O->>E: aifa_finish finalize, deliverables
   E->>E: обещанные файлы собраны, файлы на экран, ссылки — в журнал прогона
   E-->>O: ПРИНЯТО
