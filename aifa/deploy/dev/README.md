@@ -212,6 +212,17 @@ ouroboros зарегистрированы шесть инструментов `
 (`smoke/run.sh 10`): корень запускает `schedule_task`, ждём уведомление «Scheduled task» и итог подзадачи; зависит от настоящей модели.
 Выкатка пересобирает `ouroboros` (ядро и плагин) и `engine` (код службы).
 
+### Шаг 17 (21.10.2026)
+
+Код новых атомов пишет подзадача ouroboros по навыку `aifa-atom-author` (`skills/aifa-atom-author`), который планировщик выбирает по
+каталогу навыков (раздел «Делегирование» навыка `aifa-planning`); автора и его модели в службе нет (ADR-0054). Допуск навыка —
+`distribution:aifa-atom-author` в `OUROBOROS_USER_ENABLED_SKILL_IDS` (в `ouroboros.env` на сервере — той же правкой руками, копия до —
+`~/aifa-sym-ouroboros.env.before17`); из `engine.env` убрана `FINENGINE_ATOM_AUTHOR_MODEL` (копия до — `~/aifa-sym-engine.env.before17`;
+служба неизвестные переменные игнорирует). Выкатка пересобирает `ouroboros` (навыки лежат в образе) и `engine`: заменой `/app/src` поверх
+`aifa-sym-engine:step16` (derived `Dockerfile` из `/tmp`, модули `atom_author.*` из слоя удалены `RUN rm`). Откат службы —
+`docker tag aifa-sym-engine:step16 aifa-sym-engine:dev` и `up -d --no-build engine`. Живой сценарий с новым атомом — S2 (`~/aifa-sym-s12/s2.json`,
+коэффициент вариации и медиана темпов роста EBITDA): `run_scenario.sh` из шага 12, по событиям — `author_attempt` в ленте.
+
 ### Известные ограничения
 
 - Диск dev: 2,9–5,3 ГБ свободно; полная пересборка трёх образов занимает до 4 ГБ кэша — после неё `docker builder prune -f`
