@@ -5,3 +5,5 @@
 - [x] Run gates and independent review; record remaining limitations.
 
 Gates executed; full gate remains red on baseline failures. See `aifa-symbiosis/plan/reports/23-delegated-planning.md` and P134.
+
+- [ ] Bind executor calls and results to the accepted plan in ouroboros dispatch (P135, discovered by dev UI test); rerun the full file acceptance scenario.
