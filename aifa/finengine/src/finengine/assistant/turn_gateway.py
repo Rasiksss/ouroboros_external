@@ -239,8 +239,11 @@ class _Turn:
 
     def _take(self, frame: Frame) -> list[Event]:
         """Кадр по таблице §2.3: события журнала; `self._finished` — ход закончен."""
-        run_id = self._request.run_id
-        kind = classify(frame, run_id=run_id, root_task_id=self._root_task_id)
+        kind = classify(frame, run_id=self._request.run_id, root_task_id=self._root_task_id)
+        files = _attachment_events(frame) if kind in (FrameKind.FINAL, FrameKind.NOTIFICATION) else []
+        return files + self._dispatch(frame, kind)
+
+    def _dispatch(self, frame: Frame, kind: FrameKind) -> list[Event]:
         text = str(frame.get("content") or "")
         task_id = str(frame.get("task_id") or "")
         if kind is FrameKind.FINAL:
@@ -398,3 +401,18 @@ class _Turn:
         link, self._link = self._link, None
         if link is not None:
             await link.close()
+
+
+def _attachment_events(frame: Frame) -> list[Event]:
+    """Вложения кадра ассистента — файлы каталога ouroboros, которые агент отправил сам (ADR-0059)."""
+    attachments = frame.get("attachments")
+    if not isinstance(attachments, list):
+        return []
+    return [
+        service_event(
+            "attachment", catalog_file_id=str(item["id"]), filename=str(item.get("filename") or ""),
+            mime=str(item.get("mime") or ""), size=int(item.get("size") or 0),
+        )
+        for item in attachments
+        if isinstance(item, dict) and item.get("id") and item.get("status") == "ready"
+    ]

@@ -258,3 +258,32 @@ async def test_heartbeats_keep_a_quiet_connection_alive() -> None:
 
     assert [e["text"] for e in events if e["type"] == "text_delta"] == ["Долгий ответ."]
     assert server.accepted == 1, "переподключения не было"
+
+
+ATTACHMENT = {
+    "id": "f1", "kind": "file", "filename": "итоги.xlsx", "size": 6946, "status": "ready", "expires_at": "",
+    "mime": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "url": "api/chat/files/f1/%D0%B8%D1%82%D0%BE%D0%B3%D0%B8.xlsx",
+}
+
+
+async def sends_a_file_then_answers(connection: ServerConnection, server: FakeOuroboros) -> None:
+    """Кадр файла ouroboros (`transport/browser/ws.py::_build_media_frame`): без `task_id` и `transport`."""
+    asked = await server.read_frame(connection)
+    run_id = asked["client_message_id"]
+    await server.send(
+        connection,
+        {"type": "chat", "role": "assistant", "content": "", "attachments": [ATTACHMENT], "ts": "t", "source": "s"},
+        assistant(run_id, "Файл приложен.", task_id=ROOT),
+    )
+    await server.read_until_closed(connection)
+
+
+async def test_a_file_the_agent_sends_reaches_the_journal_with_its_catalog_id() -> None:
+    """Dev, 21.10.2026: `file_read` агента пришёл уведомлением с `attachments`, вложение терялось."""
+    async with FakeOuroboros(sends_a_file_then_answers) as server:
+        events = await drain(gateway_of(server), request_of())
+
+    assert {"type": "ouro_service", "kind": "attachment", "catalog_file_id": "f1", "filename": "итоги.xlsx",
+            "mime": ATTACHMENT["mime"], "size": 6946} in events
+    assert [e["text"] for e in events if e["type"] == "text_delta"] == ["Файл приложен."]

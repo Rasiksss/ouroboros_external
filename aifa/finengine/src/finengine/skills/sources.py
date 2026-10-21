@@ -190,6 +190,30 @@ def save_generated_bytes(
     return meta, object_key
 
 
+def adopt_catalog_file(
+    user_id: int | str, project_id: str, catalog_file_id: str, filename: str, content_type: str, size: int,
+) -> SourceMeta:
+    """Карточка источника для файла, который уже лежит в каталоге: его отправил сам агент (ADR-0059).
+
+    Байты не перекладываются; владелец файла каталога проверяется при скачивании (`open_source`)."""
+    ext = _generated_ext(filename)
+    file_id = uuid.uuid4().hex
+    meta = SourceMeta(
+        file_id=file_id,
+        filename=filename,
+        content_type=content_type or _guess_ct(ext),
+        size=size,
+        uploaded_at=time.time(),
+        text_status="not_applicable: agent attachment",
+        catalog_file_id=catalog_file_id,
+    )
+    blobs.get_blob_store().put(
+        f"{_префикс(user_id, project_id)}{file_id}.meta.json",
+        json.dumps(meta.to_dict(), ensure_ascii=False, indent=2).encode("utf-8"),
+    )
+    return meta
+
+
 def _generated_ext(filename: str) -> str:
     """Расширение сгенерированного файла: любой документный формат, не привязанный к списку (pptx, docx, ...);
     исполняемые и не-расширения отвергаются. Загрузки пользователя по-прежнему идут по `ALLOWED_EXT`."""
