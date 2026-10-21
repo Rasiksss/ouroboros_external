@@ -1170,3 +1170,13 @@ def test_only_a_leading_slash_reserves_a_message_for_the_owner() -> None:
 
     assert is_slash_command("/clean") is True
     assert is_slash_command("очисти чат") is False
+
+
+def test_task_plan_contract_keeps_user_requirements_separate_from_assumptions() -> None:
+    from ouroboros.contracts.task_plan import PlanProposal
+
+    schema = PlanProposal.model_json_schema()
+    assert {"requirements", "assumptions", "questions", "steps", "base_revision"} <= schema["properties"].keys()
+    assert "source" in schema["$defs"]["Requirement"]["required"]
+    assert "reason" in schema["$defs"]["Assumption"]["required"]
+    assert "verification_method" in schema["$defs"]["Criterion"]["required"]

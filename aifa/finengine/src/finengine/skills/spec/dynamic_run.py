@@ -550,7 +550,8 @@ class LoopSession:
         return Rejection(verdict)
 
     def _verdict(self, decision: Decision, last_word: bool) -> Decision | str:
-        self._accept_plan(decision.plan, decision.files)
+        if self.entry_stage != "agent":
+            self._accept_plan(decision.plan, decision.files)
         decision = self._with_session_role(decision)
         problem = next(filter(None, map(self._goal_problem, decision.new_goals)), None)
         if problem:
@@ -573,7 +574,7 @@ class LoopSession:
             decision = self._files_as_deliverables(decision)
         if decision.action == "finalize":
             # После остановки цикла собрать файл уже нельзя: последнее слово проходит без него.
-            promised = decision if last_word else self._with_promised_files(decision)
+            promised = decision if last_word or self.entry_stage == "agent" else self._with_promised_files(decision)
             if isinstance(promised, str):
                 return Rejection(promised, "файл_не_собран")
             decision = promised
@@ -1548,6 +1549,8 @@ def _describe_metric_registry(run: LoopSession) -> str:
 
 
 def _describe_plan(run: LoopSession) -> str:
+    if run.entry_stage == "agent":
+        return "Пользовательский план и приёмка результатов — у корневого ouroboros: task_plan(action=read). Служба исполняет операции; plan и files передавать не нужно."
     if not run.plan:
         return "плана нет — пришли `plan` и `files` этим ходом"
     lines = [f"{index}. {part}" for index, part in enumerate(run.plan, 1)]

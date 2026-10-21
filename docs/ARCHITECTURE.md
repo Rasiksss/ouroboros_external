@@ -546,11 +546,10 @@ The browser and deletion contracts are in
 
 ## Data layout
 
-Revision `0020` removes durable identity. Revision `0021` adds task surface/chat columns, the foreground
-chat index, and scratchpad chat partitions. With writers stopped, it preserves foreground blocks with
+Revision `0020` removes durable identity; `0021` adds task surface/chat columns, the foreground chat
+index and scratchpad chat partitions. With writers stopped, it preserves foreground blocks with
 one recoverable human chat per owner and agent; missing or ambiguous identity resets only that buffer.
-Detached blocks stay intact. Unreadable task identity or an unavailable key aborts before mutation.
-All changes share one transaction. Coordinated rollout/rollback: `docs/DEVELOPMENT.md` §Operational entrypoints.
+Detached blocks stay intact. Unreadable identity or an unavailable key aborts before mutation; all changes share one transaction. Rollout/rollback: `docs/DEVELOPMENT.md` §Operational entrypoints.
 
 Persistence layers (no PVC in production Kubernetes):
 
@@ -579,6 +578,7 @@ never merge: `owner_scope` (identity) and `scope` (storage scope).
 | `messages` | `(owner_id, agent_id, chat_id)` + surrogate PK | Owner-visible dialogue. `chat_history_visible` and `inbound_unprocessed` are indexed derived columns. `content` encrypted when chat encryption is configured. |
 | `context_summaries` | `(owner_id, agent_id, chat_id)` | One summary per conversation; `source_offsets_ref` is the committed raw-message cursor. |
 | `tasks` | `(owner_id, job_id, lineage_ordinal)` | Canonical `surface_id`/`chat_id` from `OwnerScope`; foreground root uniqueness uses the full chat key. Successors advance lineage. |
+| `task_plans` (`0034`) | root task + all `OwnerScope` axes | `storage/task_plans.py`, composed by `runtime_persistence.py`: credentials-key sealed plan revisions, attempts and root reviews; task deletion cascades. `task_plan` accepts completed child proposals; root owns semantic acceptance. Behavior: OpenSpec `task-planning`. |
 | `tool_confirmations` | all `OwnerScope` axes + `(task_id, round_idx)` | Parked run state. Partial unique index on pending rows = one-open-request-per-scope. |
 | `owner_runtime_state` | `(owner_id, agent_id)` | Owner claim, session id, spend counters. |
 | `memory` | `(owner_id, agent_id, name)` | Every durable memory. `kind` is a closed enum. |

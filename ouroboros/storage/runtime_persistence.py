@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 
 from sqlalchemy.engine import Engine
 
+from infra.credentials_key import CredentialsKey
 from infra.runtime_database import create_runtime_engine
 from infra.sql_transaction import SqlTransactionManager
 from ouroboros.storage.conversations.interfaces import IConversationRepository
@@ -17,6 +18,7 @@ from ouroboros.storage.execution_memory.interfaces import IExecutionMemoryReposi
 from ouroboros.storage.execution_memory.repository import SqlExecutionMemoryRepository
 from ouroboros.storage.result_delivery.interfaces import IResultDeliveryRepository
 from ouroboros.storage.result_delivery.repository import SqlResultDeliveryRepository
+from ouroboros.storage.task_plans import SqlTaskPlanRepository
 from ouroboros.storage.tasks.interfaces import ITaskRepository
 from ouroboros.storage.tasks.repository import SqlTaskRepository
 
@@ -38,6 +40,7 @@ class RuntimePersistence:
     transaction_manager: SqlTransactionManager
     result_repo: IResultDeliveryRepository
     create_root_task: CreateRootTaskUseCase
+    plans_repo: SqlTaskPlanRepository
 
     def close(self) -> None:
         self.engine.dispose()
@@ -53,6 +56,7 @@ def compose_runtime_persistence(engine: Engine, *, db_urls: list[str]) -> Runtim
         engine=engine,
         db_urls=list(db_urls),
         tasks_repo=tasks_repo,
+        plans_repo=SqlTaskPlanRepository(transaction_manager, _plan_credentials_key),
         conversations_repo=conversations_repo,
         memory_repo=memory_repo,
         transaction_manager=transaction_manager,
@@ -88,6 +92,13 @@ def _configured_worker_slots() -> int:
         return max(1, int(load_settings().OUROBOROS_WORKER_SLOTS or 1))
     except Exception:
         return 1
+
+
+def _plan_credentials_key() -> CredentialsKey:
+    # Settings bootstrap imports composition before the configuration is installed.
+    from ouroboros.storage.settings.store import load_settings
+
+    return CredentialsKey(load_settings().OUROBOROS_CREDENTIALS_ENCRYPTION_KEY)
 
 
 def _episode_limit() -> int:

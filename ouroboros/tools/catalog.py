@@ -65,6 +65,14 @@ def _spec(
 
 
 TOOL_SPECS: dict[str, ToolSpec] = {
+    "task_plan": _spec(
+        "task_plan",
+        category="service",
+        surface="core",
+        capability_class="mutative",
+        result_limit=120_000,
+        untruncated_result=True,
+    ),
     # Core headless surface.
     "data_read": _spec("data_read", surface="core", parallel=True, result_limit=80_000),
     "data_list": _spec("data_list", surface="core", parallel=True),

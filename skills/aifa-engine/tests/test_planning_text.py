@@ -11,7 +11,7 @@ from aifa_engine_support import SKILL_DIR, load_plugin
 PLANNING = SKILL_DIR.parent / "aifa-planning"
 GUIDE = PLANNING / "SKILL.md"
 GUIDE_LIMIT = 9_000  # знаков: навык читают на каждом сообщении, подробности — в справочниках
-HAND_WRITTEN = ("moves.md", "external-data.md", "new-atom.md", "codes.md", "scenarios.md")
+HAND_WRITTEN = ("moves.md", "external-data.md", "new-atom.md", "codes.md", "scenarios.md", "plans.md")
 GENERATED = ("atoms.md", "metrics.md")
 DEVELOPMENT_WORDS = ("ADR-", "CONTRACTS", "DynamicRun", "dynamic_run", "PROGRESS", "build-plan", "LoopSession")
 
@@ -50,7 +50,7 @@ def test_the_guide_names_every_engine_tool_a_root_may_call_and_no_unknown_tool()
 
 def test_open_always_opens_a_cycle_and_the_agent_plans_before_running_scenarios() -> None:
     assert "`ГОТОВО` — цикл открыт" in guide()
-    assert "разбери вопрос на подцели" in guide() and "составь план" in guide()
+    assert "distribution:aifa-plan-author" in guide() and "references/plans.md" in guide()
     assert "НУЖЕН_ЦИКЛ" not in guide() and "УТОЧНИ" not in guide()
     assert "сценарий службы" in guide() and "references/scenarios.md" in guide()
 
@@ -196,7 +196,7 @@ def test_the_planner_rules_that_moved_into_the_skill_are_all_there() -> None:
         "предположением",
         "Условие завершения, которое назвал пользователь",
         "не цитируется",  # строка формы роли без id
-        "файл по плану собран — сразу `aifa_finish`",
+        "После проверок корнем и закрытия `task_plan` — `aifa_finish`",
         "нескольких ключевых показателей",
         "id находок или скачанной страницы укажи в `evidence_ids`",
         "не называй коды отказов и ошибок",

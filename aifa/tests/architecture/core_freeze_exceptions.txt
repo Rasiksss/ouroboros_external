@@ -1,6 +1,21 @@
 # Исключения из F1 (test_core_freeze.py): путь ouroboros, который изменять разрешено, и ADR,
 # которая это разрешила. Формат строки: `путь ADR-NNNN`. Без номера записи строка — ошибка.
 # Исключение появляется только вместе с ADR (FITNESS.md, принципы).
+# ADR-0061: план и приёмка корня, подзадача-планировщик; разрешено владельцем в текущей сессии.
+ouroboros/contracts/task_plan.py ADR-0061
+ouroboros/storage/task_plans.py ADR-0061
+ouroboros/storage/runtime_persistence.py ADR-0061
+ouroboros/tools/service/task_planning.py ADR-0061
+ouroboros/tools/catalog.py ADR-0061
+new_core/tools/providers/builtin.py ADR-0061
+infra/migrations/versions/0034_task_plans.py ADR-0061
+tests/ouroboros/tools/test_task_planning.py ADR-0061
+tests/ouroboros/contracts/test_contracts.py ADR-0061
+docs/ARCHITECTURE.md ADR-0061
+openspec/changes/delegated-task-planning/proposal.md ADR-0061
+openspec/changes/delegated-task-planning/design.md ADR-0061
+openspec/changes/delegated-task-planning/tasks.md ADR-0061
+openspec/changes/delegated-task-planning/specs/task-planning/spec.md ADR-0061
 # ADR-0038: именной допуск доверенных исполняемых навыков поставки в multiuser (код — три файла).
 ouroboros/storage/settings/schema.py ADR-0038
 new_core/skills/surface.py ADR-0038
@@ -24,3 +39,8 @@ openspec/changes/subtask-request-during-parent-run/proposal.md ADR-0052
 openspec/changes/subtask-request-during-parent-run/design.md ADR-0052
 openspec/changes/subtask-request-during-parent-run/tasks.md ADR-0052
 openspec/changes/subtask-request-during-parent-run/specs/task-lifecycle/spec.md ADR-0052
+
+# ADR-0061: updated runtime surface and migration expectations.
+tests/e2e/test_smoke.py ADR-0061
+tests/new_core/test_tool_runtime_contract.py ADR-0061
+tests/ouroboros/storage/test_runtime_migrations.py ADR-0061

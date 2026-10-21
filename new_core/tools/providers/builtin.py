@@ -34,6 +34,7 @@ FROZEN_TOOL_MODULES = (
     "service.messaging",
     "service.memory",
     "service.orchestration",
+    "service.task_planning",
     "skill_exec",
     "skills",
     "tool_discovery",

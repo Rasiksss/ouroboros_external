@@ -49,7 +49,7 @@ def test_alembic_upgrade_head_is_idempotent(blank_schema) -> None:
         episode_columns = column_names(conn, "task_episodes")
         invocation_columns = column_names(conn, "tool_invocations")
 
-    assert version == "0033"
+    assert version == "0034"
     assert {
         "agents",
         "chats",
@@ -57,6 +57,7 @@ def test_alembic_upgrade_head_is_idempotent(blank_schema) -> None:
         "mcp_user_tokens",
         "a2a_user_tokens",
         "tasks",
+        "task_plans",
         "messages",
         "owner_runtime_state",
         "task_episodes",
@@ -1348,7 +1349,7 @@ def test_0014_binary_rollback_refuses_each_pending_obligation_and_preserves_drai
                 "SELECT content FROM scratchpad_blocks WHERE owner_id='owner' AND agent_id='agent' AND status='active'"
             )
         ).scalars().all() == ["main note"]
-        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0033"
+        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0034"
 
 
 def test_0014_downgrade_refuses_before_any_write_and_repeated_attempts_preserve_everything(rollout_engines):

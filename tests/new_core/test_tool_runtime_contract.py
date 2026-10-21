@@ -41,6 +41,7 @@ EXPECTED_INITIAL_HEADLESS_TOOLS = {
     "memory_save",
     "recent_tasks",
     "schedule_task",
+    "task_plan",
     "send_photo",
     "send_image",
     "send_file",
