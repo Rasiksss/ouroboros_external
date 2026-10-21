@@ -1,96 +1,79 @@
-"""Подзадача автора в тестах цикла (ADR-0054): откуда у сессии берётся атом с кодом.
+"""Подзадача автора в тестах цикла (ADR-0054): код сдаётся настоящим `register_atom` между ходами.
 
-В продукте атом с кодом в `new_atoms` отклоняется, а код сдаёт подзадача ouroboros через `LoopSession.register_atom`
-(`aifa_register_atom`). Тесты правил цикла (тупики, лимиты, файл, события хода) раньше получали такой атом от автора
-службы внутри хода; `delegate` подставляет вместо отказа «подзадачу», которая в тот же момент сдаёт скриптовый код
-тем же входом `register_atom`, — путь приёмки настоящий, подставлен только тот, кто сдаёт.
+В продукте атом с кодом в `new_atoms` отклоняется, а код сдаёт подзадача ouroboros, пока планировщик ждёт её итог:
+вызов `aifa_register_atom` приходит между двумя ходами цикла. Тесты правил цикла (тупики, лимиты, файл, события хода)
+ведут тот же порядок: `Visit` — «подзадача сдаёт эти коды перед N-м вопросом к планировщику». Подставлен только тот,
+кто сдаёт; приёмка (`LoopSession.register_atom` → `AtomIntake.submit`), `_ensure_atom` и сам цикл — продуктовые.
 """
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Protocol
+from functools import partial, partialmethod
 
 import pytest
 
-from finengine.skills.spec.atom_intake import REGISTRATION_FAILURES, Refused, Registered, StationDown
-from finengine.skills.spec.dynamic_run import LoopSession
-from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom
+from finengine.skills.spec.atom_intake import Refused, Registered, StationDown
+from finengine.skills.spec.dynamic_run import DynamicRun, LoopSession, parse_atom_request
+from finengine.skills.spec.ephemeral import AtomRequest
 
-
-class Writer(Protocol):
-    """Кто сдаёт код: ответ `(атом, None)` — принят, `(None, причина)` — не вышло, `StationFault` — станция."""
-
-    def write(self, request: AtomRequest, **kwargs: Any) -> tuple[EphemeralAtom | None, str | None]: ...
-
-
-class StationFault(str):
-    """Причина: станция не исполнила код, чинить нечего."""
+Outcome = Registered | Refused | StationDown
 
 
 @dataclass
-class SubtaskCodes:
-    """Подзадача, которая по очереди сдаёт скриптовый код через `register_atom`: до `REGISTRATION_FAILURES` попыток."""
+class Visit:
+    """Подзадача сдаёт `codes` атома `request` по порядку перед `before`-м вопросом к планировщику (1 — первый).
 
-    codes: list[str]
-    session: LoopSession | None = None
-    submitted: list[str] = field(default_factory=list)
+    `outcomes` — ответы приёмки на каждую сдачу: по ним тест видит то, что увидела бы подзадача."""
 
-    def write(self, request: AtomRequest, **_: Any) -> tuple[EphemeralAtom | None, str | None]:
-        assert self.session is not None, "delegate(session, subtask) не вызван"
-        reason = None
-        for _attempt in range(REGISTRATION_FAILURES):
-            if not self.codes:
-                break
-            code = self.codes.pop(0)
-            self.submitted.append(code)
-            outcome = self.session.register_atom(request, code)
-            if isinstance(outcome, Registered):
-                return outcome.atom, None
-            if isinstance(outcome, StationDown):
-                return None, StationFault(outcome.why)
-            assert isinstance(outcome, Refused)
-            reason = outcome.why
-            if outcome.code != "неверные_аргументы":
-                break
-        return None, reason
+    request: AtomRequest
+    codes: tuple[str, ...]
+    before: int = 2
+    outcomes: list[Outcome] = field(default_factory=list)
+
+    @classmethod
+    def of(cls, doc: dict, *codes: str, before: int = 2) -> Visit:
+        """Контракт атома — словарём, как его пишет планировщик в решении (`name`, `purpose`, `requires`, …)."""
+        return cls(parse_atom_request(doc, "задание подзадаче"), codes, before)
+
+    def submit(self, session: LoopSession) -> None:
+        for code in self.codes:
+            self.outcomes.append(session.register_atom(self.request, code))
+
+    @property
+    def kinds(self) -> list[str]:
+        """Что ответила приёмка: `принят`, `станция` или код отказа."""
+        return [
+            "принят" if isinstance(item, Registered) else "станция" if isinstance(item, StationDown) else item.code
+            for item in self.outcomes
+        ]
 
 
-def _ask(session: LoopSession, subtask: Writer, product, request: AtomRequest) -> str | None:
-    """Вместо отказа `_ensure_atom` просит атом с кодом у `subtask`. Загрузки и уже принятые атомы — как в продукте."""
-    if isinstance(subtask, SubtaskCodes):
-        subtask.session = session
-    known = session.atoms.get(request.name)
-    if request.is_download or (known and known.request == request and request.name not in session.failures):
-        return product(session, request)
-    refused = session.intake.admission(request)
-    if refused is not None:
-        return refused.why
-    real = session._real_inputs(request)
-    if real is None:
-        return f"входов атома {request.name} в Case ещё нет — получи их сценарием или шагом"
-    atom, error = subtask.write(
-        request, real_inputs=real, previous_code=known.code if known else None,
-        error=session.failures.get(request.name),
+def _ask_after_visits(
+    session: DynamicRun, visits: tuple[Visit, ...], original: Callable, asked: dict[int, int],
+    feedback: str, *, last_word: bool = False,
+):
+    """Вопрос к планировщику, перед которым подзадача успевает сдать код."""
+    asked[id(session)] = asked.get(id(session), 0) + 1
+    for visit in visits:
+        if visit.before == asked[id(session)]:
+            visit.submit(session)
+    return original(session, feedback, last_word=last_word)
+
+
+def delegate(session: DynamicRun, *visits: Visit) -> DynamicRun:
+    """Подзадача этой сессии сдаёт код между ходами; сам вопрос к планировщику вызывается как есть."""
+    session._ask_planner = partial(  # type: ignore[method-assign]
+        _ask_after_visits, session, visits, type(session)._ask_planner, {},
     )
-    if isinstance(error, StationFault):
-        return f"комната станции недоступна, код не проверить: {error}"
-    if atom is None:
-        return f"подзадача не сдала рабочий код: {error}"
-    session.intake.register(atom)
-    return None
-
-
-def delegate(session: LoopSession, subtask: Writer) -> LoopSession:
-    """Одна сессия просит атом с кодом у `subtask` вместо отказа."""
-    product = LoopSession._ensure_atom
-    session._ensure_atom = lambda request: _ask(session, subtask, product, request)  # type: ignore[method-assign]
     return session
 
 
-def patch_subtask(monkeypatch: pytest.MonkeyPatch, subtask: Writer) -> None:
-    """Все сессии теста (цикл создаёт сам продукт: `production_runtime`) просят атом с кодом у `subtask`."""
-    product = LoopSession._ensure_atom
+def patch_subtask(monkeypatch: pytest.MonkeyPatch, *visits: Visit) -> None:
+    """То же для всех сессий теста: цикл создаёт сам продукт (`production_runtime`)."""
+    if not visits:
+        return
     monkeypatch.setattr(
-        LoopSession, "_ensure_atom", lambda session, request: _ask(session, subtask, product, request)
+        DynamicRun, "_ask_planner", partialmethod(_ask_after_visits, visits, DynamicRun._ask_planner, {}),
     )

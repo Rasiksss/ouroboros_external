@@ -10,7 +10,6 @@ from dataclasses import dataclass, field
 
 from loop_support import Cycle, make_passport, open_cycle
 from dynamic_support import BAD_SCHEMA_CODE
-from subtask_support import SubtaskCodes
 from test_deliverables import _file_artifact
 from test_dynamic_run import (
     CALC_SCHEMA,
@@ -421,10 +420,6 @@ def _dynamic_content(base, output_type: str) -> str:
     return artifact_content(payload)
 
 
-def _echo_author() -> SubtaskCodes:
-    return SubtaskCodes([ECHO_CODE])
-
-
 def _echo_request() -> AtomRequest:
     return AtomRequest(
         name="eph.echo", purpose="что видит код", output_type="dyn:echo", output_schema=ECHO_SCHEMA,
@@ -436,13 +431,13 @@ async def test_the_code_of_an_atom_sees_only_the_results_of_its_inputs(base, loc
     """LR-05: код атома не видит сырой документ — только результаты входов; текст отчёта до него не доходит."""
     passport = make_passport()
     cycle = await open_cycle(
-        base, scenario=ExtractScenario(base, passport), author=_echo_author(), passport=passport,
-        document_text="СЕКРЕТНЫЙ ТЕКСТ ОТЧЁТА",
+        base, scenario=ExtractScenario(base, passport), passport=passport, document_text="СЕКРЕТНЫЙ ТЕКСТ ОТЧЁТА",
     )
     request = _echo_request()
 
     await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
-    reply = await cycle.move(_move(atoms=(request,), steps=({"atom": request.name},)))
+    assert code_of(await cycle.submit(request, ECHO_CODE)) == "ГОТОВО"
+    reply = await cycle.move(_move(steps=({"atom": request.name},)))
 
     seen = json.loads(_dynamic_content(base, "dyn:echo"))["payload"]["seen"]
     assert code_of(reply) == "ГОТОВО" and "ExtractedMetric" in seen
@@ -454,12 +449,13 @@ async def test_the_result_of_an_atom_carries_its_version_and_the_origin_the_wrap
     """LR-09, LR-11, LR-50: результат — от конкретного кода (`eph.<имя>@<хэш контракта и кода>`), происхождение — из входов."""
     passport = make_passport()
     cycle = await open_cycle(
-        base, scenario=ExtractScenario(base, passport), author=_echo_author(), passport=passport, document_text="отчёт",
+        base, scenario=ExtractScenario(base, passport), passport=passport, document_text="отчёт",
     )
     request = _echo_request()
 
     await cycle.move(_move(scenarios=("Извлеки EBITDA",)))
-    await cycle.move(_move(atoms=(request,), steps=({"atom": request.name},)))
+    await cycle.submit(request, ECHO_CODE)
+    await cycle.move(_move(steps=({"atom": request.name},)))
 
     content = json.loads(_dynamic_content(base, "dyn:echo"))
     assert content["producer"] == f"eph.echo@{EphemeralAtom(request, ECHO_CODE).version}"
@@ -469,15 +465,19 @@ async def test_the_result_of_an_atom_carries_its_version_and_the_origin_the_wrap
 
 async def test_a_result_of_the_wrong_shape_is_a_failed_attempt_and_no_atom(base, local_room) -> None:
     """LR-10: результат обязан соответствовать `output_schema`; код автора, не прошедший проверку, атомом не становится."""
-    cycle = await open_cycle(base, scenario=ExtractScenario(base, None), author=SubtaskCodes([BAD_SCHEMA_CODE] * 3))
+    cycle = await open_cycle(base, scenario=ExtractScenario(base, None))
     request = AtomRequest(
         name="eph.margin_with_brent", purpose="маржа", output_type="dyn:margin_with_brent", output_schema=CALC_SCHEMA,
         requires=(InputSpec("ExtractedMetric", "EBITDA"), InputSpec("ExtractedMetric", "REVENUE")),
     )
+    await cycle.move(_move(scenarios=("Извлеки EBITDA и выручку",)))
 
-    reply = await cycle.move(_move(scenarios=("Извлеки EBITDA и выручку",), atoms=(request,), steps=({"atom": request.name},)))
+    replies = [await cycle.submit(request, BAD_SCHEMA_CODE) for _ in range(3)]
+    fourth = await cycle.submit(request, BAD_SCHEMA_CODE)
 
-    assert code_of(reply) == "ГОТОВО" and "output_schema" in reply
+    assert [code_of(reply) for reply in replies] == ["ОТКАЗ неверные_аргументы"] * 3
+    assert all("output_schema" in reply for reply in replies)
+    assert code_of(fourth) == "ОТКАЗ лимит_попыток"
     assert request.name not in cycle.session.atoms
     await cycle.close()
 

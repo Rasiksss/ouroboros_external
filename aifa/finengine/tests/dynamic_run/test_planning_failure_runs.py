@@ -23,7 +23,7 @@ from tests.integration.ingress_support import (  # noqa: F401
 )
 
 from dynamic_support import assert_event_fixture, normalized_events
-from subtask_support import SubtaskCodes, patch_subtask
+from subtask_support import Visit, patch_subtask
 from test_chat_outcome_contract import (
     SequenceModel,
     _arm_dynamic,
@@ -71,10 +71,15 @@ CV_CODE = (
 )
 
 
-def _arm_models(monkeypatch, replies: list) -> SequenceModel:
+def cv_visit(before: int) -> Visit:
+    """Подзадача сдаёт код `eph.calc_cv_sales_revenue` перед `before`-м вопросом к планировщику (1 — первый)."""
+    return Visit.of(CV_ATOM, CV_CODE, before=before)
+
+
+def _arm_models(monkeypatch, replies: list, *visits: Visit) -> SequenceModel:
     locate, _ = _make_fake_locate_and_read_value_executors({"SALES_REVENUE": 1.0})
     patched_build_registry(monkeypatch, locate, _two_period_read_value)
-    patch_subtask(monkeypatch, SubtaskCodes([CV_CODE]))
+    patch_subtask(monkeypatch, *visits)
     return _arm_dynamic(monkeypatch, replies)
 
 
@@ -103,9 +108,9 @@ def test_P13_1_P13_2_the_original_phrase_is_one_cycle_scenario_then_temporary_at
     classifier = set_intent_sequence(monkeypatch, [form, SCENARIO_PARSE])
     planner = _arm_models(monkeypatch, [
         {**_execute(), "scenarios": ["Извлеки выручку за все периоды"]},
-        _execute({"atom": CV_ATOM["name"]}, new_atoms=(CV_ATOM,)),
+        _execute({"atom": CV_ATOM["name"]}),
         _finalize_cv,
-    ])
+    ], cv_visit(2))
     cycles = _count_cycles(monkeypatch)
 
     turn, events = _turn(monkeypatch)
@@ -155,9 +160,9 @@ def test_K13_5_a_compound_goal_answers_in_the_same_form_as_a_single_custom_analy
     set_intent(monkeypatch, COMPOUND_FORM)
     _arm_models(monkeypatch, [
         _execute({"atom": "read.value", "concept": "SALES_REVENUE"}),
-        _execute({"atom": CV_ATOM["name"]}, new_atoms=(CV_ATOM,)),
+        _execute({"atom": CV_ATOM["name"]}),
         _finalize_cv,
-    ])
+    ], cv_visit(2))
 
     turn, events = _turn(monkeypatch, "Рассчитай CV выручки по двум периодам")
 

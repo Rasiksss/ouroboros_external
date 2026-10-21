@@ -30,7 +30,7 @@ from tests.integration.ingress_support import (  # noqa: F401
     set_intent_sequence,
 )
 
-from subtask_support import SubtaskCodes, patch_subtask
+from subtask_support import Visit, patch_subtask
 from test_chat_outcome_contract import _arm_dynamic
 from test_download_atom import _csv_ok, _serve
 from test_ephemeral_in_graph import CASE, ENTITY, OWNER
@@ -111,10 +111,15 @@ def _row(prompt: str, marker: str, concept: str) -> list[str] | None:
     return None
 
 
-def _arm(monkeypatch, replies: list, *, classifier=None):
+def stats_visit(before: int) -> Visit:
+    """Подзадача сдаёт код атома `eph.ebitda_brent` перед `before`-м вопросом к планировщику (1 — первый)."""
+    return Visit.of(STATS_ATOM, STATS_CODE, before=before)
+
+
+def _arm(monkeypatch, replies: list, *, classifier=None, visits: tuple[Visit, ...] = ()):
     locate, read = _make_fake_locate_and_read_value_executors(EBITDA_VALUES)
     patched_build_registry(monkeypatch, locate, read)
-    patch_subtask(monkeypatch, SubtaskCodes([STATS_CODE]))
+    patch_subtask(monkeypatch, *visits)
     classifier = classifier or set_intent_sequence(monkeypatch, [EBITDA_FORM, EXTRACT_REPARSE])
     return classifier, _arm_dynamic(monkeypatch, replies)
 
@@ -161,9 +166,9 @@ def test_P18_1_the_original_phrase_goal_ref_calculates_ebitda_download_code_fina
     classifier, planner = _arm(monkeypatch, [
         _move(goals=["goal-1"]),
         _move(new_atoms=[BRENT_ATOM], steps=[{"atom": "eph.brent_csv"}]),
-        _move(new_atoms=[STATS_ATOM], steps=[{"atom": "eph.ebitda_brent"}]),
+        _move(steps=[{"atom": "eph.ebitda_brent"}]),
         _finalize_stats,
-    ])
+    ], visits=(stats_visit(3),))
     spy = Spy(monkeypatch)
 
     turn, events = _turn(monkeypatch)
@@ -311,9 +316,9 @@ def test_K18_3_the_results_of_a_part_are_inputs_of_an_atom_in_the_next_move(monk
     _serve(monkeypatch, _csv_ok)
     _, planner = _arm(monkeypatch, [
         _move(goals=["goal-1"], new_atoms=[BRENT_ATOM], steps=[{"atom": "eph.brent_csv"}]),
-        _move(new_atoms=[STATS_ATOM], steps=[{"atom": "eph.ebitda_brent"}]),
+        _move(steps=[{"atom": "eph.ebitda_brent"}]),
         _finalize_stats,
-    ])
+    ], visits=(stats_visit(2),))
 
     _, events = _turn(monkeypatch)
 
