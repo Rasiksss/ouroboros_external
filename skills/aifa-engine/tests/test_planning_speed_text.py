@@ -67,7 +67,6 @@ def test_the_planner_does_not_reread_what_the_root_already_found_in_the_report()
 def test_the_root_hands_the_planner_the_facts_and_the_catalog_findings() -> None:
     step = plans().split("2. `schedule_task(", 1)[1].split("3. Дождись", 1)[0]
 
-    assert "сведения о документе" in step
     assert "названия подходящих атомов из `aifa_atoms` и пробелы" in step
 
 
@@ -112,3 +111,29 @@ def test_the_guide_stays_within_its_size_limit() -> None:
 def test_no_new_rule_leans_on_development_vocabulary() -> None:
     for text in (plan_author(), plans(), guide()):
         assert not re.search(r"ADR-|CONTRACTS|DynamicRun|PROGRESS", text)
+
+
+def test_the_root_does_not_study_the_report_before_it_orders_the_plan() -> None:
+    """Прогон 15:16–15:36: корень 8 минут изучал отчёт сам (12 вызовов `aifa_doc`), а план так и не заказал."""
+    text = guide()
+
+    assert "До заказа плана отчёт не исследуй" in text
+    assert "факты об отчёте даст извлечение" in text
+
+
+def test_the_root_hands_over_only_what_the_state_already_knows() -> None:
+    step = plans().split("2. `schedule_task(", 1)[1].split("3. Дождись", 1)[0]
+
+    assert "профиль отчёта и список периодов из `aifa_state`" in step
+    assert "что уже найдено" not in step
+
+
+def test_the_root_does_not_read_the_skill_of_the_planner() -> None:
+    assert "Навык `aifa-plan-author` не читай" in guide()
+
+
+def test_the_plan_binding_is_for_executor_calls_after_the_plan_is_accepted() -> None:
+    """Прогоны 22.10: `_plan` на `aifa_open` дважды и на заказе плана — отказ `PLAN_EXECUTION_REFUSED`."""
+    text = plans()
+
+    assert "`aifa_open` и заказ плана — без `_plan`" in text
