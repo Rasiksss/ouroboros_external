@@ -1499,7 +1499,7 @@ def _typed_run_response(run_id: str, *, kind: str, after_sequence: int) -> Strea
         media_type="text/event-stream",
         headers={
             "X-Accel-Buffering": "no",
-            "Cache-Control": "no-cache",
+            "Cache-Control": "no-cache, no-transform",
             "X-Result-Event-Version": "1.0",
         },
     )

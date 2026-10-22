@@ -12,8 +12,8 @@ OpenRouter возвращает 403 Key limit exceeded. Короткая про�
 
 ## Решение
 Проверить живой dev на `cloudru::deepseek-ai/DeepSeek-V4-Pro` для корня и лёгкой роли.
-Запасная модель — `selfhosted::deepseek-v4.1-flash` с существующим совместимым адаптером,
-его `OPENAI_COMPATIBLE_BASE_URL` указывает на Holy API. Cloud.ru и Holy имеют разные ключи
+Запасная модель — `deepseek-v4.1-flash` (имя без префикса выбирает `selfhosted`) с совместимым адаптером,
+его `SELFHOSTED_LLM_BASE_URL` указывает на Holy API. Cloud.ru и Holy имеют разные ключи
 и адреса; настройки TLS не ослабляются. Служба использует DeepSeek-V4-Pro через Cloud.ru.
 Меняются только серверные файлы окружения с резервной копией и правами 600.
 Пределы времени, размер ответа и уровень размышлений не меняются. `infproxy` не меняется.

@@ -199,6 +199,7 @@ async def test_the_wire_frames_of_a_failed_turn_end_with_completed() -> None:
     user = User(id=1, username="test", password_hash="x", is_admin=False)
 
     response = await api_main.chat_run_events(run_id, request=_Request(), user=user)
+    assert "no-transform" in response.headers["cache-control"]
     frames = [chunk.decode() async for chunk in response.body_iterator]
     payloads = [
         json.loads(frame.split("data: ", 1)[1]) for frame in frames if "data: " in frame
