@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     # would close a cycle. ``ToolContext`` moves out of ``registry`` in the follow-up
     # change that deletes ``ToolRegistry``.
     from new_core.tools.context import ToolContext
+    from ouroboros.agent_events.interfaces import TaskCancellationRequested
     from ouroboros.tools.skills import SkillReadResult
 
 __all__ = [
@@ -297,6 +298,11 @@ class ToolEvents(ABC):
         """
         return False
 
+    @abstractmethod
+    def request_cancellation(self, request: TaskCancellationRequested) -> bool:
+        """Publish cancellation during this run, or decline it for fallback delivery."""
+        ...
+
 
 class ToolOutbound(ABC):
     """Persist history and publish stored file references for a run."""
@@ -362,3 +368,6 @@ class NullToolEvents(ToolEvents):
 
     def lifecycle(self, event_type: str, payload: dict[str, Any]) -> None:
         return None
+
+    def request_cancellation(self, request: TaskCancellationRequested) -> bool:
+        return False

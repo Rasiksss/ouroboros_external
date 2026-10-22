@@ -824,6 +824,8 @@ def test_plan_and_execution_failures_become_feedback(base, monkeypatch, failure,
 
 GRAPH_ONLY_BOOM = "def run(inputs):\n    return {'margin_pct': 2.0}\n"   # проходит проверку при сдаче, в графе падает
 FIXED_CODE = "def run(inputs):\n    return {'margin_pct': 1.0}\n"
+# Входы сдачи, когда тест подменяет их поиск в Case: одно значение — у кода выше входы не читаются.
+_SEED = (DynamicArtifact(output_type="dyn:seed", payload={"value": 1}, origin=["external"], producer="seed@1"),)
 REPAIRED_REQUEST = AtomRequest(
     name="eph.metric_calc", purpose="расчёт", output_type="dyn:metric_calc",
     output_schema=CALC_SCHEMA, requires=(InputSpec("dyn:seed"),),
@@ -859,7 +861,7 @@ def test_a_refused_registration_does_not_erase_the_graph_error_of_the_atom(base,
     dynamic, _ = _run(base, [_give_up()])
     dynamic.atoms[request.name] = known
     dynamic.failures[request.name] = "graph error"
-    monkeypatch.setattr(dynamic_run_module, "case_inputs", lambda *args, **kwargs: {"ExtractedMetric": [{}]})
+    monkeypatch.setattr(dynamic_run_module, "case_input_values", lambda *args, **kwargs: _SEED)
 
     refused = dynamic.register_atom(request, "def run(inputs):\n    raise ValueError('still bad')\n")
 
@@ -878,8 +880,7 @@ def test_current_atoms_are_passed_to_case_inputs(base, local_room, monkeypatch) 
     dynamic.atoms[source.request.name] = source
     seen = []
     monkeypatch.setattr(
-        dynamic_run_module, "case_inputs",
-        lambda *args, **kwargs: seen.append(kwargs["atoms"]) or {"dyn:source_csv": [{}]},
+        dynamic_run_module, "case_input_values", lambda *args, **kwargs: seen.append(kwargs["atoms"]) or _SEED,
     )
 
     assert isinstance(dynamic.register_atom(request, FIXED_CODE), Registered)
@@ -902,7 +903,9 @@ def test_problems_of_every_rejected_atom_reach_the_planner_by_name(base) -> None
 
 
 def test_repairs_that_only_rewrite_code_do_not_count_as_progress(base, graph_failing_room) -> None:
-    versions = [f"def run(inputs):\n    return {{'margin_pct': {index}.0}}\n" for index in range(2, 5)]
+    """Правка кода, дающая тот же результат, — не продвижение: простой цикла растёт и останавливает его.
+    Сдача — исполнение атома (ADR-0060 п. 4): версии дают одно значение, новых результатов после первой нет."""
+    versions = [f"def run(inputs):\n    return {{'margin_pct': 2.0}}  # версия {index}\n" for index in range(2, 5)]
     graph_failing_room.broken.update(versions)
     visits = tuple(Visit(REPAIRED_REQUEST, (code,), before=index + 2) for index, code in enumerate(versions))
     repair = _move(steps=({"atom": REPAIRED_REQUEST.name},))

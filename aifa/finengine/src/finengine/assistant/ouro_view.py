@@ -10,7 +10,6 @@ import json
 from enum import StrEnum
 
 from finengine.assistant.doc_pages import Match, Page
-from finengine.assistant.goal_result import GoalResult, Verdict
 from finengine.skills.spec.dynamic_run import (
     ARTIFACTS_HEADER,
     ARTIFACTS_TITLE,
@@ -35,8 +34,6 @@ _REGISTER_PREVIEW = 400
 class Code(StrEnum):
     READY = "ГОТОВО"
     WAIT = "ЖДИ"
-    NEED_LOOP = "НУЖЕН_ЦИКЛ"
-    CLARIFY = "УТОЧНИ"
     LIMIT = "ЛИМИТ"
     ACCEPTED = "ПРИНЯТО"
     REFUSE = "ОТКАЗ"
@@ -99,51 +96,27 @@ def subtask_result(task_id: str, text: str, *, failed: bool, limit: int) -> str:
     return f"{Code.READY}\n## {title}\n{body}"
 
 
-def registered(atom_name: str, version: str, output: dict | None) -> str:
-    """Ответ `aifa_register_atom`: имя с версией и краткий итог проверочного прогона."""
+def registered(
+    session: LoopSession, atom_name: str, version: str, output: dict | None, known: frozenset[str], *, limit: int,
+) -> str:
+    """Ответ `aifa_register_atom`: атом принят и исполнен — результат и файлы уже в Case (ADR-0060 п. 4)."""
     shown = json.dumps(output, ensure_ascii=False)[:_REGISTER_PREVIEW] if output is not None else "—"
-    return (
-        f"{Code.READY}\nАтом {atom_name}@{version} зарегистрирован.\n"
-        f"Итог проверочного прогона на входах Case: {shown}\nСлужба исполнит его шагом aifa_move."
+    fresh = _fresh_lines(session, known)
+    text = (
+        f"{Code.READY}\nАтом {atom_name}@{version} зарегистрирован и исполнен на входах Case: шагом aifa_move "
+        f"его запускать не нужно.\nРезультат: {shown}\n\n## Новые артефакты\n{ARTIFACTS_HEADER}\n"
+        + ("\n".join(fresh) if fresh else "—")
     )
+    return text if len(text) <= limit else text[: limit - TAIL_RESERVE // 2] + "\n…[ответ обрезан: полное — aifa_state]"
 
 
 def service_fault(why: str) -> str:
     return f"{Code.SERVICE_FAULT}: {why}; повтори вызов"
 
 
-def goal(result: GoalResult, *, limit: int) -> str:
-    """Ответ `aifa_goal` и итог его задания (`aifa_wait`)."""
-    if result.verdict is Verdict.NEEDS_LOOP and result.loop is not None:
-        return f"{Code.NEED_LOOP}\n{_state(result.loop, limit - len(Code.NEED_LOOP) - 1)}"
-    if result.verdict is Verdict.CLARIFY:
-        return f"{Code.CLARIFY}\n{result.note}"
-    if result.verdict is Verdict.NO_DOCUMENT:
-        return refusal(Refusal.NO_DOCUMENT, result.note)
-    if result.verdict is Verdict.NO_CALCULATION:
-        return f"{Code.READY}\nРасчёт по отчёту не нужен: ответь пользователю сам.\n{result.note}".rstrip()
-    return _answered(result, limit)
-
-
-def _answered(result: GoalResult, limit: int) -> str:
-    note = result.note or "Стандартный путь отработал."
-    if len(note) > limit // 2:
-        # Предел ответа жёсткий (§3.0); итог не должен вытеснить таблицу целиком.
-        note = note[: limit // 2] + "…[итог обрезан]"
-    head = f"{Code.READY}\n## Итог\n{note}\n\n"
-    head += f"## {ARTIFACTS_TITLE}\n{ARTIFACTS_HEADER}\n"
-    lines = artifacts_table(list(result.rows)).split("\n")
-    whole = head + "\n".join(lines)
-    if len(whole) <= limit:
-        return whole
-    shown: list[str] = []
-    size = len(head)
-    for line in lines:
-        if size + len(line) + 1 > limit - TAIL_RESERVE:
-            break
-        shown.append(line)
-        size += len(line) + 1
-    return head + "\n".join(shown) + ("\n" if shown else "") + _tail(lines, len(shown))
+def opened(session: LoopSession, *, limit: int) -> str:
+    """Ответ `aifa_open`: цикл открыт, дальше — его состояние (ADR-0060 п. 1)."""
+    return f"{Code.READY}\n{_state(session, limit - len(Code.READY) - 1)}"
 
 
 def _tail(lines: list[str], shown: int) -> str:
@@ -189,12 +162,14 @@ def _state(session: LoopSession, limit: int) -> str:
     return "\n\n".join(f"## {title}\n{sections[title]}" for title in order)
 
 
-def artifacts(found: list[tuple[str, str]], missing: list[str], *, limit: int) -> str:
+def artifacts(found: list[tuple[str, str]], missing: list[str], *, limit: int, view: str = "full") -> str:
     """Ответ `aifa_state(artifact_ids)`: полное содержимое найденных артефактов, `found` — пары (id, текст)."""
     head = f"{Code.READY}\n## Артефакты\n"
     parts: list[str] = []
     size = len(head)
     for index, (artifact_id, content) in enumerate(found):
+        if view == "compact":
+            content = _compact_artifact(content)
         part = f"### {artifact_id}\n{content}\n"
         room = limit - size - TAIL_RESERVE
         if len(part) > room:
@@ -212,6 +187,31 @@ def artifacts(found: list[tuple[str, str]], missing: list[str], *, limit: int) -
     return text.rstrip("\n")
 
 
+def _compact_artifact(content: str) -> str:
+    data = json.loads(content)
+    if not isinstance(data, dict) or data.get("output_type") not in {"ExtractedMetric", "CalculatedMetric"}:
+        return content
+    kept = {key: value for key, value in data.items() if key in {"schema_version", "output_type", "status", "metric_id", "concept", "period_ref", "entity_ref", "basis"}}
+    for name in ("scalar_fact", "derived_fact"):
+        if isinstance(data.get(name), dict):
+            kept[name] = {key: value for key, value in data[name].items() if key in {"evidence_id", "concept", "period_ref", "value", "unit", "basis", "expression", "inputs", "formula_id", "formula_version"}}
+    return json.dumps(kept, ensure_ascii=False, separators=(",", ":"))
+
+
+def artifact_index(entries: list[dict], *, offset: int, count: int, limit: int) -> str:
+    page: list[dict] = []
+    total = len(entries)
+    for entry in entries[offset:offset + count]:
+        candidate = {"artifacts": [*page, entry], "total": total, "next_offset": offset + len(page) + 1}
+        if len(json.dumps(candidate, ensure_ascii=False)) > limit - 100:
+            break
+        page.append(entry)
+    if not page and offset < total:
+        return refusal(Refusal.BAD_ARGUMENTS, "Запись индекса не помещается в предел ответа.")
+    following = offset + len(page)
+    return f"{Code.READY}\n" + json.dumps({"artifacts": page, "total": total, "next_offset": following if following < total else None}, ensure_ascii=False)
+
+
 def shown_ids(session: LoopSession) -> frozenset[str]:
     """id артефактов, которые сейчас видны в таблице состояния: по ним `moved` отделяет новое."""
     rows = case_rows(session.runtime.store, session.owner_id, session.case_id)
@@ -223,19 +223,26 @@ def moved(
 ) -> str:
     """Ответ `aifa_move`: итог хода, новые артефакты со значениями, остаток лимитов (§3.1).
     Ход исчерпал предел цикла (`exhausted`) — ответ начинается с `ЛИМИТ`."""
-    rows = case_rows(session.runtime.store, session.owner_id, session.case_id)
-    fresh = [line for line in artifacts_table(rows).split("\n") if line.split(" | ", 1)[0] not in known | {"—"}]
+    fresh = _fresh_lines(session, known)
     left = dict(state_sections(session, session.feedback))["Осталось"]
     code = Code.LIMIT if exhausted else Code.READY
-    parts = [f"{code}\n## Итог хода {session.turns}\n{outcome.headline}\n{outcome.details}".rstrip()]
+    parts = [f"{code}\n## Итог хода {session.turns}\n{outcome.headline}".rstrip()]
     if exhausted:
         parts.append(f"Цикл исчерпан: {exhausted}. Новые ходы нельзя — принимается только aifa_finish.")
     parts.append(f"## Новые артефакты\n{ARTIFACTS_HEADER}\n" + ("\n".join(fresh) if fresh else "—"))
+    parts.append("Итоговые артефакты: aifa_state(artifact_index={\"output_type\":\"NarrativeOutput\"}) либо тип FileArtifact; next_offset — следующая страница.")
+    parts.append(f"## Исполнение\n{outcome.details}")
     parts.append(f"## Осталось\n{left}")
     text = "\n\n".join(parts)
     if len(text) > limit:
         text = text[: limit - TAIL_RESERVE // 2] + "\n…[ответ обрезан: полное — aifa_state]\n\n" + f"## Осталось\n{left}"
     return text
+
+
+def _fresh_lines(session: LoopSession, known: frozenset[str]) -> list[str]:
+    """Строки таблицы артефактов, которых не было в `known`."""
+    rows = case_rows(session.runtime.store, session.owner_id, session.case_id)
+    return [line for line in artifacts_table(rows).split("\n") if line.split(" | ", 1)[0] not in known | {"—"}]
 
 
 def limited(reason: str) -> str:

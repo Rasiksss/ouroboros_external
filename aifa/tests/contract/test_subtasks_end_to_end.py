@@ -45,10 +45,9 @@ def engine(stand: ContractStand, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
         return json.dumps(next(replies, fixture.INTENT), ensure_ascii=False)
 
     async def planner_of_the_service(system: str, prompt: str) -> str:
-        raise AssertionError("модель-планировщик службы вызвана при loop_driver=ouroboros")
+        raise AssertionError("модель-планировщик службы вызвана в цикле агента")
 
     with running_engine(stand, tmp_path, monkeypatch) as base:
-        monkeypatch.setattr(settings, "loop_driver", "ouroboros")
         monkeypatch.setattr(settings, "data_dir", tmp_path)
         monkeypatch.setattr("finengine.skills.atoms.intent._default_complete", parsed)
         monkeypatch.setattr(

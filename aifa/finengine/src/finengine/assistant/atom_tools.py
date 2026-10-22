@@ -15,6 +15,7 @@ from finengine.assistant.loop_tools import ExclusiveTool, no_loop
 from finengine.assistant.ouro_view import Refusal
 from finengine.assistant.subtask_waits import SubtaskWaits
 from finengine.assistant.tool_call import BoundCall
+from finengine.config import settings
 from finengine.skills.spec.atom_intake import Refused, StationDown
 from finengine.skills.spec.dynamic_run import LoopSession, parse_atom_request
 
@@ -24,7 +25,8 @@ STATUSES = ("ok", "error", "done")
 
 
 class RegisterTool(ExclusiveTool):
-    """Сдача атома с кодом: изменяющий вызов, идёт в очереди хода, «240 с, затем фон» (ADR-0043 п. 4)."""
+    """Сдача атома с кодом: изменяющий вызов, идёт в очереди хода, «240 с, затем фон» (ADR-0043 п. 4). Ходы и
+    простой цикла её не останавливают — только закрытый цикл и его общее время (ADR-0060 п. 5)."""
 
     name = "aifa_register_atom"
 
@@ -32,7 +34,7 @@ class RegisterTool(ExclusiveTool):
         session: LoopSession = loop.session
         if session.closed:
             return ouro_view.refusal(Refusal.LOOP_CLOSED, "Цикл закрыт aifa_finish: регистрировать атомы больше нельзя.")
-        reason = session.limit()
+        reason = session.out_of_time()
         if reason is not None:
             return ouro_view.limited(reason)
         code = args.get("code")
@@ -46,13 +48,16 @@ class RegisterTool(ExclusiveTool):
             request = parse_atom_request({key: value for key, value in args.items() if key != "code"}, "аргументы")
         except ValueError as problem:
             return ouro_view.refusal(Refusal.BAD_ARGUMENTS, str(problem))
+        known = ouro_view.shown_ids(session)
         outcome = session.register_atom(request, code)
         self._desk.save(loop.run_id)
         if isinstance(outcome, Refused):
             return ouro_view.refusal(Refusal(outcome.code), outcome.why)
         if isinstance(outcome, StationDown):
             return ouro_view.service_fault(f"комната станции недоступна, код не проверить ({outcome.why})")
-        return ouro_view.registered(request.name, outcome.atom.version, outcome.output)
+        return ouro_view.registered(
+            session, request.name, outcome.atom.version, outcome.output, known, limit=settings.ouroboros_result_limit,
+        )
 
 
 class ReportTool:

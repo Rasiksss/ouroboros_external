@@ -1,10 +1,10 @@
 {
   "snapshot_version": 1,
-  "adr": "ADR-0053",
-  "note": "Снимок схем инструментов навыка aifa-engine (F4): шаг 10 — aifa_goal, aifa_wait; шаг 13 — aifa_state, aifa_doc, aifa_move, aifa_finish; шаг 16 — aifa_register_atom, aifa_report и task_id в aifa_wait.",
-  "budget_chars": 3953,
+  "adr": "ADR-0062",
+  "note": "Адресное чтение артефактов и lifecycle-close; привязка _plan добавляется kernel dispatch к исполнителям.",
+  "budget_chars": 5166,
   "tools": {
-    "aifa_goal": {
+    "aifa_open": {
       "arguments": [],
       "required": [],
       "safety_policy": "skip",
@@ -28,7 +28,9 @@
     },
     "aifa_state": {
       "arguments": [
-        "artifact_ids"
+        "artifact_ids",
+        "artifact_index",
+        "view"
       ],
       "required": [],
       "safety_policy": "skip",
@@ -56,7 +58,6 @@
         "objective",
         "plan",
         "reason",
-        "scenarios",
         "steps"
       ],
       "required": [
@@ -65,7 +66,7 @@
       ],
       "safety_policy": "skip",
       "capability_class": "mutative",
-      "timeout_sec": 300,
+      "timeout_sec": 5400,
       "result_limit": 12000
     },
     "aifa_register_atom": {
@@ -117,7 +118,7 @@
       ],
       "safety_policy": "skip",
       "capability_class": "mutative",
-      "timeout_sec": 300,
+      "timeout_sec": 5400,
       "result_limit": 12000
     }
   }

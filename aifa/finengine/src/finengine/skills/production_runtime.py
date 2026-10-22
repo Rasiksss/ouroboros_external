@@ -36,6 +36,7 @@ from finengine.skills.spec.dynamic_run import (
     DynamicRun,
     DynamicRunResult,
     LoopSession,
+    RunLimits,
     ScenarioResult,
     _progress_only,
     complete_plan,
@@ -781,6 +782,7 @@ def _loop_parts(
         "goal": goal_ir, "target": target, "run_passport": context.passport, "root_extra": root_extra,
         "inputs": _run_inputs(context, document_text=document_text, role=role, extra=root_extra),
         "event_sink": event_sink,
+        "limits": RunLimits(max_wall_seconds=settings.ouroboros_loop_max_wall_sec),
         "run_scenario": ScenarioChannel(context=context, document_text=document_text, role=role, event_sink=event_sink),
         "run_goals": GoalChannel(context=context, document_text=document_text, role=role, event_sink=event_sink),
     }
@@ -801,6 +803,37 @@ def _hand_over_loop(
     open_loop(session, LoopOrigin(
         owner_id=context.owner_id, case_id=context.case_id, document_id=context.document_id,  # type: ignore[arg-type]
         goal=goal_ir, target=target, root_extra=dict(root_extra), trace_id=context.trace_id, entry_stage=stage,
+        methodology_version=context.passport.methodology_version,
+        budget={"max_wall_seconds": budget.max_wall_seconds, "max_atom_calls": budget.max_atom_calls,
+                "max_retries": budget.max_retries},
+    ))
+    return session
+
+
+def open_agent_loop(
+    *, open_loop: LoopOpener, owner_id: object, case_id: str, document_id: str, document_text: str,
+    message: str, role: str | None, event_sink: EventSink | None, trace_id: str = "",
+) -> LoopSession:
+    """Цикл, который открыл агент (`aifa_open`, ADR-0060 п. 1): сообщение не разбирается, конвейер не запускается.
+    Паспорт фиксирует профиль отчёта и реестр; корень шагов несёт только сущность и версию документа."""
+    goal = GoalIR(raw_query=message, intent_kind="custom_analysis", role=role)
+    context = prepare_production_context(
+        owner_id=owner_id, case_id=case_id, document_id=document_id, document_text=document_text,
+        goal_ir=goal, budget=_with_wall_floor(None), trace_id=trace_id,
+    )
+    entity = getattr(context.passport, "entity", None)
+    target = Target(
+        output_type="ReportOutput", document_version=context.document_version,
+        entity_ref=getattr(entity, "entity_id", None) or getattr(entity, "canonical_name", None) or document_id,
+    )
+    session = LoopSession(
+        **_loop_parts(context, goal, target, {}, document_text, SwitchSink(event_sink)), entry_stage="agent",
+    )
+    session.open(deterministic_error="")
+    budget = context.runtime.executor.budget
+    open_loop(session, LoopOrigin(
+        owner_id=context.owner_id, case_id=context.case_id, document_id=context.document_id,  # type: ignore[arg-type]
+        goal=goal, target=target, trace_id=context.trace_id, entry_stage="agent",
         methodology_version=context.passport.methodology_version,
         budget={"max_wall_seconds": budget.max_wall_seconds, "max_atom_calls": budget.max_atom_calls,
                 "max_retries": budget.max_retries},

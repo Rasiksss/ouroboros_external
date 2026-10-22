@@ -50,14 +50,14 @@ rules:
     test: tests/dynamic_run/test_ephemeral_in_graph.py::test_a_new_version_makes_the_old_result_incompatible_and_runs_again
   - id: LR-13
     plan34: "Сценарий исполняется тем же путём, что сообщение чата"
-    test: tests/loop_tools/test_open_and_restore.py::test_a_scenario_of_a_move_goes_the_same_path_as_a_chat_message
+    test: tests/loop_tools/test_open_and_restore.py::test_a_goal_of_a_move_goes_the_same_pipeline_as_a_chat_message
   - id: LR-14
     plan34: "Сценарий не запускает вложенный цикл"
-    cell: "сценарий без вложенного цикла (`allow_dynamic=False`)"
-    test: tests/loop_tools/test_open_and_restore.py::test_a_scenario_of_a_move_never_opens_a_nested_cycle
+    cell: "сценарий без классификатора и вложенного цикла (`GoalChannel`, `allow_dynamic=False`)"
+    test: tests/loop_tools/test_open_and_restore.py::test_a_goal_without_a_deterministic_root_is_refused_before_the_pipeline
   - id: LR-15
     plan34: "Промежуточные карточки и отказы сценариев не видны пользователю"
-    test: tests/loop_tools/test_open_and_restore.py::test_a_scenario_of_a_move_goes_the_same_path_as_a_chat_message
+    test: tests/loop_tools/test_open_and_restore.py::test_a_goal_of_a_move_goes_the_same_pipeline_as_a_chat_message
   - id: LR-17
     plan34: "Цикл конечен"
     cell: "`RunLimits` (ходы, новые атомы, ходы без прогресса, 1200 с)"
@@ -87,19 +87,19 @@ rules:
     cell: "повтор тупика (`_repeated_dead_end`; новая регистрация имени через `aifa_register_atom` снимает его сигнатуры тупика, ADR-0043 п. 6)"
     test: tests/loop_tools/test_loop_rules.py::test_the_same_dead_end_move_is_refused
   - id: LR-26
-    cell: "части цели по ссылке и `depends_on`"
+    cell: "части цели по коду сценария и `depends_on` без циклов"
     test: tests/loop_tools/test_loop_rules.py::test_a_part_of_the_goal_must_be_one_the_goal_has
   - id: LR-27
     cell: "в `new_atoms` — атомы-загрузки (`url`)"
     test: tests/loop_tools/test_loop_rules.py::test_a_download_atom_is_described_in_new_atoms
   - id: LR-28
     cell: "только корень"
-    test: tests/loop_tools/test_cycle_and_queue.py::test_a_subtask_may_move_the_cycle_but_not_close_it
+    test: tests/loop_tools/test_cycle_and_queue.py::test_a_subtask_neither_moves_nor_closes_the_cycle
   - id: LR-29
     cell: "`нет_цикла`"
     test: tests/loop_tools/test_cycle_and_queue.py::test_the_cycle_is_opened_only_by_the_answer_that_needs_it
   - id: LR-30
-    cell: "без открытого цикла — только артефакты по `artifact_ids` (после любого `aifa_goal`), иначе `нет_цикла`"
+    cell: "без открытого цикла — только артефакты по `artifact_ids` (после любого `aifa_open`), иначе `нет_цикла`"
     test: tests/loop_tools/test_cycle_and_queue.py::test_nothing_of_the_cycle_is_readable_before_the_goal_was_asked
   - id: LR-31
     cell: "обещанный файл собран и отвечает требованиям (`_with_promised_files`)"
@@ -129,8 +129,8 @@ rules:
     cell: "текст ответа — последнее сообщение корня (ADR-0024 п. 1)"
     test: tests/assistant/test_assistant_turn_gateway.py::test_a_subtask_answer_before_the_final_goes_to_the_extension_point_not_to_the_screen
   - id: LR-40
-    contract: "**Цикл** открывается только ответом `НУЖЕН_ЦИКЛ` у `aifa_goal`"
-    test: tests/loop_tools/test_open_and_restore.py::test_when_the_standard_path_cannot_plan_the_cycle_is_handed_over
+    contract: "**Цикл** открывает `aifa_open` по документу хода без разбора сообщения (ADR-0060)"
+    test: tests/loop_tools/test_open_and_restore.py::test_aifa_open_opens_the_cycle_without_parsing_the_message
   - id: LR-41
     cell: "`evidence_ids` условием не служат — служба пишет в журнал прогона, существует ли каждая (ADR-0040 п. 1)"
     test: tests/loop_tools/test_loop_rules.py::test_a_finish_with_a_missing_reference_is_accepted_and_the_journal_says_it_is_missing
@@ -147,7 +147,7 @@ rules:
     cell: "код — только в разовой комнате W без сети, без окружения (`env: {}`)"
     test: tests/dynamic_run/test_sealed_room.py::test_exec_body_carries_entry_point_and_base64_stdin
   - id: LR-46
-    cell: "вход — только `ctx.dependencies()`"
+    cell: "вход — результаты из Case в порядке requires"
     test: tests/dynamic_run/test_ephemeral_atoms.py::test_execute_runs_the_code_on_dependencies_and_wraps_the_result
   - id: LR-47
     cell: "результат по `output_schema` (`schema_problem`)"
@@ -190,4 +190,8 @@ rules:
     test: tests/loop_tools/test_loop_rules.py::test_the_hints_of_the_cycle_lead_to_the_subtask_and_not_to_new_atoms
 
 # Правила, которые вводят другие шаги; до них тестов нет и быть не должно.
+  - id: LR-60
+    cell: "результат и файлы сохраняются без повторного запуска"
+    test: tests/loop_tools/test_register_atom.py::test_an_accepted_atom_is_already_executed_and_its_result_is_in_the_case
+
 deferred: []

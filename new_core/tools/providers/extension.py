@@ -174,6 +174,12 @@ class ExtensionToolProvider(IToolProvider):
                 name=name,
                 description=str(record.get("description") or ""),
                 parameters=record.get("schema") or {"type": "object", "properties": {}},
+                plan_executor=(
+                    str(record.get("capability_class") or spec.capability_class)
+                    in {"mutative", "shell", "external_shell"}
+                    and (record.get("schema") or {}).get("x-task-plan-operation") != "close"
+                ),
+                plan_closer=(record.get("schema") or {}).get("x-task-plan-operation") == "close",
             ),
             timeout_sec=extension_timeout_sec(record),
             origin=f"ext:{record.get('skill') or ''}",
@@ -322,11 +328,11 @@ class ExtensionToolProvider(IToolProvider):
             # ``_get_tool_timeout`` without needing a thread or a loop of its own, and
             # without knowing where its body was placed — every runtime awaits an awaitable
             # result.
-            return self._bounded(name, result, extension_timeout_sec(record))
+            return self._bounded(name, result, extension_timeout_sec(record), bound=bool(ctx.plan_call_id))
         return result if isinstance(result, str) else str(result)
 
     @staticmethod
-    async def _bounded(name: str, coro: Any, timeout: int) -> str:
+    async def _bounded(name: str, coro: Any, timeout: int, *, bound: bool = False) -> str:
         """Await one asynchronous handler under its own deadline, reporting as this provider.
 
         Awaiting is the runtime's business; *reporting* is this provider's, exactly as it is
@@ -342,6 +348,10 @@ class ExtensionToolProvider(IToolProvider):
         try:
             result = await asyncio.wait_for(coro, timeout=timeout)
         except asyncio.TimeoutError:
+            if bound:
+                raise asyncio.CancelledError(
+                    "bound handler timed out; external execution may still be active"
+                ) from None
             return f"⚠️ extension tool {name!r} async handler failed: TimeoutError: handler exceeded timeout"
         except Exception as exc:
             return f"⚠️ extension tool {name!r} async handler failed: {type(exc).__name__}: {exc}"

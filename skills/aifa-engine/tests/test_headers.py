@@ -40,10 +40,10 @@ def call(tool: str, wire: Wire, **args: object) -> str:
 
 
 def test_the_trace_and_agent_headers_are_on_a_goal_call() -> None:
-    """F12 (б): `aifa_goal` идёт с трассой хода и идентификатором агента."""
+    """F12 (б): `aifa_open` идёт с трассой хода и идентификатором агента."""
     wire = Wire()
 
-    call("aifa_goal", wire)
+    call("aifa_open", wire)
 
     (request,) = wire.requests
     assert request.headers["X-Trace-Id"] == TRACE
@@ -54,7 +54,7 @@ def test_the_headers_are_on_every_call_not_only_the_first() -> None:
     """F12 (б): заголовки ставятся на каждом вызове, а не запоминаются при первом."""
     wire = Wire()
 
-    call("aifa_goal", wire)
+    call("aifa_open", wire)
     call("aifa_wait", wire, job_id="j1", wait_sec=10)
     call("aifa_wait", wire, job_id="j1", wait_sec=10)
 
@@ -68,7 +68,7 @@ def test_the_trace_of_each_call_is_the_trace_of_its_own_context() -> None:
     other = "1b1b1b1b-1b1b-4b1b-8b1b-1b1b1b1b1b1b"
     wire = Wire()
     plugin = load_plugin()
-    handler = plugin.EngineCall("aifa_goal", transport=httpx.MockTransport(wire))
+    handler = plugin.EngineCall("aifa_open", transport=httpx.MockTransport(wire))
 
     asyncio.run(handler(tool_context(trace_id=TRACE)))
     asyncio.run(handler(tool_context(trace_id=other, transport={"source_message_id": RUN_ID})))
@@ -80,7 +80,7 @@ def test_the_service_token_goes_as_a_bearer_and_owner_headers_are_not_minted_her
     """§3.0: `Authorization: Bearer`; заголовки владельца `X-Ouroboros-*` ставит только клиент хода (F12 (а))."""
     wire = Wire()
 
-    call("aifa_goal", wire)
+    call("aifa_open", wire)
 
     (request,) = wire.requests
     assert request.headers["Authorization"] == "Bearer secret-token"

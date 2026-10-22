@@ -19,7 +19,7 @@ from finengine.assistant import ouro_view
 from finengine.assistant.binding import Binding, Refused, RootSink
 from finengine.assistant.events import tool_call_event, tool_output_event
 from finengine.assistant.atom_tools import RegisterTool, ReportTool
-from finengine.assistant.goal_tools import GoalSource, GoalTool, RunEmitter, WaitTool
+from finengine.assistant.goal_tools import OpenTool, Opening, RunEmitter, WaitTool
 from finengine.assistant.jobs import JobBoard
 from finengine.assistant.loop_desk import LoopDesk
 from finengine.assistant.loop_tools import FinishTool, MoveTool
@@ -33,7 +33,7 @@ log = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# Ответ с такого кода — инструмент не сделал дела (для экрана `tool_output.ok == false`); `УТОЧНИ` и `ЖДИ` — исходы.
+# Ответ с такого кода — инструмент не сделал дела (для экрана `tool_output.ok == false`); `ЖДИ` — исход.
 FAILED_CODES = (Code.REFUSE, Code.SERVICE_FAULT)
 
 
@@ -52,14 +52,14 @@ class Tool(Protocol):
 
 class ToolApi:
     def __init__(
-        self, gateway: RootSink, goal: GoalSource, desk: LoopDesk | None = None, subtasks: SubtaskWaits | None = None,
+        self, gateway: RootSink, opening: Opening, desk: LoopDesk | None = None, subtasks: SubtaskWaits | None = None,
     ) -> None:
         board = JobBoard(settings.ouroboros_run_watch_sec)
         desk = desk or LoopDesk()
         self._subtasks = subtasks or SubtaskWaits()
         self._binding = Binding(gateway)
         tools: tuple[Tool, ...] = (
-            GoalTool(board, goal), WaitTool(board, self._subtasks, desk), StateTool(board, desk), DocTool(board, desk),
+            OpenTool(board, opening, desk), WaitTool(board, self._subtasks, desk), StateTool(board, desk), DocTool(board, desk),
             MoveTool(board, desk), RegisterTool(board, desk), ReportTool(desk, self._subtasks),
             FinishTool(board, desk, self._subtasks),
         )

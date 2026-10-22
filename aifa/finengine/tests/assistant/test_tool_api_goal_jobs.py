@@ -1,7 +1,7 @@
-"""`aifa_goal` и `aifa_wait`: фоновые задания, длинный опрос, идемпотентность, отмена хода (C3.3, C3.4).
+"""`aifa_open` и `aifa_wait`: фоновые задания, длинный опрос, идемпотентность, отмена хода (C3.3, C3.4).
 
-Цель хода здесь — подставной `GoalSource` с управляемым временем: что стандартный путь отдаёт сам,
-проверяют `test_standard_path.py` и сквозной тест. Прогон, привязка, журнал хода — настоящие.
+Открытие цикла здесь — подставное, с управляемым временем, и его исход — «документа нет»: что отдаёт открытый
+цикл, проверяют `tests/loop_tools/test_open_and_restore.py`. Прогон, привязка, задания — настоящие.
 """
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ from tool_harness import (  # noqa: F401 — `coordination`: фикстура о
 )
 
 from finengine.assistant import goal_tools
-from finengine.assistant.goal_result import GoalResult, Verdict
+from finengine.assistant.loop_opening import NoDocument
 from finengine.assistant.tool_api import ToolApi
 from finengine.assistant.turn_record import TurnRecord
 from finengine.config import settings
@@ -29,12 +29,13 @@ from finengine.skills import run_orchestrator as ro
 pytestmark = pytest.mark.usefixtures("coordination")
 
 WAITING = re.compile(r"^ЖДИ job=([0-9a-f]+)$")
-ANSWER = GoalResult(Verdict.ANSWERED, "Расчёт выполнен.")
+ANSWER = NoDocument("Отчёта у хода нет.")
+ANSWERED = "ОТКАЗ нет_документа"
 
 
 @dataclass
 class TimedGoal:
-    """Цель, которая идёт `delay` секунд и пишет в журнал хода одно событие конвейера."""
+    """Открытие цикла, которое идёт `delay` секунд."""
 
     delay: float
     fail: bool = False
@@ -42,10 +43,9 @@ class TimedGoal:
     cancelled: int = 0
     seen: list[str] = field(default_factory=list)
 
-    async def __call__(self, record: TurnRecord, emit) -> GoalResult:
+    async def __call__(self, record: TurnRecord) -> NoDocument:
         self.calls += 1
         self.seen.append(record.message)
-        emit({"type": "plan_graph", "planner_version": "test"})
         try:
             await asyncio.sleep(self.delay)
         except asyncio.CancelledError:
@@ -88,24 +88,24 @@ async def test_a_short_goal_is_answered_by_the_same_call(plugin_with) -> None:
     plugin = plugin_with(goal)
     run = open_run()
 
-    reply = await plugin.call("aifa_goal", ctx_of(run.run_id))
+    reply = await plugin.call("aifa_open", ctx_of(run.run_id))
 
-    assert (reply.status_code, first_line(reply)) == (200, "ГОТОВО")
-    assert goal.seen == ["какая выручка за 2024 год?"], "цель — исходное сообщение прогона"
+    assert (reply.status_code, first_line(reply)) == (200, ANSWERED)
+    assert goal.seen == ["какая выручка за 2024 год?"], "цикл — по исходному сообщению прогона"
     await run.end()
 
 
 async def test_arguments_of_the_model_never_change_the_goal_of_the_turn(plugin_with) -> None:
-    """ADR-0004, ADR-0042 п. 1 (P65 З3): цель — исходное сообщение прогона; `args.goal` модели её не меняет."""
+    """ADR-0060 п. 1: у `aifa_open` аргументов нет; что модель передала, не меняет вопроса цикла."""
     goal = TimedGoal(delay=0.0)
     plugin = plugin_with(goal)
     run = open_run()
 
     reply = await plugin.call(
-        "aifa_goal", ctx_of(run.run_id), {"goal": "посчитай что-нибудь другое", "message": "и это тоже"}
+        "aifa_open", ctx_of(run.run_id), {"goal": "посчитай что-нибудь другое", "message": "и это тоже"}
     )
 
-    assert first_line(reply) == "ГОТОВО"
+    assert first_line(reply) == ANSWERED
     assert goal.seen == ["какая выручка за 2024 год?"]
     await run.end()
 
@@ -117,29 +117,29 @@ async def test_a_long_goal_waits_in_the_background_and_aifa_wait_returns_its_res
     plugin = plugin_with(TimedGoal(delay=0.7))
     run = open_run()
 
-    waiting = await plugin.call("aifa_goal", ctx_of(run.run_id))
+    waiting = await plugin.call("aifa_open", ctx_of(run.run_id))
     job_id = WAITING.match(first_line(waiting)).group(1)
     still = await plugin.call("aifa_wait", ctx_of(run.run_id), {"job_id": job_id, "wait_sec": 0.1})
     done = await plugin.call("aifa_wait", ctx_of(run.run_id), {"job_id": job_id, "wait_sec": 5})
 
     assert first_line(still) == f"ЖДИ job={job_id}"
-    assert (done.status_code, first_line(done)) == (200, "ГОТОВО")
-    assert "Расчёт выполнен." in done.text
+    assert (done.status_code, first_line(done)) == (200, ANSWERED)
+    assert "Отчёта у хода нет." in done.text
     await run.end()
 
 
 async def test_the_goal_is_answered_once_per_turn_and_the_repeat_gets_the_same_result(
     plugin_with,
 ) -> None:
-    """C3.3: повторный вызов `aifa_goal` в том же ходе — тот же итог, цель не разбирается заново."""
+    """C3.3: повторный вызов `aifa_open` в том же ходе — тот же итог, цикл не открывается заново."""
     goal = TimedGoal(delay=0.0)
     plugin = plugin_with(goal)
     run = open_run()
 
-    first = await plugin.call("aifa_goal", ctx_of(run.run_id))
-    second = await plugin.call("aifa_goal", ctx_of(run.run_id))
+    first = await plugin.call("aifa_open", ctx_of(run.run_id))
+    second = await plugin.call("aifa_open", ctx_of(run.run_id))
 
-    assert first.text == second.text and first_line(first) == "ГОТОВО"
+    assert first.text == second.text and first_line(first) == ANSWERED
     assert goal.calls == 1
     await run.end()
 
@@ -149,8 +149,8 @@ async def test_a_repeat_while_the_goal_runs_points_to_the_same_job(plugin_with) 
     plugin = plugin_with(goal)
     run = open_run()
 
-    first = await plugin.call("aifa_goal", ctx_of(run.run_id))
-    second = await plugin.call("aifa_goal", ctx_of(run.run_id))
+    first = await plugin.call("aifa_open", ctx_of(run.run_id))
+    second = await plugin.call("aifa_open", ctx_of(run.run_id))
 
     assert first.text == second.text and WAITING.match(first_line(first))
     assert goal.calls == 1
@@ -162,8 +162,8 @@ async def test_two_turns_get_their_own_goals(plugin_with) -> None:
     plugin = plugin_with(goal)
     one, other = open_run(message="первый вопрос"), open_run(message="второй вопрос")
 
-    await plugin.call("aifa_goal", ctx_of(one.run_id))
-    await plugin.call("aifa_goal", ctx_of(other.run_id))
+    await plugin.call("aifa_open", ctx_of(one.run_id))
+    await plugin.call("aifa_open", ctx_of(other.run_id))
 
     assert goal.seen == ["первый вопрос", "второй вопрос"]
     await one.end()
@@ -176,33 +176,20 @@ async def test_a_failed_goal_is_a_service_fault_and_the_next_call_tries_again(pl
     plugin = plugin_with(goal)
     run = open_run()
 
-    crashed = await plugin.call("aifa_goal", ctx_of(run.run_id))
+    crashed = await plugin.call("aifa_open", ctx_of(run.run_id))
     goal.fail = False
-    retried = await plugin.call("aifa_goal", ctx_of(run.run_id))
+    retried = await plugin.call("aifa_open", ctx_of(run.run_id))
 
     assert crashed.status_code == 500 and first_line(crashed).startswith("СБОЙ_СЛУЖБЫ")
-    assert (retried.status_code, first_line(retried)) == (200, "ГОТОВО")
+    assert (retried.status_code, first_line(retried)) == (200, ANSWERED)
     assert goal.calls == 2
     await run.end()
-
-
-async def test_the_events_of_the_goal_land_in_the_journal_of_this_turn(plugin_with) -> None:
-    plugin = plugin_with(TimedGoal(delay=0.0))
-    run = open_run()
-    other = open_run()
-
-    await plugin.call("aifa_goal", ctx_of(run.run_id))
-    await run.end()
-    await other.end()
-
-    assert {"type": "plan_graph", "planner_version": "test"} in await run.events()
-    assert {"type": "plan_graph", "planner_version": "test"} not in await other.events()
 
 
 async def test_a_job_of_another_turn_is_not_found(plugin_with) -> None:
     plugin = plugin_with(TimedGoal(delay=0.7))
     mine, other = open_run(), open_run()
-    waiting = await plugin.call("aifa_goal", ctx_of(mine.run_id))
+    waiting = await plugin.call("aifa_open", ctx_of(mine.run_id))
     job_id = WAITING.match(first_line(waiting)).group(1)
 
     stolen = await plugin.call("aifa_wait", ctx_of(other.run_id), {"job_id": job_id, "wait_sec": 1})
@@ -217,7 +204,7 @@ async def test_cancelling_the_turn_interrupts_the_waiting_and_stops_the_job(plug
     goal = TimedGoal(delay=30.0)
     plugin = plugin_with(goal)
     run = open_run()
-    waiting = await plugin.call("aifa_goal", ctx_of(run.run_id))
+    waiting = await plugin.call("aifa_open", ctx_of(run.run_id))
     job_id = WAITING.match(first_line(waiting)).group(1)
 
     waiter = asyncio.create_task(
@@ -236,7 +223,7 @@ async def test_a_job_nobody_waits_for_is_stopped_with_the_turn(plugin_with) -> N
     goal = TimedGoal(delay=30.0)
     plugin = plugin_with(goal)
     run = open_run()
-    await plugin.call("aifa_goal", ctx_of(run.run_id))
+    await plugin.call("aifa_open", ctx_of(run.run_id))
 
     ro.cancel_run(run.run_id)
     await asyncio.sleep(0.3)

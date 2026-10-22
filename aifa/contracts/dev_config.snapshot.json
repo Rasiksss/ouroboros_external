@@ -5,7 +5,7 @@
     "OUROBOROS_MULTIUSER": "true",
     "BROWSER_INGRESS_ENABLED": "true",
     "OUROBOROS_WORKER_SLOTS": "4",
-    "OUROBOROS_HARD_TIMEOUT_SEC": "2700",
+    "OUROBOROS_HARD_TIMEOUT_SEC": "5400",
     "OUROBOROS_MEMORY_DISTILL": "false",
     "OUROBOROS_TOOL_CONFIRMATION_ENABLED": "false",
     "OUROBOROS_MODEL": "cloudru::deepseek-v4.1-flash",
@@ -16,7 +16,7 @@
   },
   "lists": {
     "OUROBOROS_ENABLED_TOOLS": [
-      "aifa-engine.aifa_goal",
+      "aifa-engine.aifa_open",
       "aifa-engine.aifa_wait",
       "aifa-engine.aifa_state",
       "aifa-engine.aifa_doc",
@@ -65,6 +65,7 @@
     "OUROBOROS_USER_ENABLED_SKILL_IDS": [
       "distribution:workstation",
       "distribution:aifa-planning",
+      "distribution:aifa-plan-author",
       "distribution:aifa-engine",
       "distribution:aifa-atom-author"
     ],

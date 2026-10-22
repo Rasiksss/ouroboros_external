@@ -20,6 +20,7 @@ from new_core.tools.interfaces import ToolResult
 from ouroboros.storage.runtime_backend import STORE_FAILURES, ExecutionClaimUnavailable
 from ouroboros.storage.runtime_persistence import runtime_persistence
 from ouroboros.tools.catalog import spec_for_tool
+from ouroboros.tools.service.task_planning import finish_plan_execution, prepare_plan_execution
 
 if TYPE_CHECKING:
     from new_core.tools.context import ToolContext
@@ -148,7 +149,24 @@ async def execute_tool(
 
     if await _dispatch_blocked(ctx, task_id):
         return "⚠️ TOOL_TASK_ATTEMPT_INACTIVE"
-    result = await catalog.aexecute(ctx, name, args)
+    binding = args.pop("_plan", None)
+    call_ctx = ctx
+    try:
+        if (descriptor.schema.plan_executor or descriptor.schema.plan_closer) and ctx.task_id and not ctx.task_depth:
+            call_ctx = await asyncio.to_thread(prepare_plan_execution, ctx, descriptor, binding)
+    except ValueError as exc:
+        return f"⚠️ PLAN_EXECUTION_REFUSED: {exc}"
+    try:
+        result = await catalog.aexecute(call_ctx, name, args)
+    except asyncio.CancelledError:
+        raise
+    except Exception as exc:
+        if call_ctx.plan_call_id and not ctx.stop_requested():
+            await asyncio.to_thread(finish_plan_execution, call_ctx, type(exc).__name__, failed=True)
+        raise
+    result_text = result.text if isinstance(result, ToolResult) else str(result)
+    if call_ctx.plan_call_id:
+        await asyncio.to_thread(finish_plan_execution, call_ctx, result_text)
     if isinstance(result, ToolResult):
         return replace(result, text=f"{safety_msg}\n\n---\n{result.text}") if safety_msg else result
     result_str = result if isinstance(result, str) else str(result)

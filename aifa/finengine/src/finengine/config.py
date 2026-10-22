@@ -69,17 +69,14 @@ class Settings(BaseSettings):
     aifa_engine_token: str = Field(default="", validation_alias="AIFA_ENGINE_TOKEN")
     # Предел ответа инструмента в знаках (§3.0); длинное отдаётся частями.
     ouroboros_result_limit: int = 12_000
-    # Сколько `aifa_goal` держит один HTTP-вызов до ответа `ЖДИ job=<id>` (§3.1, P61): весь срок инструмента
+    # Сколько `aifa_open` держит один HTTP-вызов до ответа `ЖДИ job=<id>` (§3.1, P61): весь срок инструмента
     # держит служба, плагин ждёт один запрос и между опросами проверяет остановку (ADR-0022 п. 3).
     ouroboros_goal_wait_sec: float = 240.0
     # Как часто задание сверяется с ходом: ход закончен или отменён — задание снимается (§3.1, C3.4).
     ouroboros_run_watch_sec: float = 1.0
     # Срок подзадачи от первого `aifa_wait(task_id)` по ней (ADR-0043 п. 3); не дольше остатка времени цикла.
     ouroboros_subtask_wait_sec: float = 600.0
-    # ВРЕМЕННО (ADR-0029, PRINCIPLES А.7), удаляется в шаге 19: кто ведёт цикл при сбое стандартного пути.
-    # `ouroboros` (с шага 14) — `aifa_goal` отвечает `НУЖЕН_ЦИКЛ`, а ходы приходят вызовами `aifa_move`/`aifa_finish`;
-    # `engine` — откат: служба гонит `DynamicRun` (как с шага 09). Окружение: FINENGINE_LOOP_DRIVER.
-    loop_driver: Literal["engine", "ouroboros"] = "ouroboros"
+    ouroboros_loop_max_wall_sec: float = Field(default=1200.0, gt=0)
 
     # OpenRouter settings (legacy fallback / non-chat call sites still
     # using openrouter directly: extract per-metric, AIFA reranker, etc.)

@@ -732,7 +732,7 @@ async def subscribe_versioned(
             message = str(event.get("message") or event.get("error") or "")
             completion_status = "cancelled" if "cancel" in message.lower() else "failed"
         elif event_type == "done" and event.get("status"):
-            # Ход через ouroboros закрывает себя сам (шаг 10, P62): отказ конвейера внутри `aifa_goal`
+            # Ход через ouroboros закрывает себя сам (шаг 10, P62): отказ конвейера внутри инструмента
             # не делает ход проваленным, если пользователь получил ответ.
             completion_status = str(event["status"])
         done_seen = done_seen or event_type == "done"

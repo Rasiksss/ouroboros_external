@@ -1,9 +1,4 @@
-"""Приёмка временного атома: единственное место, где проверяют и регистрируют его (ADR-0041 п. 4, ADR-0043 п. 6).
-
-Код атома сдаёт подзадача ouroboros (`aifa_register_atom`, ADR-0054): `check_code` — контракт (`check_request`), один
-прогон в комнате на входах `Case`, результат по `output_schema`, файлы из `out/`. Попытки (отчёты и сдачи) нумеруются
-одним счётчиком на пару (ход цикла, имя), поэтому номера на экране не сталкиваются (ADR-0044 п. 1).
-"""
+"""Приёмка временного атома: единственное место, где проверяют и регистрируют его (ADR-0041 п. 4, ADR-0043 п. 6)."""
 from __future__ import annotations
 
 import threading
@@ -11,10 +6,12 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Protocol
 
+from pydantic import BaseModel
+
 from finengine.skills.result_events import author_attempt_event
 from finengine.skills.spec import sealed_room
 from finengine.skills.spec.atom_registry import AtomRegistry
-from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom, check_request, schema_problem
+from finengine.skills.spec.ephemeral import AtomRequest, EphemeralAtom, check_request, group_inputs, schema_problem
 from finengine.skills.spec.room_files import FileSpec, expected_files_problem, files_problem
 
 # Неудачных регистраций одного имени за ход цикла (ADR-0043 п. 6): как три попытки автора на запись.
@@ -27,10 +24,10 @@ CODE_BY_SUBTASK = (
     "(schedule_task), она сдаст код aifa_register_atom; входы атома должны уже лежать в артефактах"
 )
 
-# Отказ без входов видят двое: подзадача заканчивает итогом, планировщик получает входы (ADR-0054 п. 4).
+# Отказ без входов: нужный тип в Case есть — автор правит `requires`; нет — входы получает планировщик (ADR-0060 п. 3).
 _GET_INPUTS = (
-    ". Подзадача: закончи работу итогом (aifa_report done) и назови, каких входов не хватает. "
-    "Планировщик: получи входы ходом aifa_move и поручи атом заново"
+    ". Нужный тип в Case есть — поправь requires и сдай снова; нет — закончи работу итогом (aifa_report done) "
+    "и назови, каких входов не хватает: их получит планировщик ходом aifa_move и поручит атом заново"
 )
 
 # Правило атома, из-за которого ход не исполнялся, — по тексту отказа; коды — закрытый список §3.0.
@@ -50,7 +47,11 @@ class CodeVerdict:
 
     error: str | None = None
     station_fault: bool = False
-    output: dict | None = None            # результат прогона — для краткого ответа сдавшему
+    run: sealed_room.CodeRun | None = None    # прогон, по которому вынесен вердикт: годный — это исполнение атома
+
+    @property
+    def output(self) -> dict | None:
+        return None if self.run is None else self.run.output
 
 
 def check_code(
@@ -65,7 +66,7 @@ def check_code(
         result.error or schema_problem(result.output, request.output_schema) or files_problem(result.files)
         or expected_files_problem(result.files, expected_files)
     )
-    return CodeVerdict(error, output=result.output)
+    return CodeVerdict(error, run=result)
 
 
 class AttemptLog:
@@ -106,8 +107,15 @@ class AttemptLog:
 
 @dataclass(frozen=True)
 class Registered:
+    """Атом принят. `run` и `inputs` — его проверочный прогон и входы из `Case`: результат атома, не черновик."""
+
     atom: EphemeralAtom
-    output: dict | None = None
+    run: sealed_room.CodeRun | None = None
+    inputs: tuple[BaseModel, ...] = ()
+
+    @property
+    def output(self) -> dict | None:
+        return None if self.run is None else self.run.output
 
 
 @dataclass(frozen=True)
@@ -146,6 +154,8 @@ class AtomHost(Protocol):
     @property
     def last_started_move(self) -> int: ...
 
+    def inputs_in_case(self, request: AtomRequest) -> str: ...
+
 
 def inputs_missing(request: AtomRequest) -> str:
     needs = ", ".join(f"{spec.input_type}:{spec.concept or '*'}" for spec in request.requires)
@@ -179,7 +189,7 @@ class AtomIntake:
         return number
 
     def submit(
-        self, request: AtomRequest, code: str, real_inputs: Callable[[], dict | None],
+        self, request: AtomRequest, code: str, real_inputs: Callable[[], tuple[BaseModel, ...] | None],
     ) -> Registered | Refused | StationDown:
         """Сдача атома с кодом: контракт, пределы, один прогон в комнате, регистрация."""
         refused = self.admission(request)
@@ -192,11 +202,13 @@ class AtomIntake:
                 f"{REGISTRATION_FAILURES} неудачных регистрации {request.name} за этот ход цикла: сообщи итог "
                 "планировщику, на следующем ходе цикла счёт заново",
             )
-        inputs = real_inputs()
-        if inputs is None:
-            return Refused("нет_входов", inputs_missing(request) + _GET_INPUTS)
+        values = real_inputs()
+        if values is None:
+            found = self._host.inputs_in_case(request)
+            return Refused("нет_входов", f"{inputs_missing(request)}; в Case: {found}{_GET_INPUTS}")
         verdict = check_code(
-            request, code, inputs, expected_files=self._host.expected_files, trace_id=self._host.trace_id,
+            request, code, group_inputs(values), expected_files=self._host.expected_files,
+            trace_id=self._host.trace_id,
         )
         if verdict.station_fault:
             self.report(request.name, "station_fault", verdict.error, code, move=move)
@@ -208,7 +220,7 @@ class AtomIntake:
         self.report(request.name, "ok", None, code, move=move)
         atom = EphemeralAtom(request=request, code=code)
         self.register(atom)
-        return Registered(atom, verdict.output)
+        return Registered(atom, verdict.run, values)
 
     def register(self, atom: EphemeralAtom) -> None:
         """Атом принят: он в цикле, его исходник в `Case`, а тупики его шагов сняты — это уже другой атом."""

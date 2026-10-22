@@ -184,7 +184,7 @@
       "reply": {
         "tool_calls": [
           {
-            "name": "ext_13_r_aifa-engine_aifa_goal",
+            "name": "ext_13_r_aifa-engine_aifa_open",
             "arguments": {}
           }
         ]
@@ -196,7 +196,7 @@
         "model": "stub-main",
         "user_contains": "Нужен атом",
         "round": 2,
-        "last_tool_result_starts_with": "НУЖЕН_ЦИКЛ"
+        "last_tool_result_starts_with": "ГОТОВО"
       },
       "reply": {
         "tool_calls": [
@@ -205,8 +205,15 @@
             "arguments": {
               "objective": "получить выручку за 2024 год",
               "reason": "она нужна атому",
-              "scenarios": [
-                "Извлеки выручку за 2024 год"
+              "goals": [
+                {
+                  "ref": "revenue",
+                  "scenario": "extract_registered_metric",
+                  "concepts": [
+                    "SALES_REVENUE"
+                  ],
+                  "period": "p-2024-fy"
+                }
               ]
             }
           }

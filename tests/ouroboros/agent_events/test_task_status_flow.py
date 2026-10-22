@@ -7,6 +7,7 @@ import pytest
 
 from new_core.coordination.inprocess import NullWorkSignal
 from new_core.identity import OwnerScope
+from new_core.tools.interfaces import NullToolEvents
 from ouroboros.agent_events.interfaces import (
     SubtaskRequested,
     TaskCancellationRequested,
@@ -117,6 +118,8 @@ def _task_ctx(tmp_path, **overrides):
     data = {
         "task_depth": 0,
         "pending_events": [],
+        "plan_call_id": "",
+        "events": NullToolEvents(),
         "drive_root": tmp_path,
         "task_id": "parent1",
         "root_task_id": "root1",
@@ -133,6 +136,7 @@ def test_schedule_task_creates_requested_status_file(tmp_path):
     ctx = SimpleNamespace(
         task_depth=0,
         pending_events=[],
+        plan_call_id="",
         drive_root=tmp_path,
         scope=OwnerScope(owner_id="global", agent_id="main", surface_id="dialogs", chat_id="42"),
     )
@@ -197,7 +201,7 @@ def test_schedule_task_hands_the_request_to_the_supervisor_before_the_run_ends(t
 def test_schedule_task_keeps_the_request_pending_when_nobody_can_take_it(tmp_path):
     from ouroboros.tools.service.orchestration import _schedule_task
 
-    ctx = _task_ctx(tmp_path)  # no `events`: the context of a run without a publisher
+    ctx = _task_ctx(tmp_path)
 
     _schedule_task(ctx, "Do the thing")
 

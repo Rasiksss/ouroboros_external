@@ -33,7 +33,7 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClie
 
 
 def test_the_app_serves_the_tools_behind_the_token(client: TestClient) -> None:
-    path = "/internal/ouro/v1/aifa_goal"
+    path = "/internal/ouro/v1/aifa_open"
     body = {"ctx": ctx_of("no-such-run"), "args": {}}
 
     bare = client.post(path, json=body)

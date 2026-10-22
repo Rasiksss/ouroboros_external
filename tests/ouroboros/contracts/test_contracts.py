@@ -46,6 +46,7 @@ from ouroboros.contracts import (
 )
 from ouroboros.contracts.attachments import ATTACHMENTS_ADAPTER
 from ouroboros.contracts.skill_payload_policy import canonical_declared_script_rel
+from ouroboros.contracts.task_plan import ExecutionBinding
 from tests.helpers.files import stored_file
 from tests.helpers.parametrize import parametrize_from_dict
 from tests.helpers.shared import make_tool_ctx, make_tool_env
@@ -1170,3 +1171,21 @@ def test_only_a_leading_slash_reserves_a_message_for_the_owner() -> None:
 
     assert is_slash_command("/clean") is True
     assert is_slash_command("очисти чат") is False
+
+
+def test_task_plan_contract_keeps_user_requirements_separate_from_assumptions() -> None:
+    from ouroboros.contracts.task_plan import PlanProposal
+
+    schema = PlanProposal.model_json_schema()
+    assert {"requirements", "assumptions", "questions", "steps", "base_revision"} <= schema["properties"].keys()
+    assert "source" in schema["$defs"]["Requirement"]["required"]
+    assert "reason" in schema["$defs"]["Assumption"]["required"]
+    assert "verification_method" in schema["$defs"]["Criterion"]["required"]
+
+
+def test_execution_binding_cannot_supply_an_owner_or_a_boolean_revision():
+    base = {"revision": 1, "step_id": "S1", "attempt_id": "attempt-1"}
+    with pytest.raises(ValidationError):
+        ExecutionBinding.model_validate({**base, "owner_id": "other"})
+    with pytest.raises(ValidationError):
+        ExecutionBinding.model_validate({**base, "revision": True})

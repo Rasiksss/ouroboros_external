@@ -51,7 +51,7 @@ cp infra.env.example .env          # compose читает его сам
 контейнера `s3` и у обоих продуктов); секрет Workstation — в `.env` и в `ouroboros.env`; `AIFA_ENGINE_TOKEN` —
 одно значение в `ouroboros.env` и `engine.env` (пустой секрет закрывает внутренний API службы целиком, ADR-0028).
 `OUROBOROS_USER_ENABLED_SKILL_IDS` в `ouroboros.env` на dev обновляется при выкатке шага 12: без допуска
-`aifa-planning` и `aifa-engine` корень не прочитает навык, а `aifa_goal` отвечает `TOOL_UNAVAILABLE` (ADR-0047); без допуска
+`aifa-planning` и `aifa-engine` корень не прочитает навык, а `aifa_open` отвечает `TOOL_UNAVAILABLE` (ADR-0047); без допуска
 `aifa-atom-author` подзадача не прочитает навык автора и код нового атома писать будет некому (шаг 17, ADR-0054).
 
 ## Проверка и сборка

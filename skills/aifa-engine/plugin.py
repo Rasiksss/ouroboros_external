@@ -19,6 +19,7 @@ URL_ENV = "AIFA_ENGINE_URL"
 TOKEN_ENV = "AIFA_ENGINE_TOKEN"
 # ADR-0047 п. 4: служба держит вызов до 240 с; предел инструмента и запроса — с запасом над ним.
 TIMEOUT_SEC = 300
+EXECUTION_TIMEOUT_SEC = 5400
 RESULT_LIMIT = 12_000
 STOP_POLL_SEC = 1.0
 
@@ -33,10 +34,9 @@ class Tool:
 
 TOOLS = (
     Tool(
-        name="aifa_goal",
+        name="aifa_open",
         description=(
-            "Выполнить цель пользователя стандартным путём службы: разобрать сообщение, посчитать "
-            "показатели по отчёту и вернуть таблицу результатов. Аргументов нет."
+            "Открыть цикл по отчёту хода и получить состояние: профиль, показатели, атомы и артефакты. Аргументов нет."
         ),
         schema={"type": "object", "properties": {}},
         capability_class="mutative",
@@ -60,10 +60,22 @@ TOOLS = (
     ),
     Tool(
         name="aifa_state",
-        description="Состояние цикла; с artifact_ids — полное содержимое этих артефактов Case.",
+        description="Состояние цикла. artifact_index — страницы id с фильтром output_type; artifact_ids — содержимое; view=compact — значения и формулы без полной трассы.",
         schema={
             "type": "object",
-            "properties": {"artifact_ids": {"type": "array", "items": {"type": "string"}, "maxItems": 20}},
+            "properties": {
+                "artifact_ids": {"type": "array", "items": {"type": "string"}, "maxItems": 20},
+                "view": {"type": "string", "enum": ["full", "compact"]},
+                "artifact_index": {
+                    "type": "object",
+                    "properties": {
+                        "output_type": {"type": "string"},
+                        "offset": {"type": "integer", "minimum": 0},
+                        "limit": {"type": "integer", "minimum": 1, "maximum": 20},
+                    },
+                    "additionalProperties": False,
+                },
+            },
         },
         capability_class="read_only",
     ),
@@ -78,7 +90,7 @@ TOOLS = (
     ),
     Tool(
         name="aifa_move",
-        description="Один ход цикла: сценарии, части цели и шаги атомов; атомы-загрузки — в new_atoms.",
+        description="Ход корня: сценарии службы по коду в goals, шаги атомов в steps; атомы-загрузки — в new_atoms.",
         schema={
             "type": "object",
             "properties": {
@@ -97,8 +109,41 @@ TOOLS = (
                         "required": ["kind"],
                     },
                 },
-                "goals": {"type": "array", "items": {"type": "string"}},
-                "scenarios": {"type": "array", "items": {"type": "string"}},
+                "goals": {
+                    "type": "array",
+                    "items": {
+                        "anyOf": [
+                            {"type": "string"},
+                            {
+                                "type": "object",
+                                "additionalProperties": False,
+                                "properties": {
+                                    "ref": {"type": "string"},
+                                    "scenario": {
+                                        "type": "string",
+                                        "enum": [
+                                            "extract_registered_metric",
+                                            "extract_ad_hoc_metric",
+                                            "calculate_registered_metric",
+                                            "calculate_ad_hoc_metric",
+                                            "form",
+                                            "full_analysis",
+                                            "monitor_changes",
+                                            "explain_change",
+                                        ],
+                                    },
+                                    "concepts": {"type": "array", "items": {"type": "string"}},
+                                    "period": {"type": "string"},
+                                    "role": {"type": "string"},
+                                    "depends_on": {"type": "array", "items": {"type": "string"}},
+                                    "metric": {"type": "object"},
+                                    "formula": {"type": "object"},
+                                },
+                                "required": ["ref", "scenario"],
+                            },
+                        ],
+                    },
+                },
                 "steps": {
                     "type": "array",
                     "items": {
@@ -186,6 +231,7 @@ TOOLS = (
         description="Закрыть цикл: finalize или give_up, опубликовать файлы; только корень.",
         schema={
             "type": "object",
+            "x-task-plan-operation": "close",
             "properties": {
                 "action": {"type": "string", "enum": ["finalize", "give_up"]},
                 "deliverables": {"type": "array", "items": {"type": "string"}},
@@ -246,11 +292,29 @@ class EngineCall:
         body = {"ctx": context_of(ctx), "args": args}
         try:
             async with httpx.AsyncClient(transport=self.transport, timeout=TIMEOUT_SEC) as client:
-                request = asyncio.ensure_future(
-                    client.post(f"{url.rstrip('/')}/internal/ouro/v1/{self.tool}", json=body, headers=headers)
-                )
-                return await self._until_answered_or_stopped(request, ctx)
+                tool = self.tool
+                while True:
+                    request = asyncio.ensure_future(
+                        client.post(f"{url.rstrip('/')}/internal/ouro/v1/{tool}", json=body, headers=headers)
+                    )
+                    text = await self._until_answered_or_stopped(request, ctx)
+                    headline = text.split("\n", 1)[0]
+                    if (
+                        tool == "aifa_wait"
+                        and getattr(ctx, "plan_call_id", "")
+                        and headline.startswith(("ОТКАЗ", "СБОЙ_СЛУЖБЫ"))
+                    ):
+                        raise asyncio.CancelledError("background execution outcome is unavailable")
+                    if not getattr(ctx, "plan_call_id", "") or not headline.startswith("ЖДИ job="):
+                        return text
+                    job_id = headline.removeprefix("ЖДИ job=").strip()
+                    if not job_id:
+                        raise asyncio.CancelledError("background execution identity is unavailable")
+                    tool = "aifa_wait"
+                    body = {"ctx": context_of(ctx), "args": {"job_id": job_id, "wait_sec": 240}}
         except httpx.HTTPError as failure:
+            if getattr(ctx, "plan_call_id", ""):
+                raise asyncio.CancelledError("execution outcome could not be confirmed") from failure
             return service_fault(f"служба не ответила ({type(failure).__name__})")
 
     async def _until_answered_or_stopped(self, request: asyncio.Future[httpx.Response], ctx: Any) -> str:
@@ -258,9 +322,14 @@ class EngineCall:
         try:
             while not request.done():
                 if ctx.stop_requested():
+                    if getattr(ctx, "plan_call_id", ""):
+                        raise asyncio.CancelledError("execution wait stopped; body outcome is unconfirmed")
                     return service_fault("вызов остановлен вместе с ходом")
                 await asyncio.wait({request}, timeout=self.stop_poll_sec)
-            return request.result().text
+            response = request.result()
+            if getattr(ctx, "plan_call_id", ""):
+                response.raise_for_status()
+            return response.text
         finally:
             if not request.done():
                 request.cancel()
@@ -274,7 +343,7 @@ def register(api: Any) -> None:
             EngineCall(tool.name),
             description=tool.description,
             schema=tool.schema,
-            timeout_sec=TIMEOUT_SEC,
+            timeout_sec=EXECUTION_TIMEOUT_SEC if tool.name in {"aifa_move", "aifa_finish"} else TIMEOUT_SEC,
             result_limit=RESULT_LIMIT,
             safety_policy="skip",
             capability_class=tool.capability_class,

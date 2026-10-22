@@ -21,7 +21,6 @@ from tool_harness import (  # noqa: F401 — `coordination`: фикстура о
 from turn_harness import TurnRunner, gateway_of
 from websockets.asyncio.server import ServerConnection
 
-from finengine.assistant.goal_result import GoalResult
 from finengine.assistant.tool_api import ToolApi
 from finengine.assistant.turn_record import TurnRecord, remember
 from finengine.skills import run_orchestrator as ro
@@ -32,8 +31,8 @@ SUBTASK = "sub-1"
 
 
 class NoGoal:
-    async def __call__(self, record: TurnRecord, emit: object) -> GoalResult:  # pragma: no cover
-        raise AssertionError("в этих тестах цель не исполняется")
+    async def __call__(self, record: TurnRecord) -> object:  # pragma: no cover
+        raise AssertionError("в этих тестах цикл не открывается")
 
 
 class AnotherReplica:

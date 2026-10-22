@@ -19,6 +19,34 @@
 
 /** Подряд идущих автодогонов на один ход. Дальше решает человек кнопкой. */
 export const AUTO_RETRY_MAX = 10;
+export const STREAM_IDLE_MS = 10 * 60 * 1000;
+export const STREAM_LINK_MS = 120 * 1000;
+export const STREAM_STALLED_MS = 30 * 60 * 1000;
+
+export function createStreamWatchdog(callbacks: {
+  onLinkLost: (sawPing: boolean) => void;
+  onStalled: () => void;
+  onActivity: () => void;
+}) {
+  let sawPing = false;
+  let linkTimer: ReturnType<typeof setTimeout> | null = null;
+  let stalledTimer: ReturnType<typeof setTimeout> | null = null;
+  const armWatchdog = (kind?: "real" | "ping") => {
+    if (kind === "ping") sawPing = true;
+    if (kind !== undefined) callbacks.onActivity();
+    if (linkTimer) clearTimeout(linkTimer);
+    linkTimer = setTimeout(() => callbacks.onLinkLost(sawPing), sawPing ? STREAM_LINK_MS : STREAM_IDLE_MS);
+    if (kind !== "ping") {
+      if (stalledTimer) clearTimeout(stalledTimer);
+      stalledTimer = setTimeout(callbacks.onStalled, STREAM_STALLED_MS);
+    }
+  };
+  const disarm = () => {
+    if (linkTimer) clearTimeout(linkTimer);
+    if (stalledTimer) clearTimeout(stalledTimer);
+  };
+  return { armWatchdog, disarm };
+}
 
 export type ВердиктОбрыва = {
   /** Переподписываться самим? */
@@ -36,16 +64,15 @@ export type ВердиктОбрыва = {
  * события между попытками.
  */
 export function вердиктОбрыва(биениеБыло: boolean, догоновСделано: number): ВердиктОбрыва {
-  if (!биениеБыло) {
-    return {
-      догоняем: false,
-      текст: "Ответ завис (нет данных 5 мин) — прерываю, попробуйте ещё раз.",
-    };
-  }
   if (догоновСделано >= AUTO_RETRY_MAX) {
     return { догоняем: false, текст: "Связь не восстановилась. Нажмите «Догнать ответ»." };
   }
-  return { догоняем: true, текст: "Связь с сервером пропала — переподключаюсь." };
+  return {
+    догоняем: true,
+    текст: биениеБыло
+      ? "Связь с сервером пропала — переподключаюсь."
+      : "Поток не присылал данных 10 минут — переподключаюсь к тому же прогону.",
+  };
 }
 
 /**

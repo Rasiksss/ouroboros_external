@@ -388,11 +388,11 @@ def test_dev_config_matches_the_snapshot() -> None:
 
 
 def test_f9_catches_a_changed_required_value(tmp_path: Path) -> None:
-    """F9: нарушитель — таймаут задачи не 2700 с (ADR-0027)."""
+    """F9: нарушитель — таймаут задачи не 5400 с (ADR-0062)."""
     dev = _copy_dev(tmp_path)
     _edit(
         dev / "ouroboros.env.example",
-        "OUROBOROS_HARD_TIMEOUT_SEC=2700",
+        "OUROBOROS_HARD_TIMEOUT_SEC=5400",
         "OUROBOROS_HARD_TIMEOUT_SEC=1800",
     )
     problems = dev_config_violations(dev, load_snapshot())
@@ -423,7 +423,7 @@ def test_f9_catches_a_missing_skill_admission(tmp_path: Path) -> None:
 def test_f9_catches_a_planning_skill_the_owner_cannot_read(tmp_path: Path) -> None:
     """F9: нарушитель — `aifa-planning` не допущен владельцам (ADR-0036, ADR-0047): в multiuser
     навык-инструкция
-    без допуска не виден задаче, и корень не прочитает порядок работы с `aifa_goal` (найдено
+    без допуска не виден задаче, и корень не прочитает порядок работы с `aifa_open` (найдено
     живым прогоном шага 10)."""
     dev = _copy_dev(tmp_path)
     _edit(dev / "ouroboros.env.example", "distribution:aifa-planning,", "")
@@ -445,7 +445,7 @@ def test_f9_catches_an_atom_author_skill_the_subtask_cannot_read(tmp_path: Path)
 def test_f9_catches_an_engine_extension_the_owner_cannot_call(tmp_path: Path) -> None:
     """F9: нарушитель — `aifa-engine` не допущен владельцам: доверенный список ADR-0038 делает его
     видимым
-    ядру, но задача без допуска получает `TOOL_UNAVAILABLE` на каждый вызов `aifa_goal`."""
+    ядру, но задача без допуска получает `TOOL_UNAVAILABLE` на каждый вызов `aifa_open`."""
     dev = _copy_dev(tmp_path)
     _edit(dev / "ouroboros.env.example", ",distribution:aifa-engine,", ",")
     problems = dev_config_violations(dev, load_snapshot())
@@ -648,3 +648,16 @@ def test_f9_allows_the_dev_stand_loopback_and_reserved_example_hosts(tmp_path: P
         encoding="utf-8",
     )
     assert golden_violations(tmp_path) == []
+
+
+def test_dev_execution_budgets_are_doubled_and_hard_timeouts_match():
+    engine = parse_env(DEV_DIR / "engine.env.example")
+    root = parse_env(DEV_DIR / "ouroboros.env.example")
+    expected = {
+        "FINENGINE_OUROBOROS_LOOP_MAX_WALL_SEC": "2400",
+        "FINENGINE_OUROBOROS_SUBTASK_WAIT_SEC": "1200",
+        "FINENGINE_GRAPH_MIN_WALL_SECONDS": "1800",
+        "FINENGINE_OUROBOROS_HARD_TIMEOUT_SEC": "5400",
+    }
+    assert {key: engine.get(key) for key in expected} == expected
+    assert root["OUROBOROS_HARD_TIMEOUT_SEC"] == engine["FINENGINE_OUROBOROS_HARD_TIMEOUT_SEC"]

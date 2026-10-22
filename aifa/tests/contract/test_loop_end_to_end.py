@@ -1,4 +1,4 @@
-"""Сквозной тест шага 13: ouroboros (подставная модель) → `aifa_goal` `НУЖЕН_ЦИКЛ` → `aifa_doc` →
+"""Сквозной тест шага 13: ouroboros (подставная модель) → `aifa_open` `ГОТОВО` → `aifa_doc` →
 `aifa_move` → конвейер → журнал хода → `aifa_finish` → финал.
 
 Все звенья настоящие, кроме модели (подставной сервер) и границ конвейера (`pipeline_fixture.py`):
@@ -50,10 +50,9 @@ def engine(stand: ContractStand, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
         return json.dumps(next(replies, fixture.INTENT), ensure_ascii=False)
 
     async def planner_of_the_service(system: str, prompt: str) -> str:
-        raise AssertionError("модель-планировщик службы вызвана при loop_driver=ouroboros")
+        raise AssertionError("модель-планировщик службы вызвана в цикле агента")
 
     with running_engine(stand, tmp_path, monkeypatch) as base:
-        monkeypatch.setattr(settings, "loop_driver", "ouroboros")
         monkeypatch.setattr(settings, "data_dir", tmp_path)  # журнал завершений этого теста — свой
         monkeypatch.setattr("finengine.skills.atoms.intent._default_complete", parsed)
         monkeypatch.setattr(
@@ -83,8 +82,8 @@ async def test_ouroboros_leads_the_cycle_to_the_final_answer(
         if kind_of(e) in {"tool_call", "tool_output"}
     ]
     assert named == [
-        ("tool_call", "financial_pipeline"),
-        ("tool_output", "financial_pipeline"),
+        ("tool_call", "read_source"),
+        ("tool_output", "read_source"),
         ("tool_call", "read_source"),
         ("tool_output", "read_source"),
         ("tool_call", "financial_pipeline"),
@@ -112,7 +111,7 @@ async def test_the_model_got_the_state_the_document_and_the_new_artifacts_from_t
 
     asked = [e for e in stub.journal() if e["model"] == "stub-main"]
     results = {e["round"]: e["last_tool_result"] for e in asked}
-    assert results[3].startswith("НУЖЕН_ЦИКЛ\n")
+    assert results[3].startswith("ГОТОВО\n")
     assert "## Вопрос пользователя" in results[3]
     assert f"{fixture.DOC} | Северсталь | страниц:" in results[4]
     assert results[5].startswith("ГОТОВО\n## Итог хода 1") and "SALES_REVENUE" in results[5]

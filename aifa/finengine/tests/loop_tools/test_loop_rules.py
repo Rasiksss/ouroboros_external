@@ -198,11 +198,13 @@ async def _parts_cycle(base) -> tuple[Cycle, Goals]:
     cycle = await open_cycle(base)
     goals = Goals()
     cycle.session.goal, cycle.session.run_goals = TWO_PARTS, goals
+    cycle.session.clauses = {clause.goal_ref: clause for clause in TWO_PARTS.clauses()}
     return cycle, goals
 
 
 async def test_a_dependent_part_waits_for_the_part_it_depends_on(base) -> None:
-    """LR-26: часть с `depends_on` не идёт по ссылке, пока опора не получена или не названа в том же ходе."""
+    """LR-26: часть с `depends_on` не идёт по ссылке, пока опора не получена или не названа в том же ходе; части
+    хода идут в конвейер по одной, опора — раньше (ADR-0060 п. 2)."""
     move = {"objective": "корреляция", "reason": "нужна для ответа"}
     alone, alone_goals = await _parts_cycle(base)
     together, together_goals = await _parts_cycle(base)
@@ -212,7 +214,7 @@ async def test_a_dependent_part_waits_for_the_part_it_depends_on(base) -> None:
 
     assert code_of(refused) == "ГОТОВО" and "зависит от части goal-1" in refused
     assert alone_goals.given == [], "без опоры часть в конвейер не уходит"
-    assert code_of(accepted) == "ГОТОВО" and together_goals.given == [["goal-1", "goal-2"]]
+    assert code_of(accepted) == "ГОТОВО" and together_goals.given == [["goal-1"], ["goal-2"]]
     await alone.close()
     await together.close()
 
@@ -314,10 +316,10 @@ async def test_the_hints_of_the_cycle_lead_to_the_subtask_and_not_to_new_atoms(b
         assert "опиши атом с кодом в new_atoms" not in hint and "пришли его описание" not in hint, hint
     assert "подзадач" in no_file and "aifa_register_atom" in no_file
     assert "подзадач" in no_atom and "aifa_register_atom" in no_atom
-    assert "входов атома eph.probe" in no_inputs
-    assert "Подзадача: закончи работу итогом" in no_inputs and "aifa_report done" in no_inputs
-    assert "Планировщик: получи входы ходом aifa_move и поручи атом заново" in no_inputs
-    assert "сдай атом снова" not in no_inputs, "подзадача, послушавшись текста, повела бы ходы цикла корня"
+    assert "входов атома eph.probe" in no_inputs and "в Case: ExtractedMetric — концепты: EBITDA" in no_inputs
+    assert "поправь requires" in no_inputs, "нужный тип в Case есть — автор правит контракт сам (ADR-0060 п. 3)"
+    assert "закончи работу итогом (aifa_report done)" in no_inputs
+    assert "их получит планировщик ходом aifa_move" in no_inputs
     await cycle.close()
 
 
@@ -552,16 +554,15 @@ async def test_a_download_atom_is_described_in_new_atoms(base) -> None:
     await cycle.close()
 
 
-async def test_a_refusal_spends_a_move_of_the_cycle(base) -> None:
-    """LR-17: отказ тоже тратит ход цикла — как отклонённый ответ модели; поток отказов цикл не растягивает."""
+async def test_a_refusal_does_not_spend_a_move_but_three_in_a_row_stop_the_cycle(base) -> None:
+    """LR-17, ADR-0060 п. 5: отклонённый вызов хода не тратит; поток отказов цикл не растягивает — три подряд, `ЛИМИТ`."""
     cycle = await open_cycle(base, limits=RunLimits(max_moves=2))
     refused = _move(scenarios=("а", "б", "в", "г"))
 
-    first, second = await cycle.move(refused), await cycle.move(refused)
-    third = await cycle.move(refused)
+    replies = [await cycle.move(refused) for _ in range(4)]
 
-    assert [code_of(reply) for reply in (first, second, third)] == ["ОТКАЗ неверные_аргументы"] * 2 + ["ЛИМИТ"]
-    assert cycle.session.turns == 2
+    assert [code_of(reply) for reply in replies] == ["ОТКАЗ неверные_аргументы"] * 3 + ["ЛИМИТ"]
+    assert cycle.session.turns == 0 and cycle.session.rejected == 3
     await cycle.close()
 
 

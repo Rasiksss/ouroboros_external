@@ -80,6 +80,7 @@ class ToolContext:
     detached: bool = False
     execution_claim: str = ""
     tool_call_id: str = ""
+    plan_call_id: str = ""
     inherited_context_seed: str = ""
     committed_summary_snapshot: str = ""
     through_message_id: str = ""

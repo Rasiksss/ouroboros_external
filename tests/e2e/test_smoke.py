@@ -108,6 +108,7 @@ EXPECTED_TOOLS = [
     "list_available_tools",
     "enable_tools",
     "schedule_task",
+    "task_plan",
     "cancel_task",
     "get_task_result",
     "wait_for_task",

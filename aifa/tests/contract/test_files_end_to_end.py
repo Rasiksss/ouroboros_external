@@ -1,7 +1,7 @@
 """Сквозной тест шага 11: файлы и история на настоящем ouroboros.
 
 Загрузка через ручку службы → каталог ouroboros → распознавание → ход с этим документом
-(`aifa_goal`) → файл-результат в каталоге → выдача через ручку → история чата из ouroboros →
+(`aifa_open`) → файл-результат в каталоге → выдача через ручку → история чата из ouroboros →
 удаление документа в обоих местах.
 
 Настоящие: приложение службы (ручки по HTTP), её реестр документов (временный SQLite) и хранилище
@@ -87,8 +87,8 @@ async def wait_for_text(doc_id: str) -> str:
 async def answered_turn(
     engine: SimpleNamespace, stub: StubModelAdmin, doc_id: str, **extra: Any
 ) -> list[dict[str, Any]]:
-    """Ход с документом по сценарию `aifa_goal`: события экрана до `completed`."""
-    stub.use_scenario(SCENARIOS / "aifa_goal.json")
+    """Ход с документом по сценарию `aifa_open`: события экрана до `completed`."""
+    stub.use_scenario(SCENARIOS / "aifa_open.json")
     async with httpx.AsyncClient(timeout=30.0) as client:
         started = await client.post(
             f"{engine.base}/chat/turns",
@@ -137,11 +137,11 @@ async def test_a_document_goes_through_the_catalog_to_an_answer_a_result_file_an
     # 2. Распознавание читает оригинал через каталог, текст остаётся у службы.
     assert await wait_for_text(doc_id) == report.decode()
 
-    # 3. Ход с этим документом: настоящий ouroboros, `aifa_goal`, конвейер службы.
+    # 3. Ход с этим документом: настоящий ouroboros, `aifa_open`, конвейер службы.
     events = await answered_turn(engine, stub, doc_id)
     assert events[-1]["status"] == "succeeded"
     asked = [e for e in stub.journal() if e["model"] == "stub-main"]
-    assert "987654" in asked[-1]["last_tool_result"], (
+    assert any("987654" in entry["last_tool_result"] for entry in asked), (
         "числа ответа — из таблицы результатов конвейера"
     )
     assert any(

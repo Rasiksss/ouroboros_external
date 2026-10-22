@@ -2,6 +2,8 @@
 
 Одни записанные решения планировщика идут двумя путями: ответами модели в `DynamicRun` и аргументами вызовов
 `aifa_move`/`aifa_finish` через настоящий роут, очередь и `LoopSession`. Меняется одна переменная — ведущий.
+Фраза-сценарий есть только у ведущего-службы (агент называет части цели, ADR-0060 п. 2), поэтому входы атома
+кладутся в оба `Case` заранее, а сравниваются сдача атома, шаг с ним и завершение.
 """
 from __future__ import annotations
 
@@ -37,7 +39,6 @@ MARGIN_ID = EphemeralAtom(MARGIN, CALC_CODE).version
 
 def _decisions() -> list[str]:
     return [
-        _move(scenarios=("Извлеки EBITDA и выручку",)),
         _move(steps=({"atom": MARGIN.name},)),
         _finalize(MARGIN_ID),
     ]
@@ -61,19 +62,19 @@ async def test_recorded_decisions_give_the_same_outcome_and_events_through_the_t
         runtime=engine_runtime, owner_id=OWNER, case_id=CASE,
         goal=GoalIR(raw_query="сложный вопрос", intent_kind="document_qa"),
         target=Target(output_type="QuoteEvidence", entity_ref=ENTITY), inputs=RunInputs(),
-        run_scenario=ExtractScenario(engine_runtime, passport), complete_fn=Script(_decisions()),
-        run_passport=passport, event_sink=events.append,
+        complete_fn=Script(_decisions()), run_passport=passport, event_sink=events.append,
     )
-    delegate(engine, Visit(MARGIN, (CALC_CODE,), before=2))
+    ExtractScenario(engine_runtime, passport)("Извлеки EBITDA и выручку")
+    delegate(engine, Visit(MARGIN, (CALC_CODE,), before=1))
     expected = await asyncio.to_thread(engine.run, deterministic_error="нет пути")
 
-    cycle = await open_cycle(base, scenario=ExtractScenario(base, passport), passport=passport)
-    first, second, last = _decisions()
-    replies = [await cycle.move(first), await cycle.submit(MARGIN, CALC_CODE), await cycle.move(second)]
-    replies.append(await cycle.finish(last))
+    ExtractScenario(base, passport)("Извлеки EBITDA и выручку")
+    cycle = await open_cycle(base, passport=passport)
+    step, last = _decisions()
+    replies = [await cycle.submit(MARGIN, CALC_CODE), await cycle.move(step), await cycle.finish(last)]
 
     assert expected.status == "finalized"
-    assert [reply.split("\n", 1)[0] for reply in replies] == ["ГОТОВО", "ГОТОВО", "ГОТОВО", "ПРИНЯТО"]
+    assert [reply.split("\n", 1)[0] for reply in replies] == ["ГОТОВО", "ГОТОВО", "ПРИНЯТО"]
     assert cycle.session.closed and tuple(cycle.session.journal) == expected.journal
     assert normalized_events(_without_final_words(cycle.events)) == normalized_events(
         _without_final_words(events)

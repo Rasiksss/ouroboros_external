@@ -1,4 +1,4 @@
-"""Сквозной тест шага 10: `POST /chat/turns` → ouroboros → `aifa_goal` → конвейер на фикстурном
+"""Сквозной тест шага 10: `POST /chat/turns` → ouroboros → `aifa_open` → конвейер на фикстурном
 документе → SSE.
 
 Все звенья настоящие, кроме модели (подставной сервер) и границ конвейера (`pipeline_fixture.py`):
@@ -26,7 +26,7 @@ from stub_model.client import StubModelAdmin
 
 pytestmark = [pytest.mark.contract, pytest.mark.asyncio]
 
-GOAL_TOOL = "ext_13_r_aifa-engine_aifa_goal"
+GOAL_TOOL = "ext_13_r_aifa-engine_aifa_open"
 ANSWER = "Выручка за 2024 год — 987654 млн руб."
 READ_TIMEOUT_SEC = 120.0
 
@@ -76,23 +76,29 @@ async def test_a_question_about_the_report_is_answered_from_the_pipeline_results
 ) -> None:
     """Экран видит: сессия → вызов инструмента → граф конвейера → итог инструмента → ответ →
     конец."""
-    stub.use_scenario(SCENARIOS / "aifa_goal.json")
+    stub.use_scenario(SCENARIOS / "aifa_open.json")
 
     events = await screen_events(engine, await start_turn(engine))
 
     kinds = [kind_of(e) for e in events]
     assert kinds[0] == "session_id"
     assert kinds.index("tool_call") < kinds.index("plan_graph") < kinds.index("node_run")
-    assert kinds.index("node_run") < kinds.index("tool_output") < kinds.index("text_delta")
-    assert kinds[-3:] == ["text_delta", "text_segment_end", "completed"], kinds
-    assert any(k in {"result", "typed_result"} for k in kinds), (
-        "результат конвейера доехал до журнала"
+    assert (
+        kinds.index("node_run")
+        < max(i for i, k in enumerate(kinds) if k == "tool_output")
+        < kinds.index("text_delta")
     )
+    assert kinds[-3:] == ["text_delta", "text_segment_end", "completed"], kinds
     called = [e["legacy_event"] for e in events if kind_of(e) in {"tool_call", "tool_output"}]
     assert [(c["type"], c["name"]) for c in called] == [
+        ("tool_call", "read_source"),
+        ("tool_output", "read_source"),
+        ("tool_call", "financial_pipeline"),
+        ("tool_output", "financial_pipeline"),
         ("tool_call", "financial_pipeline"),
         ("tool_output", "financial_pipeline"),
     ]
+    assert all(event["ok"] for event in called if event["type"] == "tool_output")
     assert called[1]["ok"] is True
     answer = next(e["legacy_event"]["text"] for e in events if kind_of(e) == "text_delta")
     assert answer.startswith(ANSWER)
@@ -104,7 +110,7 @@ async def test_the_model_saw_the_planning_skill_and_the_table_of_results(
 ) -> None:
     """Модель получила навык `aifa-planning`, а таблицу результатов — из `tool_api` по сети: числа
     не её."""
-    stub.use_scenario(SCENARIOS / "aifa_goal.json")
+    stub.use_scenario(SCENARIOS / "aifa_open.json")
 
     await screen_events(engine, await start_turn(engine))
 
@@ -112,26 +118,28 @@ async def test_the_model_saw_the_planning_skill_and_the_table_of_results(
     assert [(e["round"], e["rule"]) for e in asked] == [
         (1, "read-the-planning-skill"),
         (2, "goal-first"),
-        (3, "answer-by-the-table"),
+        (3, "execute-revenue"),
+        (4, "finish"),
+        (5, "answer-by-the-table"),
     ]
     assert stub.unmatched() == []
-    table = asked[2]["last_tool_result"]
+    table = asked[3]["last_tool_result"]
     assert table.startswith("ГОТОВО\n") and "SALES_REVENUE" in table and "987654" in table
     # Тело навыка ouroboros держит в защищённом разделе системного сообщения, а не в ответе
     # `skill_read`.
     second_round = json.dumps(asked[1]["messages"], ensure_ascii=False)
     assert "Правила корневой задачи" in second_round, "корень прочитал навык до вызова инструмента"
     assert GOAL_TOOL in asked[0]["tools"], (
-        "инструмент `aifa_goal` в первом запросе (F4 на живом ouroboros)"
+        "инструмент `aifa_open` в первом запросе (F4 на живом ouroboros)"
     )
     # В `OUROBOROS_ENABLED_TOOLS` восемь имён, зарегистрированы все восемь (шаги 10, 13 и 16).
     assert sorted(t for t in asked[0]["tools"] if "aifa-engine" in t) == [
-        GOAL_TOOL.replace("aifa_goal", name)
+        GOAL_TOOL.replace("aifa_open", name)
         for name in (
             "aifa_doc",
             "aifa_finish",
-            "aifa_goal",
             "aifa_move",
+            "aifa_open",
             "aifa_register_atom",
             "aifa_report",
             "aifa_state",
@@ -145,7 +153,7 @@ async def test_the_catalog_of_the_root_names_the_planning_skill_with_its_subtask
 ) -> None:
     """ADR-0043 п. 2: описание в каталоге навыков дочитывается до признака «Навык: <id>.» (предел
     260 знаков)."""
-    stub.use_scenario(SCENARIOS / "aifa_goal.json")
+    stub.use_scenario(SCENARIOS / "aifa_open.json")
 
     await screen_events(engine, await start_turn(engine))
 

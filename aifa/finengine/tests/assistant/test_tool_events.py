@@ -17,13 +17,14 @@ from tool_harness import (  # noqa: F401 — `coordination`: фикстура о
 )
 
 from finengine.assistant import tool_names
-from finengine.assistant.goal_result import GoalResult, Verdict
+from finengine.assistant.loop_opening import NoDocument
 from finengine.assistant.tool_api import ToolApi
 from finengine.assistant.turn_record import TurnRecord
 
 pytestmark = pytest.mark.usefixtures("coordination")
 
 CONTRACT_NAMES = Path(__file__).resolve().parents[3] / "contracts" / "tool_names.json"
+DONE = {"label": "итог", "status": "done", "note": "атом сдан"}
 
 
 class Gateway:
@@ -31,66 +32,47 @@ class Gateway:
         return True
 
 
-class Pipeline:
-    """Цель, которая пишет в журнал хода событие конвейера и отвечает заданным исходом."""
+class NoReport:
+    """Открытие цикла, которому не по чему открыться: исход `aifa_open` — отказ «нет документа»."""
 
-    def __init__(self, result: GoalResult) -> None:
-        self.result = result
-
-    async def __call__(self, record: TurnRecord, emit) -> GoalResult:
-        emit({"type": "plan_graph", "planner_version": "test"})
-        return self.result
+    async def __call__(self, record: TurnRecord) -> NoDocument:
+        return NoDocument("Текст отчёта не готов.")
 
 
 def types_of(events: list[dict]) -> list[str]:
     return [str(e["type"]) for e in events]
 
 
-async def goal_events(result: GoalResult) -> tuple[list[dict], str]:
-    plugin = Plugin(ToolApi(Gateway(), Pipeline(result)))
+async def events_of(tool: str, args: dict | None = None, **ctx) -> tuple[list[dict], str]:
+    plugin = Plugin(ToolApi(Gateway(), NoReport()))
     run = open_run()
-    reply = await plugin.call("aifa_goal", ctx_of(run.run_id))
+    reply = await plugin.call(tool, ctx_of(run.run_id, **ctx), args)
     await run.end()
     await plugin.close()
     return await run.events(), reply.text
 
 
-async def test_a_tool_call_wraps_the_events_of_the_pipeline_in_the_journal_of_the_turn() -> None:
-    """Порядок экрана: `tool_call` → события конвейера → `tool_output` (плюс служебное)."""
-    events, _ = await goal_events(GoalResult(Verdict.ANSWERED, "Готово."))
-
-    types = types_of(events)
-    assert types.index("tool_call") < types.index("plan_graph") < types.index("tool_output")
-
-
 async def test_the_screen_gets_the_familiar_name_of_the_tool_not_the_name_ouroboros_knows() -> None:
-    events, _ = await goal_events(GoalResult(Verdict.ANSWERED, "Готово."))
+    events, _ = await events_of("aifa_open")
 
     named = [(e["type"], e["name"]) for e in events if e["type"] in {"tool_call", "tool_output"}]
-    assert named == [("tool_call", "financial_pipeline"), ("tool_output", "financial_pipeline")]
+    assert named == [("tool_call", "read_source"), ("tool_output", "read_source")]
 
 
 async def test_a_ready_result_is_a_successful_tool_output_and_a_refusal_is_not() -> None:
-    ready, _ = await goal_events(GoalResult(Verdict.ANSWERED, "Готово."))
-    refused, text = await goal_events(GoalResult(Verdict.NO_DOCUMENT, "Текст отчёта не готов."))
+    ready, _ = await events_of("aifa_report", DONE, task_id="sub-1", root_task_id="root-task", task_depth=1)
+    refused, text = await events_of("aifa_open")
 
     assert text.startswith("ОТКАЗ нет_документа")
     assert [e["ok"] for e in ready if e["type"] == "tool_output"] == [True]
     assert [e["ok"] for e in refused if e["type"] == "tool_output"] == [False]
 
 
-async def test_a_question_to_the_user_is_not_a_failed_tool() -> None:
-    events, text = await goal_events(GoalResult(Verdict.CLARIFY, "Какой период?"))
-
-    assert text.startswith("УТОЧНИ")
-    assert [e["ok"] for e in events if e["type"] == "tool_output"] == [True]
-
-
 async def test_every_call_of_a_turn_is_its_own_pair_so_the_screen_counts_them() -> None:
-    plugin = Plugin(ToolApi(Gateway(), Pipeline(GoalResult(Verdict.ANSWERED, "Готово."))))
+    plugin = Plugin(ToolApi(Gateway(), NoReport()))
     run = open_run()
 
-    await plugin.call("aifa_goal", ctx_of(run.run_id))
+    await plugin.call("aifa_open", ctx_of(run.run_id))
     await plugin.call("aifa_wait", ctx_of(run.run_id), {"job_id": "unknown", "wait_sec": 10})
     await run.end()
     await plugin.close()
@@ -100,11 +82,11 @@ async def test_every_call_of_a_turn_is_its_own_pair_so_the_screen_counts_them() 
 
 
 async def test_a_call_that_is_not_of_this_turn_writes_nothing_into_any_journal() -> None:
-    plugin = Plugin(ToolApi(Gateway(), Pipeline(GoalResult(Verdict.ANSWERED, "Готово."))))
+    plugin = Plugin(ToolApi(Gateway(), NoReport()))
     run = open_run()
     bystander = open_run()
 
-    reply = await plugin.call("aifa_goal", ctx_of(run.run_id, owner_id="999"))
+    reply = await plugin.call("aifa_open", ctx_of(run.run_id, owner_id="999"))
     await run.end()
     await bystander.end()
     await plugin.close()
@@ -120,6 +102,6 @@ def test_the_screen_names_in_the_service_are_the_contract_file() -> None:
 
 
 def test_every_tool_the_service_serves_has_a_screen_name() -> None:
-    api = ToolApi(Gateway(), Pipeline(GoalResult(Verdict.ANSWERED)))
+    api = ToolApi(Gateway(), NoReport())
 
     assert set(api.tool_names()) <= set(tool_names.SCREEN_NAMES)

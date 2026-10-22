@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { notify, reportClientEvent } from "@/lib/notices";
-import { AUTO_RETRY_MAX, вердиктОбрыва, можноПодписаться } from "@/lib/link-watchdog";
+import { AUTO_RETRY_MAX, STREAM_IDLE_MS, STREAM_LINK_MS, createStreamWatchdog, вердиктОбрыва, можноПодписаться } from "@/lib/link-watchdog";
 import { docNameOf } from "@/lib/doc-names";
 import { syncDialogsDebounced } from "@/lib/dialog-sync";
 import { useAuth } from "@/components/auth-context";
@@ -59,13 +59,6 @@ import {
  * (/dialogs) НЕ зеркалим осознанно — /v2 не подтягивает серверную копию при
  * загрузке, и слепой PUT затёр бы историю, пришедшую с другого устройства.
  */
-
-/** Ход завис, если событий нет 5 минут — рвём подписку, чтобы «Стоп» не висел вечно. */
-const IDLE_MS = 5 * 60 * 1000;
-/** Тишина связи: 60 с — четыре пропущенных биения подряд (биение раз в 15 с). */
-const LINK_MS = 60 * 1000;
-/** Тишина работы: 15 мин — больше самого длинного законного молчания (14,4 мин). */
-const STALLED_MS = 15 * 60 * 1000;
 
 export type ChatRun = {
   /** Живая копия проекта — сюда стримятся дельты хода. Рисовать надо ЕЁ. */
@@ -769,55 +762,12 @@ export function useChatRun(
     [patch, followBgRun, chaseLateAnswer],
   );
 
-  // ── Сторож живого потока: ОДИН на оба пути подписки ─────────────────────
-  //
-  // ДВА таймера, а не один, и это не усложнение ради усложнения. Одноуровневый
-  // сторож после появления кадра-биения стал бы бесполезен: он взводился бы на
-  // ЛЮБОМ пришедшем событии, а биение приходит каждые 15 с всегда — значит
-  // «нет данных 5 минут» не наступило бы уже никогда, и зависший ход показывал
-  // бы вечное «Думаю…». Биение отвечает за СВЯЗЬ, судить по нему о РАБОТЕ
-  // нельзя. Поэтому: биение продлевает сторож связи, настоящие события —
-  // сторож работы.
-  //
-  // LINK_MS = 60 с — четыре пропущенных биения подряд. Меньше нельзя (одиночная
-  // потеря кадра не должна рвать ход), больше незачем. ⚠️ Короткий срок
-  // включается ТОЛЬКО после первого увиденного биения: пока бэкенд старый и
-  // биения не шлёт, действуют прежние 5 минут. Иначе в окне выкатки «новый
-  // фронт + старый бэк» ход рвался бы на первой же штатной паузе.
-  //
-  // STALLED_MS = 15 мин — заведомо больше самой длинной ЗАКОННОЙ тишины (замер
-  // 02.08: сбор показателей 193 с, написание анализа 176 с; худший наблюдённый
-  // ход — 14,4 мин целиком).
-  //
-  // 🔴 ПОЧЕМУ ФАБРИКА, А НЕ ДВА ЭКЗЕМПЛЯРА (24.08.2026). Сторож жил внутри
-  // `send` и только там. Переподписка (`consumeRun` в реаттач-эффекте) шла БЕЗ
-  // `onEvent` — то есть без присмотра вообще. Пока обрыв лечила перезагрузка,
-  // это не было видно: после F5 поток был свежий. Как только догон стал
-  // автоматическим, вторая тишина осталась бы незамеченной навсегда, и
-  // «переподключаюсь» снова стало бы обещанием без исполнения — на уровень
-  // ниже. Один сторож на оба пути закрывает это по построению.
+  // ADR-0063: связь и прогресс имеют разные сроки, догон сохраняет run_id.
   const создатьСторож = useCallback(
-    (ac: AbortController, projectId: string, runId: { current: string }) => {
-      let sawPing = false;
-      let linkTimer: ReturnType<typeof setTimeout> | null = null;
-      let stalledTimer: ReturnType<typeof setTimeout> | null = null;
-      // 🔴 СТОРОЖ ОБЯЗАН ДЕЛАТЬ ТО, ЧТО ОБЕЩАЕТ.
-      //
-      // Здесь стояло «переподключаюсь» и `ac.abort()` — и на этом всё. Обрыв
-      // ловил `catch` по `AbortError` и глотал молча; эффект переподписки
-      // висит на `[project.id, activeRunId, dropTick]`, а из них не менялась НИ
-      // ОДНА. `dropTick` двигала только кнопка «Догнать ответ».
-      //
-      // То есть переподключения не было вовсе, а фраза о нём была. Ответ
-      // возвращала ТОЛЬКО перезагрузка страницы: она обнуляет `followedRuns`, и
-      // эффект подхватывает прогон заново. Владелец так и делал руками — трижды
-      // за два дня, каждый раз считая это отдельным сбоем.
-      //
-      // Теперь сторож двигает `dropTick` сам. Со «Стоп» не спорит: тот снимает
-      // `activeChatRun`, и эффект выходит на первой же проверке.
-      const armLink = () => {
-        if (linkTimer) clearTimeout(linkTimer);
-        linkTimer = setTimeout(() => {
+    (ac: AbortController, projectId: string, runId: { current: string }) =>
+      createStreamWatchdog({
+        onActivity: () => { autoRetries.current = 0; },
+        onLinkLost: (sawPing) => {
           const { догоняем, текст } = вердиктОбрыва(sawPing, autoRetries.current);
           notify("error", текст);
           ac.abort();
@@ -827,35 +777,15 @@ export function useChatRun(
             kind: "link_lost_reconnecting",
             project_id: projectId,
             run_id: runId.current,
-            detail: `попытка ${autoRetries.current}/${AUTO_RETRY_MAX}; тишина ${LINK_MS / 1000} с`,
+            detail: `попытка ${autoRetries.current}/${AUTO_RETRY_MAX}; тишина ${(sawPing ? STREAM_LINK_MS : STREAM_IDLE_MS) / 1000} с`,
           });
-          // Догон запускает ЭФФЕКТ, а не этот код: у него уже есть реплей с
-          // начала, backoff и разбор хвоста журнала (жив / погиб / не дозвон).
           setDropTick((n) => n + 1);
-        }, sawPing ? LINK_MS : IDLE_MS);
-      };
-      const armStalled = () => {
-        if (stalledTimer) clearTimeout(stalledTimer);
-        stalledTimer = setTimeout(() => {
-          notify("error", "Прогон молчит 15 минут — похоже, он завис. Прерываю.");
+        },
+        onStalled: () => {
+          notify("error", "Прогон не присылал обновления 30 минут. Ожидание приостановлено; результат можно догнать.");
           ac.abort();
-        }, STALLED_MS);
-      };
-      const armWatchdog = (kind: "real" | "ping" = "real") => {
-        if (kind === "ping") sawPing = true;
-        // Событие ЛЮБОГО рода доказывает, что связь жива, — счётчик догонов
-        // считает ПОДРЯД ИДУЩИЕ неудачи, а не все за время хода. Иначе долгий
-        // прогон с редкими обрывами упирался бы в потолок из-за давних.
-        autoRetries.current = 0;
-        armLink();
-        if (kind === "real") armStalled();
-      };
-      const disarm = () => {
-        if (linkTimer) clearTimeout(linkTimer);
-        if (stalledTimer) clearTimeout(stalledTimer);
-      };
-      return { armWatchdog, disarm };
-    },
+        },
+      }),
     [],
   );
 

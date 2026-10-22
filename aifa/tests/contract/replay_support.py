@@ -24,7 +24,7 @@ SKILL_DIR = SCENARIOS.parents[3] / "skills" / "aifa-planning"
 
 TOOL = "ext_13_r_aifa-engine_{name}"
 SKILL = "distribution:aifa-planning"
-MOVE_FIELDS = ("objective", "reason", "plan", "files", "goals", "scenarios", "steps", "new_atoms")
+MOVE_FIELDS = ("objective", "reason", "plan", "files", "goals", "steps", "new_atoms")
 FINISH_FIELDS = ("action", "deliverables", "evidence_ids")
 
 
@@ -40,6 +40,18 @@ def arguments_of(decision: Mapping[str, Any]) -> tuple[str, dict[str, Any]]:
     fields = MOVE_FIELDS if decision["action"] == "execute" else FINISH_FIELDS
     name = "aifa_move" if decision["action"] == "execute" else "aifa_finish"
     args = {field: without_nulls(decision[field]) for field in fields if field in decision}
+    if name == "aifa_move" and decision.get("scenarios"):
+        args["goals"] = [
+            *args.get("goals", []),
+            *[
+                {
+                    "ref": f"legacy{index}",
+                    "scenario": "extract_ad_hoc_metric",
+                    "metric": {"name_ru": phrase},
+                }
+                for index, phrase in enumerate(decision["scenarios"])
+            ],
+        ]
     return name, {key: value for key, value in args.items() if value not in (None, [], "")}
 
 

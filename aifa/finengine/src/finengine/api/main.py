@@ -1557,8 +1557,8 @@ def _start_ouroboros_turn(request: QueryRequest, user: User, doc_ids: list[str],
         turn, kind="chat",
         meta={"user_id": user.id, "project_id": request.project_id or "", "session_id": session_id},
     )
-    # Исходное сообщение и документы хода — для инструментов ouroboros (CONTRACTS.md §3.0): цель
-    # `aifa_goal` берётся отсюда, а не из аргументов модели. Запись общая для реплик.
+    # Исходное сообщение и документы хода — для инструментов ouroboros (CONTRACTS.md §3.0): по ним
+    # `aifa_open` открывает цикл хода. Запись общая для реплик.
     remember(TurnRecord(
         run_id=run_id, owner_id=str(user.id), chat_id=chat_id, message=request.message, user_id=user.id,
         case_id=request.project_id or session_id, doc_ids=tuple(doc_ids), active_doc_id=active_doc_id,

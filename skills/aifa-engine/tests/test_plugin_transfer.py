@@ -15,6 +15,32 @@ from ouroboros.observability import aef_tracing
 SERVICE = "http://engine:8000"
 
 
+def test_bound_move_waits_for_its_background_job_without_repeating_the_move():
+    seen = []
+
+    def handler(request):
+        seen.append((request.url.path.rsplit("/", 1)[-1], json.loads(request.content)))
+        return httpx.Response(200, text="ЖДИ job=job-1\nещё работает" if len(seen) < 3 else "ГОТОВО\nрезультат")
+
+    ctx = tool_context(plan_call_id="call-1")
+    assert run("aifa_move", handler, ctx, objective="Собрать", reason="Запрос") == "ГОТОВО\nрезультат"
+    assert [name for name, _ in seen] == ["aifa_move", "aifa_wait", "aifa_wait"]
+    assert seen[1][1]["args"] == {"job_id": "job-1", "wait_sec": 240}
+    assert all(body["ctx"] == seen[0][1]["ctx"] for _, body in seen)
+
+
+@pytest.mark.parametrize("status,text", [(504, "Gateway Timeout"), (200, "ОТКАЗ задание_не_найдено")])
+def test_failed_background_poll_keeps_the_execution_outcome_unconfirmed(status, text):
+    requests = []
+
+    def handler(request):
+        requests.append(request.url.path)
+        return httpx.Response(200, text="ЖДИ job=job-1") if len(requests) == 1 else httpx.Response(status, text=text)
+
+    with pytest.raises(asyncio.CancelledError):
+        run("aifa_move", handler, tool_context(plan_call_id="call-1"), objective="Собрать", reason="Запрос")
+
+
 @pytest.fixture(autouse=True)
 def service_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """Адрес и токен службы — из окружения (R20); «кто я» отвечает ядро, его ответ подставлен."""
@@ -66,7 +92,7 @@ def test_a_root_call_has_an_empty_root_task_id_not_a_missing_one() -> None:
         seen.append(json.loads(request.content))
         return httpx.Response(200, text="ГОТОВО")
 
-    run("aifa_goal", handler)
+    run("aifa_open", handler)
 
     assert seen[0]["ctx"]["root_task_id"] == ""
     assert seen[0]["args"] == {}
@@ -76,7 +102,7 @@ def test_the_service_text_comes_back_to_the_model_unchanged() -> None:
     """§3.0: «плагин возвращает текст без изменений» — многострочный, с таблицей, любым кодом."""
     text = "ГОТОВО\n## Итог\nРасчёт выполнен.\n\nid | тип\nart-1 | ExtractedMetric  \n"
 
-    assert run("aifa_goal", reply(text)) == text
+    assert run("aifa_open", reply(text)) == text
 
 
 @pytest.mark.parametrize("status", [401, 404, 500, 503])
@@ -84,7 +110,7 @@ def test_a_coded_refusal_of_the_service_is_passed_on_whatever_the_http_status(st
     """§3.0: код — первая строка текста; статус HTTP плагин не истолковывает."""
     text = "ОТКАЗ чужой_ход\nЭтот вызов не относится к ходу, который сейчас идёт."
 
-    assert run("aifa_goal", reply(text, status)) == text
+    assert run("aifa_open", reply(text, status)) == text
 
 
 @pytest.mark.parametrize(
@@ -98,7 +124,7 @@ def test_a_network_failure_is_a_service_fault_the_model_can_retry(failure: httpx
     def handler(request: httpx.Request) -> httpx.Response:
         raise failure
 
-    result = run("aifa_goal", handler)
+    result = run("aifa_open", handler)
 
     assert result.startswith("СБОЙ_СЛУЖБЫ: ") and result.endswith("; повтори вызов")
     assert "\n" not in result
@@ -114,7 +140,7 @@ def test_a_missing_address_or_token_is_a_service_fault_not_a_crash(
     def handler(request: httpx.Request) -> httpx.Response:
         raise AssertionError("запрос не должен уйти")
 
-    result = run("aifa_goal", handler)
+    result = run("aifa_open", handler)
 
     assert result.startswith("СБОЙ_СЛУЖБЫ: ") and missing in result
 
@@ -139,7 +165,7 @@ def test_an_answer_that_arrives_before_the_stop_is_returned_as_it_is() -> None:
     """Ответ, пришедший раньше «Стопа», не теряется: плагин не подменяет его сбоем."""
     ctx = tool_context(stop_after=5)
 
-    assert run("aifa_goal", reply("ГОТОВО"), ctx) == "ГОТОВО"
+    assert run("aifa_open", reply("ГОТОВО"), ctx) == "ГОТОВО"
 
 
 def test_the_handler_is_what_the_dispatcher_calls_with_a_leading_context() -> None:

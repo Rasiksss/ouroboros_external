@@ -106,7 +106,7 @@ def author_scenario() -> dict[str, Any]:
             1,
             _call("skill_read", {"skill": PLANNING_SKILL}),
         ),
-        _rule("root-goal", "Нужен атом автора", 2, _call(TOOL.format(name="aifa_goal"), {})),
+        _rule("root-goal", "Нужен атом автора", 2, _call(TOOL.format(name="aifa_open"), {})),
         _rule(
             "root-extracts",
             "Нужен атом автора",
@@ -116,10 +116,17 @@ def author_scenario() -> dict[str, Any]:
                 {
                     "objective": "получить выручку за 2024 год",
                     "reason": "она нужна атому",
-                    "scenarios": ["Извлеки выручку за 2024 год"],
+                    "goals": [
+                        {
+                            "ref": "revenue",
+                            "scenario": "extract_registered_metric",
+                            "concepts": ["SALES_REVENUE"],
+                            "period": "p-2024-fy",
+                        }
+                    ],
                 },
             ),
-            last_tool_result_starts_with="НУЖЕН_ЦИКЛ",
+            last_tool_result_starts_with="ГОТОВО",
         ),
         _rule(
             "root-delegates",
@@ -140,30 +147,16 @@ def author_scenario() -> dict[str, Any]:
             last_tool_result_starts_with="Task request queued",
         ),
         _rule(
-            "root-uses-the-atom",
-            "Нужен атом автора",
-            6,
-            _call(
-                TOOL.format(name="aifa_move"),
-                {
-                    "objective": "удвоить выручку",
-                    "reason": "атом принят",
-                    "steps": [{"atom": ATOM["name"]}],
-                },
-            ),
-            last_tool_result_starts_with="ГОТОВО",
-        ),
-        _rule(
             "root-finishes",
             "Нужен атом автора",
-            7,
+            6,
             _call(TOOL.format(name="aifa_finish"), {"action": "finalize"}),
             last_tool_result_starts_with="ГОТОВО",
         ),
         _rule(
             "root-answers",
             "Нужен атом автора",
-            8,
+            7,
             {"text": f"Удвоенная выручка посчитана атомом {ATOM['name']}."},
             last_tool_result_starts_with="ПРИНЯТО",
         ),
@@ -207,8 +200,7 @@ async def test_the_planner_picks_the_author_skill_and_the_atom_is_accepted_on_th
     assert sub[6].startswith(f"ГОТОВО\nАтом {ATOM['name']}@"), sub[6]
     # C4.6: корень получил итог (`note` из `aifa_report done`) и сделал шаг с принятым атомом.
     assert root[6].startswith("ГОТОВО\n## Итог подзадачи") and "принят службой" in root[6], root[6]
-    assert root[7].startswith("ГОТОВО"), root[7]
-    assert root[8].startswith("ПРИНЯТО"), root[8]
+    assert root[7].startswith("ПРИНЯТО"), root[7]
     # C4.4: отчёт и две сдачи одного имени нумеруются одним счётчиком в пределах хода.
     attempts = [
         (e["legacy_event"]["move"], e["legacy_event"]["attempt"], e["legacy_event"]["status"])
@@ -259,13 +251,13 @@ def no_inputs_scenario() -> dict[str, Any]:
             1,
             _call("skill_read", {"skill": PLANNING_SKILL}),
         ),
-        _rule("root-goal", "Атом без входов", 2, _call(TOOL.format(name="aifa_goal"), {})),
+        _rule("root-goal", "Атом без входов", 2, _call(TOOL.format(name="aifa_open"), {})),
         _rule(
             "root-delegates",
             "Атом без входов",
             3,
             _call("schedule_task", {"description": description}),
-            last_tool_result_starts_with="НУЖЕН_ЦИКЛ",
+            last_tool_result_starts_with="ГОТОВО",
         ),
         _rule(
             "root-waits",
@@ -312,8 +304,8 @@ async def test_missing_inputs_refusal_tells_the_subtask_to_finish_and_the_planne
     root = results_of(stub, "Атом без входов")
     refusal = sub[3]
     assert refusal.startswith("ОТКАЗ нет_входов"), refusal
-    assert "Подзадача: закончи работу итогом (aifa_report done)" in refusal
-    assert "Планировщик: получи входы ходом aifa_move и поручи атом заново" in refusal
+    assert "закончи работу итогом (aifa_report done)" in refusal
+    assert "их получит планировщик ходом aifa_move и поручит атом заново" in refusal
     assert "сдай атом снова" not in refusal
     assert sub[4].startswith("ГОТОВО\nИтог принят"), sub[4]
     assert root[5].startswith("ГОТОВО\n## Итог подзадачи") and "нет входов" in root[5], root[5]
