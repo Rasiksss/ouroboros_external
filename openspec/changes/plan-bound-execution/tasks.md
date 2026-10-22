@@ -3,5 +3,5 @@
 - [x] Deliver cancellation immediately via the existing transport.
 - [x] Add paged artifact discovery and compact values; update skills.
 - [x] Double dev budgets, run suites and independent review.
-- [ ] Deploy to dev and rerun UI file acceptance.
-- [ ] Deploy UI watchdog fix and verify reattachment without resubmission.
+- [x] Deploy to dev and rerun UI file acceptance.
+- [x] Deploy UI watchdog fix and verify reattachment without resubmission.
