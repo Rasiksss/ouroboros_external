@@ -14,6 +14,8 @@
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from finengine.skills.spec.atom_registry import AtomDef, AtomRegistry
 
 ATOM_DESCRIPTIONS: dict[str, str] = {
@@ -63,6 +65,75 @@ ATOM_DESCRIPTIONS: dict[str, str] = {
     "monitor.compose": "Итог наблюдения: различия, динамика и приближения к порогам в одном результате.",
 }
 
+
+@dataclass(frozen=True)
+class AtomNotes:
+    """Что в определении атома не записано, но нужно, чтобы выбрать его по карточке (ADR-0064 п. 3).
+
+    Технические поля карточки (версия, входы, выходы, гейты, параметры шага) берутся из `AtomDef`; здесь —
+    форматы, пояснения к параметрам и ограничения. Атом без записи показывается с пометкой «не указаны»."""
+
+    formats: tuple[str, ...] = ()
+    params: str = ""
+    limits: str = ""
+
+
+ATOM_NOTES: dict[str, AtomNotes] = {
+    "locate": AtomNotes(limits="Значения не читает: их читает read.value."),
+    "read.value": AtomNotes(
+        params="concept — код показателя реестра или ad-hoc понятие.",
+        limits="Читает значение, только если строка есть в отчёте; единицы, время и границы проверяют гейты.",
+    ),
+    "read.quote": AtomNotes(
+        params="concept — тема или вопрос.", limits="Дословная цитата со страницей; без пересказа и вывода.",
+    ),
+    "read.entities": AtomNotes(limits="Состав группы и доли владения — только по тексту документа."),
+    "calc.formula": AtomNotes(
+        params="concept — код расчётного показателя реестра или ad-hoc формулы.",
+        limits="Считает только из проверенных входов формулы; нет входов — не считает.",
+    ),
+    "analyze.full_bundle": AtomNotes(
+        params="extra.role — роль пользователя; extra.requested_concepts — коды показателей через запятую.",
+        limits="Собирает доказательства; файла и текста не создаёт.",
+    ),
+    "out.form": AtomNotes(
+        params="extra.role — роль пользователя; extra.requested_concepts — коды показателей через запятую.",
+        limits="Таблица показателей роли или requested_concepts: значения и статусы строк, без формул и выводов; "
+        "недоступные строки сохраняются с пометкой.",
+    ),
+    "ref.prior": AtomNotes(limits="Только предыдущий период того же показателя."),
+    "assess.judgment": AtomNotes(
+        limits="Суждение модели по методике на уже извлечённых доказательствах; новых чисел не добавляет.",
+    ),
+    "explain.internal": AtomNotes(limits="Объясняет по данным самого документа; внешних причин не ищет."),
+    "explain.external": AtomNotes(
+        limits="Запросы строит система, тему задать нельзя; нужен включённый поиск в интернете. "
+        "Любой другой внешний вопрос — web.search.",
+    ),
+    "web.search": AtomNotes(
+        params="concept — текст запроса (обязателен); extra.topic — general (по умолчанию) или news.",
+        limits="Нужен включённый поиск в интернете и ключ поисковика. Даёт находки (заголовок, адрес, фрагмент), "
+        "не числа отчётности; страницу по адресу скачивает атом-загрузка.",
+    ),
+    "out.narrative": AtomNotes(
+        params="extra.role — роль пользователя; extra.requested_concepts — коды показателей через запятую.",
+        limits="Достраивает суждения и объяснения по каждому выбранному показателю: тяжёл при большом "
+        "requested_concepts. Числа текста проверяются на опору в доказательствах.",
+    ),
+    "out.changes": AtomNotes(limits="Изменения только между периодами одного отчёта; Δ и Δ % считает код."),
+    "out.report": AtomNotes(
+        limits="Структурирует аналитический текст и доказательства; проверки опоры и цитат обязательны.",
+    ),
+    "out.file": AtomNotes(
+        formats=("xlsx", "pdf", "csv", "json"),
+        params="extra.file_kind — xlsx (по умолчанию), pdf, csv или json; "
+        "extra.source_output_type — FormOutput (по умолчанию), ReportOutput или NarrativeOutput.",
+        limits="Выгружает готовый результат как есть: один лист или страница, фиксированные столбцы, значения без "
+        "формул. Книгу из нескольких листов, формулы в ячейках, презентацию и документ с заданной структурой "
+        "не собирает.",
+    ),
+}
+
 # Не предлагаются агенту как шаги: гейты и инфраструктура достраиваются
 # планировщиком сами; `read.override` — отдельный путь пользовательских поправок
 # с аудитом; `watch.subscribe` — побочный эффект (подписка), не «ответ на запрос».
@@ -80,7 +151,7 @@ def plannable_atoms(registry: AtomRegistry) -> tuple[AtomDef, ...]:
     return tuple(atom for atom in registry.all() if atom.name not in NOT_PLANNABLE)
 
 
-def _produces_summary(atom: AtomDef) -> str:
+def produces_summary(atom: AtomDef) -> str:
     by_type: dict[str, list[str | None]] = {}
     for spec in atom.produces:
         by_type.setdefault(spec.output_type, []).append(spec.concept)
@@ -96,7 +167,7 @@ def _produces_summary(atom: AtomDef) -> str:
     return ", ".join(parts)
 
 
-def _requires_summary(atom: AtomDef) -> str:
+def requires_summary(atom: AtomDef) -> str:
     parts = [
         spec.input_type + (f"[{spec.concept}]" if spec.concept else "") for spec in atom.requires
     ]
@@ -119,7 +190,7 @@ def catalog_text(registry: AtomRegistry) -> str:
         line = (
             f"- {atom.name} ({atom.execution_kind}, {atom.cost_class}): "
             f"{ATOM_DESCRIPTIONS.get(atom.name, '')} "
-            f"Даёт: {_produces_summary(atom)}. Требует: {_requires_summary(atom)}."
+            f"Даёт: {produces_summary(atom)}. Требует: {requires_summary(atom)}."
         )
         if atom.mandatory_gates:
             line += f" Гейты (автоматически): {', '.join(atom.mandatory_gates)}."
@@ -127,4 +198,7 @@ def catalog_text(registry: AtomRegistry) -> str:
     return "\n".join(lines)
 
 
-__all__ = ["ATOM_DESCRIPTIONS", "NOT_PLANNABLE", "catalog_text", "plannable_atoms"]
+__all__ = [
+    "ATOM_DESCRIPTIONS", "ATOM_NOTES", "NOT_PLANNABLE", "AtomNotes", "catalog_text", "plannable_atoms",
+    "produces_summary", "requires_summary",
+]

@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[4]
 FINENGINE = ROOT / "aifa" / "finengine"
 MAP = yaml.safe_load((ROOT / "aifa" / "contracts" / "loop_rules.yaml").read_text(encoding="utf-8"))
 CONTRACTS = (ROOT / "aifa-symbiosis" / "architecture" / "CONTRACTS.md").read_text(encoding="utf-8")
-LOOP_TOOLS = ("aifa_state", "aifa_doc", "aifa_move", "aifa_register_atom", "aifa_report", "aifa_finish")
+LOOP_TOOLS = ("aifa_state", "aifa_doc", "aifa_atoms", "aifa_move", "aifa_register_atom", "aifa_report", "aifa_finish")
 RULES = MAP["rules"]
 DEFERRED = MAP["deferred"]
 DEFERRED_STEPS = {"16", "17"}

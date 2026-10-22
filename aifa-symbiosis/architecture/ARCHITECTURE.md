@@ -25,7 +25,7 @@ ouroboros принимает его и проверяет результаты. 
 3. Фронтенд и его события не меняются; служба движка — единственный собеседник фронтенда (ADR-0015).
 4. Ход: служба открывает WebSocket браузерного транспорта ouroboros с заголовками владельца и чата,
    `client_message_id` = `run_id`; финальный ответ — непрогрессный кадр корневой задачи (ADR-0021).
-5. Ouroboros думает и решает; служба исполняет граф и хранит данные: восемь инструментов
+5. Ouroboros думает и решает; служба исполняет граф и хранит данные: девять инструментов
    `aifa-engine`, у каждого правила цикла — код и тест в службе (ADR-0023, ADR-0042).
 6. На время MVP ouroboros видит распознанный текст документов и все артефакты — только через
    инструменты `aifa-engine`; числа не обязаны идти из доказательной базы (ADR-0040).
@@ -232,7 +232,7 @@ C4Component
     Component(browser, "transport/browser", "WS /ws, /api/chat/history, /api/files", "TrustedHeaderIdentity: владелец и чат из заголовков")
     Component(sup, "supervisor", "очередь, рабочие слоты", "задача на сообщение, подзадачи, /stop, таймауты")
     Component(agent, "ouroboros/agent + new_core/loop", "task_graph", "цикл модель-инструменты до 200 кругов")
-    Component(catalog, "tool catalog + extension runtime", "PluginAPI", "aifa-engine.*: 8 инструментов, safety skip")
+    Component(catalog, "tool catalog + extension runtime", "PluginAPI", "aifa-engine.*: 9 инструментов, safety skip")
     Component(skills, "skills", "instruction", "aifa-planning, aifa-atom-author, workstation")
     Component(orch, "orchestration tools", "schedule_task, get_task_result, cancel_task", "подзадачи по навыку, выбранному корнем")
     Component(wsclient, "egress/workstation", "клиент AEF WorkStation", "сессия на владельца, чат, агента")

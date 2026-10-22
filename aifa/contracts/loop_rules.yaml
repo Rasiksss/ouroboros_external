@@ -194,4 +194,33 @@ rules:
     cell: "результат и файлы сохраняются без повторного запуска"
     test: tests/loop_tools/test_register_atom.py::test_an_accepted_atom_is_already_executed_and_its_result_is_in_the_case
 
+# aifa_atoms (ADR-0064): каталог атомов для агента.
+  - id: LR-61
+    cell: "каталог читается из цикла хода: без него `нет_цикла`"
+    test: tests/loop_tools/test_atoms_tool.py::test_the_catalog_is_not_readable_before_the_loop_is_opened
+  - id: LR-62
+    cell: "`list` — карточки без исходного кода, технические поля из определений атомов и рядом назначение, форматы, параметры, ограничения"
+    test: tests/loop_tools/test_atoms_tool.py::test_the_list_shows_cards_without_source_code
+  - id: LR-63
+    cell: "`get` — точная версия, контракт и исходный код атома"
+    test: tests/loop_tools/test_atoms_tool.py::test_get_returns_the_contract_the_exact_version_and_the_source
+  - id: LR-64
+    cell: "`get` называет вспомогательные функции ссылками: фрагмент не выдаётся за полную реализацию"
+    test: tests/loop_tools/test_atoms_tool.py::test_the_source_of_a_built_in_atom_names_its_helpers_and_is_not_passed_off_as_whole
+  - id: LR-65
+    cell: "поставляемые атомы — из реестра цикла, гейты и служебные атомы не показываются"
+    test: tests/loop_tools/test_atoms_tool.py::test_gates_and_infrastructure_are_not_cards
+  - id: LR-66
+    cell: "временные атомы — только этого `Case`"
+    test: tests/loop_tools/test_atoms_tool.py::test_the_list_shows_the_temporary_atoms_of_this_case
+  - id: LR-67
+    cell: "ответ ≤ `result_limit`, остаток — `offset` (карточка у `list`, строка исходника у `get`)"
+    test: tests/loop_tools/test_atoms_tool.py::test_a_long_source_comes_in_parts_with_the_next_line_named
+  - id: LR-68
+    cell: "доступен корню и подзадачам, вне очереди"
+    test: tests/loop_tools/test_atoms_tool.py::test_the_planner_the_root_and_the_author_all_read_the_catalog
+  - id: LR-69
+    cell: "`неверные_аргументы`: действие, `name`, `offset`, неизвестный атом, не актуальная версия"
+    test: tests/loop_tools/test_atoms_tool.py::test_a_wrong_call_is_refused_by_the_rules_of_the_tool
+
 deferred: []
