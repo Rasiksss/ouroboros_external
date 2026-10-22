@@ -26,3 +26,13 @@ Compact values SHALL be available without loading complete provenance; the full 
 #### Scenario: A narrative exists beyond the first page
 - **WHEN** a caller asks for NarrativeOutput after a long run
 - **THEN** its id can be read without repeating that run
+
+### Requirement: UI waits for delegated work without resubmitting the task
+The UI SHALL distinguish connection heartbeat from work progress, allow thirty minutes of
+work silence, and reconnect to the existing run after a connection timeout rather than ask
+the user to repeat the original task. Disposal SHALL cancel both watchdog timers.
+
+#### Scenario: A file author is alive during a long pause
+- **WHEN** only connection heartbeats arrive for twenty minutes
+- **THEN** the UI keeps waiting on the existing run
+- **AND** thirty minutes without work progress still triggers the work watchdog

@@ -1,5 +1,75 @@
-import { describe, expect, it } from "vitest";
-import { AUTO_RETRY_MAX, вердиктОбрыва, можноПодписаться } from "./link-watchdog";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { AUTO_RETRY_MAX, createStreamWatchdog, вердиктОбрыва, можноПодписаться } from "./link-watchdog";
+
+afterEach(() => vi.useRealTimers());
+
+describe("долгая работа автора и связь имеют разные сроки", () => {
+  it("первичное взведение не сбрасывает счётчик неудачных переподписок", () => {
+    vi.useFakeTimers();
+    let retries = 0;
+    for (let index = 0; index <= AUTO_RETRY_MAX; index++) {
+      const watchdog = createStreamWatchdog({
+        onActivity: () => { retries = 0; },
+        onStalled: vi.fn(),
+        onLinkLost: (sawPing) => {
+          if (вердиктОбрыва(sawPing, retries).догоняем) retries++;
+        },
+      });
+      watchdog.armWatchdog();
+      vi.advanceTimersByTime(10 * 60_000);
+      watchdog.disarm();
+    }
+    expect(retries).toBe(AUTO_RETRY_MAX);
+    expect(вердиктОбрыва(false, retries).догоняем).toBe(false);
+  });
+
+  it("ждёт автора20 минут с heartbeat, но срабатывает после30 без прогресса", () => {
+    vi.useFakeTimers();
+    const lost = vi.fn();
+    const stalled = vi.fn();
+    const watchdog = createStreamWatchdog({ onLinkLost: lost, onStalled: stalled, onActivity: vi.fn() });
+    watchdog.armWatchdog();
+    for (let minute = 1; minute <= 20; minute++) {
+      vi.advanceTimersByTime(60_000);
+      watchdog.armWatchdog("ping");
+    }
+    expect(lost).not.toHaveBeenCalled();
+    expect(stalled).not.toHaveBeenCalled();
+    for (let minute = 21; minute < 30; minute++) {
+      vi.advanceTimersByTime(60_000);
+      watchdog.armWatchdog("ping");
+    }
+    vi.advanceTimersByTime(60_000);
+    expect(stalled).toHaveBeenCalledOnce();
+    watchdog.disarm();
+  });
+
+  it("до первого heartbeat ждёт10 минут и выбирает догон того же прогона", () => {
+    vi.useFakeTimers();
+    const lost = vi.fn();
+    const watchdog = createStreamWatchdog({ onLinkLost: lost, onStalled: vi.fn(), onActivity: vi.fn() });
+    watchdog.armWatchdog();
+    vi.advanceTimersByTime(5 * 60_000);
+    expect(lost).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(5 * 60_000);
+    expect(lost).toHaveBeenCalledWith(false);
+    expect(вердиктОбрыва(false, 0).догоняем).toBe(true);
+    watchdog.disarm();
+  });
+
+  it("disarm снимает оба таймера и не вызывает догон после ухода", () => {
+    vi.useFakeTimers();
+    const lost = vi.fn();
+    const stalled = vi.fn();
+    const watchdog = createStreamWatchdog({ onLinkLost: lost, onStalled: stalled, onActivity: vi.fn() });
+    watchdog.armWatchdog("real");
+    watchdog.armWatchdog("ping");
+    watchdog.disarm();
+    vi.advanceTimersByTime(60 * 60_000);
+    expect(lost).not.toHaveBeenCalled();
+    expect(stalled).not.toHaveBeenCalled();
+  });
+});
 
 describe("сторож связи обязан делать то, что обещает", () => {
   it("обещав переподключение — переподключается", () => {
@@ -19,12 +89,13 @@ describe("сторож связи обязан делать то, что обе�
     expect(v.текст).toContain("Догнать ответ");
   });
 
-  it("до первого биения молчание судится длинным окном, а не связью", () => {
+  it("до первого биения восстанавливает подписку вместо повторного запроса", () => {
     // Бэкенд может быть старым и биения не слать. Объявлять обрыв связи по
     // короткому окну значило бы рвать штатную паузу в окне выкатки.
     const v = вердиктОбрыва(false, 0);
-    expect(v.догоняем).toBe(false);
-    expect(v.текст).toContain("завис");
+    expect(v.догоняем).toBe(true);
+    expect(v.текст).toContain("переподключаюсь");
+    expect(v.текст).not.toContain("попробуйте ещё раз");
   });
 
   it("догоны считаются ПОДРЯД, потолок не липнет к ходу целиком", () => {

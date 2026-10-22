@@ -64,7 +64,9 @@ async def test_narrative_outputs_can_be_discovered_and_read_by_their_output_id(b
 
 def test_compact_values_keep_code_input_shape_without_provenance():
     payload = {"output_type": "CalculatedMetric", "concept": "MARGIN", "period_ref": "2025", "status": "supported", "derived_fact": {"evidence_id": "m1", "value": 25, "unit": "%", "expression": "INCOME / SALES * 100", "inputs": ["i1", "s1"], "document_version": "doc", "produced_by_atom": "calc.formula"}, "unification": {"long": "provenance"}}
+    payload["derived_fact"]["basis"] = "standalone"
     result = ouro_view.artifacts([("m1", json.dumps(payload))], [], limit=12000, view="compact")
+    assert '"basis":"standalone"' in result
     assert '"expression"' in result and '"inputs"' in result and '"derived_fact"' in result
     assert "provenance" not in result
     assert "produced_by_atom" not in result
