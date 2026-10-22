@@ -40,7 +40,8 @@
 [0069 — задачи medium на dev](0069-dev-medium.md),
 [0070 — данные без подмен](0070-dannye-bez-podmen.md),
 [0071 — возврат high после medium](0071-dev-high-posle-medium.md),
-[0072 — компоненты расчётных показателей и итог по `facts`](0072-raschetnye-pokazateli-i-itog-po-faktam.md).
+[0072 — компоненты расчётных показателей и итог по `facts`](0072-raschetnye-pokazateli-i-itog-po-faktam.md),
+[0073 — план в ограждении JSON принимается](0073-plan-v-ograzhdenii-json.md).
 
 | № | Решение | Статус |
 |---|---|---|

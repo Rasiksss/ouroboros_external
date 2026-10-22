@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import uuid
 from collections.abc import Callable, Mapping
 from dataclasses import replace
@@ -27,6 +28,20 @@ from ouroboros.contracts.task_plan import (
 from ouroboros.storage.runtime_models import TaskRecord
 from ouroboros.storage.runtime_persistence import runtime_persistence
 from ouroboros.storage.task_results import TERMINAL_STATUSES
+
+_FENCED_BLOCK = re.compile(r"```[A-Za-z]*[ \t]*\n(.*?)```", re.DOTALL)
+
+
+def _proposal_json(message: str) -> str:
+    """The planner's final message with a Markdown fence around the object, if it has one.
+
+    Models fence JSON no matter what the skill asks. The last fenced block holding an object is the
+    proposal; a message without one stays as it is, so the validation error still names the real text.
+    """
+    for block in reversed(_FENCED_BLOCK.findall(message)):
+        if block.strip().startswith("{"):
+            return block.strip()
+    return message
 
 
 def _same_scope(ctx: ToolContext, task: TaskRecord) -> bool:
@@ -173,7 +188,7 @@ def _operate(ctx: ToolContext, action: str, data: Mapping[str, object]) -> str:
             or child.status != "completed"
         ):
             raise ValueError("proposal must be the full result of a completed direct child in this scope")
-        proposal = PlanProposal.model_validate_json(child.result)
+        proposal = PlanProposal.model_validate_json(_proposal_json(child.result))
         mutation = partial(_accept, command=command, proposal=proposal)
     elif action == "step":
         command = StepUpdate.model_validate(data)
