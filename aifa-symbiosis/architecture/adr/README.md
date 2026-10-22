@@ -37,7 +37,8 @@
 Новые записи: [0066 — выбор поиска в контексте хода](0066-veb-kontekst-hoda.md),
 [0067 — DeepSeek и два канала на dev](0067-dev-deepseek-dva-provaydera.md),
 [0068 — SSE без буферизации](0068-sse-bez-buferizacii.md),
-[0069 — задачи medium на dev](0069-dev-medium.md).
+[0069 — задачи medium на dev](0069-dev-medium.md),
+[0070 — данные без подмен](0070-dannye-bez-podmen.md).
 
 | № | Решение | Статус |
 |---|---|---|
