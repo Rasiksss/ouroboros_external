@@ -38,7 +38,8 @@
 [0067 — DeepSeek и два канала на dev](0067-dev-deepseek-dva-provaydera.md),
 [0068 — SSE без буферизации](0068-sse-bez-buferizacii.md),
 [0069 — задачи medium на dev](0069-dev-medium.md),
-[0070 — данные без подмен](0070-dannye-bez-podmen.md).
+[0070 — данные без подмен](0070-dannye-bez-podmen.md),
+[0071 — возврат high после medium](0071-dev-high-posle-medium.md).
 
 | № | Решение | Статус |
 |---|---|---|
