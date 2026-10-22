@@ -230,6 +230,14 @@ ouroboros зарегистрированы шесть инструментов `
 (навыки лежат в образе); затем `docker builder prune -f` (на диске было 507 МБ). Дымовые 1–10 PASS. Живой C4.2 (корень пишет файл в сессию
 Workstation, подзадача читает его и пробует сокет, в журнале Workstation одна сессия на ход) отложен до освобождения стенда.
 
+### Шаг 24 (22.10.2026)
+
+Каталог атомов для агента: инструмент `aifa_atoms` (ADR-0064). Допуск — `aifa-engine.aifa_atoms` в `OUROBOROS_ENABLED_TOOLS` (в
+`ouroboros.env` на сервере — `sed -i` руками, копия до — `~/aifa-sym-ouroboros.env.before24`). Выкатка пересобирает `ouroboros`
+(`compose build`, навыки в образе) и `engine` (derived-образ поверх `aifa-sym-engine:before-atoms24`, `COPY src /app/src`); прежние
+образы — теги `before-atoms24`, откат — вернуть теги в `:dev`, `*.env.before24` и `up -d --no-build --force-recreate ouroboros engine`.
+Дымовые 1, 6, 7, 8, 9. Диск dev перед выкаткой был 99% (523 МБ): `docker builder prune -f` освободил 2,5 ГБ.
+
 ### Известные ограничения
 
 - Диск dev: 2,9–5,3 ГБ свободно; полная пересборка трёх образов занимает до 4 ГБ кэша — после неё `docker builder prune -f`
