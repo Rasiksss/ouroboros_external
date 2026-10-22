@@ -11,6 +11,7 @@ import type {
   TypedRunError,
 } from "@/lib/api";
 import { applyAuthorAttempt, applyDynamicMove, applyDynamicPlan, type DynamicTrace } from "@/lib/dynamic-run-trace";
+import { addRootPlan, type RootPlanProposal } from "@/lib/root-plan";
 import {
   addExecutionGraph,
   applyExecutionNodeRun,
@@ -109,6 +110,8 @@ export type TextMessage = {
    * msg.plan — второй источник затирал первый, и остров показывал план
    * куска работы вместо плана всей задачи. */
   plans?: { name: string; steps: PlanStep[] }[];
+  /** Предложения автора плана за ход (событие `root_plan`): последнее — текущая ревизия. */
+  rootPlans?: RootPlanProposal[];
   /** Ход оборвался НЕ по вине агента — состояние, а не строка в `content`.
    *  Строкой писать нельзя: гейт отправки считает непустой content
    *  законченным ходом и разрешал повторный запуск, который затирал маркер
@@ -1881,6 +1884,7 @@ export function resetForReplay(m: TextMessage): TextMessage {
     segBreak: false,
     plan: undefined,
     plans: undefined,
+    rootPlans: undefined,
     question: undefined,
     files: [],
     analysisCard: undefined,
@@ -1927,6 +1931,8 @@ export function applyChatEvent(msg: TextMessage, ev: ScenarioRunEvent): TextMess
       // старым экраном и сохранёнными ходами.
       return { ...msg, plans, plan: plans[0]?.steps ?? msg.plan };
     }
+    case "root_plan":
+      return { ...msg, rootPlans: addRootPlan(msg.rootPlans, ev) };
     case "plan_step": {
       const src = ev.name || "ход";
       const lanes = msg.plans ?? (msg.plan ? [{ name: src, steps: msg.plan }] : []);

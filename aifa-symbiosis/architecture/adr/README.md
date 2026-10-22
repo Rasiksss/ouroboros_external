@@ -41,7 +41,8 @@
 [0070 — данные без подмен](0070-dannye-bez-podmen.md),
 [0071 — возврат high после medium](0071-dev-high-posle-medium.md),
 [0072 — компоненты расчётных показателей и итог по `facts`](0072-raschetnye-pokazateli-i-itog-po-faktam.md),
-[0073 — план в ограждении JSON принимается](0073-plan-v-ograzhdenii-json.md).
+[0073 — план в ограждении JSON принимается](0073-plan-v-ograzhdenii-json.md),
+[0074 — план планировщика на экране](0074-plan-planirovshchika-na-ekrane.md).
 
 | № | Решение | Статус |
 |---|---|---|

@@ -1,4 +1,5 @@
 import type { AuthorAttemptEvent, DynamicMoveEvent, DynamicPlanEvent } from "@/lib/dynamic-run-trace";
+import type { RootPlanEvent } from "@/lib/root-plan";
 
 export type DocumentSummary = {
   doc_id: string;
@@ -413,6 +414,8 @@ export type ChatStreamEvent =
   | DynamicMoveEvent
   | DynamicPlanEvent
   | AuthorAttemptEvent
+  // План от автора плана (ADR-0074): ревизии одного хода.
+  | RootPlanEvent
   | { type: "typed_error"; error: TypedRunError; partial_results: TypedResult[] }
   // Ошибка приезжает В ДВУХ ФОРМАХ, и это не небрежность типа, а факт двух
   // источников: агент перекладывает её в `error` (orchestrator/agent.py:1533),

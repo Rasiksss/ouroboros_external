@@ -33,6 +33,8 @@ import { ExtractedPane } from "@/components/workspace/panes/extracted-pane";
 import { ArtifactsPane } from "@/components/workspace/panes/artifacts-pane";
 import { DocPicker } from "@/components/workspace/panes/doc-picker";
 import { PlanIsland } from "@/components/workspace/panes/plan-island";
+import { RootPlanView } from "@/components/workspace/panes/root-plan-view";
+import { latestRootPlanRevisions } from "@/lib/root-plan";
 import { DynamicRunTraceView } from "@/components/workspace/panes/dynamic-run-trace-view";
 import { PlanGraphWorkspace } from "@/components/workspace/panes/plan-graph-workspace";
 import {
@@ -491,6 +493,7 @@ function WorkArea({ project }: { project: Project | null }) {
   // ГОТОВО» при «шаг: ВЫПОЛНЯЕТСЯ». Теперь обе половины острова выводятся из
   // одного факта, и разъехаться им негде.
   const { lanes, workers } = useMemo(() => turnProgress(project), [project]);
+  const rootPlans = useMemo(() => latestRootPlanRevisions(project?.messages ?? []), [project]);
 
   const plan = useMemo(() => {
     const msgs = project?.messages ?? [];
@@ -664,6 +667,7 @@ function WorkArea({ project }: { project: Project | null }) {
   return (
     <div className="flex h-full flex-col">
       <PlanIsland plan={plan} lanes={lanes} workers={workers} open={planOpen} onOpenChange={setPlanOpen} />
+      <RootPlanView revisions={rootPlans} />
 
       {/* ВЫБОР ЖИВЁТ В САМОЙ ВКЛАДКЕ (правка Nate 18.08). Сначала список
           документов и вид стояли отдельной строкой над поиском — владелец
