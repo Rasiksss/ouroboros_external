@@ -132,10 +132,11 @@ async def test_the_model_saw_the_planning_skill_and_the_table_of_results(
     assert GOAL_TOOL in asked[0]["tools"], (
         "инструмент `aifa_open` в первом запросе (F4 на живом ouroboros)"
     )
-    # В `OUROBOROS_ENABLED_TOOLS` восемь имён, зарегистрированы все восемь (шаги 10, 13 и 16).
+    # В `OUROBOROS_ENABLED_TOOLS` девять имён, зарегистрированы все девять (ADR-0064).
     assert sorted(t for t in asked[0]["tools"] if "aifa-engine" in t) == [
         GOAL_TOOL.replace("aifa_open", name)
         for name in (
+            "aifa_atoms",
             "aifa_doc",
             "aifa_finish",
             "aifa_move",

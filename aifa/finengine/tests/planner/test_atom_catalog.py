@@ -60,3 +60,39 @@ def test_locate_catalog_version_tracks_its_evidence_semantics():
     locate = next(atom for atom in build_registry().all() if atom.name == "locate")
     assert locate.version == LOCATE_ATOM_VERSION
     assert locate.version == "1.0.2", "старые CandidateLocator нельзя брать из кэша"
+
+
+def test_notes_accompany_only_atoms_the_agent_can_plan():
+    """ADR-0064 п. 3: назначения и ограничения сопровождают технические поля карточек, а не живут сами по себе."""
+    from finengine.skills.spec.atom_catalog import ATOM_NOTES
+
+    planned = {atom.name for atom in plannable_atoms(build_registry())}
+    assert set(ATOM_NOTES) <= planned, f"заметки к непланируемым атомам: {sorted(set(ATOM_NOTES) - planned)}"
+    for name, notes in ATOM_NOTES.items():
+        assert notes.limits.strip() or notes.formats, f"{name}: заметка пуста"
+
+
+def test_the_formats_of_out_file_are_the_formats_the_atom_renders():
+    from finengine.skills.atoms.out_file import _MIME
+    from finengine.skills.spec.atom_catalog import ATOM_NOTES
+
+    assert ATOM_NOTES["out.file"].formats == tuple(_MIME)
+
+
+def test_every_parameter_the_notes_name_is_one_a_step_may_carry():
+    """Параметр шага — только из допустимых `extra`: заметка не обещает того, что `parse_steps` отклонит."""
+    import re
+
+    from finengine.skills.spec.atom_catalog import ATOM_NOTES
+    from finengine.skills.spec.dynamic_run import ALLOWED_EXTRA_KEYS
+
+    for name, notes in ATOM_NOTES.items():
+        named = set(re.findall(r"extra\.([a-z_]+)", notes.params))
+        assert named <= ALLOWED_EXTRA_KEYS, f"{name}: {sorted(named - ALLOWED_EXTRA_KEYS)}"
+
+
+def test_the_limits_of_the_file_atom_say_what_it_does_not_build():
+    from finengine.skills.spec.atom_catalog import ATOM_NOTES
+
+    limits = ATOM_NOTES["out.file"].limits.lower()
+    assert "один лист" in limits and "презентац" in limits and "формул" in limits

@@ -212,6 +212,64 @@ def artifact_index(entries: list[dict], *, offset: int, count: int, limit: int) 
     return f"{Code.READY}\n" + json.dumps({"artifacts": page, "total": total, "next_offset": following if following < total else None}, ensure_ascii=False)
 
 
+def atoms_list(entries: list[tuple[str, str]], *, offset: int, header: str, limit: int) -> str:
+    """Ответ `aifa_atoms(list)`: карточки с позиции `offset`, сколько помещается в предел; остаток — по просьбе."""
+    head = f"{Code.READY}\n## Каталог атомов\n" + (f"{header}\n\n" if offset == 0 else "")
+    room = limit - len(head) - TAIL_RESERVE // 2
+    parts: list[str] = []
+    size = 0
+    for name, card in entries[offset:]:
+        cut = max(room, 200)
+        shown_card = card if len(card) <= cut else card[:cut] + '…[карточка обрезана: aifa_atoms action="get"]'
+        part = f"### {name}\n{shown_card}\n"
+        if parts and size + len(part) > room:
+            break
+        parts.append(part)
+        size += len(part)
+    following = offset + len(parts)
+    text = head + "\n".join(parts)
+    if following < len(entries):
+        text += (
+            f"\nПоказано {offset + 1}–{following} из {len(entries)}. "
+            f"Следующие: aifa_atoms action=list offset={following}"
+        )
+    return text
+
+
+def atom_detail(
+    ref: str, card: str, helpers: str, sections: list[tuple[str, str, list[str]]], *, name: str, offset: int, limit: int,
+) -> str:
+    """Ответ `aifa_atoms(get)`: карточка с точной версией, ссылки на вспомогательные функции и читаемое строками —
+    секции `(заголовок, язык ограждения, строки)`: контракт временного атома, исходный код. Длинное — частями:
+    продолжение называет строку сквозной нумерации, с которой читать."""
+    if offset == 0:
+        share = max(limit // 4, 200)  # ссылки не должны съесть место кода
+        helpers = helpers if len(helpers) <= share else helpers[:share] + "…[ссылки обрезаны]"
+        head = f"{Code.READY}\n## {ref}\n{card}\n\n{helpers}\n"
+    else:
+        head = f"{Code.READY}\n## {ref}: продолжение\n"
+    flat = [(index, line) for index, (_, _, lines) in enumerate(sections) for line in lines]
+    if not flat:
+        return head + "\n## Исходный код\nнет"
+    room = limit - len(head) - TAIL_RESERVE // 2 - 200
+    shown: list[tuple[int, str]] = []
+    size = 0
+    for index, line in flat[offset:]:
+        if shown and size + len(line) + 1 > room:
+            break
+        shown.append((index, line if len(line) <= max(room, 80) else line[: max(room, 80)] + "…[строка обрезана]"))
+        size += len(shown[-1][1]) + 1
+    following = offset + len(shown)
+    text = f"{head}\nСтроки {offset + 1}–{following} из {len(flat)}."
+    for index, (title, language, _) in enumerate(sections):
+        lines = [line for position, line in shown if position == index]
+        if lines:
+            text += f"\n\n## {title}\n```{language}\n" + "\n".join(lines) + "\n```"
+    if following < len(flat):
+        text += f"\nПродолжение: aifa_atoms action=get name={name} offset={following}"
+    return text
+
+
 def shown_ids(session: LoopSession) -> frozenset[str]:
     """id артефактов, которые сейчас видны в таблице состояния: по ним `moved` отделяет новое."""
     rows = case_rows(session.runtime.store, session.owner_id, session.case_id)

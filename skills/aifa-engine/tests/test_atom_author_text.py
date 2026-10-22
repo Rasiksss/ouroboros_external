@@ -22,7 +22,7 @@ DEVELOPMENT_WORDS = (
     "LoopSession",
     "atom_intake",
 )
-SUBTASK_TOOLS = {"aifa_state", "aifa_doc", "aifa_report", "aifa_register_atom"}
+SUBTASK_TOOLS = {"aifa_state", "aifa_doc", "aifa_atoms", "aifa_report", "aifa_register_atom"}
 
 
 def text() -> str:

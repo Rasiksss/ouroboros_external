@@ -15,6 +15,7 @@ EXPECTED_TOOLS = {
     "aifa_wait",
     "aifa_state",
     "aifa_doc",
+    "aifa_atoms",
     "aifa_move",
     "aifa_register_atom",
     "aifa_report",
@@ -35,7 +36,7 @@ def _shape(tool: Registered) -> dict[str, Any]:
 
 
 def test_the_plugin_registers_exactly_the_tools_this_step_owns() -> None:
-    """F4: набор инструментов — восемь (шаги 10, 13 и 16)."""
+    """F4: набор инструментов — девять (шаги 10, 13 и 16, ADR-0064)."""
     assert set(registered_tools()) == EXPECTED_TOOLS
 
 

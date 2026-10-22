@@ -89,6 +89,23 @@ TOOLS = (
         capability_class="read_only",
     ),
     Tool(
+        name="aifa_atoms",
+        description=(
+            "Каталог атомов. list — карточки без кода; get — контракт, версия и исходный код одного атома; "
+            "offset — продолжение длинного ответа."
+        ),
+        schema={
+            "type": "object",
+            "properties": {
+                "action": {"type": "string", "enum": ["list", "get"]},
+                "name": {"type": "string"},
+                "offset": {"type": "integer", "minimum": 0},
+            },
+            "required": ["action"],
+        },
+        capability_class="read_only",
+    ),
+    Tool(
         name="aifa_move",
         description="Ход корня: сценарии службы по коду в goals, шаги атомов в steps; атомы-загрузки — в new_atoms.",
         schema={

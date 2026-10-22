@@ -1,8 +1,8 @@
 {
   "snapshot_version": 1,
-  "adr": "ADR-0062",
-  "note": "Адресное чтение артефактов и lifecycle-close; привязка _plan добавляется kernel dispatch к исполнителям.",
-  "budget_chars": 5166,
+  "adr": "ADR-0064",
+  "note": "Каталог атомов aifa_atoms (list/get); адресное чтение артефактов и lifecycle-close; привязка _plan добавляется kernel dispatch к исполнителям.",
+  "budget_chars": 5604,
   "tools": {
     "aifa_open": {
       "arguments": [],
@@ -45,6 +45,20 @@
         "query"
       ],
       "required": [],
+      "safety_policy": "skip",
+      "capability_class": "read_only",
+      "timeout_sec": 300,
+      "result_limit": 12000
+    },
+    "aifa_atoms": {
+      "arguments": [
+        "action",
+        "name",
+        "offset"
+      ],
+      "required": [
+        "action"
+      ],
       "safety_policy": "skip",
       "capability_class": "read_only",
       "timeout_sec": 300,

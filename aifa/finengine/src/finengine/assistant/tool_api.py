@@ -19,6 +19,7 @@ from finengine.assistant import ouro_view
 from finengine.assistant.binding import Binding, Refused, RootSink
 from finengine.assistant.events import tool_call_event, tool_output_event
 from finengine.assistant.atom_tools import RegisterTool, ReportTool
+from finengine.assistant.atoms_tool import AtomsTool
 from finengine.assistant.goal_tools import OpenTool, Opening, RunEmitter, WaitTool
 from finengine.assistant.jobs import JobBoard
 from finengine.assistant.loop_desk import LoopDesk
@@ -60,6 +61,7 @@ class ToolApi:
         self._binding = Binding(gateway)
         tools: tuple[Tool, ...] = (
             OpenTool(board, opening, desk), WaitTool(board, self._subtasks, desk), StateTool(board, desk), DocTool(board, desk),
+            AtomsTool(desk),
             MoveTool(board, desk), RegisterTool(board, desk), ReportTool(desk, self._subtasks),
             FinishTool(board, desk, self._subtasks),
         )
