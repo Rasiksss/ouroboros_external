@@ -1,8 +1,8 @@
 {
   "snapshot_version": 1,
-  "adr": "ADR-0060",
-  "note": "Снимок схем aifa-engine: aifa_open открывает цикл, goals — сценарии по коду, сдача атома исполняет его.",
-  "budget_chars": 4455,
+  "adr": "ADR-0062",
+  "note": "Адресное чтение артефактов и lifecycle-close; привязка _plan добавляется kernel dispatch к исполнителям.",
+  "budget_chars": 5166,
   "tools": {
     "aifa_open": {
       "arguments": [],
@@ -28,7 +28,9 @@
     },
     "aifa_state": {
       "arguments": [
-        "artifact_ids"
+        "artifact_ids",
+        "artifact_index",
+        "view"
       ],
       "required": [],
       "safety_policy": "skip",
@@ -64,7 +66,7 @@
       ],
       "safety_policy": "skip",
       "capability_class": "mutative",
-      "timeout_sec": 300,
+      "timeout_sec": 5400,
       "result_limit": 12000
     },
     "aifa_register_atom": {
@@ -116,7 +118,7 @@
       ],
       "safety_policy": "skip",
       "capability_class": "mutative",
-      "timeout_sec": 300,
+      "timeout_sec": 5400,
       "result_limit": 12000
     }
   }

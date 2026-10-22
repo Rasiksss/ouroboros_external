@@ -19,6 +19,7 @@ URL_ENV = "AIFA_ENGINE_URL"
 TOKEN_ENV = "AIFA_ENGINE_TOKEN"
 # ADR-0047 п. 4: служба держит вызов до 240 с; предел инструмента и запроса — с запасом над ним.
 TIMEOUT_SEC = 300
+EXECUTION_TIMEOUT_SEC = 5400
 RESULT_LIMIT = 12_000
 STOP_POLL_SEC = 1.0
 
@@ -59,10 +60,22 @@ TOOLS = (
     ),
     Tool(
         name="aifa_state",
-        description="Состояние цикла; с artifact_ids — полное содержимое этих артефактов Case.",
+        description="Состояние цикла. artifact_index — страницы id с фильтром output_type; artifact_ids — содержимое; view=compact — значения и формулы без полной трассы.",
         schema={
             "type": "object",
-            "properties": {"artifact_ids": {"type": "array", "items": {"type": "string"}, "maxItems": 20}},
+            "properties": {
+                "artifact_ids": {"type": "array", "items": {"type": "string"}, "maxItems": 20},
+                "view": {"type": "string", "enum": ["full", "compact"]},
+                "artifact_index": {
+                    "type": "object",
+                    "properties": {
+                        "output_type": {"type": "string"},
+                        "offset": {"type": "integer", "minimum": 0},
+                        "limit": {"type": "integer", "minimum": 1, "maximum": 20},
+                    },
+                    "additionalProperties": False,
+                },
+            },
         },
         capability_class="read_only",
     ),
@@ -218,6 +231,7 @@ TOOLS = (
         description="Закрыть цикл: finalize или give_up, опубликовать файлы; только корень.",
         schema={
             "type": "object",
+            "x-task-plan-operation": "close",
             "properties": {
                 "action": {"type": "string", "enum": ["finalize", "give_up"]},
                 "deliverables": {"type": "array", "items": {"type": "string"}},
@@ -278,11 +292,29 @@ class EngineCall:
         body = {"ctx": context_of(ctx), "args": args}
         try:
             async with httpx.AsyncClient(transport=self.transport, timeout=TIMEOUT_SEC) as client:
-                request = asyncio.ensure_future(
-                    client.post(f"{url.rstrip('/')}/internal/ouro/v1/{self.tool}", json=body, headers=headers)
-                )
-                return await self._until_answered_or_stopped(request, ctx)
+                tool = self.tool
+                while True:
+                    request = asyncio.ensure_future(
+                        client.post(f"{url.rstrip('/')}/internal/ouro/v1/{tool}", json=body, headers=headers)
+                    )
+                    text = await self._until_answered_or_stopped(request, ctx)
+                    headline = text.split("\n", 1)[0]
+                    if (
+                        tool == "aifa_wait"
+                        and getattr(ctx, "plan_call_id", "")
+                        and headline.startswith(("ОТКАЗ", "СБОЙ_СЛУЖБЫ"))
+                    ):
+                        raise asyncio.CancelledError("background execution outcome is unavailable")
+                    if not getattr(ctx, "plan_call_id", "") or not headline.startswith("ЖДИ job="):
+                        return text
+                    job_id = headline.removeprefix("ЖДИ job=").strip()
+                    if not job_id:
+                        raise asyncio.CancelledError("background execution identity is unavailable")
+                    tool = "aifa_wait"
+                    body = {"ctx": context_of(ctx), "args": {"job_id": job_id, "wait_sec": 240}}
         except httpx.HTTPError as failure:
+            if getattr(ctx, "plan_call_id", ""):
+                raise asyncio.CancelledError("execution outcome could not be confirmed") from failure
             return service_fault(f"служба не ответила ({type(failure).__name__})")
 
     async def _until_answered_or_stopped(self, request: asyncio.Future[httpx.Response], ctx: Any) -> str:
@@ -290,9 +322,14 @@ class EngineCall:
         try:
             while not request.done():
                 if ctx.stop_requested():
+                    if getattr(ctx, "plan_call_id", ""):
+                        raise asyncio.CancelledError("execution wait stopped; body outcome is unconfirmed")
                     return service_fault("вызов остановлен вместе с ходом")
                 await asyncio.wait({request}, timeout=self.stop_poll_sec)
-            return request.result().text
+            response = request.result()
+            if getattr(ctx, "plan_call_id", ""):
+                response.raise_for_status()
+            return response.text
         finally:
             if not request.done():
                 request.cancel()
@@ -306,7 +343,7 @@ def register(api: Any) -> None:
             EngineCall(tool.name),
             description=tool.description,
             schema=tool.schema,
-            timeout_sec=TIMEOUT_SEC,
+            timeout_sec=EXECUTION_TIMEOUT_SEC if tool.name in {"aifa_move", "aifa_finish"} else TIMEOUT_SEC,
             result_limit=RESULT_LIMIT,
             safety_policy="skip",
             capability_class=tool.capability_class,

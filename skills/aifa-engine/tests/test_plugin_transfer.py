@@ -15,6 +15,32 @@ from ouroboros.observability import aef_tracing
 SERVICE = "http://engine:8000"
 
 
+def test_bound_move_waits_for_its_background_job_without_repeating_the_move():
+    seen = []
+
+    def handler(request):
+        seen.append((request.url.path.rsplit("/", 1)[-1], json.loads(request.content)))
+        return httpx.Response(200, text="ЖДИ job=job-1\nещё работает" if len(seen) < 3 else "ГОТОВО\nрезультат")
+
+    ctx = tool_context(plan_call_id="call-1")
+    assert run("aifa_move", handler, ctx, objective="Собрать", reason="Запрос") == "ГОТОВО\nрезультат"
+    assert [name for name, _ in seen] == ["aifa_move", "aifa_wait", "aifa_wait"]
+    assert seen[1][1]["args"] == {"job_id": "job-1", "wait_sec": 240}
+    assert all(body["ctx"] == seen[0][1]["ctx"] for _, body in seen)
+
+
+@pytest.mark.parametrize("status,text", [(504, "Gateway Timeout"), (200, "ОТКАЗ задание_не_найдено")])
+def test_failed_background_poll_keeps_the_execution_outcome_unconfirmed(status, text):
+    requests = []
+
+    def handler(request):
+        requests.append(request.url.path)
+        return httpx.Response(200, text="ЖДИ job=job-1") if len(requests) == 1 else httpx.Response(status, text=text)
+
+    with pytest.raises(asyncio.CancelledError):
+        run("aifa_move", handler, tool_context(plan_call_id="call-1"), objective="Собрать", reason="Запрос")
+
+
 @pytest.fixture(autouse=True)
 def service_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """Адрес и токен службы — из окружения (R20); «кто я» отвечает ядро, его ответ подставлен."""

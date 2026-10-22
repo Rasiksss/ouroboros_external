@@ -175,3 +175,14 @@ async def test_every_move_is_saved_and_the_restored_cycle_goes_on_from_it() -> N
     await plugin.close()
     await after.close()
     await run.end()
+
+
+async def test_agent_loop_uses_the_configured_wall_budget(monkeypatch):
+    from finengine.config import settings
+
+    monkeypatch.setattr(settings, "ouroboros_loop_max_wall_sec", 2400.0)
+    run = turn()
+    session = await LoopOpening(LoopDesk())(run.record)
+    assert isinstance(session, LoopSession)
+    assert session.limits.max_wall_seconds == 2400.0
+    await run.end()

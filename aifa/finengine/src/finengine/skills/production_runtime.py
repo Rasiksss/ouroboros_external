@@ -36,6 +36,7 @@ from finengine.skills.spec.dynamic_run import (
     DynamicRun,
     DynamicRunResult,
     LoopSession,
+    RunLimits,
     ScenarioResult,
     _progress_only,
     complete_plan,
@@ -781,6 +782,7 @@ def _loop_parts(
         "goal": goal_ir, "target": target, "run_passport": context.passport, "root_extra": root_extra,
         "inputs": _run_inputs(context, document_text=document_text, role=role, extra=root_extra),
         "event_sink": event_sink,
+        "limits": RunLimits(max_wall_seconds=settings.ouroboros_loop_max_wall_sec),
         "run_scenario": ScenarioChannel(context=context, document_text=document_text, role=role, event_sink=event_sink),
         "run_goals": GoalChannel(context=context, document_text=document_text, role=role, event_sink=event_sink),
     }

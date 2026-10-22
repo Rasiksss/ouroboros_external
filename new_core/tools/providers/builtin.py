@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib
 import logging
 from collections.abc import Sequence
+from dataclasses import replace
 from typing import TYPE_CHECKING, Any
 
 from new_core.tools.entry import ToolEntry
@@ -98,7 +99,7 @@ def descriptor_from_entry(entry: ToolEntry, origin: str) -> ToolDescriptor:
     """
     spec = spec_for_tool(entry.name)
     return ToolDescriptor(
-        schema=entry.schema,
+        schema=replace(entry.schema, plan_executor=spec.plan_executor),
         timeout_sec=entry.timeout_sec,
         origin=origin,
         surface=spec.surface,

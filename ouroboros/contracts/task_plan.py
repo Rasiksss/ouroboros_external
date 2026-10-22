@@ -148,6 +148,21 @@ class StepProgress(PlanModel):
     reason: str = ""
 
 
+class ExecutionBinding(PlanModel):
+    revision: int = Field(ge=1, strict=True)
+    step_id: Identifier
+    attempt_id: Text
+
+
+class PlanExecution(ExecutionBinding):
+    call_id: Text
+    tool_name: Text
+    status: Literal["running", "returned", "failed"] = "running"
+    child_task_id: str = ""
+    child_result_ref: str = ""
+    result_ref: str = ""
+
+
 class AcceptedRevision(PlanModel):
     revision: int
     proposal_task_id: str
@@ -174,6 +189,8 @@ class PlanState(PlanModel):
     steps: dict[str, StepProgress] = Field(default_factory=dict)
     reviews: list[RecordedReview] = Field(default_factory=list)
     events: list[StepEvent] = Field(default_factory=list)
+    calls: list[PlanExecution] = Field(default_factory=list)
+    closing_call_id: str = ""
 
     @property
     def proposal(self) -> PlanProposal:
@@ -182,6 +199,7 @@ class PlanState(PlanModel):
         return self.revisions[-1].proposal
 
     def accept(self, proposal: PlanProposal, command: AcceptPlan) -> None:
+        self.ensure_idle()
         if any(step.status in {"running", "awaiting_review"} for step in self.steps.values()):
             raise ValueError("resolve running attempts and review their results before replacing the plan")
         if proposal.base_revision != self.revision:
@@ -221,6 +239,7 @@ class PlanState(PlanModel):
         if step is None:
             raise ValueError("unknown step")
         old = self.steps[step.id]
+        self.ensure_idle(step.id)
         if old.status == "accepted":
             raise ValueError("accepted step changes require a new plan revision")
         if command.status == "running":
@@ -234,6 +253,13 @@ class PlanState(PlanModel):
             raise ValueError("review requires result references with versions or content hashes")
         if command.status in {"failed", "blocked"} and not command.reason.strip():
             raise ValueError("failed or blocked step needs a reason")
+        if command.status == "awaiting_review":
+            receipts = [
+                call.child_result_ref or call.result_ref
+                for call in self.calls
+                if call.revision == self.revision and call.step_id == step.id and call.attempt_id == command.attempt_id
+            ]
+            command = command.model_copy(update={"result_refs": list(dict.fromkeys([*command.result_refs, *receipts]))})
         self.steps[step.id] = StepProgress(
             status=command.status, attempt_id=command.attempt_id, result_refs=command.result_refs, reason=command.reason
         )
@@ -260,11 +286,47 @@ class PlanState(PlanModel):
 
     def finish(self, command: FinishPlan) -> None:
         self._active()
+        self.ensure_idle()
         if command.status == "complete" and any(step.status != "accepted" for step in self.steps.values()):
             raise ValueError("complete requires root acceptance of every step")
         if any(step.status == "running" for step in self.steps.values()):
             raise ValueError("record the outcome of running steps before finishing")
         self.status, self.reason = command.status, command.reason
+
+    def ensure_idle(self, step_id: str = "") -> None:
+        if self.closing_call_id:
+            raise ValueError("a lifecycle close is still executing")
+        if any(call.status == "running" and (not step_id or call.step_id == step_id) for call in self.calls):
+            raise ValueError("record the outcome of active executor calls first")
+
+    def begin_execution(self, binding: ExecutionBinding, call_id: str, tool_name: str) -> None:
+        self._active()
+        if self.closing_call_id:
+            raise ValueError("a lifecycle close is still executing")
+        if binding.revision != self.revision:
+            raise ValueError("stale execution revision")
+        if any(call.call_id == call_id for call in self.calls):
+            raise ValueError("executor call already recorded; inspect its result instead of replaying it")
+        step = next((step for step in self.proposal.steps if step.id == binding.step_id), None)
+        if step is None:
+            raise ValueError("unknown execution step")
+        progress = self.steps[step.id]
+        if progress.status != "running":
+            self.update_step(
+                StepUpdate(
+                    expected_version=self.version, step_id=step.id, status="running", attempt_id=binding.attempt_id
+                )
+            )
+        elif progress.attempt_id != binding.attempt_id:
+            raise ValueError("executor must name the current running attempt")
+        self.ensure_idle(step.id)
+        self.calls.append(PlanExecution(**binding.model_dump(), call_id=call_id, tool_name=tool_name))
+
+    def execution(self, call_id: str) -> PlanExecution:
+        call = next((call for call in self.calls if call.call_id == call_id), None)
+        if call is None:
+            raise ValueError("unknown executor call")
+        return call
 
     def _active(self) -> None:
         if not self.revisions or self.status != "active":

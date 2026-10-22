@@ -38,7 +38,7 @@ class SqlTaskPlanRepository:
         self,
         scope: OwnerScope,
         root_task_id: str,
-        expected_version: int,
+        expected_version: int | None,
         mutation: Callable[[PlanState], None],
         *,
         claim_token: str = "",
@@ -68,7 +68,7 @@ class SqlTaskPlanRepository:
             ):
                 raise ValueError("root execution claim is no longer active")
             state = self.load(scope, root_task_id)
-            if state.version != expected_version:
+            if expected_version is not None and state.version != expected_version:
                 raise ValueError("stale expected_version; read the current plan")
             mutation(state)
             state.version += 1

@@ -19,7 +19,7 @@ from typing import Any
 from new_core.identity import OwnerScope
 from new_core.llm.usage import add_usage
 from new_core.tools.interfaces import ToolEvents
-from ouroboros.agent_events.interfaces import IAgentEventPublisher, SkillLifecycle
+from ouroboros.agent_events.interfaces import IAgentEventPublisher, SkillLifecycle, TaskCancellationRequested
 from ouroboros.observability.event_record import LogStream, record_event
 from ouroboros.observability.interfaces.audit_events import IAuditEventRepository
 from ouroboros.observability.pricing import emit_llm_usage_event
@@ -157,6 +157,16 @@ class PublishedToolEvents(ToolEvents):
         except Exception:
             # Not reported at all would lose the child; the caller keeps it for the run result.
             log.warning("Could not hand subtask %s to the supervisor", getattr(request, "task_id", ""), exc_info=True)
+            return False
+        return True
+
+    def request_cancellation(self, request: TaskCancellationRequested) -> bool:
+        if self._events is None:
+            return False
+        try:
+            self._events.publish(request)
+        except Exception:
+            log.warning("Could not hand cancellation %s to the supervisor", request.task_id, exc_info=True)
             return False
         return True
 

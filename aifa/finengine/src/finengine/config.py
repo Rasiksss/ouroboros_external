@@ -76,6 +76,7 @@ class Settings(BaseSettings):
     ouroboros_run_watch_sec: float = 1.0
     # Срок подзадачи от первого `aifa_wait(task_id)` по ней (ADR-0043 п. 3); не дольше остатка времени цикла.
     ouroboros_subtask_wait_sec: float = 600.0
+    ouroboros_loop_max_wall_sec: float = Field(default=1200.0, gt=0)
 
     # OpenRouter settings (legacy fallback / non-chat call sites still
     # using openrouter directly: extract per-metric, AIFA reranker, etc.)

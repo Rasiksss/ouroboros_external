@@ -51,6 +51,7 @@ class ToolSpec:
     env_prefix: str | None = None
     is_code_tool: bool = False
     capability_class: CapabilityClass = "read_only"
+    plan_executor: bool = False
     schema: dict[str, Any] | None = None
     handler: Callable[..., str] | None = None
 

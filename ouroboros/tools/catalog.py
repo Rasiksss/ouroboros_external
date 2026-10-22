@@ -49,6 +49,7 @@ def _spec(
     untruncated_result: bool = False,
     timeout_sec: int = 360,
     is_code_tool: bool = False,
+    plan_executor: bool = False,
 ) -> ToolSpec:
     return ToolSpec(
         name=name,
@@ -61,6 +62,7 @@ def _spec(
         untruncated_result=untruncated_result,
         timeout_sec=timeout_sec,
         is_code_tool=is_code_tool,
+        plan_executor=plan_executor,
     )
 
 
@@ -76,7 +78,7 @@ TOOL_SPECS: dict[str, ToolSpec] = {
     # Core headless surface.
     "data_read": _spec("data_read", surface="core", parallel=True, result_limit=80_000),
     "data_list": _spec("data_list", surface="core", parallel=True),
-    "data_write": _spec("data_write", surface="core", capability_class="mutative"),
+    "data_write": _spec("data_write", plan_executor=True, surface="core", capability_class="mutative"),
     "recent_tasks": _spec("recent_tasks", surface="core", parallel=True, result_limit=80_000),
     "memory_save": _spec("memory_save", category="memory", surface="core", capability_class="mutative"),
     "memory_list": _spec("memory_list", category="memory", surface="core"),
@@ -122,12 +124,20 @@ TOOL_SPECS: dict[str, ToolSpec] = {
         surface="core",
         capability_class="mutative",
     ),
-    "send_photo": _spec("send_photo", category="service", surface="core", capability_class="mutative"),
-    "send_image": _spec("send_image", category="service", surface="core", capability_class="mutative"),
-    "send_file": _spec("send_file", category="service", surface="core", capability_class="mutative"),
+    "send_photo": _spec(
+        "send_photo", plan_executor=True, category="service", surface="core", capability_class="mutative"
+    ),
+    "send_image": _spec(
+        "send_image", plan_executor=True, category="service", surface="core", capability_class="mutative"
+    ),
+    "send_file": _spec(
+        "send_file", plan_executor=True, category="service", surface="core", capability_class="mutative"
+    ),
     "list_available_tools": _spec("list_available_tools", category="service", surface="core"),
     "enable_tools": _spec("enable_tools", category="service", surface="core", capability_class="mutative"),
-    "schedule_task": _spec("schedule_task", category="service", surface="core", capability_class="mutative"),
+    "schedule_task": _spec(
+        "schedule_task", plan_executor=True, category="service", surface="core", capability_class="mutative"
+    ),
     "cancel_task": _spec("cancel_task", category="service", surface="core", capability_class="mutative"),
     "get_task_result": _spec(
         "get_task_result",
@@ -184,6 +194,7 @@ TOOL_SPECS: dict[str, ToolSpec] = {
     ),
     "code_exec": _spec(
         "code_exec",
+        plan_executor=True,
         category="execution",
         safety_policy="check",
         capability_class="external_shell",
@@ -192,10 +203,10 @@ TOOL_SPECS: dict[str, ToolSpec] = {
     ),
     # 50_000, not the 80_000 used by data_read/skill payloads — spec §19.3's `read`
     # truncates at 2000 lines OR 50KB, whichever hits first; this is that 50KB cap.
-    "file_read": _spec("file_read", result_limit=50_000, timeout_sec=60),
-    "file_write": _spec("file_write", capability_class="mutative", timeout_sec=60),
-    "file_edit": _spec("file_edit", capability_class="mutative", timeout_sec=60),
-    "apply_patch": _spec("apply_patch", capability_class="mutative", timeout_sec=120),
+    "file_read": _spec("file_read", plan_executor=True, result_limit=50_000, timeout_sec=60),
+    "file_write": _spec("file_write", plan_executor=True, capability_class="mutative", timeout_sec=60),
+    "file_edit": _spec("file_edit", plan_executor=True, capability_class="mutative", timeout_sec=60),
+    "apply_patch": _spec("apply_patch", plan_executor=True, capability_class="mutative", timeout_sec=120),
     # Excluded from headless production surface (policy metadata only).
     "repo_read": _spec("repo_read", surface="excluded"),
     "repo_list": _spec("repo_list", surface="excluded"),

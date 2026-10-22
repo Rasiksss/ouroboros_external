@@ -1,0 +1,6 @@
+- [x] Add failing dispatch, cancellation, artifact lookup and budget regressions.
+- [x] Bind calls and child tasks to plan attempts; block premature closure.
+- [x] Deliver cancellation immediately via the existing transport.
+- [x] Add paged artifact discovery and compact values; update skills.
+- [ ] Double dev budgets, run suites and independent review.
+- [ ] Deploy to dev and rerun UI file acceptance.

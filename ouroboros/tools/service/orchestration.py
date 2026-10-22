@@ -16,6 +16,7 @@ from ouroboros.storage.runtime_persistence import runtime_persistence
 from ouroboros.storage.settings.store import load_settings
 from ouroboros.storage.task_results import (
     STATUS_COMPLETED,
+    STATUS_FAILED,
     STATUS_REJECTED_DUPLICATE,
     STATUS_REQUESTED,
     STATUS_RUNNING,
@@ -23,6 +24,7 @@ from ouroboros.storage.task_results import (
     list_task_results,
     write_task_result,
 )
+from ouroboros.tools.service.task_planning import attach_plan_child
 from ouroboros.utils import utc_now_iso
 
 log = logging.getLogger(__name__)
@@ -167,12 +169,25 @@ def _schedule_task(ctx: ToolContext, description: str, context: str = "", parent
         )
     except Exception as exc:
         log.warning("Failed to persist requested task status for %s", task_id, exc_info=True)
-        if detached:
+        if detached or ctx.plan_call_id:
             ctx.pending_events[:] = [event for event in ctx.pending_events if event is not requested]
             if isinstance(exc, STORE_FAILURES):
                 raise ExecutionClaimUnavailable(str(ctx.task_id or "")) from exc
             return "⚠️ SCHEDULE_TASK_BLOCKED: task request was not persisted."
     else:
+        if ctx.plan_call_id:
+            try:
+                attach_plan_child(ctx, task_id)
+            except Exception:
+                ctx.pending_events[:] = [event for event in ctx.pending_events if event is not requested]
+                write_task_result(
+                    ctx.drive_root,
+                    task_id,
+                    STATUS_FAILED,
+                    scope=ctx.scope,
+                    result="Plan binding failed before supervisor acceptance.",
+                )
+                raise
         # The child starts while this run is still going (ADR-0052): the request leaves now, after the record
         # it names exists. A durable job keeps the run-result path, which closes its attempt over its children.
         events = getattr(ctx, "events", None)
@@ -186,17 +201,17 @@ def _cancel_task(ctx: ToolContext, task_id: str) -> str:
     current = _current_task(ctx, task_id)
     if current is not None and current.detached and not load_settings().OUROBOROS_DURABLE_JOBS_ENABLED:
         return "ERROR: Durable jobs are disabled."
-    ctx.pending_events.append(
-        TaskCancellationRequested(
-            scope=ctx.scope,
-            task_id=task_id,
-            job_id=current.job_id if current is not None and current.job_id == task_id else "",
-            source=str(ctx.scope.surface_id),
-            transport=dict(transport) if isinstance(transport, dict) and transport else {},
-            ts=utc_now_iso(),
-            suppress_ack=bool(getattr(ctx, "detached", False)),
-        )
+    requested = TaskCancellationRequested(
+        scope=ctx.scope,
+        task_id=task_id,
+        job_id=current.job_id if current is not None and current.job_id == task_id else "",
+        source=str(ctx.scope.surface_id),
+        transport=dict(transport) if isinstance(transport, dict) and transport else {},
+        ts=utc_now_iso(),
+        suppress_ack=bool(getattr(ctx, "detached", False)),
     )
+    if not ctx.events.request_cancellation(requested):
+        ctx.pending_events.append(requested)
     return f"Cancel requested: {task_id}"
 
 

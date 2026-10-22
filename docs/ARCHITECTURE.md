@@ -578,7 +578,7 @@ never merge: `owner_scope` (identity) and `scope` (storage scope).
 | `messages` | `(owner_id, agent_id, chat_id)` + surrogate PK | Owner-visible dialogue. `chat_history_visible` and `inbound_unprocessed` are indexed derived columns. `content` encrypted when chat encryption is configured. |
 | `context_summaries` | `(owner_id, agent_id, chat_id)` | One summary per conversation; `source_offsets_ref` is the committed raw-message cursor. |
 | `tasks` | `(owner_id, job_id, lineage_ordinal)` | Canonical `surface_id`/`chat_id` from `OwnerScope`; foreground root uniqueness uses the full chat key. Successors advance lineage. |
-| `task_plans` (`0034`) | root task + all `OwnerScope` axes | `storage/task_plans.py`, composed by `runtime_persistence.py`: credentials-key sealed plan revisions, attempts and root reviews; task deletion cascades. `task_plan` accepts completed child proposals; root owns semantic acceptance. Behavior: OpenSpec `task-planning`. |
+| `task_plans` (`0034`) | root task + all `OwnerScope` axes | `storage/task_plans.py`, composed by `runtime_persistence.py`: sealed revisions, attempts, calls, child bindings and root reviews; task deletion cascades. Dispatch binds executors before publication; live calls/children block closure. `task_plan` accepts completed child proposals; root owns semantic acceptance. Behavior: OpenSpec `task-planning`. |
 | `tool_confirmations` | all `OwnerScope` axes + `(task_id, round_idx)` | Parked run state. Partial unique index on pending rows = one-open-request-per-scope. |
 | `owner_runtime_state` | `(owner_id, agent_id)` | Owner claim, session id, spend counters. |
 | `memory` | `(owner_id, agent_id, name)` | Every durable memory. `kind` is a closed enum. |

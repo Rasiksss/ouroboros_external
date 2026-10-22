@@ -162,12 +162,14 @@ def _state(session: LoopSession, limit: int) -> str:
     return "\n\n".join(f"## {title}\n{sections[title]}" for title in order)
 
 
-def artifacts(found: list[tuple[str, str]], missing: list[str], *, limit: int) -> str:
+def artifacts(found: list[tuple[str, str]], missing: list[str], *, limit: int, view: str = "full") -> str:
     """Ответ `aifa_state(artifact_ids)`: полное содержимое найденных артефактов, `found` — пары (id, текст)."""
     head = f"{Code.READY}\n## Артефакты\n"
     parts: list[str] = []
     size = len(head)
     for index, (artifact_id, content) in enumerate(found):
+        if view == "compact":
+            content = _compact_artifact(content)
         part = f"### {artifact_id}\n{content}\n"
         room = limit - size - TAIL_RESERVE
         if len(part) > room:
@@ -185,6 +187,31 @@ def artifacts(found: list[tuple[str, str]], missing: list[str], *, limit: int) -
     return text.rstrip("\n")
 
 
+def _compact_artifact(content: str) -> str:
+    data = json.loads(content)
+    if not isinstance(data, dict) or data.get("output_type") not in {"ExtractedMetric", "CalculatedMetric"}:
+        return content
+    kept = {key: value for key, value in data.items() if key in {"schema_version", "output_type", "status", "metric_id", "concept", "period_ref", "entity_ref", "basis"}}
+    for name in ("scalar_fact", "derived_fact"):
+        if isinstance(data.get(name), dict):
+            kept[name] = {key: value for key, value in data[name].items() if key in {"evidence_id", "concept", "period_ref", "value", "unit", "basis", "expression", "inputs", "formula_id", "formula_version"}}
+    return json.dumps(kept, ensure_ascii=False, separators=(",", ":"))
+
+
+def artifact_index(entries: list[dict], *, offset: int, count: int, limit: int) -> str:
+    page: list[dict] = []
+    total = len(entries)
+    for entry in entries[offset:offset + count]:
+        candidate = {"artifacts": [*page, entry], "total": total, "next_offset": offset + len(page) + 1}
+        if len(json.dumps(candidate, ensure_ascii=False)) > limit - 100:
+            break
+        page.append(entry)
+    if not page and offset < total:
+        return refusal(Refusal.BAD_ARGUMENTS, "Запись индекса не помещается в предел ответа.")
+    following = offset + len(page)
+    return f"{Code.READY}\n" + json.dumps({"artifacts": page, "total": total, "next_offset": following if following < total else None}, ensure_ascii=False)
+
+
 def shown_ids(session: LoopSession) -> frozenset[str]:
     """id артефактов, которые сейчас видны в таблице состояния: по ним `moved` отделяет новое."""
     rows = case_rows(session.runtime.store, session.owner_id, session.case_id)
@@ -199,10 +226,12 @@ def moved(
     fresh = _fresh_lines(session, known)
     left = dict(state_sections(session, session.feedback))["Осталось"]
     code = Code.LIMIT if exhausted else Code.READY
-    parts = [f"{code}\n## Итог хода {session.turns}\n{outcome.headline}\n{outcome.details}".rstrip()]
+    parts = [f"{code}\n## Итог хода {session.turns}\n{outcome.headline}".rstrip()]
     if exhausted:
         parts.append(f"Цикл исчерпан: {exhausted}. Новые ходы нельзя — принимается только aifa_finish.")
     parts.append(f"## Новые артефакты\n{ARTIFACTS_HEADER}\n" + ("\n".join(fresh) if fresh else "—"))
+    parts.append("Итоговые артефакты: aifa_state(artifact_index={\"output_type\":\"NarrativeOutput\"}) либо тип FileArtifact; next_offset — следующая страница.")
+    parts.append(f"## Исполнение\n{outcome.details}")
     parts.append(f"## Осталось\n{left}")
     text = "\n\n".join(parts)
     if len(text) > limit:
