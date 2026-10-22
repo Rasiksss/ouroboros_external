@@ -1563,6 +1563,7 @@ def _start_ouroboros_turn(request: QueryRequest, user: User, doc_ids: list[str],
         run_id=run_id, owner_id=str(user.id), chat_id=chat_id, message=request.message, user_id=user.id,
         case_id=request.project_id or session_id, doc_ids=tuple(doc_ids), active_doc_id=active_doc_id,
         role=request.role or "", trace_id=trace_id,
+        web_search=request.web_search,
     ))
     # История сессии отбирается по её ходам (CONTRACTS.md §2.6): чат папки делят все её сессии.
     session_turns.record_turn(str(user.id), session_id, run_id=run_id, chat_id=chat_id)

@@ -34,6 +34,7 @@ class TurnRecord:
     role: str
     root_task_id: str = ""
     trace_id: str = ""  # трасса хода (`X-Trace-Id` рукопожатия): её же получает комната станции
+    web_search: bool = False
 
 
 def _key(run_id: str) -> str:

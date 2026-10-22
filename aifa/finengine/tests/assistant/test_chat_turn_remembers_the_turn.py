@@ -96,3 +96,12 @@ def test_the_route_answers_as_before(client: TestClient) -> None:
 
     assert set(body) == {"schema_version", "event_schema_version", "run_id", "events_url"}
     assert body["events_url"] == f"/chat/runs/{body['run_id']}/events"
+
+
+@pytest.mark.parametrize("enabled", [False, True])
+def test_the_turn_remembers_the_users_web_search_choice(client: TestClient, enabled: bool) -> None:
+    response = client.post("/chat/turns", json={"message": "ставка ЦБ", "web_search": enabled})
+
+    record = recall(response.json()["run_id"])
+    assert record is not None
+    assert record.web_search is enabled

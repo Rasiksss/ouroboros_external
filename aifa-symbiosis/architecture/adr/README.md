@@ -34,7 +34,8 @@
 
 ## Указатель
 
-Новая запись: [0065 — провайдер LLM на dev по приоритету](0065-dev-provider-llm-po-prioritetu.md).
+Новые записи: [0066 — выбор поиска в контексте хода](0066-veb-kontekst-hoda.md),
+[0067 — DeepSeek и два канала на dev](0067-dev-deepseek-dva-provaydera.md).
 
 | № | Решение | Статус |
 |---|---|---|
