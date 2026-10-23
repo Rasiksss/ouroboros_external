@@ -50,3 +50,17 @@ def test_root_does_not_attach_a_second_copy_of_the_published_file() -> None:
     source = text("aifa-planning/SKILL.md")
     assert "второй, непроверенный экземпляр" in source
     assert "`file_read` на него" in source
+
+
+def test_root_reads_the_report_only_to_check_a_returned_result() -> None:
+    source = text("aifa-planning/SKILL.md")
+    assert "Корень читает отчёт только после принятия плана" in source
+    assert "сверить значение, страницу и единицу" in source
+    assert "разобрать расхождение результатов" in source
+
+
+def test_task_plan_writes_go_one_at_a_time_with_the_version_from_the_last_reply() -> None:
+    source = text("aifa-planning/references/plans.md")
+    assert "строго по одной" in source
+    assert "`stale expected_version`" in source
+    assert "`attempt_id` текущей попытки" in source

@@ -41,7 +41,7 @@ export const PANEL_MIN: Record<PanelId, number> = { chat: 320, doc: 260, ws: 280
 
 export const PANEL_TITLE: Record<PanelId, string> = {
   chat: "Чат",
-  doc: "Исходный документ",
+  doc: "План",
   ws: "Рабочая область",
 };
 

@@ -12,13 +12,27 @@ import type { RootPlanRevision } from "@/lib/root-plan";
  * статусов шагов и слова «принят»; прежняя ревизия подписана «заменена», потому что корень заказал
  * новую. Свернуто по умолчанию: основной остров — «План агента» выше.
  */
-export function RootPlanView({ revisions }: { revisions: RootPlanRevision[] }) {
-  const [open, setOpen] = useState(false);
+export function RootPlanView({
+  revisions,
+  defaultOpen = false,
+  emptyText,
+}: {
+  revisions: RootPlanRevision[];
+  /** Колонка плана открыта сразу; блок под островом — свёрнут. */
+  defaultOpen?: boolean;
+  /** Что сказать, пока планировщик ничего не предложил (колонка плана). */
+  emptyText?: string;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
   // Выбор ревизии пользователем; пока не выбрал — следуем за текущей (последней).
   const [picked, setPicked] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
-  if (!revisions.length) return null;
+  if (!revisions.length) {
+    return emptyText ? (
+      <p className="px-4 py-3 text-[12.5px] text-[var(--color-neutral-500)]">{emptyText}</p>
+    ) : null;
+  }
   const shown = revisions.find((r) => r.taskId === picked) ?? revisions[revisions.length - 1];
 
   return (

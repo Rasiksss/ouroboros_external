@@ -117,8 +117,9 @@ def test_the_root_does_not_study_the_report_before_it_orders_the_plan() -> None:
     """Прогон 15:16–15:36: корень 8 минут изучал отчёт сам (12 вызовов `aifa_doc`), а план так и не заказал."""
     text = guide()
 
-    assert "До заказа плана отчёт не исследуй" in text
-    assert "факты об отчёте даст извлечение" in text
+    assert "`aifa_doc` — инструмент проверки, а не поиска" in text
+    assert "До заказа плана и пока нет результата подзадачи `aifa_doc` не вызывай вовсе" in text
+    assert "Не знаешь, где в отчёте показатель, — не повод читать" in text
 
 
 def test_the_root_hands_over_only_what_the_state_already_knows() -> None:

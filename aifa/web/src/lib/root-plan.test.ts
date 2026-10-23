@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { applyChatEvent, resetForReplay, type TextMessage } from "./projects";
 import { rootPlanRevisions, type RootPlanEvent } from "./root-plan";
+import { PANEL_TITLE } from "./workspace-layout";
 
 function proposal(taskId: string, objectives: string[]): RootPlanEvent {
   return {
@@ -51,5 +52,11 @@ describe("root plan events", () => {
     msg = applyChatEvent(msg, proposal("t1", ["Извлечь"]) as never);
 
     expect(rootPlanRevisions(resetForReplay(msg))).toEqual([]);
+  });
+});
+
+describe("plan column", () => {
+  it("takes the place of the source document column", () => {
+    expect(PANEL_TITLE.doc).toBe("План");
   });
 });
