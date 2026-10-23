@@ -29,14 +29,6 @@ def test_author_names_an_operand_that_is_narrower_or_out_of_scale() -> None:
     assert "не прячь" in source
 
 
-def test_root_accepts_a_calculated_metric_only_after_reading_its_operands() -> None:
-    source = text("aifa-planning/references/plans.md")
-    assert 'view="full"' in source
-    assert "охват" in source
-    assert "несоразмерна" in source
-    assert "не подтверждён" in source
-
-
 def test_root_answers_with_numbers_only_from_facts_or_the_artifact_table() -> None:
     source = text("aifa-planning/SKILL.md")
     assert "`payload.facts`" in source
@@ -50,13 +42,6 @@ def test_root_does_not_attach_a_second_copy_of_the_published_file() -> None:
     source = text("aifa-planning/SKILL.md")
     assert "второй, непроверенный экземпляр" in source
     assert "`file_read` на него" in source
-
-
-def test_root_reads_the_report_only_to_check_a_returned_result() -> None:
-    source = text("aifa-planning/SKILL.md")
-    assert "Корень читает отчёт только после принятия плана" in source
-    assert "сверить значение, страницу и единицу" in source
-    assert "разобрать расхождение результатов" in source
 
 
 def test_task_plan_writes_go_one_at_a_time_with_the_version_from_the_last_reply() -> None:
@@ -76,3 +61,19 @@ def test_root_without_an_accepted_plan_orders_a_new_one_instead_of_executing() -
     source = text("aifa-planning/references/plans.md")
     assert "предложение не принято, плана нет" in source
     assert "не начинай исполнение без принятого плана" in source
+
+
+def test_root_does_not_read_the_report_and_takes_engine_values_as_truth() -> None:
+    source = text("aifa-planning/SKILL.md")
+    assert "### Корень не читает отчёт" in source
+    assert "— истина: корень их не сверяет" in source
+    assert "`aifa_doc` до заказа плана и при приёмке не вызывай" in source
+
+
+def test_step_acceptance_is_light_and_rests_on_the_step_result() -> None:
+    source = text("aifa-planning/references/plans.md")
+    assert "Приёмка лёгкая" in source
+    assert "индекс артефактов не листай" in source
+    assert "`result_refs` из ответа `step`" in source
+    assert "операнды, определения показателей и ряды не сверяй" in source
+    assert "принимай, только прочитав его входы" not in source
