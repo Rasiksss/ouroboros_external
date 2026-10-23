@@ -18,6 +18,7 @@ from new_core.tools.interfaces import ToolDescriptor
 from new_core.tools.schema import ToolSchema
 from ouroboros.contracts.task_plan import (
     AcceptPlan,
+    AcceptStep,
     ExecutionBinding,
     FinishPlan,
     PlanProposal,
@@ -148,7 +149,7 @@ def task_plan(ctx: ToolContext, action: str, data: Mapping[str, object] | None =
 
 
 def _operate(ctx: ToolContext, action: str, data: Mapping[str, object]) -> str:
-    command: AcceptPlan | StepUpdate | StepReview | FinishPlan
+    command: AcceptPlan | AcceptStep | StepUpdate | StepReview | FinishPlan
     if action == "schema":
         return json.dumps(
             {
@@ -157,6 +158,7 @@ def _operate(ctx: ToolContext, action: str, data: Mapping[str, object]) -> str:
                 "commands": {
                     "accept": AcceptPlan.model_json_schema(),
                     "step": StepUpdate.model_json_schema(),
+                    "accept_step": AcceptStep.model_json_schema(),
                     "review": StepReview.model_json_schema(),
                     "finish": FinishPlan.model_json_schema(),
                 },
@@ -193,6 +195,9 @@ def _operate(ctx: ToolContext, action: str, data: Mapping[str, object]) -> str:
     elif action == "step":
         command = StepUpdate.model_validate(data)
         mutation = partial(PlanState.update_step, command=command)
+    elif action == "accept_step":
+        command = AcceptStep.model_validate(data)
+        mutation = partial(PlanState.accept_step, command=command)
     elif action == "review":
         command = StepReview.model_validate(data)
         mutation = partial(PlanState.review, command=command)
@@ -201,7 +206,7 @@ def _operate(ctx: ToolContext, action: str, data: Mapping[str, object]) -> str:
         mutation = partial(PlanState.finish, command=command)
     else:
         raise ValueError("unknown action")
-    step_id = command.step_id if isinstance(command, StepUpdate | StepReview) else ""
+    step_id = command.step_id if isinstance(command, StepUpdate | StepReview | AcceptStep) else ""
     return plans.change(
         ctx.scope,
         root_id,
@@ -220,13 +225,17 @@ def get_tools() -> list[ToolEntry]:
                 description=(
                     "Root-owned task plan. schema returns proposal and command schemas; read returns the current "
                     "version. accept reads a completed planning child's full JSON result. step records an attempt; "
-                    "review records the root's observations and acceptance; finish records complete or partial. "
+                    "accept_step accepts a step by the result its executor returned (one write); review records the "
+                    "root's observations and acceptance; finish records complete or partial. "
                     "Only the root writes. Supply versioned result/observation references, not promises."
                 ),
                 parameters={
                     "type": "object",
                     "properties": {
-                        "action": {"type": "string", "enum": ["schema", "read", "accept", "step", "review", "finish"]},
+                        "action": {
+                            "type": "string",
+                            "enum": ["schema", "read", "accept", "step", "accept_step", "review", "finish"],
+                        },
                         "data": {
                             "type": "object",
                             "description": "Command fields from task_plan(action='schema'); every write requires expected_version.",

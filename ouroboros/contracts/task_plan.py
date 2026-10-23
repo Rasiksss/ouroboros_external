@@ -136,6 +136,14 @@ class StepReview(ExpectedVersion):
     explanation: Text
 
 
+class AcceptStep(ExpectedVersion):
+    """Accept a step by the result its executor returned: one write instead of `step` plus `review`."""
+
+    step_id: Identifier
+    attempt_id: str = Field(default="", max_length=200)
+    explanation: str = Field(default="", max_length=12000)
+
+
 class FinishPlan(ExpectedVersion):
     status: Literal["complete", "partial"]
     reason: Text
@@ -283,6 +291,61 @@ class PlanState(PlanModel):
         )
         progress.reason = command.explanation
         self.reviews.append(RecordedReview(revision=self.revision, review=command))
+
+    def accept_step(self, command: AcceptStep) -> None:
+        """Take the returned result of the running attempt as the observation of every criterion.
+
+        Executor calls of the attempt must have returned: a failed call or no call at all is not a result.
+        """
+        self._active()
+        progress = self.steps.get(command.step_id)
+        step = next((step for step in self.proposal.steps if step.id == command.step_id), None)
+        if progress is None or step is None:
+            raise ValueError("unknown step")
+        attempt_id = command.attempt_id or progress.attempt_id
+        if progress.status == "running":
+            calls = [
+                call
+                for call in self.calls
+                if call.revision == self.revision and call.step_id == step.id and call.attempt_id == attempt_id
+            ]
+            if any(call.status == "failed" for call in calls):
+                raise ValueError("an executor call of this attempt failed; review it explicitly or start a new attempt")
+            refs = [call.child_result_ref or call.result_ref for call in calls if call.status == "returned"]
+            if not any(refs):
+                raise ValueError("no returned executor result to accept; run the step first")
+            self.update_step(
+                StepUpdate(
+                    expected_version=self.version,
+                    step_id=step.id,
+                    status="awaiting_review",
+                    attempt_id=attempt_id,
+                    result_refs=[ref for ref in refs if ref],
+                )
+            )
+            progress = self.steps[step.id]
+        if progress.status != "awaiting_review" or progress.attempt_id != attempt_id:
+            raise ValueError("accept_step needs a running or awaiting_review attempt")
+        refs = list(progress.result_refs)
+        self.review(
+            StepReview(
+                expected_version=self.version,
+                step_id=step.id,
+                attempt_id=attempt_id,
+                result_refs=refs,
+                checks=[
+                    CriterionCheck(
+                        criterion_id=criterion.id,
+                        verdict="pass",
+                        observation_refs=refs,
+                        note="Принято по результату исполнителя",
+                    )
+                    for criterion in step.acceptance_criteria
+                ],
+                decision="accept",
+                explanation=command.explanation or "Принято по результату исполнителя",
+            )
+        )
 
     def finish(self, command: FinishPlan) -> None:
         self._active()

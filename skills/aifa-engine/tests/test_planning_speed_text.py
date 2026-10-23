@@ -56,7 +56,8 @@ def test_the_proposal_is_compact_and_has_no_conditional_branches_as_steps() -> N
     text = plan_author()
 
     assert "не больше 12 000 знаков" in text
-    assert "не больше трёх критериев" in text
+    assert "критерий на шаг один" in text
+    assert "число шагов не ограничено" in text
     assert "Ветвление" in text and "не записывай шагами" in text
 
 
@@ -86,8 +87,9 @@ def test_result_refs_are_pasted_from_the_answer_and_never_typed() -> None:
     """Прогон 22.10: два `review` подряд отклонены, в хеше `sha256` модель исказила один знак."""
     text = plans()
 
-    assert "Хеши не набирай вручную" in text
-    assert "вставляй целиком" in text
+    # Ссылки на результаты корень больше не набирает: их берёт `accept_step` (ADR-0079).
+    assert "приими шаг одной записью" in text
+    assert "`accept_step`" in text
 
 
 def test_every_executor_call_of_the_root_carries_the_plan_binding() -> None:

@@ -74,6 +74,8 @@ def test_step_acceptance_is_light_and_rests_on_the_step_result() -> None:
     source = text("aifa-planning/references/plans.md")
     assert "Приёмка лёгкая" in source
     assert "индекс артефактов не листай" in source
-    assert "`result_refs` из ответа `step`" in source
+    assert 'task_plan(action="accept_step"' in source
+    assert "Не пиши `step awaiting_review` и `review` отдельно" in source
+    assert "`review` с `decision` `revise`/`blocked`" in source
     assert "операнды, определения показателей и ряды не сверяй" in source
     assert "принимай, только прочитав его входы" not in source

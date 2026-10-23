@@ -251,3 +251,90 @@ def test_cancelled_wait_does_not_release_a_still_running_tool_body(tmp_path):
             assert await asyncio.to_thread(ended.wait, 10)
 
     asyncio.run(cancel_wait())
+
+
+def _run_bound(tmp_path, provider=None, **plan_kwargs):
+    ctx = make_plan_tool_ctx(tmp_path, kind="scenario", **plan_kwargs)
+    provider = provider or executor_provider()
+    run_tool(make_catalog([provider]), ctx, "execute_report", {"_plan": binding()})
+    return ctx, json.loads(task_plan(ctx, "read"))
+
+
+def test_accept_step_takes_a_returned_executor_result_in_one_write(tmp_path):
+    ctx, state = _run_bound(tmp_path)
+    (call,) = state["calls"]
+
+    accepted = json.loads(task_plan(ctx, "accept_step", {"expected_version": state["version"], "step_id": "S1"}))
+
+    assert accepted["steps"]["S1"]["status"] == "accepted"
+    assert accepted["steps"]["S1"]["result_refs"] == [call["result_ref"]]
+    (recorded,) = accepted["reviews"]
+    checks = recorded["review"]["checks"]
+    assert [(c["criterion_id"], c["verdict"]) for c in checks] == [("C1", "pass")]
+    assert all(c["observation_refs"] == [call["result_ref"]] for c in checks)
+    assert accepted["version"] == state["version"] + 1
+
+
+def test_accept_step_covers_every_criterion_of_the_step(tmp_path):
+    ctx = make_plan_tool_ctx(tmp_path, kind="scenario")
+    state = json.loads(task_plan(ctx, "read"))
+    step = state["revisions"][0]["proposal"]["steps"][0]
+    assert len(step["acceptance_criteria"]) == 1  # the helper plan has one; the review follows the plan, not a constant
+    run_tool(make_catalog([executor_provider()]), ctx, "execute_report", {"_plan": binding()})
+
+    accepted = json.loads(
+        task_plan(
+            ctx, "accept_step", {"expected_version": json.loads(task_plan(ctx, "read"))["version"], "step_id": "S1"}
+        )
+    )
+
+    covered = {c["criterion_id"] for c in accepted["reviews"][0]["review"]["checks"]}
+    assert covered == {c["id"] for c in step["acceptance_criteria"]}
+
+
+def test_accept_step_refuses_a_failed_executor_call(tmp_path):
+    class FailingProvider(RecordingProvider):
+        def execute(self, ctx, name, args):
+            raise RuntimeError("executor failed")
+
+    provider = FailingProvider("execute_report", "ext:reports", skips_llm_safety=True, safety_policy="skip")
+    provider._desc = replace(provider._desc, schema=replace(provider._desc.schema, plan_executor=True))
+    ctx = make_plan_tool_ctx(tmp_path, kind="scenario")
+    with pytest.raises(RuntimeError, match="executor failed"):
+        run_tool(make_catalog([provider]), ctx, "execute_report", {"_plan": binding()})
+    state = json.loads(task_plan(ctx, "read"))
+
+    refused = task_plan(ctx, "accept_step", {"expected_version": state["version"], "step_id": "S1"})
+
+    assert refused.startswith("ERROR:") and "failed" in refused
+    assert json.loads(task_plan(ctx, "read"))["steps"]["S1"]["status"] == "running"
+
+
+def test_accept_step_refuses_a_step_without_any_returned_result(tmp_path):
+    ctx = make_plan_tool_ctx(tmp_path, kind="scenario")
+    state = json.loads(task_plan(ctx, "read"))
+
+    refused = task_plan(ctx, "accept_step", {"expected_version": state["version"], "step_id": "S1"})
+
+    assert refused.startswith("ERROR:")
+    assert json.loads(task_plan(ctx, "read"))["steps"]["S1"]["status"] == "pending"
+
+
+def test_accept_step_waits_for_a_running_child_and_keeps_the_stale_version_guard(tmp_path):
+    ctx = make_plan_tool_ctx(tmp_path)
+    sink = RecordingAgentEvents()
+    ctx.events = PublishedToolEvents(sink, task_id="root", scope=ctx.scope, audit_event_repository=None)
+    catalog = make_catalog([BuiltinToolProvider(modules=("service.orchestration",))])
+    run_tool(catalog, ctx, "schedule_task", {"description": "Build workbook", "_plan": binding()})
+    (request,) = sink.of_type(SubtaskRequested)
+    state = json.loads(task_plan(ctx, "read"))
+
+    assert "executor" in task_plan(ctx, "accept_step", {"expected_version": state["version"], "step_id": "S1"}).lower()
+
+    runtime_persistence.current.tasks_repo.complete_task(request.task_id, result="Workbook complete")
+    assert task_plan(ctx, "accept_step", {"expected_version": state["version"] - 1, "step_id": "S1"}).startswith(
+        "ERROR:"
+    )
+    done = json.loads(task_plan(ctx, "accept_step", {"expected_version": state["version"], "step_id": "S1"}))
+    assert done["steps"]["S1"]["status"] == "accepted"
+    assert done["steps"]["S1"]["result_refs"][0].startswith(f"task:{request.task_id}:completed:sha256:")
