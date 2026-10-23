@@ -64,3 +64,15 @@ def test_task_plan_writes_go_one_at_a_time_with_the_version_from_the_last_reply(
     assert "строго по одной" in source
     assert "`stale expected_version`" in source
     assert "`attempt_id` текущей попытки" in source
+
+
+def test_plan_author_keeps_quotes_inside_json_strings_valid() -> None:
+    source = text("aifa-plan-author/SKILL.md")
+    assert "нет неэкранированных" in source
+    assert "«ёлочках»" in source
+
+
+def test_root_without_an_accepted_plan_orders_a_new_one_instead_of_executing() -> None:
+    source = text("aifa-planning/references/plans.md")
+    assert "предложение не принято, плана нет" in source
+    assert "не начинай исполнение без принятого плана" in source
