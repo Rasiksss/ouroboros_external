@@ -196,3 +196,19 @@ async def test_a_part_described_again_with_other_parameters_is_not_a_dead_end(ba
     assert code_of(repeated) == "ОТКАЗ повтор_тупика"
     assert code_of(changed) == "ГОТОВО" and [clause.period_ref for clause in goals.given] == ["2024", "2025"]
     await cycle.close()
+
+
+async def test_a_part_the_engine_could_not_get_goes_back_to_the_planner_not_to_a_workaround(base) -> None:
+    """Прогон 3f05f49d: BANK_DEPOSITS не найден трижды, корень искал обходы. Отказ называет пересмотр плана."""
+    cycle, goals = await agent_cycle(base)
+    goals.ok = False
+
+    reply = await cycle.call("aifa_move", {**MOVE, "goals": [
+        {"ref": "g1", "scenario": "extract_registered_metric", "concepts": ["bank_deposits"]},
+    ]})
+
+    assert code_of(reply) == "ГОТОВО" and "✗ данных нет в отчёте" in reply
+    assert "пересмотр плана" in reply and "планировщику" in reply
+    assert "рассчитываемый" in reply and "в интернете" in reply
+    assert "новый атом либо give_up" not in reply and "ту же ссылку не повторяй" not in reply
+    await cycle.close()

@@ -47,7 +47,8 @@
 [0076 — непринятый план не исполняют](0076-plan-ne-prinyat-ne-ispolnyat.md),
 [0077 — модель подзадачи по навыку](0077-model-podzadachi-po-navyku.md),
 [0078 — лёгкая приёмка корня](0078-legkaya-priyomka-korna.md),
-[0079 — приёмка шага одной записью](0079-priemka-shaga-odnoy-zapisyu.md).
+[0079 — приёмка шага одной записью](0079-priemka-shaga-odnoy-zapisyu.md),
+[0080 — недостача возвращается планировщику](0080-nedostacha-vozvrashchaetsya-planirovshchiku.md).
 
 | № | Решение | Статус |
 |---|---|---|

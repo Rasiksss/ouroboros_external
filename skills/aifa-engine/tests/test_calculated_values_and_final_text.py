@@ -79,3 +79,26 @@ def test_step_acceptance_is_light_and_rests_on_the_step_result() -> None:
     assert "`review` с `decision` `revise`/`blocked`" in source
     assert "операнды, определения показателей и ряды не сверяй" in source
     assert "принимай, только прочитав его входы" not in source
+
+
+def test_plan_author_revises_only_the_step_with_a_gap_by_calculating_or_searching() -> None:
+    source = text("aifa-plan-author/SKILL.md")
+    assert "### Пересмотр при недостаче" in source
+    assert "переделай только шаг с недостачей" in source
+    assert "есть в «Рассчитываемых»" in source and "шагом расчёта через компоненты" in source
+    assert "строго извлекаемый" in source and "web.search" in source
+    assert "близким по названию показателем" in source
+
+
+def test_root_returns_a_gap_to_the_planner_instead_of_improvising_retries() -> None:
+    source = text("aifa-planning/references/plans.md")
+    assert "Недостача:" in source
+    assert "второй такой же вызов не делай" in source
+    assert "закажи пересмотр плана" in source
+    assert "показатель, ответ движка, число попыток" in source
+
+
+def test_moves_no_longer_send_the_root_to_chase_a_missing_metric_itself() -> None:
+    source = text("aifa-planning/references/moves.md")
+    assert "следующим ходом рассчитай его" not in source
+    assert "один раз" in source and "пересмотр плана" in source
