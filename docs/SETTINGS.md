@@ -105,6 +105,7 @@
 | `OUROBOROS_MODEL` | `gigachat-b2bank::GigaChat-Pro` | Основная модель. Формат: `поставщик::модель` (например `cloudru::zai-org/GLM-4.7`). |
 | `OUROBOROS_MODEL_LIGHT` | `gigachat-b2bank::GigaChat` | Лёгкая модель: служебные проверки, проверки безопасности. |
 | `OUROBOROS_MODEL_FALLBACK` | `gigachat-b2bank::GigaChat` | Запасная модель. |
+| `OUROBOROS_MODEL_BY_SKILL` | пусто | Модель (и уровень размышлений) подзадачи по навыку из её задания «Навык: <id>.»: `distribution:aifa-plan-author=cloudru::zai-org/GLM-5.2@high, <навык>=<модель>`, через запятую. Только окружение. Корень и подзадачи без записи идут на `OUROBOROS_MODEL`. |
 | `OUROBOROS_MODEL_VISION` | пусто | Модель для анализа изображений (инструмент `vlm_query`). Пусто — используется основная модель. |
 | `OUROBOROS_MODEL_CONTEXT_TOKENS` | `200000` | Объём контекста модели в токенах. |
 | `OUROBOROS_CHAT_SUMMARY_MAX_TOKENS` | `32768` | Предельный объём сводки переписки (объединение истории). |

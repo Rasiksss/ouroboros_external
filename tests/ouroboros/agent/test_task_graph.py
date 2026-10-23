@@ -175,6 +175,53 @@ def _run_config(agent, tmp_path, task_id: str):
     return graph_ctx.config
 
 
+def _config_of(agent, tmp_path, task: dict):
+    graph_ctx, _state = build_task_run(
+        agent,
+        task,
+        scope=TEST_SCOPE,
+        task_workspace=None,
+        start_time=0.0,
+        drive_logs=tmp_path,
+        cancellation=FakeCancellation(),
+    )
+    return graph_ctx.config
+
+
+_SKILL_MAP = "distribution:aifa-plan-author=planner-model@high,distribution:aifa-atom-author=coder-model"
+
+
+def test_a_subtask_runs_on_the_model_its_skill_is_mapped_to(tmp_path, monkeypatch):
+    monkeypatch.setenv("OUROBOROS_MODEL_BY_SKILL", _SKILL_MAP)
+    agent, _tool_ctx = _make_agent(tmp_path)
+
+    planner = _config_of(
+        agent, tmp_path, {"id": "t-plan", "depth": 1, "description": "Навык: distribution:aifa-plan-author. План."}
+    )
+    coder = _config_of(
+        agent, tmp_path, {"id": "t-code", "depth": 1, "description": "Навык: distribution:aifa-atom-author. Атом."}
+    )
+
+    assert (planner.default_model, planner.default_effort) == ("planner-model", "high")
+    assert coder.default_model == "coder-model"
+    assert coder.default_effort == _run_config(agent, tmp_path, "t-base").default_effort
+
+
+def test_the_root_and_unmapped_subtasks_keep_the_owners_main_model(tmp_path, monkeypatch):
+    monkeypatch.setenv("OUROBOROS_MODEL_BY_SKILL", _SKILL_MAP)
+    agent, _tool_ctx = _make_agent(tmp_path)
+    main = _run_config(agent, tmp_path, "t-main").default_model
+
+    # A user message that starts like a skill order is still the root: no model switch.
+    root = _config_of(agent, tmp_path, {"id": "t-root", "depth": 0, "text": "Навык: distribution:aifa-plan-author. Х"})
+    root_described = _config_of(
+        agent, tmp_path, {"id": "t-root2", "depth": 0, "description": "Навык: distribution:aifa-plan-author. Х"}
+    )
+    other = _config_of(agent, tmp_path, {"id": "t-o", "depth": 1, "description": "Навык: distribution:other. Х"})
+
+    assert {root.default_model, root_described.default_model, other.default_model} == {main}
+
+
 def test_build_task_run_permits_the_narration_by_default(tmp_path):
     agent, _tool_ctx = _make_agent(tmp_path)
 

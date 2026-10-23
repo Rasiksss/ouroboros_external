@@ -44,7 +44,8 @@
 [0073 — план в ограждении JSON принимается](0073-plan-v-ograzhdenii-json.md),
 [0074 — план планировщика на экране](0074-plan-planirovshchika-na-ekrane.md),
 [0075 — корень читает отчёт только для проверки](0075-koren-ne-issleduet-otchet-do-plana.md),
-[0076 — непринятый план не исполняют](0076-plan-ne-prinyat-ne-ispolnyat.md).
+[0076 — непринятый план не исполняют](0076-plan-ne-prinyat-ne-ispolnyat.md),
+[0077 — модель подзадачи по навыку](0077-model-podzadachi-po-navyku.md).
 
 | № | Решение | Статус |
 |---|---|---|
