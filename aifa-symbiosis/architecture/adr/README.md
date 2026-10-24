@@ -48,7 +48,8 @@
 [0077 — модель подзадачи по навыку](0077-model-podzadachi-po-navyku.md),
 [0078 — лёгкая приёмка корня](0078-legkaya-priyomka-korna.md),
 [0079 — приёмка шага одной записью](0079-priemka-shaga-odnoy-zapisyu.md),
-[0080 — недостача возвращается планировщику](0080-nedostacha-vozvrashchaetsya-planirovshchiku.md).
+[0080 — недостача возвращается планировщику](0080-nedostacha-vozvrashchaetsya-planirovshchiku.md),
+[0081 — недостача в итоге хода не принимается шагом](0081-nedostacha-v-itoge-hoda-ne-prinimaetsya.md).
 
 | № | Решение | Статус |
 |---|---|---|
