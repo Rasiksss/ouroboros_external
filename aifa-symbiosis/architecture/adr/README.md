@@ -50,7 +50,7 @@
 [0079 — приёмка шага одной записью](0079-priemka-shaga-odnoy-zapisyu.md),
 [0080 — недостача возвращается планировщику](0080-nedostacha-vozvrashchaetsya-planirovshchiku.md),
 [0081 — недостача в итоге хода не принимается шагом](0081-nedostacha-v-itoge-hoda-ne-prinimaetsya.md),
-[0082 — корень сам пересобирает шаг и ничего не считает](0082-koren-peresobiraet-shag-sam-i-ne-schitaet.md).
+[0082 — корень сам переделывает упавший шаг, работа со службой в отдельном справочнике](0082-koren-peresobiraet-shag-sam-i-ne-schitaet.md).
 
 | № | Решение | Статус |
 |---|---|---|
