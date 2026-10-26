@@ -54,7 +54,8 @@
 [0083 — статус показателей в состоянии цикла](0083-status-pokazateley-v-sostoyanii.md),
 [0084 — планировщик сам читает состояние и каталог](0084-planirovshchik-sam-chitaet-sostoyanie-i-katalog.md),
 [0085 — снимки справочников и aifa_doc планировщика](0085-snimki-spravochnikov-i-aifa-doc-planirovshchika.md),
-[0086 — формулы реестра не меняются](0086-formuly-reestra-ne-menyayutsya.md).
+[0086 — формулы реестра не меняются](0086-formuly-reestra-ne-menyayutsya.md),
+[0087 — шаги с кодом объединяются в один атом](0087-obedinyat-shagi-s-kodom.md).
 
 | № | Решение | Статус |
 |---|---|---|

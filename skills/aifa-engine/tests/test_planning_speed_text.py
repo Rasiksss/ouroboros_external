@@ -179,3 +179,14 @@ def test_the_planner_does_not_call_aifa_doc_while_planning() -> None:
 
     assert "`aifa_doc` не вызывай: значения и страницы находит исполнитель" in text
     assert "`aifa_doc` открывай только ради конкретного неясного места" not in text
+
+
+def test_the_planner_merges_code_steps_that_one_atom_can_do() -> None:
+    """ADR-0087: прогон 26.10 — три автора атомов подряд (ставка, статистики, Excel) и лимит цикла до сборки файла."""
+    text = plan_author()
+
+    assert "Шаги с кодом объединяй" in text
+    assert "если их можно выполнить одним атомом" in text
+    assert "запиши один шаг-автор" in text
+    assert "Цепочку авторов оставляй, только если между ними нужен другой исполнитель" in text
+    assert "Каждый лишний автор — минуты цикла" in text
