@@ -63,6 +63,9 @@ from finengine.skills.spec.ephemeral import (
 )
 from finengine.skills.spec.graph_executor import ExecutionResult, RunInputs
 from finengine.skills.spec.graph_planner import AtomStep
+from finengine.skills.spec.metric_status import (
+    LEGEND, metric_status_lines, produced_from_rows, record_attempts, requested_enums,
+)
 from finengine.skills.spec.room_files import FileSpec, spec_problem
 from finengine.skills.spec.sealed_room import CodeRun
 from finengine.skills.spec.target import InputSpec, Target
@@ -394,6 +397,8 @@ class LoopSession:
         )
         # goal_ref → «получена» / «отказ по ссылке: …» по последнему запуску части в этом прогоне
         self.goal_status: dict[str, str] = {}
+        # показатель → что движок пробовал: извлечение и/или расчёт (ADR-0083, раздел «Статус показателей»)
+        self.metric_attempts: dict[str, set[str]] = {}
         self.atoms = load_case_atoms(runtime.store, owner_id, case_id)
         self.failures: dict[str, str] = {}
         self.journal: list[JournalEntry] = []
@@ -864,6 +869,8 @@ class LoopSession:
                 else self.run_goals([clause])
             )
             ok = ok and result.ok
+            if not blocked and self.run_passport is not None:
+                record_attempts(self.metric_attempts, registry_for_passport(self.run_passport), clause)
             lines.append(f"{clause.goal_ref}: {result.summary}" if len(chosen) > 1 else result.summary)
             if result.ok:
                 self.goal_status[clause.goal_ref] = GOAL_OBTAINED
@@ -873,12 +880,11 @@ class LoopSession:
         if ok:
             return ScenarioResult(True, summary)
         if self.entry_stage == "agent":
-            # ADR-0080: недостачу не обходят ходами корня, её возвращают планировщику.
+            # ADR-0083: недостачу не обходят и не угадывают — шаг переделывают по статусу показателей в состоянии.
             return ScenarioResult(False, (
-                f"{summary}\nПо ссылке часть не получена: движок не нашёл показатель, тот же вызов не повторяй и обходов "
-                "не ищи. Верни недостачу планировщику: запиши шаг как failed с причиной и закажи пересмотр плана "
-                "(рассчитываемый показатель планировщик заменит шагом расчёта через компоненты, строго извлекаемый — "
-                "поиском в интернете)."
+                f"{summary}\nПо ссылке часть не получена: тот же вызов не повторяй и обходов не ищи. Что именно не "
+                "найдено и не посчитано — раздел «Статус показателей» в aifa_state. Запиши шаг как failed с причиной "
+                "и переделай его новой попыткой того же шага, выбрав способ по этому статусу."
             ))
         how = "сценарием в `scenarios` (рассчитываемый — «Рассчитай …», извлекаемый — «Извлеки …»)"
         return ScenarioResult(False, (
@@ -1524,6 +1530,7 @@ def state_sections(run: LoopSession, feedback: str) -> list[tuple[str, str]]:
         ("План", _describe_plan(run)),
         ("Профиль отчёта", profile),
         ("Реестр показателей", _describe_metric_registry(run)),
+        ("Статус показателей", _describe_metric_status(run, rows)),
         ("Каталог атомов", catalog_text(run.runtime.registry)),
         ("Созданные атомы этого разговора", atoms),
         (ARTIFACTS_TITLE, f"{ARTIFACTS_HEADER}\n{artifacts}"),
@@ -1534,6 +1541,16 @@ def state_sections(run: LoopSession, feedback: str) -> list[tuple[str, str]]:
             f"новых атомов: {run.limits.max_new_atoms - run.created} из {run.limits.max_new_atoms}"
         )),
     ]
+
+
+def _describe_metric_status(run: LoopSession, rows: list[dict]) -> str:
+    """По каждому показателю частей цели: найден ли движком, посчитан ли и чего не хватило (ADR-0083)."""
+    if run.run_passport is None:
+        return "профиль отчёта не зафиксирован — статус показателей недоступен"
+    registry = registry_for_passport(run.run_passport)
+    scope = requested_enums(run.clauses.values())
+    lines = metric_status_lines(registry, scope, produced_from_rows(rows), run.metric_attempts)
+    return "\n".join([LEGEND, *lines]) if lines else "показатели не запрашивались"
 
 
 def _describe_metric_registry(run: LoopSession) -> str:

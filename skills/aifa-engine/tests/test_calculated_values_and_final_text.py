@@ -103,7 +103,6 @@ def test_root_redoes_a_failed_step_itself_for_any_failure_not_only_for_metrics()
     source = text("aifa-planning/references/plans.md")
     assert "Шаг завершился ошибкой" in source
     assert "плана не бросай и шага не обходи" in source
-    assert "Прочитай результат неудачной попытки" in source
     assert "переделай этот шаг сам" in source
     assert "новую попытку того же шага (`_plan` с новым `attempt_id`) другим способом" in source
     assert "Цель и критерии шага прежние, меняется способ" in source
@@ -121,15 +120,31 @@ def test_a_planner_is_ordered_only_when_the_redo_changes_requirements_steps_or_d
 def test_the_service_results_and_metric_gap_live_in_their_own_reference() -> None:
     source = text("aifa-planning/references/artifacts.md")
     assert "# Результаты службы, расчёты и показатели" in source
-    assert "## Показатель не найден" in source
+    assert "## Показатель не найден или не посчитан" in source
     assert "даже если остальные части хода получены" in source
     assert "нет компонента формулы запрошенного расчёта" in source
     assert "Это упавший шаг плана" in source
-    assert "`calculate_registered_metric`" in source and "`web.search`" in source
-    assert "источник, адрес, дата обращения и период" in source
-    assert "итог `partial`: назови, чего нет" in source
-    assert "пометка «в отчёте отсутствует» недостачу не закрывает" in source
     assert "Близким показателем не подменяй" in source
+    assert "пометка «в отчёте отсутствует» недостачу не закрывает" in source
+
+
+def test_the_way_to_redo_a_metric_step_follows_the_status_written_in_the_state() -> None:
+    source = text("aifa-planning/references/artifacts.md")
+    assert "раздел «Статус показателей» в `aifa_state`" in source
+    assert "Извлечение — «НЕ НАЙДЕН», расчёт — «не пробовали»" in source and "`calculate_registered_metric`" in source
+    assert "Расчёт — «НЕ РАССЧИТАН: нет значений: …»" in source
+    assert "`web.search`" in source and "недостающих значений" in source
+    assert "источник, адрес, дата обращения и период" in source
+    assert "Интернет значений не дал — итог `partial`: назови, чего нет" in source
+    assert "уже записано в состоянии, тем же способом не повторяй" in source
+
+
+def test_a_step_is_redone_by_what_the_state_and_the_executor_recorded_not_by_a_guess() -> None:
+    source = text("aifa-planning/references/plans.md")
+    assert "по записям, а не по догадке" in source
+    assert "`aifa_state`" in source and "«Статус показателей»" in source and "итог прошлого хода" in source
+    assert "`get_task_result`" in source
+    assert "другим способом, который следует из этих записей" in source
 
 
 def test_moves_no_longer_send_the_root_to_chase_a_missing_metric_itself() -> None:

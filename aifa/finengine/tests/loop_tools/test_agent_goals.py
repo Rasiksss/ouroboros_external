@@ -198,8 +198,9 @@ async def test_a_part_described_again_with_other_parameters_is_not_a_dead_end(ba
     await cycle.close()
 
 
-async def test_a_part_the_engine_could_not_get_goes_back_to_the_planner_not_to_a_workaround(base) -> None:
-    """Прогон 3f05f49d: BANK_DEPOSITS не найден трижды, корень искал обходы. Отказ называет пересмотр плана."""
+async def test_a_part_the_engine_could_not_get_is_redone_by_the_state_status_not_by_a_workaround(base) -> None:
+    """Прогон 3f05f49d: BANK_DEPOSITS не найден трижды, корень искал обходы. ADR-0083: отказ отсылает к статусу
+    показателей в состоянии и к новой попытке шага; пересмотр плана подзадачей из отказа ушёл (ADR-0082)."""
     cycle, goals = await agent_cycle(base)
     goals.ok = False
 
@@ -208,7 +209,8 @@ async def test_a_part_the_engine_could_not_get_goes_back_to_the_planner_not_to_a
     ]})
 
     assert code_of(reply) == "ГОТОВО" and "✗ данных нет в отчёте" in reply
-    assert "пересмотр плана" in reply and "планировщику" in reply
-    assert "рассчитываемый" in reply and "в интернете" in reply
+    assert "«Статус показателей» в aifa_state" in reply
+    assert "новой попыткой того же шага" in reply
+    assert "пересмотр плана" not in reply and "планировщику" not in reply
     assert "новый атом либо give_up" not in reply and "ту же ссылку не повторяй" not in reply
     await cycle.close()
