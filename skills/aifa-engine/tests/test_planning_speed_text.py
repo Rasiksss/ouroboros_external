@@ -155,3 +155,27 @@ def test_the_plan_binding_is_for_executor_calls_after_the_plan_is_accepted() -> 
     text = plans()
 
     assert "`aifa_open` и заказ плана — без `_plan`" in text
+
+
+def test_the_root_does_not_read_the_catalog_and_registry_snapshots_before_ordering_the_plan() -> None:
+    """ADR-0085: прогон 26.10 — корень 6 минут читал `atoms.md` и `metrics.md` и все справочники подряд."""
+    text = guide()
+
+    assert "`references/atoms.md` — снимок каталога и `references/metrics.md` — общие показатели реестра" in text
+    assert "оба — только при проверке плана, до заказа не читай" in text
+    assert "Остальные — по мере нужды, не все подряд" in text
+
+
+def test_the_root_passes_the_request_to_the_planner_word_for_word() -> None:
+    step = plans().split("2. `schedule_task(", 1)[1].split("3. Дождись", 1)[0]
+
+    assert "Запрос передавай дословно, своими словами не излагай" in step
+    assert "профиль и показатели не называй" in step
+
+
+def test_the_planner_does_not_call_aifa_doc_while_planning() -> None:
+    """ADR-0085: прогон 26.10 — планировщик сделал 15 вызовов `aifa_doc` за минуту, читая отчёт постранично."""
+    text = plan_author()
+
+    assert "`aifa_doc` не вызывай: значения и страницы находит исполнитель" in text
+    assert "`aifa_doc` открывай только ради конкретного неясного места" not in text
