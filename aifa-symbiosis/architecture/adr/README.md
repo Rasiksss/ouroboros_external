@@ -56,7 +56,8 @@
 [0085 — снимки справочников и aifa_doc планировщика](0085-snimki-spravochnikov-i-aifa-doc-planirovshchika.md),
 [0086 — формулы реестра не меняются](0086-formuly-reestra-ne-menyayutsya.md),
 [0087 — шаги с кодом объединяются в один атом](0087-obedinyat-shagi-s-kodom.md),
-[0088 — независимые части одного хода идут одновременно](0088-parallelnye-chasti-odnogo-hoda.md).
+[0088 — независимые части одного хода идут одновременно](0088-parallelnye-chasti-odnogo-hoda.md),
+[0089 — шаг плана равен ходу](0089-shag-plana-ravno-hodu.md).
 
 | № | Решение | Статус |
 |---|---|---|
