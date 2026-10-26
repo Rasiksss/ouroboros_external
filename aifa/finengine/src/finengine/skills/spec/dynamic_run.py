@@ -8,11 +8,13 @@
 from __future__ import annotations
 
 import asyncio
+import contextvars
 import hashlib
 import json
 import logging
 import math
 import re
+from concurrent.futures import ThreadPoolExecutor
 from collections.abc import Awaitable, Callable
 from dataclasses import asdict, dataclass, replace
 from functools import partial
@@ -87,6 +89,7 @@ _FILE_BUILD_ATTEMPTS = 2
 _FILE_KIND = re.compile(r"[a-z0-9]{1,8}")
 # Статус части разобранной цели в `DynamicRun.goal_status`: последний запуск по ссылке в этом прогоне удался.
 GOAL_OBTAINED = "получена"
+PARALLEL_PARTS = 4   # частей цели одного слоя зависимостей, идущих одновременно (ADR-0088)
 _SOURCE_OUTPUT_TYPE = "EphemeralAtomSource"
 _INFRASTRUCTURE_OUTPUT_TYPES: frozenset[str] = frozenset({
     _SOURCE_OUTPUT_TYPE,
@@ -837,6 +840,23 @@ class LoopSession:
             dead_end_actions=tuple(dead_end_actions), transient=transient, refusal=refusal,
         )
 
+    def _run_parts(self, clauses: list[GoalClause]) -> list[ScenarioResult]:
+        """Части одного слоя зависимостей не зависят друг от друга: их графы идут одновременно (ADR-0088).
+
+        Каждая часть — свой граф, готовое берёт из Case; состояние цикла (статусы, попытки, журнал) меняет только
+        вызывающий поток после того, как слой закончился. Поток пула не наследует контекст хода: берём его копию."""
+        run_goals = self.run_goals
+        if run_goals is None:
+            raise RuntimeError("части цели без канала исполнения")
+        if len(clauses) < 2:
+            return [run_goals([clause]) for clause in clauses]
+        contexts = [contextvars.copy_context() for _ in clauses]
+        with ThreadPoolExecutor(max_workers=min(len(clauses), PARALLEL_PARTS), thread_name_prefix="aifa-part") as pool:
+            futures = [
+                pool.submit(context.run, run_goals, [clause]) for context, clause in zip(contexts, clauses, strict=True)
+            ]
+            return [future.result() for future in futures]
+
     def _run_goal_refs(self, refs: tuple[str, ...]) -> ScenarioResult:
         """Части разобранной цели по ссылке — тем же конвейером, что сообщение чата (Р18.3). Отказ с текстом,
         из которого следует действие, возвращается планировщику, цикл внутри цикла не создаётся (Р18.4).
@@ -862,20 +882,27 @@ class LoopSession:
         # Каждая часть — свой граф по порядку зависимостей: общий граф частей с одним узлом и разными
         # аргументами не собирается (`conflicting NodeArgs`, ход 21.10.2026), а готовое следующая часть берёт из Case.
         lines, ok = [], True
-        for clause in chosen:
-            blocked = [dep for dep in clause.depends_on if self.goal_status.get(dep) != GOAL_OBTAINED]
-            result = (
-                ScenarioResult(False, f"✗ не исполнялась: часть {blocked[0]} не получена") if blocked
-                else self.run_goals([clause])
-            )
-            ok = ok and result.ok
-            if not blocked and self.run_passport is not None:
-                record_attempts(self.metric_attempts, registry_for_passport(self.run_passport), clause)
-            lines.append(f"{clause.goal_ref}: {result.summary}" if len(chosen) > 1 else result.summary)
-            if result.ok:
-                self.goal_status[clause.goal_ref] = GOAL_OBTAINED
-            else:
-                self.goal_status[clause.goal_ref] = f"отказ по ссылке: {result.summary.splitlines()[0][:160]}"
+        for layer in _dependency_layers(chosen):
+            blocked = {
+                clause.goal_ref: [dep for dep in clause.depends_on if self.goal_status.get(dep) != GOAL_OBTAINED]
+                for clause in layer
+            }
+            runnable = [clause for clause in layer if not blocked[clause.goal_ref]]
+            results = dict(zip((clause.goal_ref for clause in runnable), self._run_parts(runnable), strict=True))
+            for clause in layer:
+                missing = blocked[clause.goal_ref]
+                result = (
+                    ScenarioResult(False, f"✗ не исполнялась: часть {missing[0]} не получена") if missing
+                    else results[clause.goal_ref]
+                )
+                ok = ok and result.ok
+                if not missing and self.run_passport is not None:
+                    record_attempts(self.metric_attempts, registry_for_passport(self.run_passport), clause)
+                lines.append(f"{clause.goal_ref}: {result.summary}" if len(chosen) > 1 else result.summary)
+                if result.ok:
+                    self.goal_status[clause.goal_ref] = GOAL_OBTAINED
+                else:
+                    self.goal_status[clause.goal_ref] = f"отказ по ссылке: {result.summary.splitlines()[0][:160]}"
         summary = "\n".join(lines)
         if ok:
             return ScenarioResult(True, summary)
@@ -1341,18 +1368,23 @@ def _without_ids(value):
     return value
 
 
-def _dependencies_first(clauses: list[GoalClause]) -> list[GoalClause]:
-    """Части после их зависимостей; цикл зависимостей отклоняется."""
-    ordered: list[GoalClause] = []
+def _dependency_layers(clauses: list[GoalClause]) -> list[list[GoalClause]]:
+    """Слои: в слое — части, чьи зависимости (среди названных) остались в прежних слоях; цикл отклоняется."""
+    layers: list[list[GoalClause]] = []
     pending = list(clauses)
     while pending:
         refs = {clause.goal_ref for clause in pending}
         ready = [clause for clause in pending if not refs & set(clause.depends_on)]
         if not ready:
             raise ValueError(f"goals: цикл зависимостей между частями {sorted(refs)}")
-        ordered.extend(ready)
+        layers.append(ready)
         pending = [clause for clause in pending if clause not in ready]
-    return ordered
+    return layers
+
+
+def _dependencies_first(clauses: list[GoalClause]) -> list[GoalClause]:
+    """Части после их зависимостей; цикл зависимостей отклоняется."""
+    return [clause for layer in _dependency_layers(clauses) for clause in layer]
 
 
 def _step_signature(item: dict) -> tuple[str, ...]:

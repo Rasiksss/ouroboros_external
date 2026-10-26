@@ -190,3 +190,12 @@ def test_the_planner_merges_code_steps_that_one_atom_can_do() -> None:
     assert "запиши один шаг-автор" in text
     assert "Цепочку авторов оставляй, только если между ними нужен другой исполнитель" in text
     assert "Каждый лишний автор — минуты цикла" in text
+
+
+def test_independent_parts_are_put_into_one_move_and_run_at_the_same_time() -> None:
+    """ADR-0088: служба исполняет части одного хода без `depends_on` одновременно, остальные — после опоры."""
+    text = " ".join((PLANNING / "references" / "moves.md").read_text(encoding="utf-8").split())
+
+    assert "Части одного хода, которые не зависят друг от друга, служба исполняет одновременно" in text
+    assert "независимые части собирай в один ход" in text
+    assert "Зависимость называй в `depends_on`" in text
