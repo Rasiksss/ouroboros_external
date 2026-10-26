@@ -53,7 +53,8 @@
 [0082 — корень сам переделывает упавший шаг, работа со службой в отдельном справочнике](0082-koren-peresobiraet-shag-sam-i-ne-schitaet.md),
 [0083 — статус показателей в состоянии цикла](0083-status-pokazateley-v-sostoyanii.md),
 [0084 — планировщик сам читает состояние и каталог](0084-planirovshchik-sam-chitaet-sostoyanie-i-katalog.md),
-[0085 — снимки справочников и aifa_doc планировщика](0085-snimki-spravochnikov-i-aifa-doc-planirovshchika.md).
+[0085 — снимки справочников и aifa_doc планировщика](0085-snimki-spravochnikov-i-aifa-doc-planirovshchika.md),
+[0086 — формулы реестра не меняются](0086-formuly-reestra-ne-menyayutsya.md).
 
 | № | Решение | Статус |
 |---|---|---|

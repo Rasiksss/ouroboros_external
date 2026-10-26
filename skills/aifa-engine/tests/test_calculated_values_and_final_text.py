@@ -176,3 +176,34 @@ def test_the_root_never_calculates_by_itself_not_in_its_head_and_not_in_code() -
     assert "Своё число не подставляй" in source
     plans = text("aifa-planning/references/plans.md")
     assert "Расчёт сам не делай ни в уме, ни кодом: шаг с расчётом идёт исполнительным вызовом" in plans
+
+
+def test_a_registry_formula_is_never_changed_and_never_replaced_by_an_ad_hoc_one() -> None:
+    """ADR-0086: прогон 26.10 — чистый долг посчитан ad-hoc формулой без BANK_DEPOSITS, значения разошлись с отчётом."""
+    source = text("aifa-planning/references/artifacts.md")
+    assert "## Формулы реестра не меняются" in source
+    assert "Показатель из «Рассчитываемых» считается только по формуле реестра" in source
+    assert "компоненты, знаки и состав не меняй" in source and "не убирай компонент" in source
+    assert "`calculate_ad_hoc_metric` — только для показателя, которого нет в реестре" in source
+    assert "под другим названием та же формула — тоже реестровая" in source
+    assert "Расчёт без компонента формулы, пусть с пометкой «компонент опущен», принимать нельзя" in source
+    assert "Автору атома формулу реестра называй в задании дословно" in source
+
+
+def test_the_ad_hoc_scenarios_are_for_metrics_outside_the_registry_only() -> None:
+    source = text("aifa-planning/references/moves.md")
+    assert "Для показателя реестра ad-hoc и свою формулу не применяй" in source
+    assert "формулу реестра не меняй (`artifacts.md`)" in source
+
+
+def test_the_planner_does_not_write_its_own_formula_for_a_registry_metric() -> None:
+    source = text("aifa-plan-author/SKILL.md")
+    assert "Формулу показателя реестра не меняй и своей не пиши" in source
+    assert "шаг называет показатель, формулу берёт служба" in source
+
+
+def test_the_atom_author_never_drops_or_replaces_a_component_of_a_registry_formula() -> None:
+    source = text("aifa-atom-author/SKILL.md")
+    assert "формулу показателя реестра не упрощай и не меняй" in source
+    assert "бери из `derived_fact.expression` все компоненты и знаки" in source
+    assert "не опускай и не заменяй нулём" in source
