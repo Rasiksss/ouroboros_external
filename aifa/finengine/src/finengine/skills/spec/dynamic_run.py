@@ -64,7 +64,7 @@ from finengine.skills.spec.ephemeral import (
 from finengine.skills.spec.graph_executor import ExecutionResult, RunInputs
 from finengine.skills.spec.graph_planner import AtomStep
 from finengine.skills.spec.metric_status import (
-    LEGEND, metric_status_lines, produced_from_rows, record_attempts, requested_enums,
+    LEGEND, metric_status_lines, produced_from_rows, record_attempts, record_step_attempts, scope_enums,
 )
 from finengine.skills.spec.room_files import FileSpec, spec_problem
 from finengine.skills.spec.sealed_room import CodeRun
@@ -931,6 +931,8 @@ class LoopSession:
         except TimeoutError as exc:
             return MoveOutcome("ход прерван по времени", str(exc), failed=True, transient=True)
         self._remember_failures(result)
+        if self.run_passport is not None:
+            record_step_attempts(self.metric_attempts, registry_for_passport(self.run_passport), steps)
         outcome = describe_execution(result, known)
         outcome = replace(outcome, details=outcome.details + _web_off_note(outcome.empty_atoms, runtime.registry))
         transient = _has_station_fault(result)
@@ -1548,7 +1550,7 @@ def _describe_metric_status(run: LoopSession, rows: list[dict]) -> str:
     if run.run_passport is None:
         return "профиль отчёта не зафиксирован — статус показателей недоступен"
     registry = registry_for_passport(run.run_passport)
-    scope = requested_enums(run.clauses.values())
+    scope = scope_enums(run.clauses.values(), run.metric_attempts)
     lines = metric_status_lines(registry, scope, produced_from_rows(rows), run.metric_attempts)
     return "\n".join([LEGEND, *lines]) if lines else "показатели не запрашивались"
 

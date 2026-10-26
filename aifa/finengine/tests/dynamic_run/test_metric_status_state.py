@@ -13,8 +13,12 @@ from finengine.skills.atoms.run_passport import build_run_passport, classificati
 from finengine.skills.metric_schema import registry_for_profile
 from finengine.skills.spec.dynamic_run import DynamicRun, ScenarioResult, render_state
 from finengine.skills.spec.graph_executor import RunInputs
-from finengine.skills.spec.metric_status import CALC, EXTRACT, metric_status_lines, produced_from_rows, record_attempts
+from finengine.skills.spec.graph_planner import AtomStep
+from finengine.skills.spec.metric_status import (
+    CALC, EXTRACT, metric_status_lines, produced_from_rows, record_attempts, record_step_attempts, scope_enums,
+)
 from finengine.skills.spec.target import Target
+from test_existing_atom_planning import _execute, _give_up, _run as _planned_run
 from test_ephemeral_in_graph import CASE, CELL, ENTITY, OWNER
 
 REGISTRY = registry_for_profile(CELL)
@@ -172,3 +176,62 @@ def test_a_goal_that_failed_by_reference_leaves_the_failed_status_in_the_state(b
 
 def test_without_a_report_profile_the_status_is_reported_as_unavailable(base) -> None:
     assert "профиль отчёта не зафиксирован" in _status_block(render_state(_run(base, with_passport=False), ""))
+
+
+def _step(atom: str, output_type: str, concept: str | None) -> AtomStep:
+    return AtomStep(atom=atom, output_type=output_type, concept=concept)
+
+
+def test_a_read_step_that_returned_nothing_still_counts_as_an_extraction_attempt() -> None:
+    attempts: dict[str, set[str]] = {}
+
+    record_step_attempts(attempts, REGISTRY, [_step("read.value", "ExtractedMetric", "bank_deposits")])
+
+    assert attempts == {"BANK_DEPOSITS": {EXTRACT}}
+
+
+def test_a_locate_step_is_the_first_stage_of_an_extraction_attempt() -> None:
+    attempts: dict[str, set[str]] = {}
+
+    record_step_attempts(attempts, REGISTRY, [_step("locate", "CandidateLocator", "BANK_DEPOSITS")])
+
+    assert attempts == {"BANK_DEPOSITS": {EXTRACT}}
+
+
+def test_a_calculation_step_marks_the_formula_components_as_tried_like_a_calculation_goal() -> None:
+    attempts: dict[str, set[str]] = {}
+
+    record_step_attempts(attempts, REGISTRY, [_step("calc.formula", "CalculatedMetric", "NET_DEBT")])
+
+    assert attempts["NET_DEBT"] == {CALC}
+    assert attempts["TOTAL_DEBT"] == {CALC}
+    assert attempts["BANK_DEPOSITS"] == {EXTRACT}
+
+
+def test_steps_without_a_metric_do_not_leave_attempts() -> None:
+    attempts: dict[str, set[str]] = {}
+
+    record_step_attempts(attempts, REGISTRY, [
+        _step("read.quote", "Quote", None), _step("eph.x", "dyn:x", "BANK_DEPOSITS"), _step("out.file", "FileArtifact", "NET_DEBT"),
+    ])
+
+    assert attempts == {}
+
+
+def test_the_status_lists_what_the_goals_named_and_what_only_steps_tried() -> None:
+    clause = GoalClause(
+        goal_ref="g1", raw_query="Извлечь SALES_REVENUE", intent_kind="extract_registered_metric",
+        targets=[TargetNode(concept="SALES_REVENUE", output_kind="scalar")],
+    )
+    attempts = {"BANK_DEPOSITS": {EXTRACT}, "SALES_REVENUE": {EXTRACT}}
+
+    assert scope_enums([clause], attempts) == ["SALES_REVENUE", "BANK_DEPOSITS"]
+
+
+def test_a_metric_tried_only_by_steps_gets_its_own_line_in_the_state(base) -> None:
+    run, _ = _planned_run(base, [_execute({"atom": "read.value", "concept": "BANK_DEPOSITS"}), _give_up()])
+
+    run.run(deterministic_error="нет пути")
+    block = _status_block(render_state(run, run.feedback))
+
+    assert "извлечение — НЕ НАЙДЕН" in _line(block.splitlines(), "BANK_DEPOSITS")

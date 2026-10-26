@@ -75,15 +75,42 @@ def requested_enums(clauses: Iterable) -> list[str]:
     return found
 
 
-def record_attempts(attempts: dict[str, set[str]], registry: Mapping, clause) -> None:
-    """Движок пробовал исполнить часть: расчёт пробует и компоненты формулы (считанные — расчётом)."""
+def _mark_calculation(attempts: dict[str, set[str]], registry: Mapping, enum: str) -> None:
+    """Расчёт пробует и компоненты формулы: считанные — расчётом, остальные — извлечением."""
     calc = _calculated(registry)
+    for item in _expand(registry, [enum]):
+        attempts.setdefault(item, set()).add(CALC if item in calc else EXTRACT)
+
+
+def record_attempts(attempts: dict[str, set[str]], registry: Mapping, clause) -> None:
+    """Движок пробовал исполнить часть цели по ссылке."""
     for enum in requested_enums([clause]):
         if clause.intent_kind in _EXTRACT_KINDS:
             attempts.setdefault(enum, set()).add(EXTRACT)
+        else:
+            _mark_calculation(attempts, registry, enum)
+
+
+_STEP_EXTRACTION_TYPES = ("ExtractedMetric", "CandidateLocator")
+
+
+def record_step_attempts(attempts: dict[str, set[str]], registry: Mapping, steps: Iterable) -> None:
+    """Движок исполнил шаги атомов: поиск места и чтение значения — попытка извлечь, расчёт — попытка посчитать.
+
+    Записывается и когда значения нет: шаг пробовали, и «не пробовали» в состоянии было бы неправдой."""
+    for step in steps:
+        enum = str(getattr(step, "concept", "") or "").strip().upper()
+        if not enum:
             continue
-        for item in _expand(registry, [enum]):
-            attempts.setdefault(item, set()).add(CALC if item in calc else EXTRACT)
+        if step.output_type in _STEP_EXTRACTION_TYPES:
+            attempts.setdefault(enum, set()).add(EXTRACT)
+        elif step.output_type == "CalculatedMetric":
+            _mark_calculation(attempts, registry, enum)
+
+
+def scope_enums(clauses: Iterable, attempts: Mapping[str, set[str]]) -> list[str]:
+    """Что показывает раздел: показатели частей цели, затем всё, что движок пробовал шагами."""
+    return list(dict.fromkeys([*requested_enums(clauses), *attempts]))
 
 
 def _has_value(produced: Mapping, enum: str) -> bool:
