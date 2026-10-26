@@ -848,12 +848,23 @@ class LoopSession:
         run_goals = self.run_goals
         if run_goals is None:
             raise RuntimeError("части цели без канала исполнения")
+
+        def run_part(clause: GoalClause) -> ScenarioResult:
+            # Сбой одной части — её отказ, а не ход целиком: остальные части доходят до конца (ADR-0090).
+            try:
+                return run_goals([clause])
+            except BudgetExceeded:
+                raise
+            except Exception as exc:  # noqa: BLE001 — отказ части возвращается планировщику
+                log.warning("goal part %s failed: %s", clause.goal_ref, exc, exc_info=True)
+                return ScenarioResult(False, f"✗ {type(exc).__name__}: {exc}")
+
         if len(clauses) < 2:
-            return [run_goals([clause]) for clause in clauses]
+            return [run_part(clause) for clause in clauses]
         contexts = [contextvars.copy_context() for _ in clauses]
         with ThreadPoolExecutor(max_workers=min(len(clauses), PARALLEL_PARTS), thread_name_prefix="aifa-part") as pool:
             futures = [
-                pool.submit(context.run, run_goals, [clause]) for context, clause in zip(contexts, clauses, strict=True)
+                pool.submit(context.run, run_part, clause) for context, clause in zip(contexts, clauses, strict=True)
             ]
             return [future.result() for future in futures]
 

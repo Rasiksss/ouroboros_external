@@ -8,6 +8,7 @@ same contract locally when Postgres is unavailable.
 """
 from __future__ import annotations
 
+import functools
 import json
 import logging
 from dataclasses import dataclass
@@ -66,6 +67,7 @@ from finengine.skills.spec.target import METRIC_EVIDENCE_MEMBERS, Target
 from finengine.store.cases import (
     SqlCaseStore,
     StalePlanRunError,
+    case_lock,
     evidence_id_of,
     owner_key,
     passport_fingerprint,
@@ -151,6 +153,17 @@ def _payload_output_type(value: Any) -> str:
     return type(value).__name__
 
 
+def _planned_one_by_one(method):
+    """Планирование частей одного Case идёт по очереди: ревизия читается и записывается под замком (ADR-0090)."""
+
+    @functools.wraps(method)
+    def wrapper(self, *args, owner_id: object, case_id: str, **kwargs):
+        with case_lock(owner_id, case_id):
+            return method(self, *args, owner_id=owner_id, case_id=case_id, **kwargs)
+
+    return wrapper
+
+
 class CaseRuntime:
     """Persistent owner-scoped execution facade for one conversational Case."""
 
@@ -202,6 +215,10 @@ class CaseRuntime:
             owner_id, case_id, logical_name=logical_name, document_id=document_id,
             document_version=document_version, expected_revision=expected_revision,
         )
+
+    def register_ad_hoc_spec(self, owner_id: object, case_id: str, spec):
+        with case_lock(owner_id, case_id):
+            return self.store.put_ad_hoc_spec(owner_id, case_id, spec)
 
     def _bind_target_to_case(self, owner_id: object, case_id: str, target: Target) -> Target:
         docs = self.store.active_documents(owner_id, case_id)
@@ -389,6 +406,7 @@ class CaseRuntime:
 
     # ------------------------------------------------------------------
     # Planning / execution / resume
+    @_planned_one_by_one
     def plan(
         self,
         *,
@@ -429,6 +447,7 @@ class CaseRuntime:
             node_args=node_args, available=available, run_passport=run_passport, snap=snap,
         )
 
+    @_planned_one_by_one
     def plan_many(
         self, *, owner_id: object, case_id: str, goal_ir: GoalIR,
         requests: Sequence[tuple[Target, Mapping[str, str], str, str, Sequence[str]]],
@@ -467,6 +486,7 @@ class CaseRuntime:
             run_passport=run_passport, snap=snap,
         )
 
+    @_planned_one_by_one
     def plan_steps(
         self, *, owner_id: object, case_id: str, goal_ir: GoalIR, target: Target,
         steps: Sequence[AtomStep], run_passport: RunPassport | None = None,
@@ -677,11 +697,12 @@ class CaseRuntime:
             latest = self.store.load_case(owner_id, case_id)
             if latest is not None:
                 try:
-                    self.store.update_case_head(
-                        owner_id, case_id, run_passport=discovered_passport,
-                        run_passport_document_version=record.target.document_version,
-                        expected_revision=latest.revision,
-                    )
+                    with case_lock(owner_id, case_id):      # ревизия растёт: не посреди плана соседней части
+                        self.store.update_case_head(
+                            owner_id, case_id, run_passport=discovered_passport,
+                            run_passport_document_version=record.target.document_version,
+                            expected_revision=latest.revision,
+                        )
                 except Exception as exc:
                     # Concurrent Case mutation is explicit, never silently
                     # overwritten. A retry may reuse the passport artifact

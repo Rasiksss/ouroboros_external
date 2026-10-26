@@ -269,7 +269,7 @@ def execute_production_goal(
         prepared_roots: list[RootTarget] = []
         for root in roots:
             if root.ad_hoc_spec is not None:
-                context.runtime.store.put_ad_hoc_spec(context.owner_id, context.case_id, root.ad_hoc_spec)
+                context.runtime.register_ad_hoc_spec(context.owner_id, context.case_id, root.ad_hoc_spec)
             merged_extra = {**root.root_extra, **dict(root_extra or {})}
             passport_entity = getattr(context.passport, "entity", None)
             target = replace(
@@ -310,7 +310,7 @@ def execute_production_goal(
             # Persist the semantic definition before planning.  The graph gets
             # only its immutable id/data through root_extra; the canonical
             # registry is deliberately untouched.
-            context.runtime.store.put_ad_hoc_spec(
+            context.runtime.register_ad_hoc_spec(
                 context.owner_id, context.case_id, root.ad_hoc_spec,
             )
         merged_extra = dict(root.root_extra)

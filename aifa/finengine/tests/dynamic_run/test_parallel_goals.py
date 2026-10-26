@@ -8,8 +8,6 @@ from __future__ import annotations
 import contextvars
 import threading
 
-import pytest
-
 from finengine.contracts import GoalIR
 from finengine.contracts.intent import GoalClause, TargetNode
 from finengine.skills.atoms.run_passport import build_run_passport, classification_from_cell
@@ -169,7 +167,9 @@ def test_the_context_of_the_move_reaches_the_threads_of_the_parts(base) -> None:
     assert goals.seen_trace == {"g1": "ход-42", "g2": "ход-42"}
 
 
-def test_an_error_in_one_part_reaches_the_caller(base) -> None:
+def test_an_error_in_one_part_is_a_refusal_of_that_part_only(base) -> None:
+    """ADR-0090: прежде ошибка части выходила из хода (ADR-0088) и роняла ouroboros; теперь это отказ части."""
+
     class Boom(Goals):
         def __call__(self, clauses):
             if clauses[0].goal_ref == "g2":
@@ -178,8 +178,11 @@ def test_an_error_in_one_part_reaches_the_caller(base) -> None:
 
     run = _run(base, Boom(), _clause("g1", "SALES_REVENUE"), _clause("g2", "OPERATING_PROFIT"))
 
-    with pytest.raises(RuntimeError, match="граф упал"):
-        run._run_goal_refs(("g1", "g2"))
+    result = run._run_goal_refs(("g1", "g2"))
+
+    assert not result.ok
+    assert "g2: ✗ RuntimeError: граф упал" in result.summary
+    assert run.goal_status["g1"] == GOAL_OBTAINED
 
 
 def test_a_single_part_runs_in_the_calling_thread(base) -> None:
