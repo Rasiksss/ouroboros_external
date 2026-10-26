@@ -65,10 +65,13 @@ def test_the_planner_does_not_reread_what_the_root_already_found_in_the_report()
     assert "не перечитывай документ" in plan_author()
 
 
-def test_the_root_hands_the_planner_the_facts_and_the_catalog_findings() -> None:
+def test_the_root_hands_the_planner_the_request_and_does_not_retell_the_state_or_the_catalog() -> None:
+    """ADR-0084: профиль, периоды, реестр и каталог планировщик читает сам; пересказ корня дублировал его чтение."""
     step = plans().split("2. `schedule_task(", 1)[1].split("3. Дождись", 1)[0]
 
-    assert "названия подходящих атомов из `aifa_atoms` и пробелы" in step
+    assert "исходный запрос без пересказа" in step
+    assert "планировщик читает сам (`aifa_state`, `aifa_atoms`)" in step and "не пересказывай" in step
+    assert "названия подходящих атомов" not in step and "профиль отчёта и список периодов" not in step
 
 
 def test_the_root_does_not_write_a_running_step_that_the_execution_call_starts_itself() -> None:
@@ -97,13 +100,25 @@ def test_every_executor_call_of_the_root_carries_the_plan_binding() -> None:
     assert "в том числе первый" in plans()
 
 
-def test_the_root_reads_the_catalog_itself_before_it_orders_the_plan() -> None:
-    """Прогон 22.10: корень первого прогона не открыл каталог, планировщик тоже; второй открыл — план стал лучше."""
+def test_the_planner_reads_the_state_and_the_catalog_itself_and_the_root_only_checks_the_plan() -> None:
+    """ADR-0084: прогон 22.10 заставил корень читать каталог до плана, потому что планировщик его не открывал;
+    теперь это условие стоит в навыке планировщика, а корень читает каталог при проверке предложения."""
     text = guide()
 
-    assert "Каталог читаешь сам, до заказа плана" in text
-    assert "передай планировщику" in text
-    assert text.index("Каталог читаешь сам, до заказа плана") < text.index("### Делегирование")
+    assert "Планировщик сам читает реестр показателей, профиль и периоды (`aifa_state`) и каталог атомов" in text
+    assert "ты их ему не пересказываешь" in text
+    assert "Каталог читай, когда проверяешь план" in text
+    assert "Каталог читаешь сам, до заказа плана" not in text
+    assert text.index("Каталог читай, когда проверяешь план") < text.index("### Делегирование")
+
+
+def test_the_planner_must_read_the_catalog_before_the_steps_and_name_an_atom_or_a_scenario_for_each_step() -> None:
+    text = plan_author()
+
+    assert "Контекст службы читай сам: `aifa_state` (профиль отчёта, доступные периоды, реестр показателей" in text
+    assert "каталог атомов `aifa_atoms` — до составления шагов, а не после" in text
+    assert "Плана, где шаг извлечения или расчёта не назван атомом или сценарием по карточке каталога, не возвращай" in text
+    assert "каждый шаг с атомом или сценарием назван по карточке" in text
 
 
 def test_the_guide_stays_within_its_size_limit() -> None:
@@ -127,7 +142,7 @@ def test_the_root_does_not_study_the_report_before_it_orders_the_plan() -> None:
 def test_the_root_hands_over_only_what_the_state_already_knows() -> None:
     step = plans().split("2. `schedule_task(", 1)[1].split("3. Дождись", 1)[0]
 
-    assert "профиль отчёта и список периодов из `aifa_state`" in step
+    assert "профиль отчёта и список периодов" not in step, "планировщик читает их сам (ADR-0084)"
     assert "что уже найдено" not in step
 
 
