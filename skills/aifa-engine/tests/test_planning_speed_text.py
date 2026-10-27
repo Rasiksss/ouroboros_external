@@ -241,3 +241,25 @@ def test_the_root_checks_the_levels_of_the_plan_and_returns_it_once_for_false_de
     assert "Два независимых шага извлечения, расчёта или поиска в разных шагах плана — ошибка плана" in step
     assert "верни план планировщику один раз" in step
     assert "второй раз по тому же замечанию не возвращай" in step
+
+
+def test_the_root_hands_the_author_artifact_ids_and_not_the_values() -> None:
+    """Прогон 27.10 (ed53d54a): корень шесть минут читал артефакты, чтобы вписать значения и страницы в задание
+    автору Excel, и сам посчитал среднегодовые ставки по таблице страницы."""
+    artifacts = read(PLANNING / "references" / "artifacts.md")
+
+    assert "входы (только id артефактов, без значений: читает подзадача)" in guide()
+    assert "В задании подзадаче — id артефактов, а не значения и страницы" in artifacts
+    assert "автор читает их сам (`aifa_state(artifact_ids=[…])`)" in artifacts
+    assert "Число, которого нет ни в одном артефакте (среднее по таблице страницы), корень не считает" in artifacts
+
+
+def test_all_actions_of_one_move_run_at_the_same_time_and_dependent_ones_go_to_the_next_move() -> None:
+    """ADR-0092: части цели и шаги атомов одного хода служба исполняет одновременно (прежде шаги шли после частей)."""
+    moves = read(PLANNING / "references" / "moves.md")
+
+    assert "Части цели и шаги атомов одного хода служба исполняет одновременно" in moves
+    assert "Действие, которому нужен результат другого действия, — в следующий ход" in moves
+    assert "Части цели выполняются до шагов хода" not in moves
+    assert "Все действия шага служба исполняет одновременно" in plans()
+    assert "Действие, которому нужен адрес, значение или файл из результата другого действия, — следующий ход" in plan_author()
