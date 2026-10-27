@@ -240,7 +240,10 @@ class GraphExecutor:
         prior_evidence: Mapping[NodeKey, Sequence[BaseModel]] | None = None,
         on_node_update: Callable[[NodeRun], None] | None = None,
         on_node_result: Callable[[NodeRun, tuple[BaseModel, ...]], None] | None = None,
+        parallel_ready: bool = False,
     ) -> ExecutionResult:
+        """`parallel_ready` — готовые узлы любого графа (не только составного) идут одновременно (ADR-0092):
+        граф шагов хода собирается из независимых действий."""
         inputs = inputs or RunInputs()
         available = available or AvailableIndex()
         nodes_by_key = {n.node_key: n for n in graph.nodes}
@@ -378,7 +381,7 @@ class GraphExecutor:
             # single-goal execution preserves its established ordering; within
             # a compound plan, all currently-ready physical batches are
             # independent by construction and can run at the same time.
-            if graph.scenarios and len(groups) > 1:
+            if (graph.scenarios or parallel_ready) and len(groups) > 1:
                 # Поток пула не наследует контекст хода (тумблер «Поиск в интернете», бюджет и трасса
                 # вызовов модели): без копии атом части цели видел бы значения по умолчанию.
                 contexts = [contextvars.copy_context() for _ in groups]

@@ -14,6 +14,8 @@ import json
 import logging
 import math
 import re
+import threading
+import traceback
 from concurrent.futures import ThreadPoolExecutor
 from collections.abc import Awaitable, Callable
 from dataclasses import asdict, dataclass, replace
@@ -74,6 +76,17 @@ from finengine.skills.spec.target import InputSpec, Target
 from finengine.store.cases import evidence_id_of
 
 log = logging.getLogger(__name__)
+
+
+def _failure_text(exc: BaseException, *, frames: int = 4, limit: int = 1600) -> str:
+    """Отказ действия хода для корня: «✗ Тип: сообщение» и хвост трейса — последние кадры (ADR-0092)."""
+    head = f"✗ {type(exc).__name__}: {exc}"
+    lines = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)).strip().splitlines()
+    tail = lines[-(2 * frames + 1):-1]       # кадры «File … / строка кода»; последняя строка — сообщение, оно уже в head
+    text = head + "\n  трейс:\n" + "\n".join("    " + line.strip() for line in tail)
+    return text if len(text) <= limit else text[:limit] + " …"
+
+
 
 _SKILL = Path(__file__).with_name("dynamic_run_planner.md")
 _PLAN_PHASE = Path(__file__).with_name("dynamic_run_plan_phase.md")
@@ -402,6 +415,7 @@ class LoopSession:
         self.goal_status: dict[str, str] = {}
         # показатель → что движок пробовал: извлечение и/или расчёт (ADR-0083, раздел «Статус показателей»)
         self.metric_attempts: dict[str, set[str]] = {}
+        self.state_lock = threading.Lock()      # попытки показателей и сбои атомов меняют параллельные действия хода
         self.atoms = load_case_atoms(runtime.store, owner_id, case_id)
         self.failures: dict[str, str] = {}
         self.journal: list[JournalEntry] = []
@@ -627,6 +641,11 @@ class LoopSession:
         self._moving = True
         try:
             outcome = self._move(decision)
+        except BudgetExceeded:
+            raise
+        except Exception as exc:  # noqa: BLE001 — сбой хода не роняет вызов: трейс идёт корню (ADR-0092)
+            log.warning("move failed: %s", exc, exc_info=True)
+            outcome = MoveOutcome("ход упал с исключением", _failure_text(exc), failed=True)
         finally:
             self._moving = False
         self._emit(self._move_event(
@@ -780,13 +799,19 @@ class LoopSession:
         lines = []
         failed = False
         dead_end_actions: list[tuple[str, ...]] = []
-        if decision.goals:
-            self._stop_if_cancelled()
-            before_goals = self._progress_ids()
-            result = self._run_goal_refs(decision.goals)
+        self._stop_if_cancelled()
+        # Части цели и шаги атомов — одновременно (ADR-0092). Фразы-сценарии (запуски без `aifa_move`) идут между
+        # ними, как прежде: шаг может опираться на их результат, поэтому порядок «части → сценарии → шаги» сохранён.
+        simultaneous = not decision.scenarios
+        goals_result, steps_outcome = self._run_move_units(
+            decision, ("goals", "steps") if simultaneous else ("goals",),
+        )
+        moved = self._progress_ids() != known
+        if goals_result is not None:
+            result = goals_result
             lines.append(f"части цели {', '.join(decision.goals)}: {result.summary}")
             failed = failed or not result.ok
-            if self._progress_ids() == before_goals:
+            if not moved:
                 dead_end_actions.extend(_goal_signature(ref, self.clauses.get(ref)) for ref in decision.goals)
         for text in decision.scenarios:
             self._stop_if_cancelled()
@@ -805,9 +830,11 @@ class LoopSession:
         empty_atoms: tuple[str, ...] = ()
         transient = False
         refusal = ""
-        if decision.new_atoms or decision.raw_steps:
-            before_steps = self._progress_ids()
-            steps = self._run_steps(decision)
+        if not simultaneous:
+            steps_outcome = self._run_move_units(decision, ("steps",))[1]
+            moved = self._progress_ids() != known
+        if steps_outcome is not None:
+            steps = steps_outcome
             lines.append(
                 _outcome_text(steps)
                 if steps.failed and steps.headline != "ход завершён с ошибками"
@@ -818,7 +845,7 @@ class LoopSession:
             transient = steps.transient
             # Ход целиком отклонён правилом атома, только если кроме шагов в нём ничего не исполнялось.
             refusal = steps.refusal if not decision.goals and not decision.scenarios else ""
-            if self._progress_ids() == before_steps and not transient and not steps.steps_rejected:
+            if not moved and not transient and not steps.steps_rejected:
                 # шаг атома, которого не создали, не исполнялся — повтором его правка не считается;
                 # набор, отклонённый проверкой шагов, не исполнялся целиком
                 ran = tuple(
@@ -840,6 +867,42 @@ class LoopSession:
             dead_end_actions=tuple(dead_end_actions), transient=transient, refusal=refusal,
         )
 
+    def _run_move_units(
+        self, decision: Decision, kinds: tuple[str, ...],
+    ) -> tuple[ScenarioResult | None, MoveOutcome | None]:
+        """Независимые действия хода идут одновременно: части цели («goals») и шаги атомов («steps»).
+
+        Зависимое друг от друга корень переносит в следующий ход. Сбой действия — его отказ с хвостом трейса,
+        а не падение хода; остановка по бюджету и отмена пользователем поднимаются как прежде. Поток пула не
+        наследует контекст хода: берём его копию, как у частей цели (ADR-0088)."""
+
+        def run_goals() -> ScenarioResult:
+            try:
+                return self._run_goal_refs(decision.goals)
+            except BudgetExceeded:
+                raise
+            except Exception as exc:  # noqa: BLE001 — отказ действия возвращается корню, а не роняет ход
+                log.warning("move goals failed: %s", exc, exc_info=True)
+                return ScenarioResult(False, _failure_text(exc))
+
+        def run_steps() -> MoveOutcome:
+            try:
+                return self._run_steps(decision)
+            except BudgetExceeded:
+                raise
+            except Exception as exc:  # noqa: BLE001 — отказ действия возвращается корню, а не роняет ход
+                log.warning("move steps failed: %s", exc, exc_info=True)
+                return MoveOutcome("шаги не выполнены: исключение", _failure_text(exc), failed=True)
+
+        want_goals = "goals" in kinds and bool(decision.goals)
+        want_steps = "steps" in kinds and bool(decision.new_atoms or decision.raw_steps)
+        if want_goals and want_steps:
+            with ThreadPoolExecutor(max_workers=2, thread_name_prefix="aifa-unit") as pool:
+                goals_future = pool.submit(contextvars.copy_context().run, run_goals)
+                steps_future = pool.submit(contextvars.copy_context().run, run_steps)
+                return goals_future.result(), steps_future.result()
+        return (run_goals() if want_goals else None), (run_steps() if want_steps else None)
+
     def _run_parts(self, clauses: list[GoalClause]) -> list[ScenarioResult]:
         """Части одного слоя зависимостей не зависят друг от друга: их графы идут одновременно (ADR-0088).
 
@@ -857,7 +920,7 @@ class LoopSession:
                 raise
             except Exception as exc:  # noqa: BLE001 — отказ части возвращается планировщику
                 log.warning("goal part %s failed: %s", clause.goal_ref, exc, exc_info=True)
-                return ScenarioResult(False, f"✗ {type(exc).__name__}: {exc}")
+                return ScenarioResult(False, _failure_text(exc))
 
         if len(clauses) < 2:
             return [run_part(clause) for clause in clauses]
@@ -908,7 +971,8 @@ class LoopSession:
                 )
                 ok = ok and result.ok
                 if not missing and self.run_passport is not None:
-                    record_attempts(self.metric_attempts, registry_for_passport(self.run_passport), clause)
+                    with self.state_lock:
+                        record_attempts(self.metric_attempts, registry_for_passport(self.run_passport), clause)
                 lines.append(f"{clause.goal_ref}: {result.summary}" if len(chosen) > 1 else result.summary)
                 if result.ok:
                     self.goal_status[clause.goal_ref] = GOAL_OBTAINED
@@ -958,7 +1022,7 @@ class LoopSession:
             )
             result = runtime.execute(
                 owner_id=self.owner_id, case_id=self.case_id, plan_run_id=planned.record.plan_run_id,
-                inputs=self.inputs, event_sink=partial(_progress_only, self.event_sink),
+                inputs=self.inputs, event_sink=partial(_progress_only, self.event_sink), parallel_ready=True,
             )
         except InvalidSteps as exc:
             return MoveOutcome(
@@ -968,9 +1032,10 @@ class LoopSession:
             return MoveOutcome("план не собрался", str(exc), failed=True, uncreated_atoms=tuple(atom_problems))
         except TimeoutError as exc:
             return MoveOutcome("ход прерван по времени", str(exc), failed=True, transient=True)
-        self._remember_failures(result)
-        if self.run_passport is not None:
-            record_step_attempts(self.metric_attempts, registry_for_passport(self.run_passport), steps)
+        with self.state_lock:
+            self._remember_failures(result)
+            if self.run_passport is not None:
+                record_step_attempts(self.metric_attempts, registry_for_passport(self.run_passport), steps)
         outcome = describe_execution(result, known)
         outcome = replace(outcome, details=outcome.details + _web_off_note(outcome.empty_atoms, runtime.registry))
         transient = _has_station_fault(result)

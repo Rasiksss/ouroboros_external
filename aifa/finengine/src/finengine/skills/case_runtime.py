@@ -618,6 +618,7 @@ class CaseRuntime:
         plan_run_id: str,
         inputs: RunInputs | None = None,
         event_sink: Callable[[dict], None] | None = None,
+        parallel_ready: bool = False,
     ) -> ExecutionResult:
         record = self.store.load_plan_run(owner_id, case_id, plan_run_id)
         if record is None:
@@ -667,7 +668,7 @@ class CaseRuntime:
                 record.graph, node_args, run_id=plan_run_id, available=available,
                 run_passport=record.run_passport, inputs=inputs,
                 prior_node_runs=prior_runs, prior_evidence=prior_evidence,
-                on_node_update=on_update, on_node_result=on_result,
+                on_node_update=on_update, on_node_result=on_result, parallel_ready=parallel_ready,
             )
         except Exception as exc:
             # Исполнитель прервался исключением (бюджет времени или вызовов, сбой хранилища): узлы,
