@@ -41,7 +41,7 @@ def test_root_answers_with_numbers_only_from_facts_or_the_artifact_table() -> No
 def test_root_does_not_attach_a_second_copy_of_the_published_file() -> None:
     source = text("aifa-planning/SKILL.md")
     assert "второй, непроверенный экземпляр" in source
-    assert "`file_read` на него" in source
+    assert "`file_read` на файл из `ПРИНЯТО` пришлёт второй" in source
 
 
 def test_task_plan_writes_go_one_at_a_time_with_the_version_from_the_last_reply() -> None:
@@ -83,11 +83,11 @@ def test_step_acceptance_is_light_and_rests_on_the_step_result() -> None:
 
 def test_plan_author_redoes_only_the_failed_step_and_is_called_when_the_steps_change() -> None:
     source = text("aifa-plan-author/SKILL.md")
-    assert "### Пересмотр после неудачного шага" in source
-    assert "Упавший шаг корень сначала переделывает сам" in source
-    assert "Тебя зовут, когда нужно изменить требования, состав шагов или зависимости" in source
-    assert "переделай только этот шаг, остальные шаги и их id оставь" in source
-    assert "Не повторяй способ, на котором шаг уже упал" in source
+    assert "### Пересмотр после неудачного хода" in source
+    assert "Упавший ход корень сначала переделывает сам" in source
+    assert "Тебя зовут, когда нужно изменить требования, состав ходов или зависимости" in source
+    assert "переделай только этот ход, остальные ходы и их id оставь" in source
+    assert "Не повторяй способ, на котором ход уже упал" in source
 
 
 def test_plan_author_handles_a_missing_metric_by_calculating_searching_or_admitting_it() -> None:
@@ -101,11 +101,11 @@ def test_plan_author_handles_a_missing_metric_by_calculating_searching_or_admitt
 
 def test_root_redoes_a_failed_step_itself_for_any_failure_not_only_for_metrics() -> None:
     source = text("aifa-planning/references/plans.md")
-    assert "Шаг завершился ошибкой" in source
-    assert "плана не бросай и шага не обходи" in source
-    assert "переделай этот шаг сам" in source
-    assert "новую попытку того же шага (`_plan` с новым `attempt_id`) другим способом" in source
-    assert "Цель и критерии шага прежние, меняется способ" in source
+    assert "Ход завершился ошибкой" in source
+    assert "плана не бросай и хода не обходи" in source
+    assert "переделай этот ход сам" in source
+    assert "новую попытку того же хода (`_plan` с новым `attempt_id`) другим способом" in source
+    assert "Цель и критерии хода прежние, меняется способ" in source
     assert "Тот же вызов с теми же аргументами не повторяй" in source
     assert "итог плана — `partial`" in source
     assert "`references/artifacts.md`" in source
@@ -113,7 +113,7 @@ def test_root_redoes_a_failed_step_itself_for_any_failure_not_only_for_metrics()
 
 def test_a_planner_is_ordered_only_when_the_redo_changes_requirements_steps_or_dependencies() -> None:
     source = text("aifa-planning/references/plans.md")
-    assert "Подзадача планировщика нужна, когда переделка шага меняет требования, состав шагов или зависимости" in source
+    assert "Подзадача планировщика нужна, когда переделка хода меняет требования, состав ходов или зависимости" in source
     assert "После каждой локальной ошибки планировщика не заказывай" in source
 
 
@@ -123,7 +123,7 @@ def test_the_service_results_and_metric_gap_live_in_their_own_reference() -> Non
     assert "## Показатель не найден или не посчитан" in source
     assert "даже если остальные части хода получены" in source
     assert "нет компонента формулы запрошенного расчёта" in source
-    assert "Это упавший шаг плана" in source
+    assert "Это упавший ход плана" in source
     assert "Близким показателем не подменяй" in source
     assert "пометка «в отчёте отсутствует» недостачу не закрывает" in source
 
@@ -135,7 +135,7 @@ def test_the_way_to_redo_a_metric_step_follows_the_status_written_in_the_state()
     assert "Расчёт — «НЕ РАССЧИТАН: нет значений: …»" in source
     assert "`web.search`" in source and "недостающих значений" in source
     assert "источник, адрес, дата обращения и период" in source
-    assert "Интернет значений не дал — итог `partial`: назови, чего нет" in source
+    assert "Если интернет не разрешён или значений не дал — итог `partial`: назови, чего нет" in source
     assert "уже записано в состоянии, тем же способом не повторяй" in source
 
 
@@ -150,14 +150,14 @@ def test_a_step_is_redone_by_what_the_state_and_the_executor_recorded_not_by_a_g
 def test_moves_no_longer_send_the_root_to_chase_a_missing_metric_itself() -> None:
     source = text("aifa-planning/references/moves.md")
     assert "следующим ходом рассчитай его" not in source
-    assert "один раз" in source and "переделай шаг новой попыткой (`artifacts.md`)" in source
+    assert "один раз" in source and "переделай ход новой попыткой (`artifacts.md`)" in source
     assert "без своих расчётов" in source
 
 
 def test_finalize_does_not_let_the_root_drop_a_requested_metric_before_the_step_is_redone() -> None:
     source = text("aifa-planning/SKILL.md")
-    assert "«не найден» у показателя запроса — сначала переделай шаг (`references/artifacts.md`)" in source
-    assert "`references/artifacts.md` — результаты службы, расчёты, недостача показателя" in source
+    assert "«не найден» у показателя запроса — сначала переделай ход (`references/artifacts.md`)" in source
+    assert "`references/artifacts.md` — результаты, расчёты, недостача" in source
 
 
 def test_the_root_names_the_company_as_in_the_state_not_by_the_file_name() -> None:
@@ -175,7 +175,7 @@ def test_the_root_never_calculates_by_itself_not_in_its_head_and_not_in_code() -
     assert "сравнение двух чисел тоже" in source
     assert "Своё число не подставляй" in source
     plans = text("aifa-planning/references/plans.md")
-    assert "Расчёт сам не делай ни в уме, ни кодом: шаг с расчётом идёт исполнительным вызовом" in plans
+    assert "Расчёт сам не делай ни в уме, ни кодом: ход с расчётом идёт исполнительным вызовом" in plans
 
 
 def test_a_registry_formula_is_never_changed_and_never_replaced_by_an_ad_hoc_one() -> None:

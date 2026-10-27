@@ -56,9 +56,9 @@ def test_the_proposal_is_compact_and_has_no_conditional_branches_as_steps() -> N
     text = plan_author()
 
     assert "не больше 12 000 знаков" in text
-    assert "критерий на шаг один" in text
-    assert "число шагов не ограничено" in text
-    assert "Ветвление" in text and "не записывай шагами" in text
+    assert "критерий на ход один" in text
+    assert "число ходов не ограничено" in text
+    assert "Ветвление" in text and "не записывай ходами" in text
 
 
 def test_the_planner_does_not_reread_what_the_root_already_found_in_the_report() -> None:
@@ -91,7 +91,7 @@ def test_result_refs_are_pasted_from_the_answer_and_never_typed() -> None:
     text = plans()
 
     # Ссылки на результаты корень больше не набирает: их берёт `accept_step` (ADR-0079).
-    assert "приими шаг одной записью" in text
+    assert "приими ход одной записью" in text
     assert "`accept_step`" in text
 
 
@@ -116,7 +116,7 @@ def test_the_planner_must_read_the_catalog_before_the_steps_and_name_an_atom_or_
     text = plan_author()
 
     assert "Контекст службы читай сам: `aifa_state` (профиль отчёта, доступные периоды, реестр показателей" in text
-    assert "каталог атомов `aifa_atoms` — до составления шагов, а не после" in text
+    assert "каталог атомов `aifa_atoms` — до составления ходов, а не после" in text
     assert "Плана, где шаг извлечения или расчёта не назван атомом или сценарием по карточке каталога, не возвращай" in text
     assert "каждый шаг с атомом или сценарием назван по карточке" in text
 
@@ -193,52 +193,49 @@ def test_the_planner_merges_code_steps_that_one_atom_can_do() -> None:
 
 
 def test_independent_parts_are_put_into_one_move_and_run_at_the_same_time() -> None:
-    """ADR-0088: служба исполняет части одного хода без `depends_on` одновременно, остальные — после опоры."""
+    """ADR-0088: служба исполняет части одного хода одновременно; ADR-0094: зависимая часть идёт в следующий ход."""
     text = " ".join((PLANNING / "references" / "moves.md").read_text(encoding="utf-8").split())
 
     assert "Части одного хода, которые не зависят друг от друга, служба исполняет одновременно" in text
     assert "независимые части собирай в один ход" in text
-    assert "Зависимость называй в `depends_on`" in text
+    assert "`depends_on` называет опору, полученную ранее" in text
 
 
-def test_a_plan_step_is_one_move_and_a_move_holds_independent_work() -> None:
-    """Прогон 26.10 (45756eef): план из четырёх независимых шагов исполнен четырьмя ходами подряд (~18 минут).
+def test_a_move_holds_independent_steps_and_a_dependent_step_goes_to_the_next_move() -> None:
+    """Прогон 26.10 (45756eef): четыре независимых шага исполнены четырьмя ходами подряд (~18 минут).
 
-    Договор `task_plan` связывает исполнительный вызов с одним шагом, поэтому ход = шаг плана: независимое друг от
-    друга собирает один шаг (служба исполняет части хода одновременно), зависимое — следующий шаг."""
+    Владелец 27.10: план — набор ходов, ход — набор шагов. Независимые шаги — один ход, зависимые — следующий."""
     author = plan_author()
     root = plans()
     moves = read(PLANNING / "references" / "moves.md")
 
-    assert "Шаг плана — один ход исполнителя (`aifa_move`)" in author
-    assert "Что в ходе не зависит друг от друга, собери в один шаг; зависимое друг от друга разнеси по шагам с `depends_on`" in author
-    assert "Не дели независимое на отдельные шаги и не связывай `depends_on` то, что не берёт результатов друг друга" in author
-    assert "Шаг плана исполняй одним `aifa_move`" in root
-    assert "не дроби шаг на несколько ходов" in root
-    assert "Ход — это шаг плана: независимые друг от друга части и шаги собирай в один ход, зависимые — в следующий" in moves
+    assert "Ход — набор исключительно независимых шагов" in author
+    assert "Что не берёт результатов друг друга, собери в один ход; зависимое друг от друга разнеси по ходам с `depends_on`" in author
+    assert "Не дели независимое на отдельные ходы и не связывай `depends_on` то, что не берёт результатов друг друга" in author
+    assert "Ход плана исполняй вызовом `aifa_move`" in root
+    assert "не дроби ход на несколько вызовов ради порядка" in root
+    assert "Ход — набор независимых шагов: независимые друг от друга части цели и вызовы атомов собирай в один ход, зависимые — в следующий" in moves
 
 
 def test_the_planner_builds_the_plan_by_levels_of_real_data_dependence() -> None:
     """Прогон 26.10 (e296e677): поиск ставки зависел от извлечения только «по порядку», хотя годы известны из `aifa_state`.
 
-    Общее правило, а не частный случай: зависимость только по данным, уровни, одна ступень — один шаг-ход."""
+    Общее правило: зависимость только по данным, уровни, один уровень — один ход."""
     text = plan_author()
 
-    assert "Зависимость — только по данным: шаг B зависит от A, если B использует значение, файл или адрес, которые производит A" in text
+    assert "Зависимость — только по данным: ход B зависит от хода A, если шаг B использует значение, файл или адрес, которые производит шаг A" in text
     assert "Для каждой пары шагов спроси: могу ли я начать B, не дожидаясь A?" in text
     assert "Что известно заранее (годы и периоды отчёта, профиль, реестр), берётся из `aifa_state`, а не из результата шага" in text
-    assert "Уровень шага: 1 без зависимостей, иначе 1 + наибольший уровень его зависимостей" in text
-    assert "Шаги извлечения, расчёта и поиска одного уровня — один шаг-ход" in text
-    assert "Кодовые подзадачи одного уровня остаются отдельными шагами и запускаются параллельно" in text
+    assert "Уровень хода: 1 без зависимостей, иначе 1 + наибольший уровень его зависимостей" in text
+    assert "Шаги извлечения, расчёта и поиска одного уровня — один ход" in text
+    assert "Шаги-авторы одного уровня — тоже шаги одного хода и идут параллельно" in text
     assert "Перед отправкой запиши уровни допущением с id `levels`" in text
 
 
-def test_the_root_checks_the_levels_of_the_plan_and_returns_it_once_for_false_dependence() -> None:
-    step = plans().split("4. Проверь полноту запроса", 1)[1].split("## Исполнить и проверить", 1)[0]
+def test_the_root_checks_the_layout_of_the_plan_and_returns_it_once_for_false_dependence() -> None:
+    step = plans().split("4. Проверь план", 1)[1].split("## Исполнить и проверить", 1)[0]
 
-    assert "Проверь уровни плана" in step
-    assert "использует ли шаг результат предшественника" in step
-    assert "Два независимых шага извлечения, расчёта или поиска в разных шагах плана — ошибка плана" in step
+    assert "для каждого `depends_on` спроси, использует ли ход результат того, от кого зависит" in step
     assert "верни план планировщику один раз" in step
     assert "второй раз по тому же замечанию не возвращай" in step
 
@@ -254,12 +251,12 @@ def test_the_root_hands_the_author_artifact_ids_and_not_the_values() -> None:
     assert "Число, которого нет ни в одном артефакте (среднее по таблице страницы), корень не считает" in artifacts
 
 
-def test_all_actions_of_one_move_run_at_the_same_time_and_dependent_ones_go_to_the_next_move() -> None:
-    """ADR-0092: части цели и шаги атомов одного хода служба исполняет одновременно (прежде шаги шли после частей)."""
+def test_all_steps_of_one_move_run_at_the_same_time_and_a_dependent_step_goes_to_the_next_move() -> None:
+    """ADR-0092: части цели и вызовы атомов одного хода служба исполняет одновременно (прежде шаги шли после частей)."""
     moves = read(PLANNING / "references" / "moves.md")
 
-    assert "Части цели и шаги атомов одного хода служба исполняет одновременно" in moves
-    assert "Действие, которому нужен результат другого действия, — в следующий ход" in moves
+    assert "Шаги хода — части цели и вызовы атомов — служба исполняет одновременно" in moves
+    assert "Шаг, которому нужен результат другого шага, — в следующий ход" in moves
     assert "Части цели выполняются до шагов хода" not in moves
-    assert "Все действия шага служба исполняет одновременно" in plans()
-    assert "Действие, которому нужен адрес, значение или файл из результата другого действия, — следующий ход" in plan_author()
+    assert "Все шаги хода служба исполняет одновременно" in plans()
+    assert "Шаг, которому нужен адрес, значение или файл из результата другого шага, — в следующий ход" in plan_author()

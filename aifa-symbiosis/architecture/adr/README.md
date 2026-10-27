@@ -61,7 +61,8 @@
 [0090 — планы частей одного Case строятся по очереди](0090-planirovanie-chastey-po-ocheredi.md),
 [0091 — уровни плана и проверка корня](0091-urovni-plana-i-proverka-korna.md),
 [0092 — действия хода идут одновременно](0092-dejstviya-hoda-parallelno.md),
-[0093 — автору id артефактов](0093-zadanie-avtoru-s-id-artefaktov.md).
+[0093 — автору id артефактов](0093-zadanie-avtoru-s-id-artefaktov.md),
+[0094 — термины плана и интернет по разрешению](0094-terminy-plana-i-internet-po-razresheniyu.md).
 
 | № | Решение | Статус |
 |---|---|---|
