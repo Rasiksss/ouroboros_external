@@ -37,6 +37,7 @@ from finengine.contracts import (
     RunPassport,
 )
 from finengine.llm.budget import BudgetExceeded
+from finengine.skills.spec.report_periods import report_periods
 from finengine.roles.scope import build_role_plan
 from finengine.skills import run_logger
 from finengine.skills.analysis.external import WEB_SEARCH_OFF_REASON, user_allowed_web_search
@@ -399,6 +400,7 @@ class LoopSession:
         self.goal = goal
         self.target = target
         self.inputs = inputs
+        self.document_periods = report_periods(inputs.document_text)
         self.run_passport = run_passport
         self.root_extra = root_extra or {}
         self.event_sink = event_sink
@@ -1622,8 +1624,10 @@ def state_sections(run: LoopSession, feedback: str) -> list[tuple[str, str]]:
         classification = run.run_passport.classification
         profile = (
             f"стандарт={classification.standard}; тип компании={classification.company_type}; "
-            f"язык={classification.language}"
+            f"язык={classification.language}; компания={run.run_passport.entity.canonical_name}"
         )
+    periods = ", ".join(run.document_periods) or "периоды не определены"
+    profile += f"\nПериоды основной таблицы отчёта: {periods}. Не ограничивают извлечение: все доступные периоды и наличие значений проверяет исполнитель."
     rows = case_rows(run.runtime.store, run.owner_id, run.case_id)
     produced_types = {row["output_type"] for row in rows}
     atoms = "\n".join(
@@ -1639,7 +1643,7 @@ def state_sections(run: LoopSession, feedback: str) -> list[tuple[str, str]]:
         ("Разобранная цель", _describe_goal(run)),
         ("План", _describe_plan(run)),
         ("Профиль отчёта", profile),
-        ("Реестр показателей", _describe_metric_registry(run)),
+        ("Реестр показателей", metric_registry_text(run)),
         ("Статус показателей", _describe_metric_status(run, rows)),
         ("Каталог атомов", catalog_text(run.runtime.registry)),
         ("Созданные атомы этого разговора", atoms),
@@ -1663,7 +1667,7 @@ def _describe_metric_status(run: LoopSession, rows: list[dict]) -> str:
     return "\n".join([LEGEND, *lines]) if lines else "показатели не запрашивались"
 
 
-def _describe_metric_registry(run: LoopSession) -> str:
+def metric_registry_text(run: LoopSession) -> str:
     """Показатели, которые AIFA получает сама для отчёта этого профиля: по реестру, зафиксированному в паспорте."""
     if run.run_passport is None:
         return "профиль отчёта не зафиксирован — реестр недоступен"

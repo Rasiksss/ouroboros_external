@@ -62,7 +62,10 @@
 [0091 — уровни плана и проверка корня](0091-urovni-plana-i-proverka-korna.md),
 [0092 — действия хода идут одновременно](0092-dejstviya-hoda-parallelno.md),
 [0093 — автору id артефактов](0093-zadanie-avtoru-s-id-artefaktov.md),
-[0094 — термины плана и интернет по разрешению](0094-terminy-plana-i-internet-po-razresheniyu.md).
+[0094 — термины плана и интернет по разрешению](0094-terminy-plana-i-internet-po-razresheniyu.md),
+[0095 — подзадача не дубликат предка, отказ приходит итогом](0095-podzadacha-ne-dublikat-predka.md),
+[0096 — полный контекст планировщика](0096-polnyy-kontekst-planirovshchika.md),
+[0097 — модели dev через OpenRouter](0097-dev-glm53-low-deepseek-pro.md).
 
 | № | Решение | Статус |
 |---|---|---|

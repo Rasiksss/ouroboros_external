@@ -63,3 +63,10 @@ openspec/changes/plan-bound-execution/design.md ADR-0062
 openspec/changes/plan-bound-execution/proposal.md ADR-0062
 openspec/changes/plan-bound-execution/tasks.md ADR-0062
 openspec/changes/plan-bound-execution/specs/task-planning/spec.md ADR-0062
+
+# ADR-0095: разрешённая владельцем правка допуска и отказа подзадачи.
+supervisor/events.py ADR-0095
+tests/supervisor/test_subtask_admission.py ADR-0095
+openspec/changes/reject-subtasks-with-correlated-outcome/proposal.md ADR-0095
+openspec/changes/reject-subtasks-with-correlated-outcome/tasks.md ADR-0095
+openspec/changes/reject-subtasks-with-correlated-outcome/specs/task-lifecycle/spec.md ADR-0095

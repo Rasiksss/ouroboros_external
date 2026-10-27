@@ -310,17 +310,24 @@ def _handle_task_metrics(event: TaskMetrics, ctx: Any) -> None:
     )
 
 
-def _find_duplicate_task(desc: str, task_context: str, drive_root: Any, *, scope: OwnerScope) -> str | None:
-    """Use a light LLM to reject only true duplicate active tasks of this owner's.
-
-    Scoped, and required to be: the descriptions read here are glued into a prompt, and
-    unscoped this both leaked another owner's wording and rejected one owner's task as a
-    duplicate of a stranger's. Two owners asking the same thing are two tasks.
-    """
+def _find_duplicate_task(
+    desc: str, task_context: str, drive_root: Any, *, scope: OwnerScope, parent_task_id: str = ""
+) -> str | None:
+    """Find semantic duplicates among this owner's active tasks, excluding ancestors."""
 
     existing: list[dict[str, str]] = []
     store = runtime_persistence.current.tasks_repo
+    ancestors: set[str] = set()
+    ancestor_id = parent_task_id
+    while ancestor_id and ancestor_id not in ancestors:
+        ancestor = store.get_task(ancestor_id)
+        if ancestor is None or (ancestor.owner_id, ancestor.agent_id) != (scope.owner_id, scope.agent_id):
+            break
+        ancestors.add(ancestor_id)
+        ancestor_id = ancestor.parent_task_id
     for record in store.list_tasks(statuses=list(ACTIVE_STATUSES), scope=scope):
+        if record.task_id in ancestors:
+            continue
         task_data = dict(record.input)
         description, context = _extract_task_description_and_context(task_data)
         if description.strip():
@@ -455,7 +462,7 @@ def _handle_schedule_task(event: SubtaskRequested, ctx: Any) -> None:
 
     # Duplicate judgment stays LLM-first, not hardcoded.
     with aef_tracing.trace_scope(trace_id):
-        dup_id = _find_duplicate_task(desc, task_context, ctx.DRIVE_ROOT, scope=scope)
+        dup_id = _find_duplicate_task(desc, task_context, ctx.DRIVE_ROOT, scope=scope, parent_task_id=parent_id or "")
     if dup_id:
         log.info("Rejected duplicate task: new='%s' duplicates='%s'", desc[:100], dup_id)
         try:
@@ -470,9 +477,11 @@ def _handle_schedule_task(event: SubtaskRequested, ctx: Any) -> None:
             )
         except Exception:
             log.warning("Failed to persist rejected duplicate task status for %s", tid, exc_info=True)
-        if not event.suppress_ack:
+        if parent_id or not event.suppress_ack:
+            rejection = f"Task rejected: semantically similar to already active task {dup_id}"
             ctx.send_with_budget(
-                f"⚠️ Task rejected: semantically similar to already active task {dup_id}",
+                f"⚠️ Error during processing: {rejection}" if parent_id else f"⚠️ {rejection}",
+                task_id=tid,
                 scope=scope,
                 source=outbound_source,
                 transport=transport,

@@ -64,6 +64,11 @@ TOOLS = (
         schema={
             "type": "object",
             "properties": {
+                "registry_offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Полный реестр показателей: смещение в символах; продолжай по next_offset до null. Отдельно от артефактов.",
+                },
                 "artifact_ids": {"type": "array", "items": {"type": "string"}, "maxItems": 20},
                 "view": {"type": "string", "enum": ["full", "compact"]},
                 "artifact_index": {

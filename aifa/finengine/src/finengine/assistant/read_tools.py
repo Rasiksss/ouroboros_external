@@ -46,6 +46,12 @@ class StateTool:
 
     async def run(self, call: BoundCall) -> str:
         ids = call.args.get("artifact_ids")
+        registry_offset = call.args.get("registry_offset")
+        if "registry_offset" in call.args:
+            if type(registry_offset) is not int or registry_offset < 0:
+                return ouro_view.refusal(Refusal.BAD_ARGUMENTS, "registry_offset — целое число от 0 (смещение в символах).")
+            if "artifact_ids" in call.args or "artifact_index" in call.args:
+                return ouro_view.refusal(Refusal.BAD_ARGUMENTS, "Реестр и артефакты запрашиваются отдельно.")
         view = call.args.get("view", "full")
         if not isinstance(view, str) or view not in {"full", "compact"}:
             return ouro_view.refusal(Refusal.BAD_ARGUMENTS, "view — full или compact.")
@@ -63,6 +69,10 @@ class StateTool:
             )
         loop = await self._desk.open_loop_of(call)
         limit = settings.ouroboros_result_limit
+        if registry_offset is not None:
+            if loop is None:
+                return no_loop()
+            return await asyncio.to_thread(ouro_view.metric_registry, loop.session, offset=registry_offset, limit=limit)
         if not ids and index is None:
             if loop is None:
                 return no_loop()

@@ -18,6 +18,7 @@ from finengine.skills.spec.dynamic_run import (
     MoveOutcome,
     artifacts_table,
     case_rows,
+    metric_registry_text,
     state_sections,
 )
 
@@ -26,7 +27,7 @@ STATE_BATCH = 20
 # Запас под строку об остатке: самый длинный вид — 20 id по 36 знаков и пояснение.
 TAIL_RESERVE = 1_000
 # Разделы состояния, которые уступают место таблице, когда состояние не помещается в предел (по порядку).
-_SHRINKABLE = ("Реестр показателей", "Каталог атомов")
+_SHRINKABLE = ("Каталог атомов", "Реестр показателей")
 _SHRINK_FLOOR = 300
 _REGISTER_PREVIEW = 400
 
@@ -144,6 +145,14 @@ def _state(session: LoopSession, limit: int) -> str:
         if over <= 0:
             break
         body = sections[title]
+        if title == "Реестр показателей":
+            sections[title] = (
+                "Полный реестр с извлекаемыми и рассчитываемыми показателями не помещается в состояние. "
+                "Читай aifa_state(registry_offset=0), затем все страницы по next_offset до null. "
+                "Непрочитанная часть не означает отсутствия показателя или формулы."
+            )
+            over -= len(body) - len(sections[title])
+            continue
         cut = min(over, max(0, len(body) - _SHRINK_FLOOR))
         sections[title] = body[: len(body) - cut] + "…[обрезано]" if cut else body
         over -= cut
@@ -160,6 +169,22 @@ def _state(session: LoopSession, limit: int) -> str:
     table = "\n".join(shown) if len(shown) == len(lines) else "\n".join([*shown, _tail(lines, len(shown))])
     sections[ARTIFACTS_TITLE] = f"{ARTIFACTS_HEADER}\n{table}"
     return "\n\n".join(f"## {title}\n{sections[title]}" for title in order)
+
+
+def metric_registry(session: LoopSession, *, offset: int, limit: int) -> str:
+    """Полный реестр замороженного паспорта, страницы без потери символов (ADR-0096)."""
+    text = metric_registry_text(session)
+    if offset > len(text):
+        return refusal(Refusal.BAD_ARGUMENTS, "registry_offset выходит за конец реестра.")
+    room = limit - 200
+    if room <= 0:
+        return refusal(Refusal.BAD_ARGUMENTS, "result_limit слишком мал для страницы реестра.")
+    end = min(offset + room, len(text))
+    next_offset = str(end) if end < len(text) else "null"
+    return (
+        f"{Code.READY}\n## Реестр показателей\nСимволы {offset}–{end} из {len(text)}\n\n"
+        f"{text[offset:end]}\n\nnext_offset={next_offset}"
+    )
 
 
 def artifacts(found: list[tuple[str, str]], missing: list[str], *, limit: int, view: str = "full") -> str:

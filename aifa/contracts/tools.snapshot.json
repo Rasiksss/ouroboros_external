@@ -1,8 +1,8 @@
 {
   "snapshot_version": 1,
-  "adr": "ADR-0064",
-  "note": "Каталог атомов aifa_atoms (list/get); адресное чтение артефактов и lifecycle-close; привязка _plan добавляется kernel dispatch к исполнителям.",
-  "budget_chars": 5604,
+  "adr": "ADR-0096",
+  "note": "Полный реестр показателей через aifa_state(registry_offset), next_offset; контекст профиля с компанией и периодами.",
+  "budget_chars": 5782,
   "tools": {
     "aifa_open": {
       "arguments": [],
@@ -30,6 +30,7 @@
       "arguments": [
         "artifact_ids",
         "artifact_index",
+        "registry_offset",
         "view"
       ],
       "required": [],
