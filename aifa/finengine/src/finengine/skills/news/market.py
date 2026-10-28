@@ -148,9 +148,13 @@ class MarketGoalRunner:
                 result = outputs[0]
                 accepted = result.status != "partial"
                 summary = f"{result.status}: DigestOutput {result.output_id}"
+                # Подсказка агенту, как ответить (ADR-0099): выпуск уже показан карточкой, недоступное — по просьбе.
+                summary += "; выпуск уже показан пользователю карточкой — в ответе выжимка на 5–8 строк без таблиц"
                 if result.status == "partial":
-                    # Перечень недоступного — в warnings артефакта; агент называет его только по просьбе пользователя.
-                    summary += "; выпуск неполный, подробности недоступного — в warnings артефакта"
+                    summary += (
+                        "; выпуск неполный: скажи об этом одной фразой, без перечня источников и показателей и без примеров, "
+                        "подробности — в warnings артефакта, назови их только если пользователь попросит"
+                    )
             except Exception as exc:
                 accepted, summary = False, f"Дайджест не выполнен: {exc}"
             finally:

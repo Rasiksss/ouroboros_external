@@ -183,6 +183,7 @@ async def test_partial_digest_is_readable_but_does_not_mark_goal_obtained(base):
         digest.warnings = ["Недоступны новостные источники: secret_source"]
         reply = await plugin.call("aifa_move", ctx, move())
         assert "partial: DigestOutput" in reply.text and "неполный" in reply.text
+        assert "выжимка на 5–8 строк" in reply.text and "без перечня источников" in reply.text
         assert "secret_source" not in reply.text  # перечень недоступного — только по просьбе пользователя
         assert desk.live(run.run_id).session.goal_status["g1"].startswith("отказ")
         assert len(base.store.list_artifacts(7, "project-1")) == 1
