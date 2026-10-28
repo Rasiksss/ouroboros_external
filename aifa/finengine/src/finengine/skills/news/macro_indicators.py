@@ -1090,10 +1090,12 @@ def render_macro_dashboard_md(payload: dict, mode: str = "both") -> str:
     if not payload:
         return ""
 
-    _mark_freshness(payload)
     sections: list[str] = []
 
     if mode in ("both", "week_only"):
+        # first_seen нужен только блоку «вышли на этой неделе»; в режиме full он не читается,
+        # а пометка изменяла бы переданный словарь и писала бы общий файл в data_dir.
+        _mark_freshness(payload)
         fresh = _fresh_this_week(payload)
         if fresh:
             sections.append(_render_macro_table(

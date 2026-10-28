@@ -226,3 +226,22 @@ async def test_classifier_outage_names_the_provider_code_without_leaking_the_bod
         await ServiceDigest(transport=transport, catalog=catalog("feed"), classifier=outage, macro_loader=no_macro)(request())
     assert "402" in str(failure.value) and "1d7a3ab8" not in str(failure.value)
 
+
+async def test_real_macro_payload_survives_rendering_and_is_not_marked_in_shared_state(monkeypatch, tmp_path):
+    from finengine.config import settings
+    from finengine.skills.news import macro_indicators as macro
+    monkeypatch.setattr(settings, "data_dir", tmp_path)
+    spec = next(s for s in macro._REGISTRY if "yoy" in s.compares)
+    rows = [{"date": f"2025-{m:02d}-01", "value": str(100 + m)} for m in range(12, 0, -1)] * 2
+    dynamics = macro._compute_dynamics(spec, rows)
+
+    async def loader(client):
+        return {spec.id: {**dynamics, "id": spec.id, "ru_name": spec.ru_name, "region": spec.region, "unit": spec.unit,
+                          "source_url": macro.source_link(spec), "published": "", "fetched_at": 1.0}}, []
+
+    transport = httpx.MockTransport(lambda req: httpx.Response(200, text=FEED))
+    result = await ServiceDigest(transport=transport, catalog=catalog("feed"), classifier=classified, macro_loader=loader)(request())
+    assert result.status == "complete" and spec.id in result.macro
+    assert "first_seen" not in result.macro[spec.id]
+    assert not (tmp_path / "macro_first_seen.json").exists()
+
