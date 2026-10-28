@@ -6,6 +6,7 @@ import calendar
 import dataclasses
 import hashlib
 import json
+import re
 from datetime import datetime, timezone
 from urllib.parse import urljoin, urlsplit
 from zoneinfo import ZoneInfo
@@ -47,6 +48,13 @@ MACRO_HOSTS = frozenset({
 def catalogue_hosts(catalog: config.NewsConfig | None = None) -> tuple[str, ...]:
     sources = (catalog or config.load()).active_sources()
     return tuple(sorted(MACRO_HOSTS | {host for s in sources if (host := urlsplit(s.url).hostname)}))
+
+
+def _classification_failure(usage: dict) -> str:
+    """Причина отказа классификатора для агента: код ответа провайдера, без тела и адресов с идентификаторами ключей."""
+    code = re.search(r"Error code: (\d{3})", str(usage.get("error", "")))
+    reason = f"провайдер модели ответил кодом {code[1]}" if code else "модель не вернула результат"
+    return f"Классификация дайджеста не выполнена: {reason}; роль пользователя и параметры запроса здесь ни при чём"
 
 
 def _unconfigured_ids() -> frozenset[str]:
@@ -148,7 +156,7 @@ class ServiceDigest:
                         request.progress({"type": "progress", "text": "Классификатор вернул неполный ответ, повторяю"})
                         classified, usage = await self.classifier(candidates, strict_complete=True)
                 if usage.get("error") or not classified:
-                    raise ValueError("Классификация дайджеста не выполнена")
+                    raise ValueError(_classification_failure(usage))
             else:
                 classified, usage = [], {}
             payload, macro_failures = await self.macro_loader(client)

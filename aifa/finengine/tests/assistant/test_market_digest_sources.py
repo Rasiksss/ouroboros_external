@@ -215,3 +215,14 @@ def test_macro_fetchers_stay_inside_the_network_boundary():
     assert {urlsplit(base).hostname for base in bases} <= MACRO_HOSTS
     # Новый провайдер в реестре обязан получить хост здесь и в MACRO_HOSTS, иначе граница отрежет его запросы.
     assert {s.provider for s in macro._REGISTRY} <= {"fred", "eurostat", "cbr_scrape", "eia", "nbs", "investing"}
+
+
+async def test_classifier_outage_names_the_provider_code_without_leaking_the_body():
+    async def outage(items, **kwargs):
+        return [], {"error": "Error code: 402 - {'error': {'message': 'keys/1d7a3ab8 limit'}}"}
+
+    transport = httpx.MockTransport(lambda req: httpx.Response(200, text=FEED))
+    with pytest.raises(ValueError) as failure:
+        await ServiceDigest(transport=transport, catalog=catalog("feed"), classifier=outage, macro_loader=no_macro)(request())
+    assert "402" in str(failure.value) and "1d7a3ab8" not in str(failure.value)
+
