@@ -30,6 +30,9 @@
 from __future__ import annotations
 
 import json
+import tempfile
+import time
+import sys
 import logging
 from pathlib import Path
 from typing import Any, Protocol
@@ -37,6 +40,9 @@ from typing import Any, Protocol
 from sqlalchemy import (
     JSON, Column, MetaData, String, Table, delete, select,
 )
+
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
 from finengine.config import settings
 from finengine.store.engine import движок
@@ -87,6 +93,7 @@ class StateStore(Protocol):
     def delete(self, kind: str, owner: str, key: str) -> bool: ...
     def keys(self, kind: str, owner: str) -> list[str]: ...
     def mutate(self, kind: str, owner: str, key: str, изменить) -> dict: ...
+    def claim(self, kind: str, owner: str, key: str, doc: dict) -> dict: ...
 
 
 class LocalStateStore:
@@ -95,23 +102,44 @@ class LocalStateStore:
     ⚠️ НЕ ЗАГЛУШКА: сегодняшнее боевое поведение и путь отката.
     """
 
+    def claim(self, kind: str, owner: str, key: str, doc: dict) -> dict:
+        return self.mutate(kind, owner, key, lambda prior: doc if prior is None else prior)
+
     def _файл(self, kind: str, owner: str, key: str) -> Path:
         return Path(settings.data_dir) / kind / owner / f"{key}.json"
 
     def get(self, kind: str, owner: str, key: str) -> dict | None:
         путь = self._файл(kind, owner, key)
-        if not путь.is_file():
-            return None
-        return json.loads(путь.read_text(encoding="utf-8"))
+        for attempt in range(50):
+            try:
+                return json.loads(путь.read_text(encoding="utf-8"))
+            except FileNotFoundError:
+                return None
+            except PermissionError:
+                if sys.platform != "win32" or attempt == 49:
+                    raise
+                time.sleep(0.01)
+        raise AssertionError("unreachable")
 
     def put(self, kind: str, owner: str, key: str, doc: dict) -> None:
         путь = self._файл(kind, owner, key)
         путь.parent.mkdir(parents=True, exist_ok=True)
         # Через временный файл и `replace`: читатель никогда не увидит
         # наполовину записанный документ.
-        врем = путь.with_suffix(".tmp")
-        врем.write_text(json.dumps(doc, ensure_ascii=False), encoding="utf-8")
-        врем.replace(путь)
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=путь.parent, suffix=".tmp", delete=False) as fh:
+            врем = Path(fh.name)
+            fh.write(json.dumps(doc, ensure_ascii=False))
+        try:
+            for attempt in range(50):
+                try:
+                    врем.replace(путь)
+                    break
+                except PermissionError:
+                    if sys.platform != "win32" or attempt == 49:
+                        raise
+                    time.sleep(0.01)
+        finally:
+            врем.unlink(missing_ok=True)
 
     def delete(self, kind: str, owner: str, key: str) -> bool:
         путь = self._файл(kind, owner, key)
@@ -136,19 +164,30 @@ class LocalStateStore:
         переписывается через `replace`, то есть подменяется инодой, и захваченная
         на нём блокировка удерживала бы уже несуществующий объект.
         """
-        import fcntl  # noqa: PLC0415 — только эта ветка и только на POSIX
-
         путь = self._файл(kind, owner, key)
         путь.parent.mkdir(parents=True, exist_ok=True)
         замок = путь.with_suffix(".lock")
-        with open(замок, "a+") as fh:  # noqa: PTH123 — flock нужен дескриптор
-            fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
+        with open(замок, "a+b") as fh:  # noqa: PTH123 — блокировке нужен дескриптор
+            if sys.platform == "win32":
+                import msvcrt  # noqa: PLC0415 — только Windows
+                if fh.tell() == 0:
+                    fh.write(b"0")
+                    fh.flush()
+                fh.seek(0)
+                msvcrt.locking(fh.fileno(), msvcrt.LK_LOCK, 1)
+            else:
+                import fcntl  # noqa: PLC0415 — только POSIX
+                fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
             try:
                 новый = изменить(self.get(kind, owner, key))
                 self.put(kind, owner, key, новый)
                 return новый
             finally:
-                fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
+                if sys.platform == "win32":
+                    fh.seek(0)
+                    msvcrt.locking(fh.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
 
 
 class SqlStateStore:
@@ -164,6 +203,12 @@ class SqlStateStore:
         if key is not None:
             условия.append(STATE.c.key == key)
         return условия
+
+    def claim(self, kind: str, owner: str, key: str, doc: dict) -> dict:
+        insert = pg_insert if self._engine.dialect.name == "postgresql" else sqlite_insert
+        with self._engine.begin() as conn:
+            conn.execute(insert(STATE).values(kind=kind, owner_key=owner, key=key, doc=doc).on_conflict_do_nothing())
+            return conn.execute(select(STATE.c.doc).where(*self._где(kind, owner, key))).scalar_one()
 
     def get(self, kind: str, owner: str, key: str) -> dict | None:
         with self._engine.begin() as conn:
@@ -271,3 +316,8 @@ def mutate(kind: str, *, owner: Any, key: Any, изменить) -> dict:
     транзакции, поэтому обязана быть быстрой и без обращений наружу.
     """
     return get_state_store().mutate(kind, safe_segment(owner), safe_segment(key), изменить)
+
+
+def claim(kind: str, *, owner: Any, key: Any, doc: dict) -> dict:
+    """Атомарно создать запись или вернуть уже существующую."""
+    return get_state_store().claim(kind, safe_segment(owner), safe_segment(key), doc)

@@ -36,9 +36,9 @@ class JobBoard:
         self._watch_sec = watch_sec
         self._jobs: dict[str, Job] = {}
 
-    def start(self, run_id: str, kind: str, work: Coroutine[Any, Any, str]) -> Job:
+    def start(self, run_id: str, kind: str, work: Coroutine[Any, Any, str], *, job_id: str | None = None) -> Job:
         self._sweep()
-        job_id = uuid.uuid4().hex[:8]
+        job_id = job_id or uuid.uuid4().hex[:8]
         task = asyncio.create_task(self._supervise(run_id, work), name=f"ouro-job-{job_id}")
         task.add_done_callback(_log_failure)
         job = Job(job_id, run_id, kind, task)

@@ -67,6 +67,9 @@ class StateTool:
             return ouro_view.refusal(
                 Refusal.BAD_ARGUMENTS, f"artifact_ids — список из не более {STATE_BATCH} непустых id."
             )
+        offset = call.args.get("artifact_offset", 0)
+        if "artifact_offset" in call.args and (type(offset) is not int or offset < 0 or not ids or len(ids) != 1 or view != "full"):
+            return ouro_view.refusal(Refusal.BAD_ARGUMENTS, "artifact_offset требует один artifact_id, full и целое смещение >= 0")
         loop = await self._desk.open_loop_of(call)
         limit = settings.ouroboros_result_limit
         if registry_offset is not None:
@@ -79,7 +82,8 @@ class StateTool:
             return await asyncio.to_thread(ouro_view.state, loop.session, limit=limit)
         if loop is None and self._board.of_kind(call.ctx.run_id, OPEN_KIND) is None:
             return no_loop(BEFORE_OPEN)
-        rows = await asyncio.to_thread(case_rows, get_case_store(), call.record.user_id, call.record.case_id)
+        store = loop.session.runtime.store if loop is not None else get_case_store()
+        rows = await asyncio.to_thread(case_rows, store, call.record.user_id, call.record.case_id)
         if index is not None:
             return ouro_view.artifact_index(_index_entries(rows, index.output_type), offset=index.offset, count=index.limit, limit=limit)
         ids = ids or []
@@ -87,6 +91,8 @@ class StateTool:
         missing = [item for item in ids if item not in dict(found)]
         if not found:
             return ouro_view.refusal(Refusal.BAD_ARGUMENTS, f"В Case этого хода таких артефактов нет: {', '.join(missing)}.")
+        if "artifact_offset" in call.args or (loop is not None and loop.origin.mode == "market" and len(ids) == 1):
+            return ouro_view.artifact_page(*found[0], offset=offset, limit=limit)
         return ouro_view.artifacts(found, missing, limit=limit, view=view)
 
 

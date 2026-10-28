@@ -65,7 +65,8 @@
 [0094 — термины плана и интернет по разрешению](0094-terminy-plana-i-internet-po-razresheniyu.md),
 [0095 — подзадача не дубликат предка, отказ приходит итогом](0095-podzadacha-ne-dublikat-predka.md),
 [0096 — полный контекст планировщика](0096-polnyy-kontekst-planirovshchika.md),
-[0097 — модели dev через OpenRouter](0097-dev-glm53-low-deepseek-pro.md).
+[0097 — модели dev через OpenRouter](0097-dev-glm53-low-deepseek-pro.md),
+[0098 — рыночный дайджест как сценарий службы, цикл без отчёта](0098-market-digest-scenario.md) (принято).
 
 | № | Решение | Статус |
 |---|---|---|

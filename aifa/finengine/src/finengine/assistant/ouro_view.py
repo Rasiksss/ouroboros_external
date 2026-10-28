@@ -212,6 +212,19 @@ def artifacts(found: list[tuple[str, str]], missing: list[str], *, limit: int, v
     return text.rstrip("\n")
 
 
+def artifact_page(artifact_id: str, content: str, *, offset: int, limit: int) -> str:
+    """Часть сохранённого артефакта с явным продолжением."""
+    if offset > len(content):
+        return refusal(Refusal.BAD_ARGUMENTS, "artifact_offset выходит за конец артефакта")
+    chunk = content[offset:offset + max(1, limit - TAIL_RESERVE)]
+    end = offset + len(chunk)
+    tail = (
+        f"\nПродолжение: aifa_state(artifact_ids=[\"{artifact_id}\"], artifact_offset={end}); next_offset={end}"
+        if end < len(content) else "\nnext_offset=null"
+    )
+    return f"{Code.READY}\nАртефакт {artifact_id}, символы {offset}–{end} из {len(content)}\n{chunk}{tail}"
+
+
 def _compact_artifact(content: str) -> str:
     data = json.loads(content)
     if not isinstance(data, dict) or data.get("output_type") not in {"ExtractedMetric", "CalculatedMetric"}:

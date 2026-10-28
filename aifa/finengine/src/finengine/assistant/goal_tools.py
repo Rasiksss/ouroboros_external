@@ -7,6 +7,9 @@
 
 from __future__ import annotations
 
+import asyncio
+import uuid
+import time
 from typing import Any, Protocol
 
 from finengine.assistant import ouro_view
@@ -21,6 +24,7 @@ from finengine.assistant.turn_record import TurnRecord
 from finengine.config import settings
 from finengine.skills import run_orchestrator
 from finengine.skills.spec.dynamic_run import LoopSession
+from finengine.store import state
 
 WAIT_MIN_SEC = 10
 WAIT_MAX_SEC = 240
@@ -31,6 +35,8 @@ class Opening(Protocol):
     """Кто открывает цикл хода: служба по документу хода (`LoopOpening`)."""
 
     async def __call__(self, record: TurnRecord) -> LoopSession | NoDocument: ...
+
+    async def market(self, record: TurnRecord, agent_id: str = "") -> LoopSession: ...
 
 
 class RunEmitter:
@@ -62,16 +68,61 @@ class OpenTool:
         self._desk = desk
 
     async def run(self, call: BoundCall) -> str:
+        mode = call.args.get("mode", "report")
+        if mode not in ("report", "market"):
+            return ouro_view.refusal(Refusal.BAD_ARGUMENTS, "mode — report или market")
+        existing = await self._desk.open_loop_of(call)
+        if existing is not None and existing.origin.mode != mode:
+            return ouro_view.refusal(Refusal.BAD_ARGUMENTS, "Режим уже открытого цикла менять нельзя")
         run_id = call.ctx.run_id
         # C3.3: повторный вызов в ходе — то же задание; открытый цикл не открывается заново, ответ — его состояние.
-        job = self._board.of_kind(run_id, OPEN_KIND)
+        kind = OPEN_KIND if mode == "report" else f"{OPEN_KIND}:market"
+        job = self._board.of_kind(run_id, kind)
         if job is None:
-            job = self._board.start(run_id, OPEN_KIND, self._answer(call))
+            job = self._board.start(run_id, kind, self._answer(call))
         return await reply_of(self._board, job, settings.ouroboros_goal_wait_sec)
 
     async def _answer(self, call: BoundCall) -> str:
-        loop = await self._desk.open_loop_of(call)
-        opened = loop.session if loop is not None else await self._opening(call.record)
+        mode = call.args.get("mode", "report")
+        token = uuid.uuid4().hex
+        waiting, pause = False, 0.05
+        while True:
+            loop = await self._desk.open_loop_of(call)
+            if loop is not None:
+                if loop.origin.mode != mode:
+                    return ouro_view.refusal(Refusal.BAD_ARGUMENTS, "Режим уже открытого цикла менять нельзя")
+                return ouro_view.opened(loop.session, limit=settings.ouroboros_result_limit)
+            # Заявку пишем один раз; ожидающий только читает её, пока открытие не закончится.
+            if waiting:
+                claim = await asyncio.to_thread(state.get, "loop_opening", owner=call.record.user_id, key=call.ctx.run_id)
+                if claim is None:
+                    waiting = False
+                    continue
+            else:
+                claim = await asyncio.to_thread(
+                    state.claim, "loop_opening", owner=call.record.user_id, key=call.ctx.run_id,
+                    doc={"mode": mode, "token": token, "expires_at": time.time() + 300},
+                )
+            if claim.get("expires_at", 0) < time.time():
+                return ouro_view.refusal(Refusal.JOB_NOT_FOUND, "Открытие прервано или превышен срок; начни новый прогон")
+            if claim["mode"] != mode:
+                return ouro_view.refusal(Refusal.BAD_ARGUMENTS, "Открытие другого режима уже принято")
+            if claim["token"] == token:
+                try:
+                    return await self._open_new(call)
+                finally:
+                    if self._desk.live(call.ctx.run_id) is None:
+                        await asyncio.to_thread(state.delete_one, "loop_opening", owner=call.record.user_id, key=call.ctx.run_id)
+            waiting = True
+            await asyncio.sleep(pause)
+            pause = min(pause * 2, 1.0)
+
+    async def _open_new(self, call: BoundCall) -> str:
+        opened: LoopSession | NoDocument
+        if call.args.get("mode", "report") == "market":
+            opened = await self._opening.market(call.record, call.ctx.agent_id)
+        else:
+            opened = await self._opening(call.record)
         if isinstance(opened, NoDocument):
             return ouro_view.refusal(Refusal.NO_DOCUMENT, opened.why)
         return ouro_view.opened(opened, limit=settings.ouroboros_result_limit)

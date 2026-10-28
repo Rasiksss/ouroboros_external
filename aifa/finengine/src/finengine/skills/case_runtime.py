@@ -228,7 +228,7 @@ class CaseRuntime:
                 f"target document_version {target.document_version!r} is not active in Case {case_id!r}"
             )
         document_version = target.document_version
-        history_only = target.params.get("document_scope") == "subject_history"
+        history_only = target.params.get("document_scope") in {"subject_history", "none"}
         if document_version is None and len(active_versions) == 1 and not history_only:
             document_version = next(iter(active_versions))
         return Target(
@@ -619,6 +619,7 @@ class CaseRuntime:
         inputs: RunInputs | None = None,
         event_sink: Callable[[dict], None] | None = None,
         parallel_ready: bool = False,
+        commit_guard: Callable[[], None] | None = None,
     ) -> ExecutionResult:
         record = self.store.load_plan_run(owner_id, case_id, plan_run_id)
         if record is None:
@@ -652,6 +653,8 @@ class CaseRuntime:
                 )
 
         def on_update(run) -> None:
+            if commit_guard is not None and run.status == "succeeded":
+                commit_guard()
             # Status/attempt survives an abrupt service-instance switch.  The
             # terminal callback below additionally persists the payload.
             self.store.save_node_run(owner_id, case_id, plan_run_id, run, ())
@@ -660,6 +663,8 @@ class CaseRuntime:
                 event_sink(node_run_event(run, plan_graph_hash=record.graph_hash))
 
         def on_result(run, evidence: tuple[BaseModel, ...]) -> None:
+            if commit_guard is not None:
+                commit_guard()
             self.store.save_node_run(owner_id, case_id, plan_run_id, run, evidence)
 
         leaf_keys = {leaf.node_key for leaf in available.all_leaves()}
@@ -678,9 +683,12 @@ class CaseRuntime:
                 owner_id, case_id, plan_run_id, on_update,
                 reason=f"исполнение прервано: {type(exc).__name__}: {exc}",
             )
-            self._keep_finished_results(owner_id, case_id, record, node_args, leaf_keys)
+            if commit_guard is None:
+                self._keep_finished_results(owner_id, case_id, record, node_args, leaf_keys)
             raise
 
+        if commit_guard is not None:
+            commit_guard()
         self._persist_artifacts(
             owner_id, case_id, record, node_args, leaf_keys, result.node_runs, result.evidence_by_key,
         )

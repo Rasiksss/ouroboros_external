@@ -415,6 +415,9 @@ class LoopSession:
         )
         # goal_ref → «получена» / «отказ по ссылке: …» по последнему запуску части в этом прогоне
         self.goal_status: dict[str, str] = {}
+        self.market_windows: dict[str, str] = {}
+        self.market_outcomes: dict[str, dict] = {}
+        self.market_checkpoint: Callable[[], None] = lambda: None
         # показатель → что движок пробовал: извлечение и/или расчёт (ADR-0083, раздел «Статус показателей»)
         self.metric_attempts: dict[str, set[str]] = {}
         self.state_lock = threading.Lock()      # попытки показателей и сбои атомов меняют параллельные действия хода
@@ -623,7 +626,10 @@ class LoopSession:
         ))
 
     def _goal_problem(self, clause: GoalClause) -> str | None:
-        """Почему часть, описанную агентом, служба не исполнит: коды реестра, роль, путь графа (ADR-0060 п. 2)."""
+        """Проверить параметры и допустимость сценария перед выполнением."""
+        prior = self.clauses.get(clause.goal_ref)
+        if prior is not None and prior.intent_kind == "market_digest" and prior != clause:
+            return f"часть {clause.goal_ref} уже принята; для нового дайджеста нужен новый ref"
         problem = registry_problem(clause, self.run_passport)
         if problem is None and self.run_goals is not None:
             reason = self.run_goals.refusal(clause)
@@ -1146,6 +1152,7 @@ class LoopSession:
             signature for signature in _decision_signatures(decision, self.clauses)
             if self.dead_end_actions.get(signature) == self.evidence_generation
             and not self._rewrites_ephemeral(decision, signature)
+            and not (signature[0] == "goal" and signature[1] in self.market_outcomes)
         ]
         if not repeated:
             return None
@@ -1628,6 +1635,8 @@ def state_sections(run: LoopSession, feedback: str) -> list[tuple[str, str]]:
         )
     periods = ", ".join(run.document_periods) or "периоды не определены"
     profile += f"\nПериоды основной таблицы отчёта: {periods}. Не ограничивают извлечение: все доступные периоды и наличие значений проверяет исполнитель."
+    if goal.intent_kind == "market_digest":
+        profile = "Режим market: отчёт и паспорт не требуются. Доступен сценарий market_digest."
     rows = case_rows(run.runtime.store, run.owner_id, run.case_id)
     produced_types = {row["output_type"] for row in rows}
     atoms = "\n".join(
@@ -1669,6 +1678,8 @@ def _describe_metric_status(run: LoopSession, rows: list[dict]) -> str:
 
 def metric_registry_text(run: LoopSession) -> str:
     """Показатели, которые AIFA получает сама для отчёта этого профиля: по реестру, зафиксированному в паспорте."""
+    if run.goal.intent_kind == "market_digest":
+        return "В режиме market финансовый реестр не используется"
     if run.run_passport is None:
         return "профиль отчёта не зафиксирован — реестр недоступен"
     registry = registry_for_passport(run.run_passport)
