@@ -269,3 +269,13 @@ def test_browser_route_can_carry_the_attribute_playwright_attaches():
     handler = BrowserRoute(frozenset({"feed.example"}), request())
     handler._pw_impl_instance_ = object()  # Playwright делает так с каждым обработчиком маршрута
 
+
+async def test_provider_keys_never_reach_the_http_log(caplog):
+    import logging
+    caplog.set_level(logging.INFO, logger="httpx")
+    transport = httpx.MockTransport(lambda req: httpx.Response(200, text="{}"))
+    async with httpx.AsyncClient(transport=transport) as client:
+        await client.get("https://api.stlouisfed.org/fred/series/observations?series_id=GDPC1&api_key=SECRETVALUE123&limit=14")
+    logged = " ".join(record.getMessage() for record in caplog.records)
+    assert "series_id=GDPC1" in logged and "SECRETVALUE123" not in logged and "api_key=***" in logged
+

@@ -6,6 +6,7 @@ import calendar
 import dataclasses
 import hashlib
 import json
+import logging
 import re
 from datetime import datetime, timezone
 from urllib.parse import urljoin, urlsplit
@@ -58,6 +59,21 @@ def _classification_failure(usage: dict) -> str:
     reason = f"провайдер модели ответил кодом {code[1]}" if code else "модель не вернула результат"
     return f"Классификация дайджеста не выполнена: {reason}; роль пользователя и параметры запроса здесь ни при чём"
 
+
+_SECRET_QUERY = re.compile(r"(?i)\b(api_key|apikey|key|token)=[^&\s\"']+")
+
+
+class _RedactSecrets(logging.Filter):
+    """httpx пишет в журнал полный адрес запроса; ключи FRED/EIA в строке запроса не должны попадать в логи."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        message = record.getMessage()
+        if "=" in message:
+            record.msg, record.args = _SECRET_QUERY.sub(r"\1=***", message), ()
+        return True
+
+
+logging.getLogger("httpx").addFilter(_RedactSecrets())
 
 # Те же заголовки, что у исходного RSS-коннектора: часть лент отвечает ботовому User-Agent отказом или не-лентой.
 BROWSER_HEADERS = {
