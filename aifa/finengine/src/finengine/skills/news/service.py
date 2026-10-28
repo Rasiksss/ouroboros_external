@@ -23,6 +23,8 @@ from finengine.contracts import DigestOutput
 from finengine.llm.openclaw import web_search_allowed
 from finengine.llm.openrouter import request_headers
 from finengine.skills.news import classify, config, filter, macro_indicators as macro, rank, render
+from finengine.net.ru_gov_tls import verify_for
+from finengine.skills.news.connectors.edgar import _UA as EDGAR_USER_AGENT
 from finengine.skills.news.connectors.edisclosure import _parse_dt, _parse_rows
 from finengine.skills.news.connectors.html import _EXTRACTORS
 from finengine.skills.news.connectors.rss import _clean_html, _strip_google_news_publisher
@@ -55,6 +57,15 @@ def _classification_failure(usage: dict) -> str:
     code = re.search(r"Error code: (\d{3})", str(usage.get("error", "")))
     reason = f"провайдер модели ответил кодом {code[1]}" if code else "модель не вернула результат"
     return f"Классификация дайджеста не выполнена: {reason}; роль пользователя и параметры запроса здесь ни при чём"
+
+
+# Те же заголовки, что у исходного RSS-коннектора: часть лент отвечает ботовому User-Agent отказом или не-лентой.
+BROWSER_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+    "Accept": "application/rss+xml, application/atom+xml, application/xml;q=0.9, text/xml;q=0.9, text/html;q=0.8, */*;q=0.5",
+    "Accept-Language": "en-US,en;q=0.7,ru;q=0.3",
+    "Accept-Encoding": "gzip, deflate",
+}
 
 
 def _unconfigured_ids() -> frozenset[str]:
@@ -129,17 +140,15 @@ class ServiceDigest:
             raise ValueError("В этом ходе доступ к внешним источникам выключен")
         cfg = self.catalog or config.load()
         hosts = frozenset(catalogue_hosts(cfg))
-        async with httpx.AsyncClient(
-            transport=self.transport, timeout=25, follow_redirects=True,
-            event_hooks={"request": [SourceBoundary(hosts, request)]}, limits=httpx.Limits(max_connections=12),
-            headers={"User-Agent": "AIFA IR Digest (financial research)", "Accept-Encoding": "gzip, deflate"},
-        ) as client:
+        async with self._http(hosts, request) as client:
             request.progress({"type": "progress", "text": "Собираю дайджест из серверного каталога"})
             sources = cfg.active_sources()
             if not sources:
                 raise ValueError("В серверном каталоге нет включённых источников")
-            slots = asyncio.Semaphore(3)
-            results = await asyncio.gather(*(self._fetch(client, s, request, hosts, slots) for s in sources), return_exceptions=True)
+            slots, sec_slots = asyncio.Semaphore(3), asyncio.Semaphore(3)
+            results = await asyncio.gather(
+                *(self._fetch(client, s, request, hosts, slots, sec_slots) for s in sources), return_exceptions=True,
+            )
             failures = {s.id: type(value).__name__ for s, value in zip(sources, results) if isinstance(value, BaseException)}
             if len(failures) == len(sources):
                 raise ValueError("Все источники дайджеста недоступны")
@@ -188,7 +197,29 @@ class ServiceDigest:
             tokens_in=int(usage.get("in", 0)), tokens_out=int(usage.get("out", 0)), cost_usd=float(usage.get("cost_usd", 0)),
         )
 
-    async def _fetch(self, client, source, request: DigestRequest, hosts: frozenset[str], slots: asyncio.Semaphore) -> list[NewsItem]:
+    def _http(self, hosts: frozenset[str], request: DigestRequest, *, verify=True) -> httpx.AsyncClient:
+        return httpx.AsyncClient(
+            transport=self.transport, timeout=25, follow_redirects=True, verify=verify,
+            event_hooks={"request": [SourceBoundary(hosts, request)]}, limits=httpx.Limits(max_connections=12),
+            headers=BROWSER_HEADERS,
+        )
+
+    async def _get(self, client, url: str, connector: str, hosts: frozenset[str], request: DigestRequest,
+                   sec_slots: asyncio.Semaphore) -> httpx.Response:
+        if connector == "edgar":
+            # SEC отказывает без контактного User-Agent и ограничивает 10 запросов в секунду.
+            async with sec_slots:
+                response = await client.get(url, headers={"User-Agent": EDGAR_USER_AGENT})
+                await asyncio.sleep(0.1)
+                return response
+        verify = verify_for(url)
+        if verify is True:
+            return await client.get(url)
+        async with self._http(hosts, request, verify=verify) as special:  # государственные адреса: центры Минцифры
+            return await special.get(url)
+
+    async def _fetch(self, client, source, request: DigestRequest, hosts: frozenset[str], slots: asyncio.Semaphore,
+                     sec_slots: asyncio.Semaphore) -> list[NewsItem]:
         url = source.url
         if source.connector == "telegram":
             url = "https://t.me/s/" + url.rstrip("/").split("/")[-1]
@@ -196,7 +227,7 @@ class ServiceDigest:
             async with slots:
                 body = await self._browser(url, request, hosts)
         else:
-            response = await client.get(url)
+            response = await self._get(client, url, source.connector, hosts, request, sec_slots)
             response.raise_for_status()
             body = response.text
         records: list[tuple[str, str, datetime, str]] = []

@@ -245,3 +245,21 @@ async def test_real_macro_payload_survives_rendering_and_is_not_marked_in_shared
     assert "first_seen" not in result.macro[spec.id]
     assert not (tmp_path / "macro_first_seen.json").exists()
 
+
+async def test_sec_requests_carry_the_contact_user_agent_and_other_feeds_do_not():
+    seen = {}
+
+    def handle(req):
+        seen[req.url.host] = req.headers["user-agent"]
+        return httpx.Response(200, text=FEED)
+
+    cfg = NewsConfig(sources=[
+        SourceConfig(id="sec", display_name="sec", type="official", region="US", connector="edgar",
+                     url="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=1&output=atom", weight=1.0),
+        SourceConfig(id="feed", display_name="feed", type="official", region="RU", connector="rss",
+                     url="https://feed.example/feed", weight=1.0),
+    ], entities=[])
+    await ServiceDigest(transport=httpx.MockTransport(handle), catalog=cfg, classifier=classified, macro_loader=no_macro)(request())
+    assert "compliance@fa-claw.dev" in seen["www.sec.gov"]
+    assert "compliance@fa-claw.dev" not in seen["feed.example"] and seen["feed.example"].startswith("Mozilla/5.0")
+
