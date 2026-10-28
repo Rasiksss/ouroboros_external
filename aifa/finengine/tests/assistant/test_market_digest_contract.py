@@ -47,3 +47,17 @@ def test_digest_snapshot_round_trips_with_its_original_timestamp():
     assert restored == digest
     with pytest.raises(ValidationError):
         digest.markdown = "Подменённый выпуск"
+
+
+def test_digest_result_passes_through_the_run_event_stream():
+    from datetime import datetime, timezone
+    from finengine.contracts import DigestOutput
+    from finengine.contracts.transport import envelope_legacy_event
+    from finengine.skills.result_events import typed_result_event, typed_results
+
+    now = datetime(2026, 10, 28, 12, tzinfo=timezone.utc)
+    digest = DigestOutput(window_start=now, window_end=now, collected_at=now, markdown="# Дайджест", status="partial")
+    (typed,) = typed_results([digest])
+    event = envelope_legacy_event(typed_result_event(typed), run_id="run-1", sequence=1)
+    assert event.event_type == "result" and event.result.output_type == "DigestOutput"
+

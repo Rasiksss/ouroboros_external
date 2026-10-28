@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { TypedResultView } from "@/components/typed-result-view";
 import type {
-  CalculatedMetric, ExtractedMetric, FormOutput, MonitorResult, PeriodChangeReport, PeriodChangeRow,
+  CalculatedMetric, DigestOutput, ExtractedMetric, FormOutput, MonitorResult, PeriodChangeReport, PeriodChangeRow,
 } from "@/lib/api";
 
 const result: FormOutput = {
@@ -309,3 +309,19 @@ describe("TypedResultView", () => {
     });
   });
 });
+
+describe("DigestOutput", () => {
+  it("renders the ready digest instead of falling through to the file card", () => {
+    const digest: DigestOutput = {
+      schema_version: "1.0", output_type: "DigestOutput", output_id: "digest-1", run_id: "run-1",
+      window_start: "2026-10-21T12:00:00Z", window_end: "2026-10-28T12:00:00Z", collected_at: "2026-10-28T12:30:00Z",
+      markdown: "# Дайджест", status: "partial", warnings: ["Недоступны источники: a"],
+    };
+    const html = renderToStaticMarkup(createElement(TypedResultView, { result: digest }));
+    expect(html).toContain('data-result-type="DigestOutput"');
+    expect(html).toContain("# Дайджест");
+    expect(html).toContain("Недоступны источники: a");
+    expect(html).not.toContain('data-result-type="FileArtifact"');
+  });
+});
+

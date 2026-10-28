@@ -15,12 +15,13 @@ from .base import Contract, NonEmptyStr, new_id, utc_now
 from .evidence import CalculatedMetric, ExtractedMetric
 from .execution import NodeRun
 from .observation import MonitorResult
+from .digest import DigestOutput
 from .results import FileArtifact, FormOutput, NarrativeOutput, PeriodChangeReport, ReportOutput
 
 EVENT_SCHEMA_VERSION = "1.0"
 
 TypedResult = Annotated[
-    ReportOutput | FormOutput | NarrativeOutput | FileArtifact
+    ReportOutput | FormOutput | NarrativeOutput | FileArtifact | DigestOutput
     | ExtractedMetric | CalculatedMetric | MonitorResult | PeriodChangeReport,
     Field(discriminator="output_type"),
 ]

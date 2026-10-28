@@ -278,8 +278,22 @@ export type FileArtifact = {
   };
 };
 
+/** Рыночный дайджест (ADR-0098): готовый Markdown и окно новостей; снимки новостей и макро клиент не разбирает. */
+export type DigestOutput = {
+  schema_version: "1.0";
+  output_type: "DigestOutput";
+  output_id: string;
+  run_id: string;
+  window_start: string;
+  window_end: string;
+  collected_at: string;
+  markdown: string;
+  status: "complete" | "partial" | "empty";
+  warnings: string[];
+};
+
 export type TypedResult =
-  | FormOutput | ReportOutput | NarrativeOutput | FileArtifact
+  | FormOutput | ReportOutput | NarrativeOutput | FileArtifact | DigestOutput
   | ExtractedMetric | CalculatedMetric | MonitorResult | PeriodChangeReport;
 
 export type NodeRunContract = {

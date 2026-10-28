@@ -221,6 +221,18 @@ export function TypedResultView({ result }: { result: TypedResult }) {
     );
   }
 
+  if (result.output_type === "DigestOutput") {
+    return (
+      <article className="mt-2 whitespace-pre-wrap" data-result-type="DigestOutput" data-schema-version={result.schema_version}>
+        {result.markdown}
+        <small className="block text-[11px] text-[var(--color-neutral-500)]">
+          Дайджест {result.output_id} · статус {result.status} · окно {result.window_start} — {result.window_end}
+        </small>
+        {result.warnings.map((warning) => <p key={warning} className="text-[12px]">Предупреждение: {warning}</p>)}
+      </article>
+    );
+  }
+
   return (
     <section className="mt-2 text-[12.5px]" data-result-type="FileArtifact" data-schema-version={result.schema_version}>
       <p>{result.filename}</p>
