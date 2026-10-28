@@ -95,7 +95,7 @@ class SourceBoundary:
             outgoing.headers["X-Agent-Id"] = self.request.agent_id
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass  # не frozen: Playwright вешает на обработчик служебный атрибут `_pw_impl_instance_`
 class BrowserRoute:
     hosts: frozenset[str]
     request: DigestRequest

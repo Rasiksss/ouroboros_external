@@ -263,3 +263,9 @@ async def test_sec_requests_carry_the_contact_user_agent_and_other_feeds_do_not(
     assert "compliance@fa-claw.dev" in seen["www.sec.gov"]
     assert "compliance@fa-claw.dev" not in seen["feed.example"] and seen["feed.example"].startswith("Mozilla/5.0")
 
+
+def test_browser_route_can_carry_the_attribute_playwright_attaches():
+    from finengine.skills.news.service import BrowserRoute
+    handler = BrowserRoute(frozenset({"feed.example"}), request())
+    handler._pw_impl_instance_ = object()  # Playwright делает так с каждым обработчиком маршрута
+
