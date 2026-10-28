@@ -1,4 +1,5 @@
 import type { EvidenceRef, FormOutputRow, OutputRunMetadata, TypedResult, TypedRunError } from "@/lib/api";
+import { AssistantMarkdown } from "@/components/assistant-markdown";
 import { formatDisplayNumber } from "@/lib/display-number";
 
 const STATUS_LABEL: Record<FormOutputRow["status"], string> = {
@@ -223,12 +224,9 @@ export function TypedResultView({ result }: { result: TypedResult }) {
 
   if (result.output_type === "DigestOutput") {
     return (
-      <article className="mt-2 whitespace-pre-wrap" data-result-type="DigestOutput" data-schema-version={result.schema_version}>
-        {result.markdown}
-        <small className="block text-[11px] text-[var(--color-neutral-500)]">
-          Дайджест {result.output_id} · статус {result.status} · окно {result.window_start} — {result.window_end}
-        </small>
-        {result.warnings.map((warning) => <p key={warning} className="text-[12px]">Предупреждение: {warning}</p>)}
+      // Окно и пометка «выпуск неполный» уже в тексте выпуска; перечень недоступных источников не выводим.
+      <article className="mt-2" data-result-type="DigestOutput" data-schema-version={result.schema_version}>
+        <AssistantMarkdown text={result.markdown} />
       </article>
     );
   }

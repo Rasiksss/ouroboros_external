@@ -315,12 +315,15 @@ describe("DigestOutput", () => {
     const digest: DigestOutput = {
       schema_version: "1.0", output_type: "DigestOutput", output_id: "digest-1", run_id: "run-1",
       window_start: "2026-10-21T12:00:00Z", window_end: "2026-10-28T12:00:00Z", collected_at: "2026-10-28T12:30:00Z",
-      markdown: "# Дайджест", status: "partial", warnings: ["Недоступны источники: a"],
+      markdown: "# Дайджест\n\n| Показатель | Значение |\n|---|---|\n| Ставка | 14,00% |\n\n_Выпуск неполный: часть источников была недоступна._",
+      status: "partial", warnings: ["Недоступны новостные источники: secret_source"],
     };
     const html = renderToStaticMarkup(createElement(TypedResultView, { result: digest }));
     expect(html).toContain('data-result-type="DigestOutput"');
-    expect(html).toContain("# Дайджест");
-    expect(html).toContain("Недоступны источники: a");
+    expect(html).toContain("<h1>Дайджест</h1>");  // markdown отрисован, а не показан сырым текстом
+    expect(html).toContain("<table");
+    expect(html).toContain("Выпуск неполный");
+    expect(html).not.toContain("secret_source");  // перечень недоступного не выводится
     expect(html).not.toContain('data-result-type="FileArtifact"');
   });
 });

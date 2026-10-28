@@ -84,6 +84,15 @@ BROWSER_HEADERS = {
 }
 
 
+_MONTHS = ("янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек")
+
+
+def _window_label(start: datetime, end: datetime) -> str:
+    """Окно для читателя: «21 окт — 28 окт 2026» по московскому времени."""
+    first, last = start.astimezone(ZoneInfo("Europe/Moscow")), end.astimezone(ZoneInfo("Europe/Moscow"))
+    return f"{first.day} {_MONTHS[first.month - 1]} — {last.day} {_MONTHS[last.month - 1]} {last.year}"
+
+
 def _unconfigured_ids() -> frozenset[str]:
     """Показатели, чьему провайдеру не выдан ключ: это настройка службы, а не отказ источника."""
     missing = {name for name, key in (("fred", settings.fred_api_key), ("eia", settings.eia_api_key)) if not key}
@@ -199,8 +208,10 @@ class ServiceDigest:
         if partial and not payload and not any(c.is_relevant for c in classified):
             raise ValueError("Из-за отказов источников нет данных для полезного выпуска")
         status: Literal["complete", "partial", "empty"] = "partial" if partial else "complete" if any(c.is_relevant for c in classified) else "empty"
-        window = f"Окно новостей: {request.window_start.isoformat()} — {request.window_end.isoformat()}"
-        markdown = f"{markdown}\n\n{window}\n\nСтатус: {status}\n\n" + "\n".join(warnings)
+        footer = [f"_Окно новостей: {_window_label(request.window_start, request.window_end)}._"]
+        if partial:
+            footer.append("_Выпуск неполный: часть источников или показателей была недоступна._")
+        markdown = f"{markdown}\n\n" + "\n\n".join(footer)
         news: list[DigestNews] = [
             {"title": c.item.title, "summary": c.one_sentence_ru, "url": c.item.url,
              "published_at": c.item.published_at.isoformat(), "source_id": c.item.source_id, "category": c.category}

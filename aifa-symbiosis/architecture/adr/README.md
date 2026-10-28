@@ -66,7 +66,9 @@
 [0095 — подзадача не дубликат предка, отказ приходит итогом](0095-podzadacha-ne-dublikat-predka.md),
 [0096 — полный контекст планировщика](0096-polnyy-kontekst-planirovshchika.md),
 [0097 — модели dev через OpenRouter](0097-dev-glm53-low-deepseek-pro.md),
-[0098 — рыночный дайджест как сценарий службы, цикл без отчёта](0098-market-digest-scenario.md) (принято).
+[0098 — рыночный дайджест как сценарий службы, цикл без отчёта](0098-market-digest-scenario.md) (принято),
+[0099 — дайджест: выжимка в чате, выпуск карточкой, недоступное по просьбе](0099-dayjest-format-otveta.md) (принято),
+[0100 — dev на Cloud.ru, Chromium, контактный User-Agent для SEC](0100-dev-cloudru-chromium-edgar.md) (принято).
 
 | № | Решение | Статус |
 |---|---|---|

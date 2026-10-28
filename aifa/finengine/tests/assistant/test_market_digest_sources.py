@@ -279,3 +279,15 @@ async def test_provider_keys_never_reach_the_http_log(caplog):
     logged = " ".join(record.getMessage() for record in caplog.records)
     assert "series_id=GDPC1" in logged and "SECRETVALUE123" not in logged and "api_key=***" in logged
 
+
+async def test_partial_digest_text_tells_it_is_incomplete_without_listing_sources():
+    transport = httpx.MockTransport(lambda req: httpx.Response(503) if req.url.path == "/bad" else httpx.Response(200, text=FEED))
+    result = await ServiceDigest(
+        transport=transport, catalog=catalog("feed", "bad"), classifier=classified, macro_loader=no_macro,
+    )(request())
+    assert result.status == "partial"
+    assert "Выпуск неполный" in result.markdown
+    assert "bad" not in result.markdown and "Статус:" not in result.markdown
+    assert any("bad" in warning for warning in result.warnings)  # подробности остаются в артефакте
+    assert "Окно новостей: 21 окт — 28 окт 2026" in result.markdown
+

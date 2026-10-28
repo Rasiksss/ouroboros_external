@@ -148,8 +148,9 @@ class MarketGoalRunner:
                 result = outputs[0]
                 accepted = result.status != "partial"
                 summary = f"{result.status}: DigestOutput {result.output_id}"
-                if result.warnings:
-                    summary += "\n" + "\n".join(result.warnings)
+                if result.status == "partial":
+                    # Перечень недоступного — в warnings артефакта; агент называет его только по просьбе пользователя.
+                    summary += "; выпуск неполный, подробности недоступного — в warnings артефакта"
             except Exception as exc:
                 accepted, summary = False, f"Дайджест не выполнен: {exc}"
             finally:

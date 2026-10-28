@@ -23,6 +23,7 @@ class Digest:
         self.status = "complete"
         self.text = "# Дайджест\n\n[Источник](https://cbr.ru) · проверенный выпуск"
         self.slow = False
+        self.warnings: list[str] = []
 
     async def __call__(self, request):
         self.calls += 1
@@ -30,7 +31,7 @@ class Digest:
             await asyncio.sleep(0.2)
         return DigestOutput(
             window_start=request.window_start, window_end=request.window_end, collected_at=request.window_end,
-            markdown=self.text, status=self.status,
+            markdown=self.text, status=self.status, warnings=self.warnings,
         )
 
 
@@ -179,8 +180,10 @@ async def test_partial_digest_is_readable_but_does_not_mark_goal_obtained(base):
     try:
         await open_market(plugin, ctx)
         digest.status = "partial"
+        digest.warnings = ["Недоступны новостные источники: secret_source"]
         reply = await plugin.call("aifa_move", ctx, move())
-        assert "partial: DigestOutput" in reply.text
+        assert "partial: DigestOutput" in reply.text and "неполный" in reply.text
+        assert "secret_source" not in reply.text  # перечень недоступного — только по просьбе пользователя
         assert desk.live(run.run_id).session.goal_status["g1"].startswith("отказ")
         assert len(base.store.list_artifacts(7, "project-1")) == 1
     finally:
