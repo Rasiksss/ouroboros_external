@@ -20,6 +20,12 @@ openspec/changes/delegated-task-planning/specs/task-planning/spec.md ADR-0061
 ouroboros/storage/settings/schema.py ADR-0038
 new_core/skills/surface.py ADR-0038
 ouroboros/skills/availability.py ADR-0038
+# ADR-0077: модель подзадачи по навыку (OUROBOROS_MODEL_BY_SKILL), корень на OUROBOROS_MODEL; разрешено владельцем.
+# Те же правки ADR-0077 в schema.py и docs/SETTINGS.md покрыты их исключениями ниже (ADR-0038).
+ouroboros/app/config.py ADR-0077
+ouroboros/agent/task_graph.py ADR-0077
+tests/ouroboros/agent/test_task_graph.py ADR-0077
+tests/ouroboros/app/test_skill_model_selection.py ADR-0077
 # Документация, тесты и OpenSpec-изменение к той же правке.
 docs/SETTINGS.md ADR-0038
 tests/helpers/shared.py ADR-0038
@@ -57,3 +63,10 @@ openspec/changes/plan-bound-execution/design.md ADR-0062
 openspec/changes/plan-bound-execution/proposal.md ADR-0062
 openspec/changes/plan-bound-execution/tasks.md ADR-0062
 openspec/changes/plan-bound-execution/specs/task-planning/spec.md ADR-0062
+
+# ADR-0095: разрешённая владельцем правка допуска и отказа подзадачи.
+supervisor/events.py ADR-0095
+tests/supervisor/test_subtask_admission.py ADR-0095
+openspec/changes/reject-subtasks-with-correlated-outcome/proposal.md ADR-0095
+openspec/changes/reject-subtasks-with-correlated-outcome/tasks.md ADR-0095
+openspec/changes/reject-subtasks-with-correlated-outcome/specs/task-lifecycle/spec.md ADR-0095

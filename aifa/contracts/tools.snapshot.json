@@ -1,11 +1,13 @@
 {
   "snapshot_version": 1,
-  "adr": "ADR-0064",
-  "note": "Каталог атомов aifa_atoms (list/get); адресное чтение артефактов и lifecycle-close; привязка _plan добавляется kernel dispatch к исполнителям.",
-  "budget_chars": 5604,
+  "adr": "ADR-0098",
+  "note": "Режим market без отчёта, сценарий market_digest, параметры окна и полное чтение DigestOutput по artifact_offset.",
+  "budget_chars": 6127,
   "tools": {
     "aifa_open": {
-      "arguments": [],
+      "arguments": [
+        "mode"
+      ],
       "required": [],
       "safety_policy": "skip",
       "capability_class": "mutative",
@@ -30,6 +32,8 @@
       "arguments": [
         "artifact_ids",
         "artifact_index",
+        "artifact_offset",
+        "registry_offset",
         "view"
       ],
       "required": [],

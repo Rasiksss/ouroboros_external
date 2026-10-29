@@ -83,6 +83,7 @@ class LoopDesk:
         session.event_sink.target = emitter  # type: ignore[attr-defined]  # SwitchSink from the loop opener
         session.is_cancelled = RunClosed(run_id)
         self._open[run_id] = OpenLoop(run_id, session, origin, user_id)
+        session.market_checkpoint = lambda: self.save(run_id)
         self.save(run_id)
 
     def live(self, run_id: str) -> OpenLoop | None:
@@ -112,13 +113,17 @@ class LoopDesk:
         if doc is None:
             return None
         origin = LoopOrigin.from_doc(doc["origin"])
-        text = await asyncio.to_thread(blobs.document_text, origin.document_id) or ""
+        text = ""
+        if origin.document_id is not None:
+            loaded_text = await asyncio.to_thread(blobs.document_text, origin.document_id)
+            text = loaded_text or ""
         session = await asyncio.to_thread(
             restore_loop_session, origin, doc["state"], document_text=text,
             event_sink=LoopEmitter.here(run_id), is_cancelled=RunClosed(run_id),
         )
         log.info("цикл хода %s поднят из сохранённого: ходов %d", run_id[:8], session.turns)
         self._open[run_id] = restored = OpenLoop(run_id, session, origin, user_id)
+        session.market_checkpoint = lambda: self.save(run_id)
         return restored
 
     def _sweep(self) -> None:

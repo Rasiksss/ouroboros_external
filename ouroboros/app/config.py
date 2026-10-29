@@ -6,7 +6,9 @@ Thin facade over ``ouroboros.storage.settings`` for paths, typed settings, and h
 
 from __future__ import annotations
 
+import logging
 import pathlib
+import re
 from typing import Any
 
 from new_core.identity import OwnerScope
@@ -87,6 +89,44 @@ def _refresh_path_aliases() -> None:
 def get_light_model(scope: OwnerScope) -> str:
     light = user_settings_factory.settings().OUROBOROS_MODEL_LIGHT(scope).strip()
     return light or get_defaults().OUROBOROS_MODEL_LIGHT
+
+
+log = logging.getLogger(__name__)
+
+_SKILL_ORDER = re.compile(r"^\s*Навык:\s*([\w:.-]+?)\.(?:\s|$)")
+
+
+def _bare_skill_name(skill_id: str) -> str:
+    return skill_id.rsplit(":", 1)[-1]
+
+
+def skill_run_profile(description: str | None) -> tuple[str, str] | None:
+    """Model and effort for a subtask whose description opens with «Навык: <id>.», or ``None``.
+
+    The map is ``OUROBOROS_MODEL_BY_SKILL`` (``<skill>=<model>[@<effort>]``, comma-separated). The skill is
+    matched by full id or bare name. An entry without a skill or a model is skipped with a warning; an
+    unknown ``@`` suffix stays part of the model name. The caller decides whether the task is a subtask:
+    a root's text must never choose a model.
+    """
+    order = _SKILL_ORDER.match(str(description or ""))
+    raw = str(load_settings().OUROBOROS_MODEL_BY_SKILL or "")
+    if order is None or not raw.strip():
+        return None
+    wanted = order.group(1)
+    for entry in raw.split(","):
+        skill, sep, target = entry.partition("=")
+        skill, target = skill.strip(), target.strip()
+        if not sep or not skill or not target:
+            if entry.strip():
+                log.warning("OUROBOROS_MODEL_BY_SKILL: entry %r skipped (expected <skill>=<model>)", entry.strip())
+            continue
+        if skill != wanted and _bare_skill_name(skill) != _bare_skill_name(wanted):
+            continue
+        model, at, effort = target.rpartition("@")
+        if not at or effort not in VALID_EFFORTS:
+            return target, ""
+        return model.strip(), effort
+    return None
 
 
 def get_main_model(scope: OwnerScope) -> str:

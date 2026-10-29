@@ -29,6 +29,7 @@ from finengine.assistant.read_tools import DocTool, StateTool
 from finengine.assistant.subtask_waits import SubtaskWaits
 from finengine.assistant.tool_call import BoundCall, ToolCall
 from finengine.config import settings
+from finengine.llm.openclaw import set_web_search, web_search_allowed
 
 log = logging.getLogger(__name__)
 
@@ -93,11 +94,15 @@ class ToolApi:
         return reply
 
     async def _run(self, tool: Tool, bound: BoundCall) -> Reply:
+        previous_web_search = web_search_allowed()
+        set_web_search(bound.record.web_search)
         try:
             return Reply(await tool.run(bound))
         except Exception as failure:  # noqa: BLE001 — граница API: системная ошибка → 5xx, не отказ правила
             log.warning("инструмент %s хода %s: системная ошибка %r", tool.name, bound.ctx.run_id[:8], failure)
             return Reply(ouro_view.service_fault(f"{tool.name} не выполнен"), 500)
+        finally:
+            set_web_search(previous_web_search)
 
 
 def get_tool_api() -> ToolApi:

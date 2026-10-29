@@ -28,7 +28,7 @@ import { listScenarios, type Scenario } from "@/lib/scenarios";
 import { toolLabel } from "@/lib/tool-labels";
 import { fetchDialogs } from "@/lib/dialog-sync";
 import { ChatPane } from "@/components/workspace/panes/chat-pane";
-import { DocumentPane } from "@/components/workspace/panes/document-pane";
+import { PlanPane } from "@/components/workspace/panes/plan-pane";
 import { ExtractedPane } from "@/components/workspace/panes/extracted-pane";
 import { ArtifactsPane } from "@/components/workspace/panes/artifacts-pane";
 import { DocPicker } from "@/components/workspace/panes/doc-picker";
@@ -463,7 +463,7 @@ function Shell({
                   onDeleted={onChatDeleted}
                 />
               ),
-              doc: <DocumentPane project={project} />,
+              doc: <PlanPane project={project} />,
               ws: <WorkArea project={project} />,
             }}
           />

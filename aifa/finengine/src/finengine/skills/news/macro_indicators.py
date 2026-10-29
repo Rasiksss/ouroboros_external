@@ -286,7 +286,7 @@ _SPEC_BY_ID: dict[str, IndicatorSpec] = {s.id: s for s in _REGISTRY}
 
 
 async def _fetch_fred(
-    client: httpx.AsyncClient, spec: IndicatorSpec, *, limit: int = 14,
+    client: httpx.AsyncClient, spec: IndicatorSpec, *, limit: int = 14, trip_state: dict | None = None,
 ) -> list[dict]:
     """Latest `limit` observations for a FRED series, desc order.
 
@@ -320,7 +320,7 @@ _EUROSTAT_BASE = (
 
 
 async def _fetch_eurostat(
-    client: httpx.AsyncClient, spec: IndicatorSpec, *, limit: int = 14,
+    client: httpx.AsyncClient, spec: IndicatorSpec, *, limit: int = 14, trip_state: dict | None = None,
 ) -> list[dict]:
     """Pull a JSON-stat dataset from Eurostat REST. Translates the
     multidimensional structure to a flat (date, value) list matching
@@ -361,7 +361,7 @@ _CBR_INFL_URL = "https://www.cbr.ru/hd_base/infl/"
 
 
 async def _fetch_cbr_scrape(
-    client: httpx.AsyncClient, spec: IndicatorSpec, *, limit: int = 14,
+    client: httpx.AsyncClient, spec: IndicatorSpec, *, limit: int = 14, trip_state: dict | None = None,
 ) -> list[dict]:
     """Scrape ЦБ РФ /hd_base/infl/ table. Layout per row:
        <td>MM.YYYY</td><td>key_rate</td><td>annual_CPI</td><td>target</td>
@@ -406,7 +406,7 @@ _EIA_BASE = "https://api.eia.gov/v2/"
 
 
 async def _fetch_eia(
-    client: httpx.AsyncClient, spec: IndicatorSpec, *, limit: int = 14,
+    client: httpx.AsyncClient, spec: IndicatorSpec, *, limit: int = 14, trip_state: dict | None = None,
 ) -> list[dict]:
     """Pull a weekly/monthly series from EIA Open Data v2. The route
     (path under `/v2/`) and series facet come from `spec.extra`.
@@ -461,7 +461,7 @@ _NBS_BASE = "https://data.stats.gov.cn/easyquery.htm"
 
 
 async def _fetch_nbs(
-    client: httpx.AsyncClient, spec: IndicatorSpec, *, limit: int = 14,
+    client: httpx.AsyncClient, spec: IndicatorSpec, *, limit: int = 14, trip_state: dict | None = None,
 ) -> list[dict]:
     """Pull monthly indicator from NBS China data portal.
 
@@ -537,7 +537,7 @@ _INVESTING_BASE = "https://www.investing.com"
 
 
 async def _fetch_investing(
-    client: httpx.AsyncClient, spec: IndicatorSpec, *, limit: int = 14,
+    client: httpx.AsyncClient, spec: IndicatorSpec, *, limit: int = 14, trip_state: dict | None = None,
 ) -> list[dict]:
     """Scrape the historic-prints table from an Investing.com event page.
 
@@ -557,6 +557,7 @@ async def _fetch_investing(
     plain GET with a browser UA gets through.
     """
     import re
+    trip_state = _investing_trip_state if trip_state is None else trip_state
     path = (spec.extra or {}).get("path", "")
     if not path:
         return []
@@ -570,7 +571,7 @@ async def _fetch_investing(
     # Circuit breaker: once CF has 429'd us a few times in a row,
     # skip the rest of this cycle's Investing fetches — the IP is
     # blacklisted for hours, no point burning 30s of backoff per row.
-    if _investing_trip_state["tripped"]:
+    if trip_state["tripped"]:
         log.info("Investing %s: skipped (CF block tripped earlier)", spec.id)
         return []
     try:
@@ -585,19 +586,19 @@ async def _fetch_investing(
         # которые берутся отсюда — по 20 секунд таймаута на каждый в худшем
         # случае. Отказ тот же по смыслу: нас не пускают до конца цикла.
         if r.status_code in (403, 429):
-            _investing_trip_state["streak"] += 1
+            trip_state["streak"] += 1
             log.info("Investing %s: HTTP %d (streak %d)", spec.id, r.status_code,
-                     _investing_trip_state["streak"])
-            if _investing_trip_state["streak"] >= _INVESTING_TRIP_COUNT:
-                _investing_trip_state["tripped"] = True
+                     trip_state["streak"])
+            if trip_state["streak"] >= _INVESTING_TRIP_COUNT:
+                trip_state["tripped"] = True
                 log.warning(
                     "Investing: %d отказов подряд (403/429) — размыкаю до конца "
                     "цикла, остальные показатели этого источника не приедут.",
-                    _investing_trip_state["streak"],
+                    trip_state["streak"],
                 )
             return []
         # Successful fetch — reset the streak.
-        _investing_trip_state["streak"] = 0
+        trip_state["streak"] = 0
         if r.status_code != 200:
             log.warning("Investing %s: HTTP %d", spec.id, r.status_code)
             return []
@@ -697,7 +698,8 @@ def source_link(spec: "IndicatorSpec") -> str:
 
 
 async def _dispatch_fetch(
-    client: httpx.AsyncClient, spec: IndicatorSpec,
+    client: httpx.AsyncClient, spec: IndicatorSpec, *,
+    investing_sem: asyncio.Semaphore | None = None, investing_state: dict | None = None,
 ) -> list[dict]:
     """Route a spec to the right per-source fetcher."""
     if spec.provider == "fred":
@@ -714,8 +716,9 @@ async def _dispatch_fetch(
         # Cloudflare rate-limits aggressive scrapes; serialise calls
         # and inject a short delay between them. 20 indicators × 1.5s
         # ≈ 30s extra latency but stays under the 429 threshold.
-        async with _INVESTING_SEM:
-            result = await _fetch_investing(client, spec)
+        async with (investing_sem if investing_sem is not None else _INVESTING_SEM):
+            result = (await _fetch_investing(client, spec, trip_state=investing_state)
+                      if investing_state is not None else await _fetch_investing(client, spec))
             await asyncio.sleep(_INVESTING_DELAY)
             return result
     log.warning("Unknown macro provider %r for %s", spec.provider, spec.id)
@@ -1087,10 +1090,12 @@ def render_macro_dashboard_md(payload: dict, mode: str = "both") -> str:
     if not payload:
         return ""
 
-    _mark_freshness(payload)
     sections: list[str] = []
 
     if mode in ("both", "week_only"):
+        # first_seen нужен только блоку «вышли на этой неделе»; в режиме full он не читается,
+        # а пометка изменяла бы переданный словарь и писала бы общий файл в data_dir.
+        _mark_freshness(payload)
         fresh = _fresh_this_week(payload)
         if fresh:
             sections.append(_render_macro_table(

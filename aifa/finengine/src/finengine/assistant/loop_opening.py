@@ -9,6 +9,8 @@ from finengine.assistant.loop_desk import LoopDesk, LoopEmitter
 from finengine.assistant.turn_record import TurnRecord
 from finengine.roles.access import EXTRACTION_ROLES
 from finengine.skills.production_runtime import open_agent_loop
+from finengine.skills.news.market import DigestRunner, open_market_loop
+from finengine.store.cases import SqlCaseStore
 from finengine.skills.spec.dynamic_run import LoopSession
 
 # Документ хода распознаётся фоном с отправки сообщения (`defer_parse`), скан — секунды на страницу.
@@ -25,8 +27,18 @@ class NoDocument:
 
 
 class LoopOpening:
-    def __init__(self, desk: LoopDesk) -> None:
+    def __init__(self, desk: LoopDesk, *, market_store: SqlCaseStore | None = None, digest_runner: DigestRunner | None = None) -> None:
         self._desk = desk
+        self._market_store = market_store
+        self._digest_runner = digest_runner
+
+    async def market(self, record: TurnRecord, agent_id: str = "") -> LoopSession:
+        return await asyncio.to_thread(
+            open_market_loop, owner_id=record.user_id, case_id=record.case_id, message=record.message,
+            hand_over=self._desk.opener(record.run_id, record.user_id, LoopEmitter.here(record.run_id)),
+            event_sink=None, trace_id=record.trace_id, agent_id=agent_id,
+            store=self._market_store, runner=self._digest_runner,
+        )
 
     async def __call__(self, record: TurnRecord) -> LoopSession | NoDocument:
         doc_id = gate_document(record)

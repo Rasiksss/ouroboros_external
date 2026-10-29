@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import uuid
 from dataclasses import dataclass
 from typing import Any, TypedDict
 
@@ -36,9 +37,9 @@ TOOLS = (
     Tool(
         name="aifa_open",
         description=(
-            "Открыть цикл по отчёту хода и получить состояние: профиль, показатели, атомы и артефакты. Аргументов нет."
+            "Открыть цикл: mode=report (по умолчанию) по отчёту или mode=market для рыночного дайджеста без PDF."
         ),
-        schema={"type": "object", "properties": {}},
+        schema={"type": "object", "properties": {"mode": {"type": "string", "enum": ["report", "market"]}}},
         capability_class="mutative",
     ),
     Tool(
@@ -64,8 +65,18 @@ TOOLS = (
         schema={
             "type": "object",
             "properties": {
+                "registry_offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Полный реестр показателей: смещение в символах; продолжай по next_offset до null. Отдельно от артефактов.",
+                },
                 "artifact_ids": {"type": "array", "items": {"type": "string"}, "maxItems": 20},
                 "view": {"type": "string", "enum": ["full", "compact"]},
+                "artifact_offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Продолжение одного артефакта в символах; один artifact_id.",
+                },
                 "artifact_index": {
                     "type": "object",
                     "properties": {
@@ -147,6 +158,7 @@ TOOLS = (
                                             "full_analysis",
                                             "monitor_changes",
                                             "explain_change",
+                                            "market_digest",
                                         ],
                                     },
                                     "concepts": {"type": "array", "items": {"type": "string"}},
@@ -155,6 +167,13 @@ TOOLS = (
                                     "depends_on": {"type": "array", "items": {"type": "string"}},
                                     "metric": {"type": "object"},
                                     "formula": {"type": "object"},
+                                    "parameters": {
+                                        "type": "object",
+                                        "properties": {
+                                            "since_hours": {"type": "integer", "minimum": 6, "maximum": 336}
+                                        },
+                                        "additionalProperties": False,
+                                    },
                                 },
                                 "required": ["ref", "scenario"],
                             },
@@ -275,6 +294,7 @@ class EngineContext(TypedDict):
     root_task_id: str
     task_depth: int
     run_id: str
+    operation_id: str
 
 
 def context_of(ctx: Any) -> EngineContext:
@@ -286,6 +306,7 @@ def context_of(ctx: Any) -> EngineContext:
         "root_task_id": ctx.root_task_id or "",
         "task_depth": ctx.task_depth,
         "run_id": ctx.transport.get("source_message_id", ""),
+        "operation_id": getattr(ctx, "tool_call_id", "") or uuid.uuid4().hex,
     }
 
 
@@ -328,7 +349,7 @@ class EngineCall:
                     if not job_id:
                         raise asyncio.CancelledError("background execution identity is unavailable")
                     tool = "aifa_wait"
-                    body = {"ctx": context_of(ctx), "args": {"job_id": job_id, "wait_sec": 240}}
+                    body = {"ctx": body["ctx"], "args": {"job_id": job_id, "wait_sec": 240}}
         except httpx.HTTPError as failure:
             if getattr(ctx, "plan_call_id", ""):
                 raise asyncio.CancelledError("execution outcome could not be confirmed") from failure

@@ -88,6 +88,7 @@ def open_run(**record: Any) -> OpenRun:
         "doc_ids": ("doc-1",),
         "active_doc_id": "",
         "role": "",
+        "web_search": True,
     }
     fields.update(record)
     turn = TurnRecord(**fields)

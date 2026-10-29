@@ -311,3 +311,38 @@ def test_missing_encryption_key_fails_closed_without_writing_plaintext(tmp_path,
     with runtime_persistence.current.engine.connect() as conn:
         stored = conn.execute(text("SELECT state_encrypted FROM task_plans WHERE root_task_id='root'")).scalar_one()
     assert "requirements" not in stored
+
+
+def _accept_text(tmp_path, text):
+    """Accept a completed planner child whose whole final message is `text`."""
+    store = runtime_persistence.current.tasks_repo
+    store.create_task(TaskRequest(id="root", scope=TEST_SCOPE.to_dict(), text="Excel"), status="running")
+    store.create_task(
+        TaskRequest(id="planner", scope=TEST_SCOPE.to_dict(), parent_task_id="root", root_task_id="root"),
+        status="running",
+    )
+    store.complete_task("planner", result=text)
+    ctx = make_tool_ctx(repo_dir=tmp_path, drive_root=tmp_path, task_id="root", root_task_id="root")
+    return task_plan(ctx, "accept", {"proposal_task_id": "planner", "expected_version": 0, "reason": "Covers it"})
+
+
+@pytest.mark.parametrize(
+    "wrap",
+    [
+        lambda body: f"```json\n{body}\n```",
+        lambda body: f"Теперь у меня есть схема. Предложение плана:\n\n```json\n{body}\n```",
+        lambda body: f"```\n{body}\n```\n",
+    ],
+    ids=["fence", "prose-then-fence", "bare-fence"],
+)
+def test_proposal_wrapped_in_a_markdown_fence_is_accepted(tmp_path, wrap):
+    accepted = json.loads(_accept_text(tmp_path, wrap(json.dumps(make_plan_proposal()))))
+    assert accepted["revision"] == 1
+
+
+def test_a_message_without_a_json_object_is_still_refused(tmp_path):
+    assert _accept_text(tmp_path, "План такой: сначала извлечь выручку, затем собрать Excel.").startswith("ERROR:")
+
+
+def test_a_fenced_block_that_is_not_an_object_does_not_hide_the_invalid_message(tmp_path):
+    assert _accept_text(tmp_path, "```json\n[1, 2, 3]\n```").startswith("ERROR:")

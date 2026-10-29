@@ -11,7 +11,7 @@ from aifa_engine_support import SKILL_DIR, load_plugin
 PLANNING = SKILL_DIR.parent / "aifa-planning"
 GUIDE = PLANNING / "SKILL.md"
 GUIDE_LIMIT = 9_000  # знаков: навык читают на каждом сообщении, подробности — в справочниках
-HAND_WRITTEN = ("moves.md", "external-data.md", "new-atom.md", "codes.md", "scenarios.md", "plans.md")
+HAND_WRITTEN = ("moves.md", "external-data.md", "new-atom.md", "codes.md", "scenarios.md", "plans.md", "artifacts.md")
 GENERATED = ("atoms.md", "metrics.md")
 DEVELOPMENT_WORDS = ("ADR-", "CONTRACTS", "DynamicRun", "dynamic_run", "PROGRESS", "build-plan", "LoopSession")
 

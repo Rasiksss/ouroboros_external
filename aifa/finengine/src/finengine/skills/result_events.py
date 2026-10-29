@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from finengine.contracts import (
     CalculatedMetric,
+    DigestOutput,
     ExtractedMetric,
     FileArtifact,
     FormOutput,
@@ -19,7 +20,7 @@ from finengine.contracts import (
 )
 
 TypedResultModel = (
-    ReportOutput | FormOutput | NarrativeOutput | FileArtifact
+    ReportOutput | FormOutput | NarrativeOutput | FileArtifact | DigestOutput
     | ExtractedMetric | CalculatedMetric | MonitorResult | PeriodChangeReport
 )
 
@@ -155,7 +156,7 @@ def typed_results(values: Iterable[BaseModel]) -> tuple[TypedResultModel, ...]:
     return tuple(
         value for value in values
         if isinstance(value, (
-            ReportOutput, FormOutput, NarrativeOutput, FileArtifact,
+            ReportOutput, FormOutput, NarrativeOutput, FileArtifact, DigestOutput,
             ExtractedMetric, CalculatedMetric, MonitorResult, PeriodChangeReport,
         ))
     )

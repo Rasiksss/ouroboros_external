@@ -8,10 +8,14 @@
 """
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 import pytest
 from pydantic import BaseModel, ValidationError
 
 from finengine.contracts import (
+    DigestOutput,
+    DigestParameters,
     AdHocConceptSpec,
     AdHocFormulaSpec,
     AmbiguityNote,
@@ -726,6 +730,17 @@ SAMPLES.update({
     ),
     EphemeralAtomSource: dict(
         evidence_id="abc123", name="ebitda_vs_brent", request={"name": "ebitda_vs_brent"},
+    ),
+})
+
+
+SAMPLES.update({
+    DigestParameters: dict(since_hours=168),
+    DigestOutput: dict(
+        window_start=datetime(2026, 10, 21, 12, tzinfo=timezone.utc),
+        window_end=datetime(2026, 10, 28, 12, tzinfo=timezone.utc),
+        collected_at=datetime(2026, 10, 28, 12, 30, tzinfo=timezone.utc),
+        markdown="# Дайджест", status="complete",
     ),
 })
 

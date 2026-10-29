@@ -7,7 +7,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import pytest
-from loop_support import open_cycle
+from loop_support import make_passport, open_cycle
 from test_dynamic_run import ExtractScenario, _move
 from test_ephemeral_in_graph import CASE, OWNER
 
@@ -64,6 +64,40 @@ async def test_the_state_shows_the_loop_the_way_the_planner_sees_it(base) -> Non
     assert "EBITDA" in state and "500.0" in state, "значения артефактов — в таблице"
     assert len(state) <= LIMIT
     await cycle.close()
+
+
+async def test_the_frozen_registry_is_readable_through_the_state_http_tool(base) -> None:
+    """ADR-0096: отдельный режим HTTP-инструмента возвращает формулы реестра без усечения."""
+    cycle = await open_cycle(base, passport=make_passport())
+    try:
+        reply = await cycle.call("aifa_state", {"registry_offset": 0})
+        assert code_of(reply) == "ГОТОВО" and len(reply) <= LIMIT
+        assert "Рассчитываемые" in reply
+        assert "OPERATING_PROFIT + DEPRECIATION_AMORTIZATION" in reply
+        assert "NET_DEBT" in reply and "BANK_DEPOSITS" in reply
+        assert reply.endswith("next_offset=null")
+    finally:
+        await cycle.close()
+
+
+@pytest.mark.parametrize("offset", [-1, True, "0", None])
+async def test_registry_offsets_are_nonnegative_integers(base, offset) -> None:
+    cycle = await open_cycle(base)
+    try:
+        reply = await cycle.call("aifa_state", {"registry_offset": offset})
+        assert code_of(reply) == "ОТКАЗ неверные_аргументы"
+    finally:
+        await cycle.close()
+
+
+@pytest.mark.parametrize("selector", [{"artifact_ids": []}, {"artifact_index": {}}])
+async def test_the_registry_cannot_be_requested_together_with_artifacts(base, selector) -> None:
+    cycle = await open_cycle(base)
+    try:
+        reply = await cycle.call("aifa_state", {"registry_offset": 0, **selector})
+        assert code_of(reply) == "ОТКАЗ неверные_аргументы"
+    finally:
+        await cycle.close()
 
 
 async def test_a_state_that_does_not_fit_gives_the_table_the_room_and_names_the_rest(base) -> None:

@@ -5,13 +5,14 @@ from typing import cast, get_args
 
 from finengine.contracts import GoalClause, TargetNode
 from finengine.contracts.intent import IntentKind
+from finengine.contracts.digest import DigestParameters
 from finengine.roles.access import EXTRACTION_ROLES
 from finengine.skills.atoms.ad_hoc_concepts import (
     concept_spec_from_payload, formula_rejection_reason, formula_spec_from_payload,
 )
 from finengine.skills.metric_schema import registry_for_passport
 
-GOAL_FIELDS = frozenset({"ref", "scenario", "concepts", "period", "role", "depends_on", "metric", "formula"})
+GOAL_FIELDS = frozenset({"ref", "scenario", "concepts", "period", "role", "depends_on", "metric", "formula", "parameters"})
 _WITH_TARGETS = ("extract_registered_metric", "calculate_registered_metric")
 _NEEDS_CONCEPTS = (*_WITH_TARGETS, "explain_change")
 _SCENARIO_NAMES = frozenset(get_args(IntentKind))
@@ -31,6 +32,12 @@ def goal_clause(item: dict, *, where: str, raw_query: str) -> GoalClause:
     concepts = [_text(value).upper() for value in _list(item.get("concepts"), f"{where}.concepts") if _text(value)]
     depends_on = [_text(value) for value in _list(item.get("depends_on"), f"{where}.depends_on") if _text(value)]
     parameters: dict = {}
+    if scenario == "market_digest":
+        if set(item) & {"concepts", "period", "role", "metric", "formula"}:
+            raise ValueError(f"{where}: рыночный сценарий не принимает поля отчётности")
+        parameters = DigestParameters.model_validate(item.get("parameters", {})).model_dump()
+    elif "parameters" in item:
+        raise ValueError(f"{where}: parameters доступны только market_digest")
     unresolved: list[str] = []
     if scenario == "explain_change" and concepts:
         parameters["analysis_concepts"] = concepts

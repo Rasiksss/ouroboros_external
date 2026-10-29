@@ -34,7 +34,41 @@
 
 ## Указатель
 
-Новая запись: [0065 — провайдер LLM на dev по приоритету](0065-dev-provider-llm-po-prioritetu.md).
+Новые записи: [0066 — выбор поиска в контексте хода](0066-veb-kontekst-hoda.md),
+[0067 — DeepSeek и два канала на dev](0067-dev-deepseek-dva-provaydera.md),
+[0068 — SSE без буферизации](0068-sse-bez-buferizacii.md),
+[0069 — задачи medium на dev](0069-dev-medium.md),
+[0070 — данные без подмен](0070-dannye-bez-podmen.md),
+[0071 — возврат high после medium](0071-dev-high-posle-medium.md),
+[0072 — компоненты расчётных показателей и итог по `facts`](0072-raschetnye-pokazateli-i-itog-po-faktam.md),
+[0073 — план в ограждении JSON принимается](0073-plan-v-ograzhdenii-json.md),
+[0074 — план планировщика на экране](0074-plan-planirovshchika-na-ekrane.md),
+[0075 — корень читает отчёт только для проверки](0075-koren-ne-issleduet-otchet-do-plana.md),
+[0076 — непринятый план не исполняют](0076-plan-ne-prinyat-ne-ispolnyat.md),
+[0077 — модель подзадачи по навыку](0077-model-podzadachi-po-navyku.md),
+[0078 — лёгкая приёмка корня](0078-legkaya-priyomka-korna.md),
+[0079 — приёмка шага одной записью](0079-priemka-shaga-odnoy-zapisyu.md),
+[0080 — недостача возвращается планировщику](0080-nedostacha-vozvrashchaetsya-planirovshchiku.md),
+[0081 — недостача в итоге хода не принимается шагом](0081-nedostacha-v-itoge-hoda-ne-prinimaetsya.md),
+[0082 — корень сам переделывает упавший шаг, работа со службой в отдельном справочнике](0082-koren-peresobiraet-shag-sam-i-ne-schitaet.md),
+[0083 — статус показателей в состоянии цикла](0083-status-pokazateley-v-sostoyanii.md),
+[0084 — планировщик сам читает состояние и каталог](0084-planirovshchik-sam-chitaet-sostoyanie-i-katalog.md),
+[0085 — снимки справочников и aifa_doc планировщика](0085-snimki-spravochnikov-i-aifa-doc-planirovshchika.md),
+[0086 — формулы реестра не меняются](0086-formuly-reestra-ne-menyayutsya.md),
+[0087 — шаги с кодом объединяются в один атом](0087-obedinyat-shagi-s-kodom.md),
+[0088 — независимые части одного хода идут одновременно](0088-parallelnye-chasti-odnogo-hoda.md),
+[0089 — шаг плана равен ходу](0089-shag-plana-ravno-hodu.md),
+[0090 — планы частей одного Case строятся по очереди](0090-planirovanie-chastey-po-ocheredi.md),
+[0091 — уровни плана и проверка корня](0091-urovni-plana-i-proverka-korna.md),
+[0092 — действия хода идут одновременно](0092-dejstviya-hoda-parallelno.md),
+[0093 — автору id артефактов](0093-zadanie-avtoru-s-id-artefaktov.md),
+[0094 — термины плана и интернет по разрешению](0094-terminy-plana-i-internet-po-razresheniyu.md),
+[0095 — подзадача не дубликат предка, отказ приходит итогом](0095-podzadacha-ne-dublikat-predka.md),
+[0096 — полный контекст планировщика](0096-polnyy-kontekst-planirovshchika.md),
+[0097 — модели dev через OpenRouter](0097-dev-glm53-low-deepseek-pro.md),
+[0098 — рыночный дайджест как сценарий службы, цикл без отчёта](0098-market-digest-scenario.md) (принято),
+[0099 — дайджест: выжимка в чате, выпуск карточкой, недоступное по просьбе](0099-dayjest-format-otveta.md) (принято),
+[0100 — dev на Cloud.ru, Chromium, контактный User-Agent для SEC](0100-dev-cloudru-chromium-edgar.md) (принято).
 
 | № | Решение | Статус |
 |---|---|---|

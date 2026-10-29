@@ -45,10 +45,10 @@ def test_the_plugin_gives_the_tool_to_the_skills_that_name_it() -> None:
         assert set(re.findall(r"`(aifa_\w+)", read(path))) <= tools, path.name
 
 
-def test_the_root_studies_the_catalog_then_picks_what_exists_then_delegates_the_gap() -> None:
-    """ADR-0064 п. 4–5: порядок закреплён в навыке корня, и каждый шаг назван."""
+def test_the_root_orders_the_plan_checks_it_by_the_cards_then_delegates_the_gap() -> None:
+    """ADR-0064 п. 4–5 в редакции ADR-0084: каталог изучает планировщик, корень проверяет предложение по карточкам."""
     text = guide()
-    order = "изучи каталог → выбери существующие возможности → при пробеле поручи создание атома"
+    order = "закажи план → проверь предложение по карточкам → при пробеле поручи создание атома"
 
     assert order in text and '`aifa_atoms(action="list")`' in text
     assert text.index(order) < text.index("### Делегирование")

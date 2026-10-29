@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import threading
 from collections.abc import Sequence
 from typing import Any
 
@@ -154,6 +155,20 @@ def owner_key(owner_id: object) -> str:
     if not value:
         raise ValueError("Case requires non-empty owner_id")
     return value[:64]
+
+
+_CASE_LOCKS: dict[tuple[str, str], threading.RLock] = {}
+_CASE_LOCKS_GUARD = threading.Lock()
+
+
+def case_lock(owner_id: object, case_id: str) -> threading.RLock:
+    """Один замок на Case в процессе: части одного хода собирают планы по очереди (ADR-0090).
+
+    План читает ревизию Case и записывает голову с условием «ревизия прежняя»; параллельные части
+    без замка получали `CaseConflictError`. Замок берут только на коротком планировании и записях,
+    меняющих ревизию, — исполнение графов идёт без него."""
+    with _CASE_LOCKS_GUARD:
+        return _CASE_LOCKS.setdefault((owner_key(owner_id), case_id), threading.RLock())
 
 
 def _json_model(model: BaseModel | None) -> dict | None:

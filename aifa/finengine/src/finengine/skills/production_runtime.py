@@ -13,7 +13,10 @@ import logging
 import os
 import re
 from dataclasses import dataclass, replace
-from typing import Callable, Mapping, Sequence
+from typing import TYPE_CHECKING, Callable, Mapping, Sequence
+
+if TYPE_CHECKING:
+    from finengine.skills.news.market import MarketGoalRunner
 
 from finengine.config import settings
 from finengine.contracts import GoalClause, GoalIR, RunPassport
@@ -269,7 +272,7 @@ def execute_production_goal(
         prepared_roots: list[RootTarget] = []
         for root in roots:
             if root.ad_hoc_spec is not None:
-                context.runtime.store.put_ad_hoc_spec(context.owner_id, context.case_id, root.ad_hoc_spec)
+                context.runtime.register_ad_hoc_spec(context.owner_id, context.case_id, root.ad_hoc_spec)
             merged_extra = {**root.root_extra, **dict(root_extra or {})}
             passport_entity = getattr(context.passport, "entity", None)
             target = replace(
@@ -310,7 +313,7 @@ def execute_production_goal(
             # Persist the semantic definition before planning.  The graph gets
             # only its immutable id/data through root_extra; the canonical
             # registry is deliberately untouched.
-            context.runtime.store.put_ad_hoc_spec(
+            context.runtime.register_ad_hoc_spec(
                 context.owner_id, context.case_id, root.ad_hoc_spec,
             )
         merged_extra = dict(root.root_extra)
@@ -846,6 +849,18 @@ def restore_loop_session(
     is_cancelled: Callable[[], bool] | None = None,
 ) -> LoopSession:
     """Сессия цикла после перезапуска процесса: рантайм и каналы — заново, накопленное — из сохранённого."""
+    if origin.mode == "market":
+        from finengine.skills.news.market import open_market_loop  # разрыв цикла: market использует GoalChannel
+
+        session = open_market_loop(
+            owner_id=origin.owner_id, case_id=origin.case_id, message=origin.goal.raw_query,
+            hand_over=lambda *_: None, event_sink=event_sink, trace_id=origin.trace_id,
+            agent_id=origin.agent_id, origin=origin, saved=state,
+        )
+        session.is_cancelled = is_cancelled
+        return session
+    if origin.document_id is None:
+        raise ValueError("У цикла report отсутствует документ")
     context = prepare_production_context(
         owner_id=origin.owner_id, case_id=origin.case_id, document_id=origin.document_id,
         document_text=document_text, goal_ir=origin.goal, methodology_version=origin.methodology_version,
@@ -932,12 +947,14 @@ def scenario_summary(goal: GoalIR, outcome: EvidenceGateOutcome | None) -> Scena
 class _NestedChannel:
     """Цель внутри цикла идёт тем же конвейером, что сообщение чата, но без входа в цикл (Р13.3)."""
 
-    context: ProductionContext
+    context: ProductionContext | None
     document_text: str
     role: str
     event_sink: EventSink | None
 
     def _execute(self, goal: GoalIR) -> ScenarioResult:
+        if self.context is None:
+            raise ValueError("сценарий отчётности требует режим report")
         outcome = execute_routed_goal(
             owner_id=self.context.owner_id,
             case_id=self.context.case_id,
@@ -986,8 +1003,14 @@ class GoalChannel(_NestedChannel):
     """Части разобранной цели исполняются по ссылке `goal_ref`: тот же `execute_routed_goal` с `allow_dynamic=False`
     и тот же Case, что у сообщения чата, но цель строится из `GoalClause` без разбора фразы (Р18.3)."""
 
+    market: MarketGoalRunner | None = None
+
     def refusal(self, clause: GoalClause) -> str | None:
         """Почему часть нельзя исполнить по ссылке: у неё нет детерминированного корня (Р18.4)."""
+        if self.market is not None:
+            return self.market.refusal(clause)
+        if clause.intent_kind == "market_digest":
+            return "для дайджеста открой aifa_open(mode=market)"
         if clause.intent_kind not in _GATED_KINDS:
             return f"у вида {clause.intent_kind} нет детерминированного корня"
         try:
@@ -997,6 +1020,8 @@ class GoalChannel(_NestedChannel):
         return None
 
     def __call__(self, clauses: Sequence[GoalClause]) -> ScenarioResult:
+        if self.market is not None:
+            return self.market(list(clauses))
         return self._execute(goal_from_clauses(clauses))
 
 

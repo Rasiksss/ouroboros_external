@@ -613,6 +613,10 @@ class AppSettings(BaseModel):
     OUROBOROS_MODEL: str = "gigachat-b2bank::GigaChat-Pro"
     OUROBOROS_MODEL_LIGHT: str = "gigachat-b2bank::GigaChat"
     OUROBOROS_MODEL_FALLBACK: str = "gigachat-b2bank::GigaChat"
+    # Model (and optionally reasoning effort) of a subtask by the skill its description names:
+    # ``distribution:aifa-plan-author=cloudru::zai-org/GLM-5.2@high, <skill>=<model>``. Environment-only;
+    # empty = every subtask runs on OUROBOROS_MODEL like the root.
+    OUROBOROS_MODEL_BY_SKILL: str = ""
     # Dedicated vision-capable model used by the vlm_query tool for image
     # analysis. Empty = fall back to OUROBOROS_MODEL (assumed multimodal).
     OUROBOROS_MODEL_VISION: str = ""

@@ -40,7 +40,7 @@ from ouroboros.agent.loop_adapters import (
     build_tool_call_executor,
 )
 from ouroboros.agent.task_ledger import RepeatToolGuard, TaskLedger
-from ouroboros.app.config import get_light_model, resolve_effort
+from ouroboros.app.config import get_light_model, resolve_effort, skill_run_profile
 from ouroboros.policy.capabilities import CORE_TOOL_NAMES
 from ouroboros.policy.llm_middlewares import llm_middlewares
 from ouroboros.storage.task_results import load_task_result
@@ -290,6 +290,11 @@ def build_task_run(
 
     active_model = agent.llm.default_model(scope)
     active_effort = initial_effort
+    # A subtask runs on the model of the skill it was ordered under; the root never does, whatever its text says.
+    if int(task.get("depth") or 0) > 0:
+        profile = skill_run_profile(task.get("description"))
+        if profile is not None:
+            active_model, active_effort = profile[0], profile[1] or initial_effort
 
     from ouroboros.storage.settings.store import load_settings
 

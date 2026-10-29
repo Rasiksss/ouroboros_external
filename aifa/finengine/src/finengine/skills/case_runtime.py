@@ -8,6 +8,7 @@ same contract locally when Postgres is unavailable.
 """
 from __future__ import annotations
 
+import functools
 import json
 import logging
 from dataclasses import dataclass
@@ -66,6 +67,7 @@ from finengine.skills.spec.target import METRIC_EVIDENCE_MEMBERS, Target
 from finengine.store.cases import (
     SqlCaseStore,
     StalePlanRunError,
+    case_lock,
     evidence_id_of,
     owner_key,
     passport_fingerprint,
@@ -151,6 +153,17 @@ def _payload_output_type(value: Any) -> str:
     return type(value).__name__
 
 
+def _planned_one_by_one(method):
+    """Планирование частей одного Case идёт по очереди: ревизия читается и записывается под замком (ADR-0090)."""
+
+    @functools.wraps(method)
+    def wrapper(self, *args, owner_id: object, case_id: str, **kwargs):
+        with case_lock(owner_id, case_id):
+            return method(self, *args, owner_id=owner_id, case_id=case_id, **kwargs)
+
+    return wrapper
+
+
 class CaseRuntime:
     """Persistent owner-scoped execution facade for one conversational Case."""
 
@@ -203,6 +216,10 @@ class CaseRuntime:
             document_version=document_version, expected_revision=expected_revision,
         )
 
+    def register_ad_hoc_spec(self, owner_id: object, case_id: str, spec):
+        with case_lock(owner_id, case_id):
+            return self.store.put_ad_hoc_spec(owner_id, case_id, spec)
+
     def _bind_target_to_case(self, owner_id: object, case_id: str, target: Target) -> Target:
         docs = self.store.active_documents(owner_id, case_id)
         active_versions = {d.document_version for d in docs}
@@ -211,7 +228,7 @@ class CaseRuntime:
                 f"target document_version {target.document_version!r} is not active in Case {case_id!r}"
             )
         document_version = target.document_version
-        history_only = target.params.get("document_scope") == "subject_history"
+        history_only = target.params.get("document_scope") in {"subject_history", "none"}
         if document_version is None and len(active_versions) == 1 and not history_only:
             document_version = next(iter(active_versions))
         return Target(
@@ -389,6 +406,7 @@ class CaseRuntime:
 
     # ------------------------------------------------------------------
     # Planning / execution / resume
+    @_planned_one_by_one
     def plan(
         self,
         *,
@@ -429,6 +447,7 @@ class CaseRuntime:
             node_args=node_args, available=available, run_passport=run_passport, snap=snap,
         )
 
+    @_planned_one_by_one
     def plan_many(
         self, *, owner_id: object, case_id: str, goal_ir: GoalIR,
         requests: Sequence[tuple[Target, Mapping[str, str], str, str, Sequence[str]]],
@@ -467,6 +486,7 @@ class CaseRuntime:
             run_passport=run_passport, snap=snap,
         )
 
+    @_planned_one_by_one
     def plan_steps(
         self, *, owner_id: object, case_id: str, goal_ir: GoalIR, target: Target,
         steps: Sequence[AtomStep], run_passport: RunPassport | None = None,
@@ -598,6 +618,8 @@ class CaseRuntime:
         plan_run_id: str,
         inputs: RunInputs | None = None,
         event_sink: Callable[[dict], None] | None = None,
+        parallel_ready: bool = False,
+        commit_guard: Callable[[], None] | None = None,
     ) -> ExecutionResult:
         record = self.store.load_plan_run(owner_id, case_id, plan_run_id)
         if record is None:
@@ -631,6 +653,8 @@ class CaseRuntime:
                 )
 
         def on_update(run) -> None:
+            if commit_guard is not None and run.status == "succeeded":
+                commit_guard()
             # Status/attempt survives an abrupt service-instance switch.  The
             # terminal callback below additionally persists the payload.
             self.store.save_node_run(owner_id, case_id, plan_run_id, run, ())
@@ -639,6 +663,8 @@ class CaseRuntime:
                 event_sink(node_run_event(run, plan_graph_hash=record.graph_hash))
 
         def on_result(run, evidence: tuple[BaseModel, ...]) -> None:
+            if commit_guard is not None:
+                commit_guard()
             self.store.save_node_run(owner_id, case_id, plan_run_id, run, evidence)
 
         leaf_keys = {leaf.node_key for leaf in available.all_leaves()}
@@ -647,7 +673,7 @@ class CaseRuntime:
                 record.graph, node_args, run_id=plan_run_id, available=available,
                 run_passport=record.run_passport, inputs=inputs,
                 prior_node_runs=prior_runs, prior_evidence=prior_evidence,
-                on_node_update=on_update, on_node_result=on_result,
+                on_node_update=on_update, on_node_result=on_result, parallel_ready=parallel_ready,
             )
         except Exception as exc:
             # Исполнитель прервался исключением (бюджет времени или вызовов, сбой хранилища): узлы,
@@ -657,9 +683,12 @@ class CaseRuntime:
                 owner_id, case_id, plan_run_id, on_update,
                 reason=f"исполнение прервано: {type(exc).__name__}: {exc}",
             )
-            self._keep_finished_results(owner_id, case_id, record, node_args, leaf_keys)
+            if commit_guard is None:
+                self._keep_finished_results(owner_id, case_id, record, node_args, leaf_keys)
             raise
 
+        if commit_guard is not None:
+            commit_guard()
         self._persist_artifacts(
             owner_id, case_id, record, node_args, leaf_keys, result.node_runs, result.evidence_by_key,
         )
@@ -677,11 +706,12 @@ class CaseRuntime:
             latest = self.store.load_case(owner_id, case_id)
             if latest is not None:
                 try:
-                    self.store.update_case_head(
-                        owner_id, case_id, run_passport=discovered_passport,
-                        run_passport_document_version=record.target.document_version,
-                        expected_revision=latest.revision,
-                    )
+                    with case_lock(owner_id, case_id):      # ревизия растёт: не посреди плана соседней части
+                        self.store.update_case_head(
+                            owner_id, case_id, run_passport=discovered_passport,
+                            run_passport_document_version=record.target.document_version,
+                            expected_revision=latest.revision,
+                        )
                 except Exception as exc:
                     # Concurrent Case mutation is explicit, never silently
                     # overwritten. A retry may reuse the passport artifact

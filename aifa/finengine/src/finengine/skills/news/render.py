@@ -221,7 +221,7 @@ _REGULATOR_SPEC: list[tuple[str, str, list[str], str]] = [
 
 
 def _render_regulators_box(
-    classified: list[ClassifiedItem], *, cfg: NewsConfig,
+    classified: list[ClassifiedItem], *, cfg: NewsConfig, archive_items: list | None = None,
 ) -> tuple[str, set[str]]:
     """Always-on regulator section. Per ТЗ заказчика — each tracked
     regulator must appear every day, falling back to last-7d publications
@@ -250,6 +250,7 @@ def _render_regulators_box(
     out = ["## 🏛️ Регуляторы"]
     out.append("")
     out.append(
+        "*Публикации регуляторов в доступных лентах за выбранное окно.*" if archive_items is not None else
         "*Информационное поле вокруг ключевых регуляторов — за сегодня "
         "или ближайший архив до 7 дн.*"
     )
@@ -278,7 +279,7 @@ def _render_regulators_box(
             continue
 
         # 2) fall back to last 7d for this regulator
-        backlog = _db.recent_items_from_sources(
+        backlog = [] if archive_items is not None else _db.recent_items_from_sources(
             sids, max_age_days=7.0, limit=2,
         )
         if not backlog:
@@ -287,7 +288,9 @@ def _render_regulators_box(
             # `ustreasury_blog` стоит active:false, сбор их не опрашивает
             # вовсе). Читатель понимал «следим, но тихо», а правда была
             # «не следим».
-            if any(sid in active_sids for sid in sids):
+            if archive_items is not None:
+                out.append("- _В выборке нет публикаций; ограничения сбора указаны в предупреждениях._")
+            elif any(sid in active_sids for sid in sids):
                 out.append(
                     "- _Свежих публикаций за 7 дней нет — мониторинг продолжается._"
                 )
@@ -564,6 +567,7 @@ def render_digest(
     macro_payload: dict | None = None,
     seen_hashes: set[str] | None = None,
     macro_mode: str = "both",
+    archive_items: list | None = None,
 ) -> tuple[str, list[DigestItem]]:
     """Build the full markdown and return alongside DigestItem records
     suitable for persisting in SQLite.
@@ -586,7 +590,7 @@ def render_digest(
     # from regulators (rate statements, MPC minutes, etc.) lives here,
     # not in the Long list — that's the single home for "what regulators
     # said".
-    regulators_md, regulator_urls = _render_regulators_box(classified, cfg=cfg)
+    regulators_md, regulator_urls = _render_regulators_box(classified, cfg=cfg, archive_items=archive_items)
 
     # Публикация, уже показанная у регулятора, не идёт по второму кругу в
     # Long list / Прочие: 17.08 предварительная оценка Минфина РФ стояла в

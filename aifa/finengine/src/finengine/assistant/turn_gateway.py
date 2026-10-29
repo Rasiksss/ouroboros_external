@@ -23,6 +23,7 @@ from finengine.assistant.events import (
 )
 from finengine.assistant.frames import SUBTASK_FAILURE_PREFIX, Frame, FrameKind, classify
 from finengine.assistant.history import HistoryPage, find_final
+from finengine.assistant.plan_view import root_plan_event
 from finengine.assistant.ouro_client import (
     ChatScope,
     HandshakeRefused,
@@ -275,7 +276,9 @@ class _Turn:
             self._subtasks.subtask_finished(
                 SubtaskResult(self._request.run_id, task_id, text, failed)
             )
-        return [service_event("subtask_result", task_id=task_id, failed=failed, text=text)]
+        events = [service_event("subtask_result", task_id=task_id, failed=failed, text=text)]
+        plan = None if failed else root_plan_event(task_id, text)
+        return events if plan is None else [*events, plan]
 
     def _transport_error(self, frame: Frame) -> list[Event]:
         # Отказ ouroboros принять кадр: ответа на него не будет.

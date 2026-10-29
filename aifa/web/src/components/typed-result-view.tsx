@@ -1,4 +1,5 @@
 import type { EvidenceRef, FormOutputRow, OutputRunMetadata, TypedResult, TypedRunError } from "@/lib/api";
+import { AssistantMarkdown } from "@/components/assistant-markdown";
 import { formatDisplayNumber } from "@/lib/display-number";
 
 const STATUS_LABEL: Record<FormOutputRow["status"], string> = {
@@ -217,6 +218,15 @@ export function TypedResultView({ result }: { result: TypedResult }) {
         {result.text}
         <RunMetadata metadata={result.run_metadata} />
         <Evidence refs={result.cited_evidence_ids.map((evidence_id) => ({ evidence_id }))} />
+      </article>
+    );
+  }
+
+  if (result.output_type === "DigestOutput") {
+    return (
+      // Окно и пометка «выпуск неполный» уже в тексте выпуска; перечень недоступных источников не выводим.
+      <article className="mt-2" data-result-type="DigestOutput" data-schema-version={result.schema_version}>
+        <AssistantMarkdown text={result.markdown} />
       </article>
     );
   }

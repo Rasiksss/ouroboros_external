@@ -22,6 +22,7 @@ class ToolCtx(BaseModel):
     root_task_id: str = ""
     task_depth: int = 0
     run_id: str
+    operation_id: str = ""
 
 
 class ToolCall(BaseModel):

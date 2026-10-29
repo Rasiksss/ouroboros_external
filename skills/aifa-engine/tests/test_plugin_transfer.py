@@ -66,7 +66,13 @@ def test_the_call_goes_to_the_internal_api_with_the_context_and_arguments_of_the
         seen.append(request)
         return httpx.Response(200, text="ГОТОВО")
 
-    run("aifa_wait", handler, tool_context(root_task_id="parent-root", task_depth=1), job_id="j1", wait_sec=30)
+    run(
+        "aifa_wait",
+        handler,
+        tool_context(root_task_id="parent-root", task_depth=1, tool_call_id="call-1"),
+        job_id="j1",
+        wait_sec=30,
+    )
 
     (request,) = seen
     assert (request.method, str(request.url)) == ("POST", f"{SERVICE}/internal/ouro/v1/aifa_wait")
@@ -79,6 +85,7 @@ def test_the_call_goes_to_the_internal_api_with_the_context_and_arguments_of_the
             "root_task_id": "parent-root",
             "task_depth": 1,
             "run_id": RUN_ID,
+            "operation_id": "call-1",
         },
         "args": {"job_id": "j1", "wait_sec": 30},
     }

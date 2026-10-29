@@ -21,7 +21,7 @@ class LoopOrigin:
 
     owner_id: int | str
     case_id: str
-    document_id: str
+    document_id: str | None
     goal: GoalIR
     target: Target
     root_extra: dict[str, str] = field(default_factory=dict)
@@ -29,6 +29,8 @@ class LoopOrigin:
     entry_stage: str = "planning"
     methodology_version: str | None = None  # паспорт прогона должен совпасть с исходным
     budget: dict[str, Any] | None = None    # бюджет графа, под которым цикл был открыт
+    mode: str = "report"
+    agent_id: str = ""
 
     def to_doc(self) -> dict[str, Any]:
         return {
@@ -36,6 +38,8 @@ class LoopOrigin:
             "goal": self.goal.model_dump(mode="json"), "target": asdict(self.target),
             "root_extra": dict(self.root_extra), "trace_id": self.trace_id, "entry_stage": self.entry_stage,
             "methodology_version": self.methodology_version, "budget": self.budget,
+            "mode": self.mode,
+            "agent_id": self.agent_id,
         }
 
     @classmethod
@@ -45,6 +49,8 @@ class LoopOrigin:
             goal=GoalIR.model_validate(doc["goal"]), target=Target(**doc["target"]),
             root_extra=dict(doc["root_extra"]), trace_id=doc["trace_id"], entry_stage=doc["entry_stage"],
             methodology_version=doc["methodology_version"], budget=doc["budget"],
+            mode=doc.get("mode", "report"),
+            agent_id=doc.get("agent_id", ""),
         )
 
 
@@ -62,6 +68,8 @@ def state_of(session: LoopSession) -> dict[str, Any]:
         "initial_evidence_ids": sorted(session.initial_evidence_ids),
         "initial_file_ids": sorted(session.initial_file_ids),
         "attempts": session.intake.log.to_doc(),
+        "market_windows": dict(session.market_windows),
+        "market_outcomes": dict(session.market_outcomes),
     }
 
 
@@ -82,3 +90,5 @@ def restore_state(session: LoopSession, doc: dict[str, Any]) -> None:
     session.initial_evidence_ids = frozenset(doc["initial_evidence_ids"])
     session.initial_file_ids = frozenset(doc["initial_file_ids"])
     session.intake.log.restore(doc.get("attempts", []))  # сохранённое до шага 16 счётчика не знает
+    session.market_windows.update(doc.get("market_windows", {}))
+    session.market_outcomes.update(doc.get("market_outcomes", {}))

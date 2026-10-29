@@ -7,6 +7,8 @@
 """
 from __future__ import annotations
 
+from .digest import DigestOutput, DigestParameters
+
 from .analysis import CausalType, Explanation, ExplanationFactor, ExternalFactRef, Judgment, RuleComparison
 from .basis import Basis, BasisComparison, BasisComparisonStatus
 from .definitions import DefinitionSource, FormulaDefinition, MetricDefinition
@@ -138,6 +140,8 @@ from .transport import (
 )
 
 __all__ = [
+    "DigestOutput",
+    "DigestParameters",
     "RunPassport",
     "CaseIdentity",
     "CaseTarget",

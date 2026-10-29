@@ -12,9 +12,12 @@ from __future__ import annotations
 
 import json
 import logging
+from pydantic import BaseModel, ConfigDict, Field, StrictBool
 
 from finengine.config import settings
 from finengine.skills.news.models import (
+    Category,
+    Region,
     ClassifiedItem,
     NewsItem,
 )
@@ -106,7 +109,17 @@ def _build_candidate_json(items: list[NewsItem]) -> list[dict]:
     ]
 
 
-def _parse_response(raw: str, items: list[NewsItem]) -> list[ClassifiedItem]:
+class ClassificationRow(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: int = Field(strict=True, ge=0)
+    is_relevant: StrictBool
+    category: Category
+    region: Region
+    importance: float = Field(ge=0, le=1, allow_inf_nan=False)
+    one_sentence_ru: str
+
+
+def _parse_response(raw: str, items: list[NewsItem], *, strict_complete: bool = False) -> list[ClassifiedItem]:
     """Be tolerant of common LLM JSON gotchas: leading/trailing markdown
     fences, extra prose, escaped newlines, single-quoted strings."""
     text = raw.strip()
@@ -152,6 +165,12 @@ def _parse_response(raw: str, items: list[NewsItem]) -> list[ClassifiedItem]:
         return []
 
     out: list[ClassifiedItem] = []
+    if strict_complete:
+        validated = [ClassificationRow.model_validate(row) for row in parsed]
+        if len(validated) != len(items) or {row.id for row in validated} != set(range(len(items))):
+            raise ValueError("Классификатор вернул неполный или повторяющийся набор id")
+        if any(row.is_relevant and not row.one_sentence_ru.strip() for row in validated):
+            raise ValueError("У релевантной новости отсутствует текст")
     by_id: dict[int, dict] = {}
     for obj in parsed:
         if isinstance(obj, dict) and "id" in obj:
@@ -189,6 +208,7 @@ async def classify_batch(
     *,
     model: str | None = None,
     focus: str = "",
+    strict_complete: bool = False,
 ) -> tuple[list[ClassifiedItem], dict]:
     """One LLM round-trip for all items. Returns (classified, usage).
     Usage dict: {in, out, cached, model, cost_usd}."""
@@ -250,7 +270,12 @@ async def classify_batch(
         return [], {"in": 0, "out": 0, "cached": 0, "model": chosen_model, "cost_usd": 0.0,
                     "error": str(e)}
 
-    classified = _parse_response(text, items)
+    classified = _parse_response(text, items, strict_complete=strict_complete)
+    if strict_complete and (
+        len(classified) != len(items)
+        or any(c.why_important == "missing in LLM response" for c in classified)
+    ):
+        raise ValueError("Классификатор вернул неполный набор новостей")
     usage["cost_usd"] = cost_usd(usage)
     log.info("classify: got %d items back, cost=$%.4f (in=%d out=%d)",
              len(classified), usage["cost_usd"],

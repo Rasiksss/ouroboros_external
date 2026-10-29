@@ -68,6 +68,7 @@ from .base import Contract, NonEmptyStr, new_id
 # `Target(output_type="MonitorResult")`; остальные неподключённые виды по-прежнему
 # fail closed в `_NOT_YET_WIRED_KINDS` (`skills/atoms/intent.py`).
 IntentKind = Literal[
+    "market_digest",
     "full_analysis",
     "extract_registered_metric",
     "extract_ad_hoc_metric",

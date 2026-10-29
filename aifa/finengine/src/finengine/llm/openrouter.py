@@ -13,6 +13,8 @@ from __future__ import annotations
 import asyncio
 import contextvars as _cv
 import logging
+from contextlib import contextmanager
+from collections.abc import Iterator
 from typing import AsyncIterator
 
 from openai import AsyncOpenAI
@@ -20,6 +22,20 @@ from openai import AsyncOpenAI
 from finengine.config import settings
 
 log = logging.getLogger(__name__)
+_REQUEST_HEADERS: _cv.ContextVar[dict[str, str]] = _cv.ContextVar("llm_request_headers", default={})
+
+
+@contextmanager
+def request_headers(trace_id: str, agent_id: str) -> Iterator[None]:
+    """Заголовки одного модельного запроса, без изменения общего клиента."""
+    token = _REQUEST_HEADERS.set({
+        **({"X-Trace-Id": trace_id} if trace_id else {}),
+        **({"X-Agent-Id": agent_id} if agent_id else {}),
+    })
+    try:
+        yield
+    finally:
+        _REQUEST_HEADERS.reset(token)
 
 
 class ModelSilent(RuntimeError):
@@ -287,6 +303,8 @@ async def complete_with_usage(
                 kwargs["seed"] = seed
             if response_format:
                 kwargs["response_format"] = response_format
+            if _REQUEST_HEADERS.get():
+                kwargs["extra_headers"] = dict(_REQUEST_HEADERS.get())
             resp = await client.chat.completions.create(**kwargs)
             choice = resp.choices[0].message
             content = choice.content or ""

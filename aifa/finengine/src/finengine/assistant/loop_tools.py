@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+import uuid
+from datetime import datetime, timezone
 from typing import Any
 
 from finengine.assistant import ouro_view
 from finengine.assistant.goal_tools import reply_of
 from finengine.assistant.jobs import JobBoard
+from finengine.assistant.operations import Operation, claim_operation
 from finengine.assistant.loop_desk import LoopDesk, OpenLoop
 from finengine.assistant.ouro_view import Refusal
 from finengine.assistant.subtask_waits import SubtaskWaits
@@ -38,12 +41,37 @@ class ExclusiveTool:
         loop = await self._desk.open_loop_of(call)
         if loop is None:
             return no_loop()
-        job = self._board.start(call.ctx.run_id, self.name, self._queued(loop, call.args))
+        operation = None
+        if call.ctx.operation_id:
+            try:
+                operation = await asyncio.to_thread(claim_operation, call, self.name, uuid.uuid4().hex)
+            except ValueError as exc:
+                return ouro_view.refusal(Refusal.BAD_ARGUMENTS, str(exc))
+            if not operation.created:
+                if operation.result is not None:
+                    return operation.result
+                job = self._board.find(call.ctx.run_id, operation.job_id)
+                if job is None:
+                    job = self._board.start(call.ctx.run_id, self.name, operation.wait(), job_id=operation.job_id)
+                return await reply_of(self._board, job, settings.ouroboros_goal_wait_sec)
+        job = self._board.start(
+            call.ctx.run_id, self.name, self._queued(loop, call.args, operation),
+            job_id=operation.job_id if operation else None,
+        )
         return await reply_of(self._board, job, settings.ouroboros_goal_wait_sec)
 
-    async def _queued(self, loop: OpenLoop, args: dict[str, Any]) -> str:
+    async def _queued(self, loop: OpenLoop, args: dict[str, Any], operation: Operation | None = None) -> str:
         async with loop.queue:
-            return await asyncio.to_thread(self._execute, loop, args)
+            try:
+                text = await asyncio.to_thread(self._execute, loop, args)
+            except Exception as exc:
+                # Без записи итога повтор этого operation_id ждал бы результат, которого не будет.
+                if operation is not None:
+                    await asyncio.to_thread(operation.finish, ouro_view.service_fault(type(exc).__name__))
+                raise
+            if operation is not None:
+                await asyncio.to_thread(operation.finish, text)
+            return text
 
     def _execute(self, loop: OpenLoop, args: dict[str, Any]) -> str:
         raise NotImplementedError
@@ -76,6 +104,11 @@ class MoveTool(ExclusiveTool):
         checked = session.check(decision)
         if isinstance(checked, Rejection):
             return self._rejected(loop, checked)
+        if session.goal.intent_kind == "market_digest":
+            with session.state_lock:
+                for clause in decision.new_goals:
+                    session.market_windows.setdefault(clause.goal_ref, datetime.now(timezone.utc).isoformat())
+                self._desk.save(loop.run_id)
         known = ouro_view.shown_ids(session)
         outcome = session.move(checked)
         self._desk.save(loop.run_id)
@@ -118,5 +151,5 @@ class FinishTool(ExclusiveTool):
         else:
             result, refused = session.finish(checked), ""
         self._desk.save(loop.run_id)
-        publish_result(result, session.event_sink, case_id=session.case_id, document_id=loop.origin.document_id)
+        publish_result(result, session.event_sink, case_id=session.case_id, document_id=loop.origin.document_id or "")
         return ouro_view.accepted(result, reason=refused, unfinished=self._subtasks.unfinished(loop.run_id))
