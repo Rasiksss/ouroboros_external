@@ -1,0 +1,30 @@
+name: gigaagent
+services:
+  ouroboros:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        BUILD_IMAGE: ${BUILD_IMAGE:-docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a}
+        RUN_IMAGE: ${RUN_IMAGE:-docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a}
+        TOKEN_OSC: ${TOKEN_OSC:-}
+        NEXUS_USERNAME: ${NEXUS_USERNAME:-}
+        NEXUS_PASSWORD: ${NEXUS_PASSWORD:-}
+        NEXUS_TOKEN_USERNAME: ${NEXUS_TOKEN_USERNAME:-}
+        NEXUS_TOKEN_PASSWORD: ${NEXUS_TOKEN_PASSWORD:-}
+    image: gigaagent:local
+    restart: unless-stopped
+    init: true
+    env_file:
+    - path: agent.env
+      required: true
+    environment:
+      OUROBOROS_ENV: production
+      OUROBOROS_DATA_DIR: /data
+      OUROBOROS_SERVER_HOST: 0.0.0.0
+    ports:
+    - 127.0.0.1:18180:8080
+    volumes:
+    - agent-data:/data
+volumes:
+  agent-data: {}

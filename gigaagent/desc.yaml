@@ -1,0 +1,174 @@
+wrapper: 1.0.0.openclaw
+domain: omega
+sonar:
+  key: aif-agents-aef-gigaagent
+  srcFolder: ./
+  exclusions: ./build/*,./dist/*,**/*.html,venv/**,.venv/**,wrapper/**,vendor/**,**/*.c,**/*.h,**/*.cpp,**/*.hpp
+app:
+  author: Потапов Евгений
+  emails:
+  - enpotapov@sberbank.ru
+  unit: AI Finance
+  description: 'GigaAgent: агентный runtime Ouroboros без фронтенда'
+  language: PYTHON
+  baseImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+  runImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+  resources:
+    limits:
+      cpu: 800m
+      memory: 1500Mi
+  envs:
+    # Общие значения применяются ко всем стендам. Различающиеся значения задайте в dev/ift/psi/prom.
+    OUROBOROS_MULTIUSER: 'false'
+    BROWSER_INGRESS_ENABLED: 'true'
+    OUROBOROS_WORKER_SLOTS: '4'
+    OUROBOROS_HARD_TIMEOUT_SEC: '5400'
+    # Максимальное ожидание ответа модели при фоновых операциях, в секундах.
+    OUROBOROS_BACKGROUND_LLM_HTTP_READ_TIMEOUT_SEC: '300'
+    # Время на завершение работы при остановке pod. Сверьте с terminationGracePeriodSeconds.
+    OUROBOROS_DRAIN_TIMEOUT_SEC: '20'
+    # Срок хранения пользовательских файлов, в часах. 720 часов — 30 дней.
+    OUROBOROS_USER_FILE_TTL_HOURS: '720'
+    # ПРОВЕРИТЬ — включите только при использовании фонового извлечения памяти.
+    OUROBOROS_MEMORY_DISTILL: 'false'
+    OUROBOROS_TOOL_CONFIRMATION_ENABLED: 'false'
+    OUROBOROS_ENABLED_TOOLS: aifa-engine.aifa_open,aifa-engine.aifa_wait,aifa-engine.aifa_state,aifa-engine.aifa_doc,aifa-engine.aifa_atoms,aifa-engine.aifa_move,aifa-engine.aifa_register_atom,aifa-engine.aifa_report,aifa-engine.aifa_finish
+    OUROBOROS_DISABLED_TOOLS: attachment_read,vlm_query,data_read,data_list,data_write,send_file,send_image,send_photo,send_user_message,gigasearch,browse_page,browser_action,image_generate,memory_save,memory_read,memory_list,memory_delete,create_scheduled_task,create_reminder,list_schedules,edit_schedule,cancel_schedule,pause_schedule,resume_schedule,confirm_schedule,move_schedule_here
+    OUROBOROS_DISABLED_SKILLS: distribution:agent-delegation,distribution:calendar-orientation,distribution:docx-tools,distribution:image-generation,distribution:pdf-tools,distribution:tasks-scheduler,distribution:xlsx-tools
+    OUROBOROS_USER_ENABLED_SKILL_IDS: distribution:workstation,distribution:aifa-planning,distribution:aifa-plan-author,distribution:aifa-engine,distribution:aifa-atom-author
+    OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS: distribution:aifa-engine
+    # ЗАПОЛНИТЬ — имя выданной корзины S3 для файлов GigaAgent.
+    OUROBOROS_S3_BUCKET: 'agnbf-af-aifaouroboros'
+    # ПРОВЕРИТЬ — регион, который ожидает S3 при подписи запросов.
+    OUROBOROS_S3_REGION: us-east-1
+    # ЗАПОЛНИТЬ — внутренний URL Workstation для сессий и запуска команд.
+    WORKSTATION_BASE_URL: 'http://workstation-v1-service.ci09529287-aif-agnbf-af-aifaouroboros-dev.svc.cluster.local:8080'
+    # ЗАПОЛНИТЬ — внутренний URL AIFA для вызовов инструментов aifa-engine.
+    AIFA_ENGINE_URL: 'http://aifa-v1-service.ci09529287-aif-agnbf-af-aifaouroboros-dev.svc.cluster.local:8080'
+    # ЗАПОЛНИТЬ — стабильный идентификатор пространства объектов внутри S3.
+    # Его выбирают для приложения и стенда, например aifa-dev. S3 его не выдаёт.
+    OUROBOROS_STORAGE_TENANT_ID: 'ouroboros'
+    # ЗАПОЛНИТЬ, если выдан отдельный префикс ключей внутри корзины S3.
+    # OUROBOROS_S3_PREFIX: '<GIGAAGENT_S3_PREFIX>'
+    OUROBOROS_BROKER_BACKEND: kafka
+    # ПРОВЕРИТЬ — версия протокола брокера MU в формате MAJOR.MINOR. В инструкции используется 3.9.
+    OUROBOROS_KAFKA_API_VERSION: '3.9'
+    # ПРОВЕРИТЬ — протокол выданного подключения Kafka. Код по умолчанию использует PLAINTEXT.
+    # Для SASL укажите механизм, а OUROBOROS_KAFKA_SASL_USERNAME и OUROBOROS_KAFKA_SASL_PASSWORD
+    # передайте через SecMan. Для TLS с отдельным CA укажите путь к смонтированному сертификату.
+    # OUROBOROS_KAFKA_SECURITY_PROTOCOL: SASL_SSL
+    # OUROBOROS_KAFKA_SASL_MECHANISM: SCRAM-SHA-512
+    # OUROBOROS_KAFKA_SSL_CERT_PATH: '<KAFKA_CA_CERT_PATH>'
+
+    # AEF Tracing — экспорт трасс выполнения. Берёт брокеры из
+    # AGENT_SYSTEM_CONFIGURATION_KAFKA_BOOTSTRAP_SERVERS и использует метаданные агента ниже.
+    # ЗАПОЛНИТЬ — включите 'true' после настройки Kafka egress, топика и метаданных.
+    AEF_TRACING_ENABLED: 'false'
+    # ЗАПОЛНИТЬ — имя топика трассировки, выданное для стенда.
+    AEF_TRACING_KAFKA_TOPIC: '<AEF_TRACING_KAFKA_TOPIC>'
+    # ПРОВЕРИТЬ — оставьте пустым для списка SDK по умолчанию. Явный список задаётся JSON-массивом
+    # объектов с полями type, provider, version, stack и необязательным contract_version.
+    AEF_TRACING_SDK_LIST: ''
+    # ПРОВЕРИТЬ — версия контракта SDK, ожидаемая получателем трасс.
+    AEF_TRACING_SDK_CONTRACT_VERSION: '1.5'
+    # Автоматическая инструментация SDK и включение аргументов инструментов в трассы.
+    AEF_TRACING_AUTO_INSTRUMENTATION_ENABLED: 'false'
+    AEF_TOOL_TRACE_PAYLOAD_ENABLED: 'false'
+    # При подключении Reflex/Dynatrace используйте один из флагов:
+    # AEF_REFLEX_ENABLED, DYNATRACE_ENABLED или ENABLE_REFLEX.
+
+    # Публикация AGENT_SYSTEM_CONFIGURATION при старте runtime MU.
+    # ЗАПОЛНИТЬ — включите 'true' после настройки подключения и метаданных для стенда.
+    AGENT_SYSTEM_CONFIGURATION_KAFKA_ENABLED: 'false'
+    # ЗАПОЛНИТЬ — адреса Kafka egress для события и AEF Tracing в формате host:port,host:port.
+    AGENT_SYSTEM_CONFIGURATION_KAFKA_BOOTSTRAP_SERVERS: '<SYSTEM_CONFIG_KAFKA_BOOTSTRAP_SERVERS>'
+    # ЗАПОЛНИТЬ — точное имя топика, в который принимает события система мониторинга.
+    AGENT_SYSTEM_CONFIGURATION_KAFKA_TOPIC: '<SYSTEM_CONFIG_KAFKA_TOPIC>'
+    # ЗАПОЛНИТЬ — ID агента в системе регистрации, до 10 символов.
+    AGENT_SYSTEM_CONFIGURATION_AGENT_ID: '<REGISTERED_AGENT_ID>'
+    # ЗАПОЛНИТЬ — идентификатор Kubernetes-кластера, где запущен агент.
+    AGENT_SYSTEM_CONFIGURATION_CLUSTER_ID: '<K8S_CLUSTER_ID>'
+    # ЗАПОЛНИТЬ — namespace, где запущен агент.
+    AGENT_SYSTEM_CONFIGURATION_NAMESPACE: '<K8S_NAMESPACE>'
+    # ЗАПОЛНИТЬ — идентификатор дистрибутива, который передаётся в метаданных события.
+    AGENT_SYSTEM_CONFIGURATION_DISTRIBUTIVE: '<AEF_DISTRIBUTIVE_ID>'
+    # ЗАПОЛНИТЬ — код репозитория системного промпта в системе регистрации.
+    AGENT_SYSTEM_CONFIGURATION_REPO_CODE: '<SYSTEM_PROMPT_REPO_CODE>'
+    # ЗАПОЛНИТЬ — CI приложения для привязки промпта, формат CI и восемь цифр.
+    AGENT_SYSTEM_CONFIGURATION_APP_CI: '<APPLICATION_CI>'
+    # ЗАПОЛНИТЬ — версия агента в MMS. Валидатор принимает от 3 до 64 цифр без точек.
+    AGENT_SYSTEM_CONFIGURATION_MMS_AGENT_VERSION: '<MMS_AGENT_VERSION_DIGITS>'
+    # ЗАПОЛНИТЬ — версия системного промпта, например '1.0.0'.
+    AGENT_SYSTEM_CONFIGURATION_VERSION_NO: '<SYSTEM_PROMPT_VERSION>'
+    # ПРОВЕРИТЬ — имя файла системного промпта в зарегистрированном репозитории.
+    AGENT_SYSTEM_CONFIGURATION_FILENAME: 'SYSTEM.md'
+
+    # До запуска рабочих ролей должен успешно завершиться Liquibase AIFA.
+    OUROBOROS_ENV: production
+    # Каталог импорта Python и корень локальных файлов runtime в корпоративном образе.
+    PYTHONPATH: /app
+    OUROBOROS_APP_ROOT: /tmp
+    OUROBOROS_REPO_DIR: /tmp/repo
+    OUROBOROS_DATA_DIR: /tmp/data
+    OUROBOROS_SERVER_HOST: 0.0.0.0
+    # ПРОВЕРИТЬ — порт процесса должен совпадать с targetPort Service и портами probes для MU.
+    # В примере инструкции для MU используется 9090, в текущем Dockerfile объявлен 8080.
+    OUROBOROS_SERVER_PORT: '8080'
+    # Уровень логов runtime. Для отладки на стенде можно выставить DEBUG.
+    OUROBOROS_LOG_LEVEL: INFO
+    OUROBOROS_LOG_FORMAT: json
+    OUROBOROS_LOG_SINK: stdout
+    PYTHONUNBUFFERED: '1'
+    # ПРОВЕРИТЬ — путь монтирования SecMan. Ключи перечислены в deploy/mu/gigaagent-secrets.example.
+    # AIFA_ENGINE_TOKEN должен совпадать с токеном AIFA, WORKSTATION_CREATE_SECRET — с SESSION_CREATE_SECRET Workstation.
+    AIFA_ENGINE_TOKEN: '123'
+    # ЗАГЛУШКА НА ВРЕМЯ, ПОКА КЛЮЧ НЕ ВЫДАН SECMAN.
+    # 64 нулевых байта в base64: CredentialsKey требует ровно 64 байта.
+    # SecMan имеет приоритет над env, поэтому выданный ключ перекроет заглушку сам.
+    # 🔴 После появления реального ключа строку удалить: пока в окружении лежит секрет,
+    # он читается из ConfigMap и виден в манифестах стенда.
+    OUROBOROS_CREDENTIALS_ENCRYPTION_KEY: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=='
+    SECMAN_SECRETS_FILE: /vault/secrets/secret-files/databases-aifa-v1
+    SECMAN_WAIT_SEC: '30'
+    # Платформенный TOML содержит URL-кодированный password; декодировать один раз.
+    SECMAN_POSTGRES_PASSWORD_ENCODING: url
+    # ПРОВЕРИТЬ — включение шифрования истории чата. Сначала выдайте общий ключ
+    # OUROBOROS_CHAT_ENCRYPTION_KEY через SecMan для всех ролей MU.
+    # OUROBOROS_CHAT_ENCRYPTION_ENABLED: 'true'
+    # ЗАПОЛНИТЬ, если SecMan монтирует каждый секрет отдельным файлом с именем переменной.
+    # OUROBOROS_SECRETS_DIR: '/vault/secrets/secret-files'
+    # MCP и Dialogs включаются при отдельном подключении этих интеграций.
+    MCP_ENABLED: 'false'
+    # MCP_SERVERS: '<MCP_SERVERS_JSON>'
+    DIALOGS_GRPC_ENDPOINT: ''
+    # DIALOGS_SECURE: 'true'
+    # ПРОВЕРИТЬ для нужного стенда — доступность ID моделей в модельном шлюзе.
+    # MODEL — основная модель, MODEL_LIGHT — лёгкие операции, MODEL_FALLBACK — резервная модель.
+
+    SELFHOSTED_LLM_API_KEY: 'custom-local'
+    # AEF generates egress-kafka-<NAME> from main.yaml. Verify the topic ACLs.
+    OUROBOROS_KAFKA_BOOTSTRAP_SERVERS: 'egress-kafka-agent-app-in-out:19097'
+    OUROBOROS_KAFKA_TOPIC_PREFIX: 'AIF-DEV-ADAPTERS-AEF-AGNBF-AF-AIFAOUROBOROS'
+    OUROBOROS_SECRETS_DIR: /vault/secrets/secret-files
+    OUROBOROS_MODEL: selfhosted::glm-5.2-mip/glm-5.2-fp8
+    OUROBOROS_MODEL_LIGHT: selfhosted::qwen/qwen35-397b-a17b-fp8
+    OUROBOROS_MODEL_FALLBACK: selfhosted::qwen/qwen35-397b-a17b-fp8
+    OUROBOROS_MODEL_BY_SKILL: 'distribution:aifa-plan-author=selfhosted::glm-5.2-mip/glm-5.2-fp8@high,distribution:aifa-atom-author=selfhosted::qwen/qwen35-397b-a17b-fp8'
+    OUROBOROS_SETTINGS_CACHE_BACKEND: none
+  connections:
+    endpoints:
+    - alias: AIFA_ENGINE_URL
+      description: AIFA engine internal tools API
+    - alias: WORKSTATION_BASE_URL
+      description: Workstation sessions API
+    - alias: SELFHOSTED_LLM_BASE_URL
+      description: OpenAI-compatible llm-router for dev
+    - alias: CLOUDRU_FOUNDATION_MODELS_BASE_URL
+      description: Corporate OpenAI-compatible model gateway
+      # ЗАПОЛНИТЬ в подключениях AEF — базовый URL модельного шлюза для GigaAgent.
+    - alias: OUROBOROS_S3_ENDPOINT
+      description: GigaAgent object storage
+      # ЗАПОЛНИТЬ в подключениях AEF — URL S3 API, которому принадлежит OUROBOROS_S3_BUCKET.
+    databases:
+    - alias: POSTGRES-DB
+      description: Shared PostgreSQL database and schema; structure deployed by AIFA Liquibase

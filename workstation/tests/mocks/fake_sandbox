@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+"""Test helper emulating the argv contract of ws-sandbox."""
+
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+
+
+def _fail(message: str) -> int:
+    print(message, file=sys.stderr)
+    return 127
+
+
+def main(argv: list[str]) -> int:
+    options: dict[str, str] = {}
+    index = 1
+    while index < len(argv):
+        if argv[index] == "--":
+            index += 1
+            break
+        flag = argv[index]
+        if not flag.startswith("--") or index + 1 >= len(argv):
+            return _fail("invalid fake_sandbox arguments")
+        options[flag] = argv[index + 1]
+        index += 2
+
+    command = argv[index:]
+    if not command:
+        return _fail("missing command")
+
+    required = {"--session-dir", "--bin-dir", "--cwd", "--env-file", "--exec-allowlist"}
+    missing = sorted(required - options.keys())
+    if missing:
+        return _fail(f"missing fake_sandbox options: {', '.join(missing)}")
+
+    process_env = _read_env_file(Path(options["--env-file"]))
+    rootfs_path = Path(options["--session-dir"]).resolve(strict=False)
+    cwd = options["--cwd"]
+    host_cwd = rootfs_path / cwd.lstrip("/")
+    host_cwd.mkdir(parents=True, exist_ok=True)
+    os.chdir(host_cwd)
+    os.execvpe(command[0], command, process_env)
+    return 0
+
+
+def _read_env_file(path: Path) -> dict[str, str]:
+    process_env: dict[str, str] = {}
+    if not path.exists():
+        return process_env
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line:
+            continue
+        key, value = line.split("=", 1)
+        process_env[key] = value
+    return process_env
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))

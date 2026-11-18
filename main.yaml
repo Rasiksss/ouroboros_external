@@ -1,0 +1,126 @@
+k8s:
+  project: ci09529287-aif-agnbf-af-aifaouroboros-dev
+
+secman:
+  cert:
+    client:
+      # Временно взят у aifaclaw.
+      CN: CI09529287-CI15090410-AGNBF-AF-AIFACLAW
+
+endpoints:
+  # Внутренние подключения из app.connections.endpoints в gigaagent/desc.yaml.
+  AIFA_ENGINE_URL: http://aifa-v1-service.ci09529287-aif-agnbf-af-aifaouroboros-dev.svc.cluster.local:8080
+  WORKSTATION_BASE_URL: http://workstation-v1-service.ci09529287-aif-agnbf-af-aifaouroboros-dev.svc.cluster.local:8080
+  # LLM через llm-router (как у aifaclaw OSA_URL), выход через egress MTLS.
+  SELFHOSTED_LLM_BASE_URL: http://llm-router-ci04997371-model-showcase.apps.axpjmzhh.k8s.delta.sbrf.ru:8080/v1
+  FINENGINE_OPENROUTER_BASE_URL: http://llm-router-ci04997371-model-showcase.apps.axpjmzhh.k8s.delta.sbrf.ru:8080/v1
+  FINENGINE_OCR_GATEWAY_URL: http://gateway-v1.ci09529287-aif-agnbf-af-rfa-dev.apps.a4x8eda3.k8s.delta.sbrf.ru:8080
+  FINENGINE_DOCUMENT_EXTRACTOR_URL: http://document-extractor-v1.ci09529287-aif-agnbf-af-rfa-dev.apps.a4x8eda3.k8s.delta.sbrf.ru:8080
+  GIGACHAT_B2BANK_BASE_URL: http://gigachat-ift.sberdevices.delta.sbrf.ru:8080/v1
+  # Сберчат: plaintext INNERPORT 8080, TLS терминирует istio egress (egress.GRPC ниже).
+  # Не-URL параметры (API-ключ, DIALOGS_SECURE, FILE_URL_PORT) — литералы в
+  # app.envs desc.yaml дистрибутива.
+  DIALOGS_GRPC_ENDPOINT: http://epbotsift.sberchat.sberbank.ru:8080
+  FINENGINE_S3_ENDPOINT: http://s3-pvsup-edz-03.delta.sbrf.ru:8080
+  OUROBOROS_S3_ENDPOINT: http://s3-pvsup-edz-03.delta.sbrf.ru:8080
+  KAFKA: https://tvleq-aifad0001.esrt.sber.ru
+
+liquibase:
+  image: '/ci04675739/ci04675739/liquibase-4.29.1@sha256:0bd9f2dfa1804063a2a35542deb0c1fee34e07b128e9c630a9a91cd75a089cdd'
+  secretFilePath: '/A/AEF/APP/DEV/KV/namespace/migration'
+  spec:
+    activeDeadlineSeconds: '1200'
+    ttlSecondsAfterFinished: '600'
+  resources:
+    limits:
+      cpu: '300m'
+      memory: '500Mi'
+    requests:
+      cpu: '300m'
+      memory: '500Mi'
+
+databases:
+  POSTGRES-DB:
+    defaultSchemaName: aif-aef-agnbf-af-aifaouroboros-db
+    appUserName: CI09768844-pg-dev-aif-agnbf-af-aifaouroboros-db
+    databaseUrl: jdbc:postgresql://tsled-mvp000497.esrt.sber.ru:8000/aif_aef_metadb_dev
+    secret:
+      path: ${dev.secman.rootPath}/KV/namespace/agnbf-af-aifaouroboros
+      key: databases-ouroboros-v1
+  
+  aif-aef-agnbf-af-aifaouroboros-s3:
+    secret:
+      path: ${dev.secman.rootPath}/KV/namespace/agnbf-af-aifaouroboros
+      key: databases-ouroboros-v1
+
+  # Sandbox workstation: тот же платформенный TOML-рендер S3-интеграции,
+  # что у databases-ouroboros-v1 (парсер приложения: dotenv-fallback +
+  # алиасы access_key/secret_key -> AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY).
+  aif-aef-agnbf-af-aifaouroboros-workstation-s3:
+    secret:
+      path: ${dev.secman.rootPath}/KV/namespace/agnbf-af-aifaouroboros
+      key: databases-workstation-v1
+      
+egress:
+  postgresql:
+    enabled: true
+    servers: |-
+      POSTGRES:
+        - NAME: postgres-aifaouroboros
+          HOST: tsled-mvp000497.esrt.sber.ru
+          IP: 10.26.93.178
+          PORT: 5433
+          INNERPORT: 8000
+
+  httpProxy:
+    enabled: true
+    servers: |-
+      #Выходы с egress http->https
+      MTLS:
+        # llm-router (LLM, как у aifaclaw)
+        - NAME: llm-router
+          HOST: llm-router-ci04997371-model-showcase.apps.axpjmzhh.k8s.delta.sbrf.ru
+          PORT: 443
+        - NAME: giga-models
+          HOST: "gigachat-ift.sberdevices.delta.sbrf.ru"
+          PORT: 443
+        # Контурный OCR: PDF через gateway, распознавание через extractor.
+        - NAME: aifa-ocr-gateway
+          HOST: gateway-v1.ci09529287-aif-agnbf-af-rfa-dev.apps.a4x8eda3.k8s.delta.sbrf.ru
+          PORT: 443
+        - NAME: aifa-document-extractor
+          HOST: document-extractor-v1.ci09529287-aif-agnbf-af-rfa-dev.apps.a4x8eda3.k8s.delta.sbrf.ru
+          PORT: 443
+        # Доступ к S3
+        - NAME: mtls-s3
+          HOST: s3-pvsup-edz-03.delta.sbrf.ru
+          PORT: 446
+        # Файлы Сберчата (загрузка вложений, как у aifaclaw)
+        - NAME: sberchat-files
+          HOST: webbotsift.sberchat.sberbank.ru
+          PORT: 443
+          CA_CERT: egress_custom_ca_cert.pem
+
+  kafka:
+      enabled: true
+      servers: |-
+        #Выходы с egress на кафку
+        KAFKA:
+          CLUSTERS:
+          - NAME: agent-app-in-out
+            HOSTS:
+              - HOST: tvleq-aifad0001.esrt.sber.ru
+                PORT: 9093
+              - HOST: tvleq-aifad0002.esrt.sber.ru
+                PORT: 9093
+            MESH_PORT: 19097
+            PROTOCOL: kafka
+  GRPC:
+    enabled: true
+    servers: |-
+      GRPC:
+        - NAME: grpc-sberchat
+          HOST: epbotsift.sberchat.sberbank.ru
+          PORT: 443
+          CA_CERT: egress_custom_ca_cert.pem
+          CERT_KV_PATH: /A/AEF/APP/DEV/KV/pipeline/certificate

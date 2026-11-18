@@ -1,0 +1,15 @@
+{
+  "schema_version": "registry-layer/v1",
+  "layer_id": "company.ind_gaap.bank",
+  "version": "2026.09.22.1",
+  "kind": "company_type",
+  "priority": 200,
+  "selector": {
+    "standard": "ind_gaap",
+    "company_type": "bank"
+  },
+  "metrics": {
+    "extractable": [],
+    "calculated": []
+  }
+}

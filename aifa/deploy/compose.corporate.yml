@@ -1,0 +1,115 @@
+# Standalone composition for existing corporate PostgreSQL and S3. Do not merge with compose.yml.
+name: aifa-corporate
+services:
+  ouroboros:
+    build:
+      context: ../../gigaagent
+      dockerfile: Dockerfile
+      args:
+        BUILD_IMAGE: ${BUILD_IMAGE:-docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a}
+        RUN_IMAGE: ${RUN_IMAGE:-docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a}
+        TOKEN_OSC: ${TOKEN_OSC:-}
+        NEXUS_USERNAME: ${NEXUS_USERNAME:-}
+        NEXUS_PASSWORD: ${NEXUS_PASSWORD:-}
+        NEXUS_TOKEN_USERNAME: ${NEXUS_TOKEN_USERNAME:-}
+        NEXUS_TOKEN_PASSWORD: ${NEXUS_TOKEN_PASSWORD:-}
+    image: aifa-sym-ouroboros:dev
+    restart: unless-stopped
+    init: true
+    mem_limit: 1536m
+    env_file:
+    - path: ../../gigaagent/deploy/ouroboros.corporate.env
+      required: true
+    environment:
+      OUROBOROS_ENV: production
+      OUROBOROS_DATA_DIR: /data
+      OUROBOROS_SERVER_HOST: 0.0.0.0
+    ports:
+    - 127.0.0.1:18180:8080
+    volumes:
+    - ouro-data:/data
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/ready',
+        timeout=5)
+      interval: 10s
+      timeout: 5s
+      retries: 24
+      start_period: 120s
+    networks:
+    - internal
+  workstation:
+    build:
+      context: ../../workstation
+      dockerfile: Dockerfile
+      args:
+        BUILD_IMAGE: ${BUILD_IMAGE:-docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a}
+        RUN_IMAGE: ${RUN_IMAGE:-docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a}
+        TOKEN_OSC: ${TOKEN_OSC:-}
+        NEXUS_USERNAME: ${NEXUS_USERNAME:-}
+        NEXUS_PASSWORD: ${NEXUS_PASSWORD:-}
+        NEXUS_TOKEN_USERNAME: ${NEXUS_TOKEN_USERNAME:-}
+        NEXUS_TOKEN_PASSWORD: ${NEXUS_TOKEN_PASSWORD:-}
+    image: aifa-sym-workstation:dev
+    restart: unless-stopped
+    mem_limit: 1536m
+    memswap_limit: 1536m
+    cpus: 1.5
+    pids_limit: 256
+    environment:
+      WORKSTATION_CREATE_SECRET: ${AIFA_SYM_WORKSTATION_CREATE_SECRET:-}
+      EXEC_TIMEOUT_SEC: '300'
+      SESSION_RLIMIT_CPU_SEC: '300'
+      SESSION_RLIMIT_AS: '1073741824'
+    expose:
+    - '8080'
+    networks:
+    - internal
+    env_file:
+    - path: ../../workstation/deploy/workstation.corporate.env
+      required: true
+  engine:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        BUILD_IMAGE: ${BUILD_IMAGE:-docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a}
+        RUN_IMAGE: ${RUN_IMAGE:-docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a}
+        TOKEN_OSC: ${TOKEN_OSC:-}
+        NEXUS_USERNAME: ${NEXUS_USERNAME:-}
+        NEXUS_PASSWORD: ${NEXUS_PASSWORD:-}
+        NEXUS_TOKEN_USERNAME: ${NEXUS_TOKEN_USERNAME:-}
+        NEXUS_TOKEN_PASSWORD: ${NEXUS_TOKEN_PASSWORD:-}
+    image: aifa-sym-engine:dev
+    restart: unless-stopped
+    init: true
+    mem_limit: 2g
+    env_file:
+    - path: engine.corporate.env
+      required: true
+    volumes:
+    - engine-data:/app/data
+    expose:
+    - '8080'
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health',
+        timeout=5)
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+    - internal
+networks:
+  internal:
+    driver: bridge
+volumes:
+  ouro-data: {}
+  engine-data: {}

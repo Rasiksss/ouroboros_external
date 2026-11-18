@@ -1,0 +1,15 @@
+{
+  "schema_version": "registry-layer/v1",
+  "layer_id": "company.ind_as.non_financial",
+  "version": "2026.09.22.1",
+  "kind": "company_type",
+  "priority": 200,
+  "selector": {
+    "standard": "ind_as",
+    "company_type": "non_financial"
+  },
+  "metrics": {
+    "extractable": [],
+    "calculated": []
+  }
+}

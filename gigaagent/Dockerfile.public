@@ -1,0 +1,46 @@
+ARG PYTHON_IMAGE=python:3.12-slim
+FROM ${PYTHON_IMAGE} AS deps
+ARG PYTHON_INDEX_URL=https://pypi.org/simple
+ENV PIP_INDEX_URL=${PYTHON_INDEX_URL}
+
+ARG UV_VERSION=0.10.4
+RUN pip install --no-cache-dir "uv==${UV_VERSION}" && python -m venv /opt/venv
+
+WORKDIR /src
+COPY pyproject.toml uv.lock ./
+# ADR-0034: замок указывает на nexus.genai.int, `uv sync --frozen` из публичной сети невозможен.
+# Версии и sha256 — из замка, файлы — с pypi.org.
+RUN uv export --frozen --no-dev --no-emit-project --no-config --no-header -o requirements.txt \
+ && uv pip install --python /opt/venv/bin/python --no-config --no-deps --require-hashes \
+        --index-url "${PYTHON_INDEX_URL}" -r requirements.txt
+
+FROM ${PYTHON_IMAGE}
+
+WORKDIR /app
+COPY --from=deps /opt/venv /opt/venv
+# Каталоги — те же, что копирует Dockerfile.local ouroboros: server.py импортирует их при старте.
+# Перечень явный: aifa/ и aifa-symbiosis/ не попадают в образ и без dockerignore.
+COPY server.py entrypoint.sh ./
+COPY config_registry ./config_registry
+COPY background_memory ./background_memory
+COPY infra ./infra
+COPY multiuser_config ./multiuser_config
+COPY new_core ./new_core
+COPY ouroboros ./ouroboros
+COPY security_config ./security_config
+COPY supervisor ./supervisor
+COPY transport ./transport
+COPY skills ./skills
+COPY prompts ./prompts
+
+RUN groupadd -r ouroboros && useradd -r -g ouroboros -u 10001 ouroboros \
+ && mkdir -p /data && chown -R ouroboros:ouroboros /data /app && sed -i 's/\r$//' /app/entrypoint.sh && chmod +x /app/entrypoint.sh
+
+# ADR-0019: навыки читаются из ${OUROBOROS_REPO_DIR}/skills.
+ENV PATH="/opt/venv/bin:${PATH}" \
+    OUROBOROS_REPO_DIR=/app
+
+USER ouroboros
+EXPOSE 8080
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["python", "server.py", "--host", "0.0.0.0", "--port", "8080"]

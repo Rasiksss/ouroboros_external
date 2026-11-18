@@ -1,0 +1,26 @@
+# Only engine source and runtime assets belong in the build context.
+**
+!Dockerfile
+!entrypoint.sh
+!requirements.txt
+!app.py
+!home.py
+!main.py
+!hook-finengine.py
+!liquibase/
+!liquibase/**
+!finengine/
+!finengine/src/
+!finengine/src/**
+!finengine/pyproject.toml
+!finengine/station-skills/
+!finengine/station-skills/**
+!finengine/deploy/
+!finengine/deploy/tools_whitelist.yaml
+!finengine/deploy/certs/
+!finengine/deploy/certs/**
+**/__pycache__
+**/*.pyc
+**/*.key
+**/*.env
+**/.env*

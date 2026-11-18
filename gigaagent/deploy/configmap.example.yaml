@@ -1,0 +1,29 @@
+OUROBOROS_MULTIUSER: 'true'
+BROWSER_INGRESS_ENABLED: 'true'
+OUROBOROS_WORKER_SLOTS: '4'
+OUROBOROS_HARD_TIMEOUT_SEC: '5400'
+OUROBOROS_MEMORY_DISTILL: 'false'
+OUROBOROS_TOOL_CONFIRMATION_ENABLED: 'false'
+OUROBOROS_ENABLED_TOOLS: aifa-engine.aifa_open,aifa-engine.aifa_wait,aifa-engine.aifa_state,aifa-engine.aifa_doc,aifa-engine.aifa_atoms,aifa-engine.aifa_move,aifa-engine.aifa_register_atom,aifa-engine.aifa_report,aifa-engine.aifa_finish
+OUROBOROS_DISABLED_TOOLS: attachment_read,vlm_query,data_read,data_list,data_write,send_file,send_image,send_photo,send_user_message,gigasearch,browse_page,browser_action,image_generate,memory_save,memory_read,memory_list,memory_delete,create_scheduled_task,create_reminder,list_schedules,edit_schedule,cancel_schedule,pause_schedule,resume_schedule,confirm_schedule,move_schedule_here
+OUROBOROS_DISABLED_SKILLS: distribution:agent-delegation,distribution:calendar-orientation,distribution:docx-tools,distribution:image-generation,distribution:pdf-tools,distribution:tasks-scheduler,distribution:xlsx-tools
+OUROBOROS_USER_ENABLED_SKILL_IDS: distribution:workstation,distribution:aifa-planning,distribution:aifa-plan-author,distribution:aifa-engine,distribution:aifa-atom-author
+OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS: distribution:aifa-engine
+OUROBOROS_S3_BUCKET: ouroboros
+OUROBOROS_S3_REGION: us-east-1
+WORKSTATION_BASE_URL: http://workstation:8080
+AIFA_ENGINE_URL: http://aifa:8080
+OUROBOROS_ENV: production
+OUROBOROS_REPO_DIR: /tmp/repo
+OUROBOROS_APP_ROOT: /tmp
+OUROBOROS_DATA_DIR: /tmp/data
+OUROBOROS_SERVER_HOST: 0.0.0.0
+OUROBOROS_SERVER_PORT: '8080'
+SECMAN_SECRETS_FILE: /vault/secrets/secret-files/gigaagent-secrets
+SECMAN_WAIT_SEC: '30'
+CLOUDRU_FOUNDATION_MODELS_BASE_URL: <issued-internal-endpoint>
+OUROBOROS_S3_ENDPOINT: <issued-internal-endpoint>
+OUROBOROS_SETTINGS_CACHE_BACKEND: none
+
+# Только для URL-кодированного поля password в платформенном PostgreSQL TOML.
+SECMAN_POSTGRES_PASSWORD_ENCODING: url

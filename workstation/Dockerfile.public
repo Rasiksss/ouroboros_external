@@ -1,0 +1,56 @@
+# Dockerfile.public — public-PyPI / public UBI8 variant for local probing.
+# Mirrors the original Dockerfile but drops Sber-internal registries.
+
+ARG BUILD_IMAGE=registry.access.redhat.com/ubi8/python-312:latest
+ARG RUN_IMAGE=registry.access.redhat.com/ubi8/python-312:latest
+
+# Build stage
+FROM ${BUILD_IMAGE} as builder
+USER root
+WORKDIR /app
+COPY . /app
+
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+RUN pip install --upgrade pip \
+        --default-timeout 120 \
+        --no-cache-dir \
+        --progress-bar off \
+        -r requirements.txt
+
+# Runtime stage
+FROM ${RUN_IMAGE}
+USER root
+
+COPY --from=builder /opt/venv /opt/venv
+COPY --from=builder /app /app
+
+COPY --from=builder /app/vendor/bin/ws-sandbox /usr/local/bin/ws-sandbox
+COPY --from=builder /app/vendor/bin/busybox /usr/local/libexec/workstation/busybox
+
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Toolchain lives in /opt/workstation/bin — this is the --bin-dir ws-sandbox
+# resolves commands against and adds to the Landlock ruleset. It MUST exist or
+# ws-sandbox fails at step=landlock (open(bin-dir) -> ENOENT). The empty
+# /opt/workstation/template is the per-session rootfs template copied per run.
+RUN mkdir -p /opt/workstation/bin \
+    && cp /usr/local/libexec/workstation/busybox /opt/workstation/bin/bash \
+    && for applet in sh cat ls pwd grep mkdir touch echo env rm; \
+       do ln /opt/workstation/bin/bash "/opt/workstation/bin/${applet}"; done \
+    && cp "$(command -v python3)" /opt/workstation/bin/python3 \
+    && ln /opt/workstation/bin/python3 /opt/workstation/bin/python \
+    && chmod -R 0755 /opt/workstation/bin \
+    && mkdir -p /opt/workstation/template \
+    && chmod 0755 /opt/workstation/template
+
+RUN groupadd aef \
+    && useradd -g aef aef \
+    && chown -R aef:aef /app \
+    && chmod +x /app/entrypoint.sh
+
+WORKDIR /app
+EXPOSE 8080
+USER aef
+ENTRYPOINT ["./entrypoint.sh"]

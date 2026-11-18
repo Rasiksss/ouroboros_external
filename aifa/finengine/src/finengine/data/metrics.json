@@ -1,0 +1,3872 @@
+{
+  "extractable": {
+    "non_financial": [
+      {
+        "enum": "MODIFIED_AUDITORS_OPINION",
+        "name_ru": "Наличие модифицированного мнения аудитора",
+        "name_en": "Modified auditor's opinion",
+        "aliases_ru": [
+          "Модифицированное мнение аудитора",
+          "Аудиторское заключение с оговоркой",
+          "Отказ от выражения мнения"
+        ],
+        "aliases_en": [
+          "Modified auditor's opinion",
+          "Qualified opinion"
+        ],
+        "description": "Текстовая отметка: было ли в аудиторском заключении модифицированное мнение (да / нет).",
+        "hint": "Аудиторское заключение независимого аудитора (обычно в начале отчёта). Если 'Мнение не модифицировано' — значение = 0 (нет). Если есть оговорка / отказ / отрицательное мнение — 1 (да).",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "LONG_TERM_DEBT",
+        "name_ru": "Долгосрочные кредиты и займы",
+        "name_en": "Long-term debt",
+        "aliases_ru": [
+          "Долгосрочные заемные средства",
+          "Долгосрочные займы и кредиты"
+        ],
+        "aliases_en": [
+          "Long-term borrowings",
+          "Long-term loans and borrowings"
+        ],
+        "description": "Кредиты и займы со сроком погашения более 12 месяцев.",
+        "hint": "Долгосрочные обязательства баланса. Детализация (валюта, ставка, сроки) в Примечании 'Кредиты и займы' / 'Заёмные средства'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "LONG_TERM_LEASE_LIABILITIES",
+        "name_ru": "Долгосрочные обязательства по аренде",
+        "name_en": "Long-term lease liabilities",
+        "aliases_ru": [
+          "Обязательства по аренде",
+          "долгосрочная часть",
+          "Долгосрочная часть обязательств по аренде"
+        ],
+        "aliases_en": [
+          "Non-current lease liabilities",
+          "Long-term portion of lease liabilities"
+        ],
+        "description": "Обязательства по аренде по IFRS 16 со сроком погашения более 12 месяцев.",
+        "hint": "Долгосрочные обязательства баланса. Также в Примечании 'IFRS 16' — графа 'Свыше 1 года'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SHORT_TERM_BORROWINGS",
+        "name_ru": "Краткосрочные кредиты и займы",
+        "name_en": "Short-term borrowings and current portion of long-term debt",
+        "aliases_ru": [
+          "Краткосрочные заемные средства",
+          "Краткосрочные кредиты",
+          "займы и текущая часть долгосрочной задолженности",
+          "Краткосрочное долговое финансирование"
+        ],
+        "aliases_en": [
+          "Current borrowings",
+          "Short-term loans and borrowings",
+          "Current portion of long-term debt"
+        ],
+        "description": "Кредиты и займы со сроком погашения в течение 12 месяцев (включая текущую часть долгосрочных).",
+        "hint": "Краткосрочные обязательства баланса. Часто включает текущую часть долгосрочного долга.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SHORT_TERM_LEASE_LIABILITIES",
+        "name_ru": "Краткосрочные обязательства по аренде",
+        "name_en": "Short-term lease liabilities",
+        "aliases_ru": [
+          "Краткосрочная часть обязательств по аренде",
+          "Текущая часть обязательств по аренде"
+        ],
+        "aliases_en": [
+          "Current lease liabilities",
+          "Current portion of lease liabilities"
+        ],
+        "description": "Обязательства по аренде по IFRS 16 со сроком погашения в течение 12 месяцев.",
+        "hint": "Краткосрочные обязательства баланса или примечание по аренде. Бери current portion/current lease liabilities, даже если в балансе она включена в accrued/other current liabilities.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "CASH_EQUIVALENTS",
+        "name_ru": "Денежные средства и их эквиваленты",
+        "name_en": "Cash and cash equivalents",
+        "aliases_ru": [
+          "Денежные средства и эквиваленты денежных средств",
+          "Денежные средства и денежные эквиваленты",
+          "Денежные средства и их эквиваленты на конец периода"
+        ],
+        "aliases_en": [
+          "Cash and equivalents",
+          "Cash and cash equivalents at end of period"
+        ],
+        "description": "Касса, расчётные счета и краткосрочные высоколиквидные инвестиции (срок ≤ 3 мес.).",
+        "hint": "Оборотные активы баланса или последняя строка ОДДС. Возвращай все явно раскрытые даты cash and cash equivalents at end of period, включая сравнительные даты, которых нет в балансе. Не путай с bank deposits/time deposits и marketable securities.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, CIB, БАиФП, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "BANK_DEPOSITS",
+        "name_ru": "Банковские депозиты",
+        "name_en": "Bank deposits",
+        "aliases_ru": [
+          "Депозиты",
+          "Срочные банковские депозиты",
+          "Краткосрочные депозиты",
+          "Краткосрочные финансовые вложения депозиты"
+        ],
+        "aliases_en": [
+          "Time deposits",
+          "Short-term bank deposits",
+          "Bank deposits",
+          "Short-term deposits"
+        ],
+        "description": "Денежные средства, размещённые в банках на срочной основе (обычно < 12 месяцев).",
+        "hint": "Оборотные активы баланса или примечание к денежным средствам/краткосрочным инвестициям. Если строка баланса 'краткосрочные финансовые вложения' раскрыта в примечании как банковские/time deposits, бери эту строку. Не путай с cash equivalents и marketable securities.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "PERPETUAL_BONDS",
+        "name_ru": "Бессрочные облигации",
+        "name_en": "Perpetual bonds",
+        "aliases_ru": [
+          "Облигации без срока погашения",
+          "Выпуск бессрочных облигаций",
+          "бессрочный субординированный займ"
+        ],
+        "aliases_en": [
+          "Perpetual notes",
+          "Hybrid capital notes"
+        ],
+        "description": "Облигации без даты погашения, классифицируемые как часть собственного капитала.",
+        "hint": "Раздел КАПИТАЛ баланса (если эмитент учитывает их как капитал) или Долгосрочные обязательства.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "ACCOUNTS_PAYABLE",
+        "name_ru": "Кредиторская задолженность",
+        "name_en": "Accounts payable",
+        "aliases_ru": [
+          "Торговая и прочая кредиторская задолженность",
+          "Торговая кредиторская задолженность"
+        ],
+        "aliases_en": [
+          "Trade and other payables",
+          "Trade payables"
+        ],
+        "description": "Суммы, причитающиеся поставщикам, подрядчикам и прочим кредиторам.",
+        "hint": "Краткосрочные обязательства баланса. Детализация в Примечании 'Кредиторская задолженность'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "ACCOUNTS_RECEIVABLE",
+        "name_ru": "Дебиторская задолженность",
+        "name_en": "Accounts receivable",
+        "aliases_ru": [
+          "Торговая и прочая дебиторская задолженность",
+          "Торговая дебиторская задолженность"
+        ],
+        "aliases_en": [
+          "Trade and other receivables",
+          "Trade receivables",
+          "Trade accounts receivable",
+          "Trade accounts receivable, net",
+          "Accounts receivable, net"
+        ],
+        "description": "Суммы, причитающиеся компании от покупателей и прочих контрагентов.",
+        "hint": "Оборотные активы баланса. Бери торговую дебиторскую задолженность / accounts receivable, net. Не включай предоплаты, авансы выданные, НДС к возмещению и прочую дебиторскую задолженность, если они раскрыты отдельно.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INVENTORIES",
+        "name_ru": "Запасы",
+        "name_en": "Inventories",
+        "aliases_ru": [
+          "Товарно-материальные запасы",
+          "ТМЗ"
+        ],
+        "aliases_en": [
+          "Inventory",
+          "Stocks"
+        ],
+        "description": "Сырьё, незавершённое производство и готовая продукция, удерживаемые для продажи.",
+        "hint": "Оборотные активы баланса. Детализация в Примечании 'Запасы'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "TOTAL_CURRENT_ASSETS",
+        "name_ru": "Итого оборотных активов",
+        "name_en": "Total current assets",
+        "aliases_ru": [
+          "Итого оборотные активы",
+          "Оборотные активы всего",
+          "Текущие активы",
+          "Краткосрочные активы"
+        ],
+        "aliases_en": [
+          "Total current assets",
+          "Current assets"
+        ],
+        "description": "Сумма ликвидных активов, ожидаемых к реализации в течение 12 месяцев.",
+        "hint": "Балансовый отчёт, итоговая строка блока 'Оборотные активы' (запасы, дебиторка, денежные средства).",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "TOTAL_CURRENT_LIABILITIES",
+        "name_ru": "Итого краткосрочных обязательств",
+        "name_en": "Total current liabilities",
+        "aliases_ru": [
+          "Итого краткосрочные обязательства",
+          "Текущие обязательства",
+          "Краткосрочные обязательства всего",
+          "Итого текущих обязательств"
+        ],
+        "aliases_en": [
+          "Total current liabilities",
+          "Current liabilities"
+        ],
+        "description": "Сумма обязательств с погашением в течение 12 месяцев.",
+        "hint": "Балансовый отчёт, итоговая строка блока 'Краткосрочные обязательства'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "TOTAL_ASSETS",
+        "name_ru": "Итого активы",
+        "name_en": "Total assets",
+        "aliases_ru": [
+          "ИТОГО АКТИВЫ",
+          "Итого по активам",
+          "Активы всего",
+          "Всего активов",
+          "Итого активов"
+        ],
+        "aliases_en": [
+          "Total assets",
+          "Sum of assets"
+        ],
+        "description": "Совокупная балансовая стоимость всех активов компании на отчётную дату.",
+        "hint": "Балансовый отчёт (Statement of Financial Position), нижняя строка раздела АКТИВЫ. Должна равняться сумме внеоборотных и оборотных активов.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, ДИЭ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "PPE",
+        "name_ru": "Основные средства",
+        "name_en": "Property, plant and equipment",
+        "aliases_ru": [
+          "Основные средства",
+          "ОС",
+          "Основные средства и оборудование",
+          "Здания, сооружения и оборудование"
+        ],
+        "aliases_en": [
+          "PP&E",
+          "Fixed assets",
+          "Property and equipment"
+        ],
+        "description": "Долгосрочные материальные активы — здания, оборудование, транспорт.",
+        "hint": "Внеоборотные активы баланса. Также детализация в Примечании 'Основные средства'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "DEFERRED_TAX_ASSETS",
+        "name_ru": "Отложенные налоговые активы",
+        "name_en": "Deferred tax assets",
+        "aliases_ru": [
+          "Активы по отложенному налогу на прибыль"
+        ],
+        "aliases_en": [
+          "Deferred income tax assets"
+        ],
+        "description": "Сумма налогов на прибыль к уменьшению в будущих периодах за счёт вычитаемых временных разниц.",
+        "hint": "Внеоборотные активы. Подробности в Примечании 'Налог на прибыль' / 'Отложенные налоги'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "DEFERRED_TAX_LIABILITIES",
+        "name_ru": "Отложенные налоговые обязательства",
+        "name_en": "Deferred tax liabilities",
+        "aliases_ru": [
+          "Обязательства по отложенному налогу на прибыль"
+        ],
+        "aliases_en": [
+          "Deferred income tax liabilities"
+        ],
+        "description": "Налоги на прибыль, подлежащие уплате в будущих периодах из-за налогооблагаемых временных разниц.",
+        "hint": "Долгосрочные обязательства баланса. Подробности в Примечании 'Налог на прибыль' / 'Отложенные налоги'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INTANGIBLE_ASSETS",
+        "name_ru": "Нематериальные активы",
+        "name_en": "Intangible assets",
+        "aliases_ru": [
+          "Нематериальные активы",
+          "НМА",
+          "Прочие нематериальные активы",
+          "Нематериальные активы за вычетом гудвила"
+        ],
+        "aliases_en": [
+          "Intangible assets",
+          "Other intangible assets",
+          "Intangibles"
+        ],
+        "description": "Идентифицируемые неденежные активы без физической субстанции — лицензии, патенты, программное обеспечение, бренды.",
+        "hint": "Внеоборотные активы баланса (отдельная строка после гудвила). Детализация в Примечании 'Нематериальные активы'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "GOODWILL",
+        "name_ru": "Гудвил",
+        "name_en": "Goodwill",
+        "aliases_ru": [
+          "Деловая репутация"
+        ],
+        "aliases_en": [
+          "Goodwill"
+        ],
+        "description": "Превышение цены приобретения дочерней компании над справедливой стоимостью её чистых идентифицируемых активов.",
+        "hint": "Внеоборотные активы баланса. Подробнее — в Примечании 'Гудвил' / 'Объединение бизнеса'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "TOTAL_EQUITY",
+        "name_ru": "Итого собственный капитал",
+        "name_en": "Total equity",
+        "aliases_ru": [
+          "Итого капитал",
+          "Собственный капитал акционеров"
+        ],
+        "aliases_en": [
+          "Total shareholders' equity",
+          "Stockholders' equity"
+        ],
+        "description": "Совокупная стоимость собственного капитала, включая капитал акционеров и неконтролирующие доли.",
+        "hint": "Балансовый отчёт, итог раздела КАПИТАЛ. Иногда отдельно 'Капитал, приходящийся на акционеров материнской' + 'Неконтролирующие доли'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, ДИЭ, БАиФП, Риски, CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "RIGHT_OF_USE_ASSETS",
+        "name_ru": "Активы в форме права пользования",
+        "name_en": "ROU",
+        "aliases_ru": [
+          "Право пользования активами",
+          "Активы с правом пользования"
+        ],
+        "aliases_en": [
+          "Right-of-use assets",
+          "ROU assets"
+        ],
+        "description": "Активы, признанные арендатором по МСФО 16 — это будущие платежи по аренде, дисконтированные на дату начала аренды.",
+        "hint": "Внеоборотные активы баланса (отдельная строка). Детализация в Примечании 'Аренда' / 'IFRS 16'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SALES_REVENUE",
+        "name_ru": "Выручка",
+        "name_en": "Sales revenue",
+        "aliases_ru": [
+          "Выручка от реализации",
+          "Выручка от реализации продукции"
+        ],
+        "aliases_en": [
+          "Revenue",
+          "Net revenue",
+          "Net sales"
+        ],
+        "description": "Доходы компании от обычной операционной деятельности (без НДС).",
+        "hint": "Первая строка отчёта о прибылях и убытках (P&L). Детализация по сегментам в одноимённой ноте.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, ДИЭ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "OPERATING_PROFIT",
+        "name_ru": "Операционная прибыль",
+        "name_en": "Operating profit",
+        "aliases_ru": [
+          "Прибыль от операционной деятельности",
+          "Прибыль от продаж",
+          "Прибыль от основной деятельности"
+        ],
+        "aliases_en": [
+          "Operating income",
+          "EBIT",
+          "Income from operations"
+        ],
+        "description": "Прибыль до финансовых доходов/расходов и налога — результат основной деятельности.",
+        "hint": "P&L, строка после операционных расходов и до 'Финансовые доходы/расходы'.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, ДИЭ, CIB",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "COSTS_EXPENSES",
+        "name_ru": "Себестоимость",
+        "name_en": "Costs and expenses",
+        "aliases_ru": [
+          "Себестоимость реализации",
+          "Себестоимость продаж",
+          "Себестоимость реализованной продукции"
+        ],
+        "aliases_en": [
+          "Cost of goods sold",
+          "Cost of sales",
+          "Cost of revenue",
+          "Cost of products",
+          "Cost of services"
+        ],
+        "description": "Прямые затраты, связанные с производством проданной продукции/услуг.",
+        "hint": "P&L: прямая себестоимость обычно идёт сразу после выручки и перед gross profit. В разных отраслях может называться по деятельности компании, но должна оставаться прямыми затратами на проданные товары/услуги. Если прямые затраты раскрыты несколькими строками (например cost of services/products), суммируй только эти строки. Не бери subtotal/total, который включает amortization, SG&A, R&D или operating expenses; не рассчитывай из выручки и operating income.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, ДИЭ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "NET_INCOME",
+        "name_ru": "Чистая прибыль",
+        "name_en": "Net income",
+        "aliases_ru": [
+          "Чистая прибыль/(убыток)",
+          "Прибыль за период/год/квартал",
+          "Чистая прибыль собственников"
+        ],
+        "aliases_en": [
+          "Net earnings",
+          "Net profit",
+          "Profit for the period"
+        ],
+        "description": "Финальный финансовый результат компании за период после налогов.",
+        "hint": "P&L: бери общий Net income/Profit for the period после налогов, до распределения на attributable to parent и non-controlling interests. В interim-отчетах с колонками 3M/Q и 6M/YTD возвращай обе группы периодов. Если убыток — отрицательное число.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, ДИЭ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "EBT",
+        "name_ru": "Прибыль до налогообложения",
+        "name_en": "EBT",
+        "aliases_ru": [
+          "Прибыль до налога",
+          "Прибыль до налога на прибыль"
+        ],
+        "aliases_en": [
+          "Profit before tax",
+          "Income before income taxes",
+          "Pre-tax income"
+        ],
+        "description": "Прибыль до вычета налога на прибыль — финальная строка P&L перед налогом.",
+        "hint": "P&L, предпоследняя строка. Если у компании убыток, в источнике обычно стоят скобки или минус; сохраняй знак/скобки как в источнике.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "CAPITALIZED_INTEREST",
+        "name_ru": "Капитализированные и уплаченные проценты",
+        "name_en": "Capitalized interest",
+        "aliases_ru": [
+          "Капитализированные проценты",
+          "Капитализированные затраты по займам"
+        ],
+        "aliases_en": [
+          "Capitalized borrowing costs",
+          "Borrowing costs capitalized"
+        ],
+        "description": "Проценты по займам, капитализированные в стоимость квалифицируемых активов.",
+        "hint": "Примечание 'Кредиты и займы' или 'Затраты по займам'. Также может быть в Примечании 'Основные средства'.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "GROSS_PROFIT",
+        "name_ru": "Валовая прибыль",
+        "name_en": "Gross profit",
+        "aliases_ru": [
+          "Валовая прибыль",
+          "Валовая маржа"
+        ],
+        "aliases_en": [
+          "Gross margin",
+          "Gross profit",
+          "Subtotal after cost of sales"
+        ],
+        "description": "Выручка минус себестоимость продаж.",
+        "hint": "P&L, строка после себестоимости. Если строка Gross profit не подписана, но есть очевидный subtotal после прямых costs of sales/products/services и перед operating expenses, можно брать этот subtotal. Не выводи gross profit, если есть только operating income без раскрытой себестоимости.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, ДИЭ, CIB",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "OPERATING_EXPENSES",
+        "name_ru": "Операционные расходы",
+        "name_en": "Operating expenses",
+        "aliases_ru": [
+          "Коммерческие",
+          "общехозяйственные и административные расходы",
+          "Коммерческие и административные расходы"
+        ],
+        "aliases_en": [
+          "Operating expenses",
+          "Selling, general and administrative expenses",
+          "Selling, general and administrative",
+          "SG&A",
+          "General and administrative expense",
+          "Marketing, general and administrative",
+          "G&A"
+        ],
+        "description": "Расходы, связанные с операционной деятельностью, кроме себестоимости (коммерческие + общехозяйственные + админ).",
+        "hint": "P&L, после валовой прибыли. Приоритет: total operating expenses / operating, selling, general and administrative expenses. Если отдельными строками раскрыты Operating expenses и SG&A/G&A без общего subtotal, суммируй эти operating-expense строки. Не бери себестоимость и total costs and expenses.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, ДИЭ, БАиФП, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "DEPRECIATION_AMORTIZATION",
+        "name_ru": "Амортизация материальных и нематериальных активов",
+        "name_en": "Depreciation and amortization",
+        "aliases_ru": [
+          "Амортизация основных средств и нематериальных активов",
+          "Износ и амортизация основных средств и нематериальных активов"
+        ],
+        "aliases_en": [
+          "D&A",
+          "DD&A",
+          "Depreciation",
+          "depletion and amortization",
+          "Depreciation and amortization",
+          "Amortization of acquisition-related intangibles"
+        ],
+        "description": "Сумма амортизации основных средств и нематериальных активов за период.",
+        "hint": "ОДДС/примечания: если рядом раскрыты Depreciation and amortization и отдельная amortization of acquisition-related intangibles, общая D&A — их сумма. Не путай с ROU amortization.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, Риски",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "CAPEX",
+        "name_ru": "Капитальные затраты",
+        "name_en": "Capital expenditure",
+        "aliases_ru": [
+          "Капитальные вложения"
+        ],
+        "aliases_en": [
+          "Capex",
+          "Capital expenditures",
+          "Payments to acquire property, plant and equipment",
+          "Capital expenditures total"
+        ],
+        "description": "Совокупные капитальные затраты — приобретение ОС + НМА за вычетом продажи.",
+        "hint": "ОДДС или MD&A, раздел инвестиционной деятельности / capital expenditures. Если компания раскрывает итоговый CapEx/capital expenditures напрямую, бери раскрытый итог и все его колонки периодов, включая 3M/Q и 6M/YTD. Иначе используй приобретение ОС плюс НМА. Сохраняй знак/скобки как в источнике; не заменяй CapEx одной строкой покупки ОС, если есть отдельный итоговый CapEx или отдельная покупка НМА.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, ДИЭ, CIB, Риски",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INTEREST_PAID",
+        "name_ru": "Уплаченные проценты",
+        "name_en": "Interest paid",
+        "aliases_ru": [
+          "Проценты уплаченные",
+          "Проценты по кредитам уплаченные"
+        ],
+        "aliases_en": [
+          "Interest payments",
+          "Cash interest paid"
+        ],
+        "description": "Денежные выплаты процентов по кредитам и займам за период.",
+        "hint": "ОДДС, раздел 'Финансовая деятельность' (или иногда 'Операционная' по выбору учётной политики).",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INTEREST_RECEIVED",
+        "name_ru": "Полученные проценты",
+        "name_en": "Interest received",
+        "aliases_ru": [
+          "Проценты полученные"
+        ],
+        "aliases_en": [
+          "Interest receipts",
+          "Cash interest received"
+        ],
+        "description": "Денежные поступления процентов от размещений и финансовых активов.",
+        "hint": "ОДДС, чаще в разделе 'Инвестиционная деятельность' (или 'Операционная').",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "DIVIDENDS_SHAREHOLDERS",
+        "name_ru": "Дивиденды акционерам",
+        "name_en": "Dividends paid to shareholders",
+        "aliases_ru": [
+          "Дивиденды для акционеров"
+        ],
+        "aliases_en": [
+          "Dividends paid to equity holders of the parent"
+        ],
+        "description": "Денежные выплаты дивидендов акционерам материнской компании за период.",
+        "hint": "ОДДС, раздел 'Финансовая деятельность'. Бери строку выплат дивидендов акционерам и сохраняй знак/скобки как в источнике.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+        "name_ru": "Дивиденды, выплаченные держателям неконтролирующих долей",
+        "name_en": "Dividends paid to non-controlling interests",
+        "aliases_ru": [
+          "Дивиденды",
+          "выплаченные неконтролирующим акционерам",
+          "Дивиденды",
+          "уплаченные акционерам с неконтролирующими долями участия"
+        ],
+        "aliases_en": [
+          "Dividends paid to minority interests",
+          "Dividends to non-controlling shareholders"
+        ],
+        "description": "Денежные выплаты дивидендов держателям неконтролирующих долей дочерних компаний.",
+        "hint": "ОДДС, раздел 'Финансовая деятельность' (отдельной строкой от дивидендов акционерам).",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "DIVIDENDS",
+        "name_ru": "Дивиденды",
+        "name_en": "Dividends",
+        "aliases_ru": [
+          "Дивиденды уплаченные",
+          "Дивиденды выплаченные"
+        ],
+        "aliases_en": [
+          "Dividends paid"
+        ],
+        "description": "",
+        "hint": "",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, ДГР, ДИЭ",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SHARES_BUYBACK",
+        "name_ru": "Выкуп собственных акций",
+        "name_en": "Shares buyback",
+        "aliases_ru": [
+          "Приобретение собственных акций компании",
+          "Приобретение акций компании"
+        ],
+        "aliases_en": [
+          "Share repurchase",
+          "Repurchase of common shares",
+          "Purchase of own shares"
+        ],
+        "description": "Денежные расходы на выкуп собственных акций у акционеров.",
+        "hint": "ОДДС, раздел 'Финансовая деятельность'. Бери строку выкупа/покупки собственных акций и сохраняй знак/скобки как в источнике.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "NET_OPERATING_CASH_FLOW",
+        "name_ru": "Чистый операционный денежный поток",
+        "name_en": "Net operating cash flow",
+        "aliases_ru": [
+          "Чистые денежные средства",
+          "полученные от операционной деятельности",
+          "Чистые денежные потоки от операционной деятельности"
+        ],
+        "aliases_en": [
+          "Net cash from operating activities",
+          "Net cash provided by operating activities"
+        ],
+        "description": "Итоговый денежный поток от основной операционной деятельности (после уплаты налогов и процентов).",
+        "hint": "ОДДС (Cash Flow Statement), итоговая строка раздела 'Операционная деятельность'.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, CIB, ДИЭ",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "SUBSIDIARY_ACQUISITIONS",
+        "name_ru": "Приобретение дочерних организаций (обществ) за вычетом (минусом) денежных средств и за вычетом (минусом) полученных денежных средств",
+        "name_en": "Subsidairy acquisitions",
+        "aliases_ru": [
+          "Приобретение дочернего предприятия",
+          "Приобретение бизнеса за вычетом полученных денежных средств"
+        ],
+        "aliases_en": [
+          "Acquisition of subsidiaries net of cash",
+          "Business combinations",
+          "Acquisition of businesses"
+        ],
+        "description": "Денежные расходы на приобретение дочерних компаний (за вычетом приобретённых денежных средств).",
+        "hint": "ОДДС, раздел 'Инвестиционная деятельность'. Включай строки денежных оттоков на приобретение бизнесов/дочерних организаций, включая приобретения у связанных сторон. Не бери покупки/выкуп неконтролирующих долей без приобретения бизнеса. Сохраняй знак/скобки как в источнике.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "ASSOCIATE_INVESTMENTS",
+        "name_ru": "Вложения в ассоциированные организации (общества) и совместные предприятия",
+        "name_en": "Associate investments",
+        "aliases_ru": [
+          "Инвестиции в ассоциированные организации и совместные предприятия",
+          "Вложения в объекты инвестиций по методу долевого участия"
+        ],
+        "aliases_en": [
+          "Investments in associates and joint ventures",
+          "Equity-accounted investments"
+        ],
+        "description": "Доли в компаниях, на которые компания оказывает существенное влияние (обычно 20-50% долей).",
+        "hint": "Внеоборотные активы баланса. Учёт по методу долевого участия. Примечание 'Ассоциированные компании и совместные предприятия'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "ASSOCIATE_INCOMES",
+        "name_ru": "Доходы от ассоциированных компаний",
+        "name_en": "Associate incomes",
+        "aliases_ru": [
+          "Выбытие компаний Группы",
+          "Выбытие дочерних предприятий за вычетом денежных средств",
+          "Доходы от ассоциированных компаний",
+          "Доля в прибыли ассоциированных компаний"
+        ],
+        "aliases_en": [
+          "Proceeds from disposal of subsidiaries",
+          "Disposal of subsidiaries and associates",
+          "Equity income in investee",
+          "Equity income from investees",
+          "Share of profit of associates"
+        ],
+        "description": "Доля компании в прибыли/убытке ассоциированных компаний или инвестиций по методу долевого участия.",
+        "hint": "P&L или примечания equity method/investee. Не путать с proceeds from sale/disposal of subsidiaries.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "ASSET_PURCHASES",
+        "name_ru": "Приобретение основных средств",
+        "name_en": "PPE purchases",
+        "aliases_ru": [
+          "Покупка основных фондов",
+          "Приобретение внеоборотных активов"
+        ],
+        "aliases_en": [
+          "Purchases of property, plant and equipment",
+          "Additions to properties, plant and equipment",
+          "Additions to PP&E"
+        ],
+        "description": "Денежные расходы на приобретение основных средств за период.",
+        "hint": "ОДДС/примечание к investing activities: покупки/добавления PPE. Если отдельно есть Additions to properties, plant and equipment, бери эту строку; не подменяй total capital expenditures, если PPE раскрыто отдельно. Если сумма с НМА вместе — COMBINED_ASSET_PURCHASES.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, ДИЭ, Риски",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INTANGIBLE_ASSET_PURCHASES",
+        "name_ru": "Приобретение нематериальных активов",
+        "name_en": "Intangible asset purchases",
+        "aliases_ru": [
+          "Приобретение лицензий"
+        ],
+        "aliases_en": [
+          "Purchases of intangible assets",
+          "Acquisition of intangible assets"
+        ],
+        "description": "Денежные расходы на приобретение нематериальных активов за период.",
+        "hint": "ОДДС, раздел 'Инвестиционная деятельность' (отдельной строкой от ОС). Если в отчёте объединено с ОС — null, см. COMBINED_ASSET_PURCHASES.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, ДИЭ, Риски",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "COMBINED_ASSET_PURCHASES",
+        "name_ru": "Приобретение основных средств и нематериальных активов",
+        "name_en": "Fixed asset purchases",
+        "aliases_ru": [
+          "Приобретение основных средств и внеоборотных активов"
+        ],
+        "aliases_en": [
+          "Purchase of PP&E and intangible assets",
+          "Capital expenditures"
+        ],
+        "description": "Объединённая статья денежных расходов на приобретение ОС и НМА (когда в отчёте они не разделены).",
+        "hint": "ОДДС, раздел 'Инвестиционная деятельность'. Заполнять только если ASSET_PURCHASES и INTANGIBLE_ASSET_PURCHASES объединены в одну строку.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "ASSET_SALES_PROCEEDS",
+        "name_ru": "Поступления от продажи основных средств и нематериальных активов",
+        "name_en": "Proceeds from disposal of PPE and Intangible assets",
+        "aliases_ru": [
+          "Поступления от реализации основных средств",
+          "Поступления от выбытия основных средств и нематериальных активов"
+        ],
+        "aliases_en": [
+          "Proceeds from sale of PP&E",
+          "Proceeds from disposal of fixed assets",
+          "Proceeds from divestitures, net",
+          "Proceeds from dispositions"
+        ],
+        "description": "Денежные поступления от продажи внеоборотных активов за период.",
+        "hint": "ОДДС, раздел 'Инвестиционная деятельность'. Также может называться proceeds from divestitures/dispositions; это денежные поступления от продажи активов/бизнесов, не выручка.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, ДИЭ",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "FINANCIAL_INCOME",
+        "name_ru": "Финансовые доходы",
+        "name_en": "Financial income",
+        "aliases_ru": [
+          "Процентные доходы"
+        ],
+        "aliases_en": [
+          "Interest income",
+          "Finance income"
+        ],
+        "description": "Процентные и прочие финансовые доходы (от размещения средств, депозитов, ценных бумаг).",
+        "hint": "P&L, после операционной прибыли. Бери строку finance/financial income и сохраняй значение как в источнике.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "FINANCIAL_EXPENSES",
+        "name_ru": "Финансовые расходы",
+        "name_en": "Financial expenses",
+        "aliases_ru": [
+          "Расходы на обслуживание заемных средств",
+          "Процентные расходы"
+        ],
+        "aliases_en": [
+          "Finance costs",
+          "Interest expense"
+        ],
+        "description": "Процентные расходы по кредитам, займам, облигациям и прочее обслуживание долга.",
+        "hint": "P&L, после операционной прибыли. Бери строку finance costs/interest expense и сохраняй знак/скобки как в источнике.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+        "name_ru": "Погашение обязательств по аренде",
+        "name_en": "Repayment of the principle of lease liabilities",
+        "aliases_ru": [
+          "Погашение основного долга по аренде",
+          "Выплаты основной суммы долга по аренде"
+        ],
+        "aliases_en": [
+          "Principal payments on lease liabilities",
+          "Repayment of lease liabilities"
+        ],
+        "description": "Основная часть лизинговых платежей (без процентов) за период.",
+        "hint": "ОДДС, раздел 'Финансовая деятельность'. Не путать с INTEREST_PAID_LEASE_LIABILITIES.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "ADJUSTMENTS_OPERATING_CASH_FLOWS",
+        "name_ru": "Корректировки",
+        "name_en": "Operating cash flow adjustments",
+        "aliases_ru": [
+          "Поправки (для неденежных статей)"
+        ],
+        "aliases_en": [
+          "Non-cash adjustments",
+          "Adjustments for non-cash items"
+        ],
+        "description": "Сумма всех неденежных корректировок прибыли при формировании операционного ДДС (D&A, изменения резервов и пр.).",
+        "hint": "ОДДС, верхняя часть раздела 'Операционная деятельность' между прибылью и движением оборотного капитала.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "CHANGES_OCF_ASSETS_LIABILITIES",
+        "name_ru": "Изменения в оборотном капитале",
+        "name_en": "Changes in working capital",
+        "aliases_ru": [
+          "Изменения в операционных активах и обязательствах"
+        ],
+        "aliases_en": [
+          "Changes in operating assets and liabilities",
+          "Working capital movements"
+        ],
+        "description": "Совокупное изменение оборотного капитала (запасы, дебиторка, кредиторка) за период.",
+        "hint": "ОДДС, средняя часть раздела 'Операционная деятельность' (между корректировками прибыли и налоговыми платежами).",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "EBITDA",
+        "name_ru": "Прибыль до вычета процентов, налогов, износа и амортизации",
+        "name_en": "EBITDA",
+        "aliases_ru": [
+          "EBITDA скорректированная",
+          "EBITDAC",
+          "EBITDA по сегменту"
+        ],
+        "aliases_en": [
+          "Adjusted EBITDA",
+          "Segment EBITDA",
+          "EBITDA total"
+        ],
+        "description": "Операционная прибыль до амортизации (EBIT + D&A). Часто компании раскрывают как нефинансовую метрику.",
+        "hint": "Сегментная отчётность или MD&A. Для main metric бери итог/Total по EBITDA, не отдельный сегмент, не elimination-only строку и не EBITDA before IFRS 16/adjusted subtotal, если раскрыт консолидированный total. Если строка 'EBITDA по сегменту' содержит сегменты, исключения/eliminations и затем итоговые значения в последних колонках или в конце строки, бери эти итоговые значения как main EBITDA. Возвращай null только если явной строки EBITDA/OIBDA нет.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "GUARANTEES",
+        "name_ru": "Гарантии, поручительства",
+        "name_en": "Garantees",
+        "aliases_ru": [
+          "Гарантии",
+          "Поручительства",
+          "Выданные гарантии и обязательства по предоставлению кредитов"
+        ],
+        "aliases_en": [
+          "Financial guarantees",
+          "Bank guarantees",
+          "Contingent liabilities"
+        ],
+        "description": "Сумма выданных гарантий и поручительств за третьих лиц.",
+        "hint": "Примечание 'Условные обязательства' / 'Гарантии и поручительства'. Внебалансовая статья.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "COMMITTED_CREDIT_FACILITIES",
+        "name_ru": "Неиспользованные кредитные линии",
+        "name_en": "Committed credit facilities",
+        "aliases_ru": [
+          "Доступные кредитные линии (лимиты)",
+          "Неиспользованные долгосрочные кредитные линии",
+          "Действующие кредитные соглашения с банками"
+        ],
+        "aliases_en": [
+          "Undrawn committed facilities",
+          "Available credit lines"
+        ],
+        "description": "Сумма доступных, но неиспользованных кредитных линий.",
+        "hint": "Note: for narrative/text disclosures without a table header, preserve the amount and scale exactly as written in the sentence. Example: if the source says \"$3 billion available under a revolving credit agreement\", return value \"3\" (or \"3.0\") and unit_text \"$ billion\"/\"billion\"; do not convert it to \"3,000\" and do not borrow \"in millions\" from nearby tables. Do not create a comparative period unless the facility amount is explicitly disclosed for that date.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "FUTURE_CAPEX_LIABILITIES",
+        "name_ru": "Обязательства будущих периодов по капитальным затратам",
+        "name_en": "Future capital liabilities",
+        "aliases_ru": [
+          "Контрактные обязательства по капитальным вложениям"
+        ],
+        "aliases_en": [
+          "Capital commitments",
+          "Committed capital expenditures"
+        ],
+        "description": "Договорные обязательства по будущим капитальным затратам, ещё не отражённые в балансе.",
+        "hint": "Примечание 'Условные обязательства' / 'Капитальные обязательства' / 'Договорные обязательства'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "DOUBTFUL_ACCOUNTS_ALLOWANCE",
+        "name_ru": "Резерв под ожидаемые кредитные убытки (дебиторская задолженность)",
+        "name_en": "Allowance for doubtful accounts",
+        "aliases_ru": [
+          "Оценочный резерв под ожидаемые кредитные убытки"
+        ],
+        "aliases_en": [
+          "ECL allowance",
+          "Allowance for expected credit losses",
+          "Provision for credit losses"
+        ],
+        "description": "Резерв под ожидаемые кредитные убытки по дебиторской задолженности.",
+        "hint": "Примечание 'Дебиторская задолженность' или 'Управление кредитным риском'. Может быть отдельной строкой 'Изменение резерва ECL'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INCOME_TAX",
+        "name_ru": "Расход по текущему налогу на прибыль",
+        "name_en": "Income tax expense",
+        "aliases_ru": [
+          "Текущий налог на прибыль"
+        ],
+        "aliases_en": [
+          "Tax expense",
+          "Provision for income taxes",
+          "Income tax provision (benefit)"
+        ],
+        "description": "Сумма налога на прибыль за период (текущий + отложенный).",
+        "hint": "P&L: итоговая строка income tax provision/benefit перед net income. Не бери cash paid for taxes и не заменяй итоговую строку отдельными current/deferred tax components.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, БАиФП, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SECURITIES_ASSETS",
+        "name_ru": "Финансовые инструменты (Актив)",
+        "name_en": "Securities",
+        "aliases_ru": [
+          "Финансовые активы",
+          "Инвестиционные ценные бумаги"
+        ],
+        "aliases_en": [
+          "Financial instruments",
+          "Investment securities",
+          "Marketable securities",
+          "Short-term investments",
+          "Available-for-sale securities"
+        ],
+        "description": "Долговые и долевые ценные бумаги, удерживаемые в качестве инвестиций или для торговли.",
+        "hint": "Балансовый отчёт или примечание к инвестициям: ценные бумаги / marketable securities / short-term investments на дату баланса. Не путай с cash equivalents и bank deposits/time deposits.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "TOTAL_ASSOCIATE_INVESTMENTS",
+        "name_ru": "Инвестиции в ассоциированные и совместные предприятия",
+        "name_en": "Associate investments",
+        "aliases_ru": [
+          "Вложения в ассоциированные и совместные предприятия",
+          "Инвестиции в компании по методу долевого участия"
+        ],
+        "aliases_en": [
+          "Investments in associates and joint ventures",
+          "Equity-accounted investments",
+          "Equity method investment",
+          "Investments in associates",
+          "Investments: equity method",
+          "Equity method investments"
+        ],
+        "description": "Совокупные инвестиции в ассоциированные компании и совместные предприятия.",
+        "hint": "Внеоборотные активы баланса: investments in associates/JVs/equity method investments на дату баланса. Не путай с purchases of strategic investments в ОДДС.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SECURITIES_LIABILITIES",
+        "name_ru": "Финансовые инструменты (Обязательства)",
+        "name_en": "Securities",
+        "aliases_ru": [
+          "Финансовые обязательства",
+          "Выпущенные долговые инструменты"
+        ],
+        "aliases_en": [
+          "Financial instruments",
+          "Financial liabilities",
+          "Debt instruments issued"
+        ],
+        "description": "Облигации и прочие долговые ценные бумаги, выпущенные компанией.",
+        "hint": "Балансовый отчёт. Детализация в Примечании 'Долговые ценные бумаги' / 'Облигационный заём'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "LONG_TERM_ROU",
+        "name_ru": "Долгосрочные активы в форме права пользования",
+        "name_en": "Long Term Right of Use Assets",
+        "aliases_ru": [
+          "Долгосрочная часть активов в форме права пользования"
+        ],
+        "aliases_en": [
+          "Non-current right-of-use assets",
+          "Long-term ROU assets"
+        ],
+        "description": "Активы ППА к признанию через более 12 месяцев.",
+        "hint": "Это активы права пользования (ROU assets), а не обязательства по аренде. Бери строку баланса/right-of-use assets; не подставляй current/non-current lease liabilities.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SHORT_TERM_ROU",
+        "name_ru": "Краткосрочные активы в форме права пользования",
+        "name_en": "Short Term Right of Use Assets",
+        "aliases_ru": [
+          "Краткосрочная часть активов в форме права пользования"
+        ],
+        "aliases_en": [
+          "Current right-of-use assets",
+          "Short-term ROU assets"
+        ],
+        "description": "Активы ППА к признанию в течение 12 месяцев.",
+        "hint": "Примечание 'IFRS 16' / 'Аренда' — графа 'До 1 года'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "ROU_DEPRECIATION",
+        "name_ru": "Амортизация активов в форме права пользования",
+        "name_en": "Right of Use Assets Depreciation",
+        "aliases_ru": [
+          "Износ активов в форме права пользования",
+          "Амортизация права пользования активами"
+        ],
+        "aliases_en": [
+          "Depreciation of right-of-use assets",
+          "ROU asset depreciation",
+          "Amortization of operating lease right-of-use assets"
+        ],
+        "description": "Амортизация активов IFRS 16 за период.",
+        "hint": "Примечание 'Аренда' / lease note или ОДДС: amortization/depreciation of right-of-use assets. Не путай с общей depreciation and amortization.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INTEREST_PAID_LEASE_LIABILITIES",
+        "name_ru": "Уплаченные проценты по лизингу",
+        "name_en": "Interest paid on lease liabilities",
+        "aliases_ru": [
+          "Проценты уплаченные по лизингу",
+          "Процентные расходы по обязательствам по аренде"
+        ],
+        "aliases_en": [
+          "Interest expense on lease liabilities",
+          "Cash paid for lease interest"
+        ],
+        "description": "Процентная составляющая лизинговых платежей за период.",
+        "hint": "ОДДС, раздел 'Финансовая деятельность'. Также в Примечании 'IFRS 16' / 'Аренда'.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SHARE_CAPITAL",
+        "name_ru": "Уставной капитал",
+        "name_en": "Share capital",
+        "aliases_ru": [
+          "Акционерный капитал",
+          "Обыкновенные акции (номинал)"
+        ],
+        "aliases_en": [
+          "Common stock",
+          "Ordinary shares",
+          "Capital stock"
+        ],
+        "description": "Номинальная стоимость выпущенных акций.",
+        "hint": "Раздел капитала: share capital/common stock/capital stock на конец периода. Не путай с total equity.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SHARE_PREMIUM",
+        "name_ru": "Эмиссионный доход",
+        "name_en": "Share premium",
+        "aliases_ru": [
+          "Добавочный капитал",
+          "Дополнительный оплаченный капитал"
+        ],
+        "aliases_en": [
+          "Additional paid-in capital",
+          "Capital surplus",
+          "APIC"
+        ],
+        "description": "Превышение цены размещения акций над номинальной стоимостью.",
+        "hint": "Раздел капитала: share premium/additional paid-in capital на конец периода.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "TREASURY_SHARES",
+        "name_ru": "Собственные акции, выкупленные у акционеров",
+        "name_en": "Treasury shares",
+        "aliases_ru": [
+          "Собственные акции"
+        ],
+        "aliases_en": [
+          "Treasury stock",
+          "Own shares repurchased"
+        ],
+        "description": "Стоимость собственных акций, выкупленных у акционеров.",
+        "hint": "Раздел капитала: treasury shares/treasury stock на конец периода. Обычно уменьшает капитал; не путай с buyback cash-flow за период.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "RETAINED_EARNINGS",
+        "name_ru": "Нераспределенная прибыль",
+        "name_en": "Retained Earnings",
+        "aliases_ru": [
+          "Нераспределенная прибыль (непокрытый убыток)",
+          "Накопленная прибыль"
+        ],
+        "aliases_en": [
+          "Accumulated retained earnings",
+          "Accumulated deficit",
+          "Retained earnings balance"
+        ],
+        "description": "Накопленная чистая прибыль за все периоды за вычетом распределённых дивидендов.",
+        "hint": "Раздел капитала: retained earnings / accumulated deficit на конец периода. Не путай с net income за период.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "NON_CONTROL_INTEREST",
+        "name_ru": "Неконтрольные доли участия",
+        "name_en": "Non-controlling interest",
+        "aliases_ru": [
+          "Неконтролирующие доли",
+          "Доля меньшинства"
+        ],
+        "aliases_en": [
+          "Minority interest",
+          "Non-controlling interests"
+        ],
+        "description": "Доля капитала дочерних компаний, не принадлежащая материнской организации.",
+        "hint": "Раздел КАПИТАЛ баланса (отдельная подстрока). Может быть как положительной, так и отрицательной.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "DERIVATIVE_LIABILITIES",
+        "name_ru": "Производные финансовые обязательства",
+        "name_en": "Derivatives",
+        "aliases_ru": [
+          "Производные финансовые инструменты (обязательства)",
+          "Деривативы (обязательства)"
+        ],
+        "aliases_en": [
+          "Derivative financial instruments",
+          "Derivative liabilities"
+        ],
+        "description": "Обязательства по производным финансовым инструментам, оцениваемые по справедливой стоимости.",
+        "hint": "Балансовый отчёт. Также в Примечании 'Финансовые инструменты' / 'Управление рисками'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INSURANCE_LIABILITIES",
+        "name_ru": "Обязательства по договорам страхования",
+        "name_en": "Insurance contracts liabilities",
+        "aliases_ru": [
+          "Страховые резервы",
+          "Страховые обязательства"
+        ],
+        "aliases_en": [
+          "Insurance liabilities",
+          "Technical reserves"
+        ],
+        "description": "Обязательства страховщика по договорам страхования (резервы убытков, премии).",
+        "hint": "Балансовый отчёт страховой компании. Только если компания ведёт страховую деятельность.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INSURANCE_INCOME",
+        "name_ru": "Выручка по страховой деятельности",
+        "name_en": "Insurance service income",
+        "aliases_ru": [
+          "Страховая премия",
+          "Заработанные страховые премии"
+        ],
+        "aliases_en": [
+          "Insurance premium income",
+          "Net earned premiums"
+        ],
+        "description": "Доходы страховщика по договорам страхования (по IFRS 17).",
+        "hint": "P&L страховой компании. Не применимо к не-страховым организациям — null.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INSURANCE_EXPENSE",
+        "name_ru": "Расходы по страховой деятельности",
+        "name_en": "Insurance service expense",
+        "aliases_ru": [
+          "Страховые выплаты",
+          "Расходы по страховым случаям"
+        ],
+        "aliases_en": [
+          "Insurance claims and expenses",
+          "Claims and benefits paid"
+        ],
+        "description": "Расходы страховщика по договорам страхования (по IFRS 17).",
+        "hint": "P&L страховой компании. Не применимо к не-страховым — null.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "NET_OTHER_RESERVES",
+        "name_ru": "Чистое восстановление прочих резервов",
+        "name_en": "Net other reserves",
+        "aliases_ru": [
+          "(Создание)/восстановление резерва под судебные иски и прочие обязательства",
+          "Восстановление резерва под кредитные убытки по прочим финансовым активам"
+        ],
+        "aliases_en": [
+          "Net reversal of other provisions",
+          "Net recovery of other provisions"
+        ],
+        "description": "Чистый эффект от прочих резервов за период (восстановление минус начисление).",
+        "hint": "ОДДС или P&L. Может быть в составе 'Прочие операционные доходы/расходы' или отдельной строкой.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "EPS",
+        "name_ru": "Прибыль на одну обыкновенную акцию",
+        "name_en": "Earnings per ordinary share",
+        "aliases_ru": [
+          "Прибыль на акцию"
+        ],
+        "aliases_en": [
+          "Earnings per share",
+          "EPS",
+          "Basic EPS",
+          "Basic earnings per share"
+        ],
+        "description": "Чистая прибыль на одну обыкновенную акцию (валюта на акцию, не в миллионах).",
+        "hint": "P&L: строка Basic earnings per share после net income. Бери Basic, не Diluted; значение может быть дробным и обычно имеет единицу валюта/share, не millions.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "DIVIDENDS_RECEIVED",
+        "name_ru": "Дивиденды полученные",
+        "name_en": "Dividends received",
+        "aliases_ru": [
+          "Полученные дивиденды"
+        ],
+        "aliases_en": [
+          "Cash dividends received"
+        ],
+        "description": "Денежные поступления дивидендов от ассоциированных и прочих компаний.",
+        "hint": "ОДДС, раздел 'Инвестиционная деятельность'.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      }
+    ],
+    "bank": [
+      {
+        "enum": "MODIFIED_AUDITORS_OPINION",
+        "name_ru": "Наличие модифицированного мнения аудитора",
+        "name_en": "Modified auditor's opinion",
+        "aliases_ru": [
+          "Модифицированное мнение аудитора",
+          "Аудиторское заключение с оговоркой",
+          "Отказ от выражения мнения"
+        ],
+        "aliases_en": [
+          "Modified auditor's opinion",
+          "Qualified opinion"
+        ],
+        "description": "Текстовая отметка: было ли в аудиторском заключении модифицированное мнение (да / нет).",
+        "hint": "Аудиторское заключение независимого аудитора (обычно в начале отчёта). Если 'Мнение не модифицировано' — значение = 0 (нет). Если есть оговорка / отказ / отрицательное мнение — 1 (да).",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "CASH_EQUIVALENTS",
+        "name_ru": "Денежные средства и их эквиваленты",
+        "name_en": "Cash and cash equivalents",
+        "aliases_ru": [
+          "Денежные средства и эквиваленты денежных средств",
+          "Денежные средства и денежные эквиваленты",
+          "Денежные средства и их эквиваленты на конец периода"
+        ],
+        "aliases_en": [
+          "Cash and equivalents",
+          "Cash and cash equivalents at end of period"
+        ],
+        "description": "Касса, расчётные счета и краткосрочные высоколиквидные инвестиции (срок ≤ 3 мес.).",
+        "hint": "Оборотные активы баланса или последняя строка ОДДС. Возвращай все явно раскрытые даты cash and cash equivalents at end of period, включая сравнительные даты, которых нет в балансе. Не путай с bank deposits/time deposits и marketable securities.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, CIB, БАиФП, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "PERPETUAL_BONDS",
+        "name_ru": "Бессрочные облигации",
+        "name_en": "Perpetual bonds",
+        "aliases_ru": [
+          "Облигации без срока погашения",
+          "Выпуск бессрочных облигаций",
+          "бессрочный субординированный займ"
+        ],
+        "aliases_en": [
+          "Perpetual notes",
+          "Hybrid capital notes"
+        ],
+        "description": "Облигации без даты погашения, классифицируемые как часть собственного капитала.",
+        "hint": "Раздел КАПИТАЛ баланса (если эмитент учитывает их как капитал) или Долгосрочные обязательства.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "TOTAL_ASSETS",
+        "name_ru": "Итого активы",
+        "name_en": "Total assets",
+        "aliases_ru": [
+          "ИТОГО АКТИВЫ",
+          "Итого по активам",
+          "Активы всего",
+          "Всего активов",
+          "Итого активов"
+        ],
+        "aliases_en": [
+          "Total assets",
+          "Sum of assets"
+        ],
+        "description": "Совокупная балансовая стоимость всех активов компании на отчётную дату.",
+        "hint": "Балансовый отчёт (Statement of Financial Position), нижняя строка раздела АКТИВЫ. Должна равняться сумме внеоборотных и оборотных активов.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, ДИЭ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "PPE",
+        "name_ru": "Основные средства",
+        "name_en": "Property, plant and equipment",
+        "aliases_ru": [
+          "Основные средства",
+          "ОС",
+          "Основные средства и оборудование",
+          "Здания, сооружения и оборудование"
+        ],
+        "aliases_en": [
+          "PP&E",
+          "Fixed assets",
+          "Property and equipment"
+        ],
+        "description": "Долгосрочные материальные активы — здания, оборудование, транспорт.",
+        "hint": "Внеоборотные активы баланса. Также детализация в Примечании 'Основные средства'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "DEFERRED_TAX_ASSETS",
+        "name_ru": "Отложенные налоговые активы",
+        "name_en": "Deferred tax assets",
+        "aliases_ru": [
+          "Активы по отложенному налогу на прибыль"
+        ],
+        "aliases_en": [
+          "Deferred income tax assets"
+        ],
+        "description": "Сумма налогов на прибыль к уменьшению в будущих периодах за счёт вычитаемых временных разниц.",
+        "hint": "Внеоборотные активы. Подробности в Примечании 'Налог на прибыль' / 'Отложенные налоги'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "DEFERRED_TAX_LIABILITIES",
+        "name_ru": "Отложенные налоговые обязательства",
+        "name_en": "Deferred tax liabilities",
+        "aliases_ru": [
+          "Обязательства по отложенному налогу на прибыль"
+        ],
+        "aliases_en": [
+          "Deferred income tax liabilities"
+        ],
+        "description": "Налоги на прибыль, подлежащие уплате в будущих периодах из-за налогооблагаемых временных разниц.",
+        "hint": "Долгосрочные обязательства баланса. Подробности в Примечании 'Налог на прибыль' / 'Отложенные налоги'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INTANGIBLE_ASSETS",
+        "name_ru": "Нематериальные активы",
+        "name_en": "Intangible assets",
+        "aliases_ru": [
+          "Нематериальные активы",
+          "НМА",
+          "Прочие нематериальные активы",
+          "Нематериальные активы за вычетом гудвила"
+        ],
+        "aliases_en": [
+          "Intangible assets",
+          "Other intangible assets",
+          "Intangibles"
+        ],
+        "description": "Идентифицируемые неденежные активы без физической субстанции — лицензии, патенты, программное обеспечение, бренды.",
+        "hint": "Внеоборотные активы баланса (отдельная строка после гудвила). Детализация в Примечании 'Нематериальные активы'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "GOODWILL",
+        "name_ru": "Гудвил",
+        "name_en": "Goodwill",
+        "aliases_ru": [
+          "Деловая репутация"
+        ],
+        "aliases_en": [
+          "Goodwill"
+        ],
+        "description": "Превышение цены приобретения дочерней компании над справедливой стоимостью её чистых идентифицируемых активов.",
+        "hint": "Внеоборотные активы баланса. Подробнее — в Примечании 'Гудвил' / 'Объединение бизнеса'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "TOTAL_EQUITY",
+        "name_ru": "Итого собственный капитал",
+        "name_en": "Total equity",
+        "aliases_ru": [
+          "Итого капитал",
+          "Собственный капитал акционеров"
+        ],
+        "aliases_en": [
+          "Total shareholders' equity",
+          "Stockholders' equity"
+        ],
+        "description": "Совокупная стоимость собственного капитала, включая капитал акционеров и неконтролирующие доли.",
+        "hint": "Балансовый отчёт, итог раздела КАПИТАЛ. Иногда отдельно 'Капитал, приходящийся на акционеров материнской' + 'Неконтролирующие доли'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, ДИЭ, БАиФП, Риски, CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "RIGHT_OF_USE_ASSETS",
+        "name_ru": "Активы в форме права пользования",
+        "name_en": "ROU",
+        "aliases_ru": [
+          "Право пользования активами",
+          "Активы с правом пользования"
+        ],
+        "aliases_en": [
+          "Right-of-use assets",
+          "ROU assets"
+        ],
+        "description": "Активы, признанные арендатором по МСФО 16 — это будущие платежи по аренде, дисконтированные на дату начала аренды.",
+        "hint": "Внеоборотные активы баланса (отдельная строка). Детализация в Примечании 'Аренда' / 'IFRS 16'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "NET_INCOME",
+        "name_ru": "Чистая прибыль",
+        "name_en": "Net income",
+        "aliases_ru": [
+          "Чистая прибыль/(убыток)",
+          "Прибыль за период/год/квартал",
+          "Чистая прибыль собственников"
+        ],
+        "aliases_en": [
+          "Net earnings",
+          "Net profit",
+          "Profit for the period"
+        ],
+        "description": "Финальный финансовый результат компании за период после налогов.",
+        "hint": "P&L: бери общий Net income/Profit for the period после налогов, до распределения на attributable to parent и non-controlling interests. В interim-отчетах с колонками 3M/Q и 6M/YTD возвращай обе группы периодов. Если убыток — отрицательное число.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, ДИЭ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "INTEREST_PAID",
+        "name_ru": "Уплаченные проценты",
+        "name_en": "Interest paid",
+        "aliases_ru": [
+          "Проценты уплаченные",
+          "Проценты по кредитам уплаченные"
+        ],
+        "aliases_en": [
+          "Interest payments",
+          "Cash interest paid"
+        ],
+        "description": "Денежные выплаты процентов по кредитам и займам за период.",
+        "hint": "ОДДС, раздел 'Финансовая деятельность' (или иногда 'Операционная' по выбору учётной политики).",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, Риски, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INTEREST_RECEIVED",
+        "name_ru": "Полученные проценты",
+        "name_en": "Interest received",
+        "aliases_ru": [
+          "Проценты полученные"
+        ],
+        "aliases_en": [
+          "Interest receipts",
+          "Cash interest received"
+        ],
+        "description": "Денежные поступления процентов от размещений и финансовых активов.",
+        "hint": "ОДДС, чаще в разделе 'Инвестиционная деятельность' (или 'Операционная').",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "DIVIDENDS",
+        "name_ru": "Дивиденды",
+        "name_en": "Dividends",
+        "aliases_ru": [
+          "Дивиденды уплаченные",
+          "Дивиденды выплаченные"
+        ],
+        "aliases_en": [
+          "Dividends paid"
+        ],
+        "description": "",
+        "hint": "",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB, ДГР, ДИЭ",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+        "name_ru": "Погашение обязательств по аренде",
+        "name_en": "Repayment of the principle of lease liabilities",
+        "aliases_ru": [
+          "Погашение основного долга по аренде",
+          "Выплаты основной суммы долга по аренде"
+        ],
+        "aliases_en": [
+          "Principal payments on lease liabilities",
+          "Repayment of lease liabilities"
+        ],
+        "description": "Основная часть лизинговых платежей (без процентов) за период.",
+        "hint": "ОДДС, раздел 'Финансовая деятельность'. Не путать с INTEREST_PAID_LEASE_LIABILITIES.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "CHANGES_OCF_ASSETS_LIABILITIES",
+        "name_ru": "Изменения в оборотном капитале",
+        "name_en": "Changes in working capital",
+        "aliases_ru": [
+          "Изменения в операционных активах и обязательствах"
+        ],
+        "aliases_en": [
+          "Changes in operating assets and liabilities",
+          "Working capital movements"
+        ],
+        "description": "Совокупное изменение оборотного капитала (запасы, дебиторка, кредиторка) за период.",
+        "hint": "ОДДС, средняя часть раздела 'Операционная деятельность' (между корректировками прибыли и налоговыми платежами).",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "TOTAL_LOANS_TO_CLIENTS",
+        "name_ru": "Кредиты клиентам",
+        "name_en": "Total loans and leases",
+        "aliases_ru": [
+          "Кредиты и авансы клиентам",
+          "Кредитный портфель (валовой)"
+        ],
+        "aliases_en": [
+          "Loans and advances to customers",
+          "Gross loans"
+        ],
+        "description": "Совокупный объём кредитов, выданных клиентам банка (за вычетом резервов ECL).",
+        "hint": "Балансовый отчёт банка, ключевой актив. Детализация в Примечании 'Кредиты клиентам'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "ДИЭ, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "CORPORATE_LOANS",
+        "name_ru": "Корпоративные кредиты",
+        "name_en": "Total commercial loans and leases",
+        "aliases_ru": [
+          "Кредиты корпоративным клиентам",
+          "Кредиты юридическим лицам"
+        ],
+        "aliases_en": [
+          "Corporate loans",
+          "Commercial loans"
+        ],
+        "description": "Кредиты, выданные юридическим лицам.",
+        "hint": "Примечание 'Кредиты клиентам' — разбивка по сегментам клиентов.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "ДИЭ, БАиФП, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INDIVIDUALS_LOANS",
+        "name_ru": "Розничные кредиты",
+        "name_en": "Total consumer loans and leases",
+        "aliases_ru": [
+          "Кредиты физическим лицам",
+          "Потребительские кредиты"
+        ],
+        "aliases_en": [
+          "Retail loans",
+          "Consumer loans",
+          "Loans to individuals"
+        ],
+        "description": "Кредиты, выданные физическим лицам (ипотека, потребкредиты, автокредиты).",
+        "hint": "Примечание 'Кредиты клиентам' — разбивка по сегментам.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "ДИЭ, БАиФП, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "CLIENT_DEPOSITS",
+        "name_ru": "Депозиты клиентов",
+        "name_en": "Total deposits",
+        "aliases_ru": [
+          "Средства клиентов",
+          "Депозиты"
+        ],
+        "aliases_en": [
+          "Due to customers",
+          "Customer deposits"
+        ],
+        "description": "Совокупный объём средств клиентов на счетах и депозитах банка.",
+        "hint": "Балансовый отчёт банка, ключевое обязательство. Детализация в Примечании 'Средства клиентов'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "ДИЭ, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "COMMON_EQUITY_TIER_ONE_CAPITAL",
+        "name_ru": "Основной капитал первого уровня",
+        "name_en": "Common equity tier 1 capital",
+        "aliases_ru": [
+          "Капитал первого уровня",
+          "CET1 капитал",
+          "Базовый капитал первого уровня"
+        ],
+        "aliases_en": [
+          "CET1 capital",
+          "Common equity Tier 1 capital ratio"
+        ],
+        "description": "Базовый капитал первого уровня по Базель III.",
+        "hint": "Примечание 'Достаточность капитала' / 'Управление капиталом'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "ДИЭ, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "NET_INTEREST_INCOME",
+        "name_ru": "Чистый процентный доход",
+        "name_en": "Net interest income",
+        "aliases_ru": [
+          "Чистый процентный доход",
+          "ЧПД",
+          "Чистый процентный доход после резерва"
+        ],
+        "aliases_en": [
+          "Net interest income",
+          "NII"
+        ],
+        "description": "Процентные доходы минус процентные расходы.",
+        "hint": "P&L банка, ключевая строка после процентных доходов и расходов. В interim-отчетах с колонками 3M/Q и 6M/YTD возвращай обе группы периодов, не только YTD.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "ДИЭ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "NON_INTEREST_INCOME_BANKS",
+        "name_ru": "Непроцентный доход",
+        "name_en": "Non-interest income",
+        "aliases_ru": [
+          "Комиссионные и прочие доходы"
+        ],
+        "aliases_en": [
+          "Non-interest revenue"
+        ],
+        "description": "Совокупные непроцентные доходы (комиссии + торговые + прочие).",
+        "hint": "P&L банка, в части после ЧПД. Если отдельной строкой нет — null.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "ДИЭ, CIB",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "TOTAL_INVESTMENT_BANKING_FEES",
+        "name_ru": "Доход от инвестиционно-банковского бизнеса",
+        "name_en": "Total investment banking fees",
+        "aliases_ru": [
+          "Доходы инвестиционного банкинга",
+          "Комиссии инвестиционного банка"
+        ],
+        "aliases_en": [
+          "Investment banking revenue",
+          "IB fees"
+        ],
+        "description": "Доходы от инвестиционно-банковской деятельности (M&A, размещения, andewriting).",
+        "hint": "P&L банка с инвестбанковской деятельностью или Примечание 'Сегментный анализ'.",
+        "period_type": "duration",
+        "standard": "US GAAP",
+        "role": "ДИЭ, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "OPERATING_INCOME_BANKS",
+        "name_ru": "Операционный доход банков",
+        "name_en": "Total revenue, net of interest expense",
+        "aliases_ru": [
+          "Операционные доходы",
+          "Чистый операционный доход"
+        ],
+        "aliases_en": [
+          "Operating income",
+          "Net revenue"
+        ],
+        "description": "Совокупные операционные доходы банка (ЧПД + комиссии + прочие, до создания резервов).",
+        "hint": "P&L банка, после ЧПД и непроцентных доходов.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "ДИЭ, CIB",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "TOTAL_CREDIT_ALLOWANCE",
+        "name_ru": "Резервы под обесценение кредитов и авансов клиентам",
+        "name_en": "Provision for credit losses",
+        "aliases_ru": [
+          "Резервы под обесценение кредитов",
+          "ОКУ под обесценение кредитов и авансов клиентам",
+          "Оценочный резерв под кредитные убытки",
+          "Резерв под ожидаемые кредитные убытки по кредитам"
+        ],
+        "aliases_en": [
+          "Allowance for credit losses",
+          "ECL allowance on loans",
+          "Impairment allowance on loans"
+        ],
+        "description": "Балансовый остаток оценочного резерва / allowance под кредитные убытки по кредитам и авансам клиентам на отчётную дату.",
+        "hint": "Примечание 'Кредиты и авансы клиентам' / 'Резервы под обесценение': бери closing balance/остаток оценочного резерва по кредитам на конец периода. Для этой метрики нужен allowance на дату, а не P&L-поток создания/восстановления ECL; поток — это CHANGE_IN_EXPECTED_CREDIT_LOSSES. Если строка называется 'резерв/оценочный резерв/allowance' и относится к кредитам клиентам, возвращай её как отрицательную contra-asset величину, даже если OCR потерял скобки.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "ДИЭ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "OPERATING_EXPENSES_BANKS",
+        "name_ru": "Операционные расходы банков",
+        "name_en": "Total non-interest expense",
+        "aliases_ru": [
+          "Непроцентные расходы",
+          "Операционные и административные расходы"
+        ],
+        "aliases_en": [
+          "Total operating expenses",
+          "Non-interest expenses"
+        ],
+        "description": "Совокупные операционные расходы банка (зарплаты, IT, аренда, прочее).",
+        "hint": "P&L банка, после операционных доходов и резервов.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "ДИЭ, CIB, БАиФП, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "NET_COMMISSION_INCOME",
+        "name_ru": "Чистый комиссионный доход",
+        "name_en": "Net comission and fee income",
+        "aliases_ru": [
+          "Чистые комиссионные доходы"
+        ],
+        "aliases_en": [
+          "Net fee and commission income"
+        ],
+        "description": "Комиссионные доходы минус комиссионные расходы.",
+        "hint": "P&L банка. Если в отчёте отдельно не раскрыт — null (мы досчитаем). В interim-отчетах с колонками 3M/Q и 6M/YTD возвращай обе группы периодов, не только YTD.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "OTHER_OPERATING_INCOME",
+        "name_ru": "Прочие Операционные Доходы",
+        "name_en": "Other operating income",
+        "aliases_ru": [
+          "Прочие доходы"
+        ],
+        "aliases_en": [
+          "Other income",
+          "Other revenues"
+        ],
+        "description": "Прочие доходы от операционной деятельности банка.",
+        "hint": "P&L банка, в составе непроцентных доходов.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "INCOME_TAX",
+        "name_ru": "Расход по текущему налогу на прибыль",
+        "name_en": "Income tax expense",
+        "aliases_ru": [
+          "Текущий налог на прибыль"
+        ],
+        "aliases_en": [
+          "Tax expense",
+          "Provision for income taxes",
+          "Income tax provision (benefit)"
+        ],
+        "description": "Сумма налога на прибыль за период (текущий + отложенный).",
+        "hint": "P&L: итоговая строка income tax provision/benefit перед net income. Не бери cash paid for taxes и не заменяй итоговую строку отдельными current/deferred tax components.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, БАиФП, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "EBT",
+        "name_ru": "Прибыль до налогообложения",
+        "name_en": "EBT",
+        "aliases_ru": [
+          "Прибыль до налога",
+          "Прибыль до налога на прибыль"
+        ],
+        "aliases_en": [
+          "Profit before tax",
+          "Income before income taxes",
+          "Pre-tax income"
+        ],
+        "description": "Прибыль до вычета налога на прибыль — финальная строка P&L перед налогом.",
+        "hint": "P&L банка, предпоследняя строка перед налогом на прибыль. Если у банка убыток, в источнике обычно стоят скобки или минус; сохраняй знак/скобки как в источнике.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "Общий ответ, CIB",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "INTERBANK_DEPOSITS",
+        "name_ru": "Средства в банках",
+        "name_en": "Interbank deposits",
+        "aliases_ru": [
+          "Депозиты в банках",
+          "Межбанковские депозиты"
+        ],
+        "aliases_en": [
+          "Due from banks",
+          "Interbank placements",
+          "Deposits with banks"
+        ],
+        "description": "Денежные средства, размещённые в других банках.",
+        "hint": "Балансовый отчёт банка, актив.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INTERBANK_LOANS",
+        "name_ru": "Средства банков",
+        "name_en": "Interbank loans",
+        "aliases_ru": [
+          "Депозиты банков",
+          "Межбанковские привлечения"
+        ],
+        "aliases_en": [
+          "Due to banks",
+          "Interbank borrowings",
+          "Deposits from banks"
+        ],
+        "description": "Кредиты, выданные другим банкам.",
+        "hint": "Балансовый отчёт банка. Может быть отдельной строкой от кредитов клиентам.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SECURITIES_ASSETS",
+        "name_ru": "Финансовые инструменты (Актив)",
+        "name_en": "Securities",
+        "aliases_ru": [
+          "Финансовые активы",
+          "Инвестиционные ценные бумаги"
+        ],
+        "aliases_en": [
+          "Financial instruments",
+          "Investment securities",
+          "Marketable securities",
+          "Short-term investments",
+          "Available-for-sale securities"
+        ],
+        "description": "Долговые и долевые ценные бумаги, удерживаемые в качестве инвестиций или для торговли.",
+        "hint": "Балансовый отчёт или примечание к инвестициям: ценные бумаги / marketable securities / short-term investments на дату баланса. Не путай с cash equivalents и bank deposits/time deposits.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "OTHER_ASSETS",
+        "name_ru": "Прочие активы",
+        "name_en": "Other assets",
+        "aliases_ru": [
+          "Прочие активы",
+          "Прочие внеоборотные активы",
+          "Иные активы"
+        ],
+        "aliases_en": [
+          "Other assets",
+          "Prepaid expenses and other assets",
+          "Other current assets",
+          "Other long-term assets"
+        ],
+        "description": "Активы, не отнесённые к стандартным категориям баланса.",
+        "hint": "Балансовый отчёт: широкая метрика other assets включает current/prepaid and other assets плюс other non-current assets, если они раскрыты отдельно. Не бери изменение этой строки из ОДДС.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "TOTAL_ASSOCIATE_INVESTMENTS",
+        "name_ru": "Инвестиции в ассоциированные и совместные предприятия",
+        "name_en": "Associate investments",
+        "aliases_ru": [
+          "Вложения в ассоциированные и совместные предприятия",
+          "Инвестиции в компании по методу долевого участия"
+        ],
+        "aliases_en": [
+          "Investments in associates and joint ventures",
+          "Equity-accounted investments",
+          "Equity method investment",
+          "Investments in associates",
+          "Investments: equity method",
+          "Equity method investments"
+        ],
+        "description": "Совокупные инвестиции в ассоциированные компании и совместные предприятия.",
+        "hint": "Внеоборотные активы баланса: investments in associates/JVs/equity method investments на дату баланса. Не путай с purchases of strategic investments в ОДДС.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INDIVIDUALS_DEPOSITS",
+        "name_ru": "Средства Физических лиц",
+        "name_en": "Consumer deposits",
+        "aliases_ru": [
+          "Депозиты физических лиц",
+          "Вклады физических лиц"
+        ],
+        "aliases_en": [
+          "Retail deposits",
+          "Deposits from individuals"
+        ],
+        "description": "Депозиты и вклады физических лиц.",
+        "hint": "Примечание 'Средства клиентов' — разбивка по сегментам.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "БАиФП, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "CORPORATE_DEPOSITS",
+        "name_ru": "Средства корпоративных клиентов",
+        "name_en": "Corporate deposits",
+        "aliases_ru": [
+          "Депозиты корпоративных клиентов",
+          "Средства юридических лиц"
+        ],
+        "aliases_en": [
+          "Corporate deposits",
+          "Business deposits",
+          "Deposits from legal entities"
+        ],
+        "description": "Депозиты юридических лиц.",
+        "hint": "Примечание 'Средства клиентов' — разбивка по сегментам.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "БАиФП, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "GOVERNMENTAL_DEPOSITS",
+        "name_ru": "Средства государственных органов власти",
+        "name_en": "Governmental deposits",
+        "aliases_ru": [
+          "Депозиты государственных органов",
+          "Средства государственных и муниципальных органов"
+        ],
+        "aliases_en": [
+          "Government deposits",
+          "Deposits from government entities"
+        ],
+        "description": "Депозиты госорганов и муниципальных образований.",
+        "hint": "Примечание 'Средства клиентов' — разбивка по сегментам.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "БАиФП, CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SECURITIES_LIABILITIES",
+        "name_ru": "Финансовые инструменты (Обязательства)",
+        "name_en": "Securities",
+        "aliases_ru": [
+          "Финансовые обязательства",
+          "Выпущенные долговые инструменты"
+        ],
+        "aliases_en": [
+          "Financial instruments",
+          "Financial liabilities",
+          "Debt instruments issued"
+        ],
+        "description": "Облигации и прочие долговые ценные бумаги, выпущенные компанией.",
+        "hint": "Балансовый отчёт. Детализация в Примечании 'Долговые ценные бумаги' / 'Облигационный заём'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ, БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "JUNIOR_DEBT",
+        "name_ru": "Субординированная задолженность",
+        "name_en": "Junior debt",
+        "aliases_ru": [
+          "Субординированные займы",
+          "Субординированный долг"
+        ],
+        "aliases_en": [
+          "Subordinated debt",
+          "Subordinated loans"
+        ],
+        "description": "Долг, имеющий более низкий приоритет погашения по сравнению с обычным долгом.",
+        "hint": "Балансовый отчёт банка. Часто учитывается в составе Tier 2 капитала.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "OTHER_LIABILITIES",
+        "name_ru": "Прочие обязательства",
+        "name_en": "Other liabilities",
+        "aliases_ru": [
+          "Прочие обязательства",
+          "Прочие долгосрочные обязательства",
+          "Прочие краткосрочные обязательства"
+        ],
+        "aliases_en": [
+          "Other liabilities",
+          "Accrued and other liabilities",
+          "Other current liabilities",
+          "Other long-term liabilities"
+        ],
+        "description": "Обязательства, не отнесённые к стандартным категориям баланса.",
+        "hint": "Балансовый отчёт: широкая метрика other liabilities включает accrued/other current liabilities плюс other long-term liabilities, если они раскрыты отдельно. Не бери cash-flow change in accrued liabilities.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "БАиФП, CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SHARE_CAPITAL",
+        "name_ru": "Уставной капитал",
+        "name_en": "Share capital",
+        "aliases_ru": [
+          "Акционерный капитал",
+          "Обыкновенные акции (номинал)"
+        ],
+        "aliases_en": [
+          "Common stock",
+          "Ordinary shares",
+          "Capital stock"
+        ],
+        "description": "Номинальная стоимость выпущенных акций.",
+        "hint": "Раздел капитала: share capital/common stock/capital stock на конец периода. Не путай с total equity.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SHARE_PREMIUM",
+        "name_ru": "Эмиссионный доход",
+        "name_en": "Share premium",
+        "aliases_ru": [
+          "Добавочный капитал",
+          "Дополнительный оплаченный капитал"
+        ],
+        "aliases_en": [
+          "Additional paid-in capital",
+          "Capital surplus",
+          "APIC"
+        ],
+        "description": "Превышение цены размещения акций над номинальной стоимостью.",
+        "hint": "Раздел капитала: share premium/additional paid-in capital на конец периода.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "TREASURY_SHARES",
+        "name_ru": "Собственные акции, выкупленные у акционеров",
+        "name_en": "Treasury shares",
+        "aliases_ru": [
+          "Собственные акции"
+        ],
+        "aliases_en": [
+          "Treasury stock",
+          "Own shares repurchased"
+        ],
+        "description": "Стоимость собственных акций, выкупленных у акционеров.",
+        "hint": "Раздел капитала: treasury shares/treasury stock на конец периода. Обычно уменьшает капитал; не путай с buyback cash-flow за период.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "RETAINED_EARNINGS",
+        "name_ru": "Нераспределенная прибыль",
+        "name_en": "Retained Earnings",
+        "aliases_ru": [
+          "Нераспределенная прибыль (непокрытый убыток)",
+          "Накопленная прибыль"
+        ],
+        "aliases_en": [
+          "Accumulated retained earnings",
+          "Accumulated deficit",
+          "Retained earnings balance"
+        ],
+        "description": "Накопленная чистая прибыль за все периоды за вычетом распределённых дивидендов.",
+        "hint": "Раздел капитала: retained earnings / accumulated deficit на конец периода. Не путай с net income за период.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "NON_CONTROL_INTEREST",
+        "name_ru": "Неконтрольные доли участия",
+        "name_en": "Non-controlling interest",
+        "aliases_ru": [
+          "Неконтролирующие доли",
+          "Доля меньшинства"
+        ],
+        "aliases_en": [
+          "Minority interest",
+          "Non-controlling interests"
+        ],
+        "description": "Доля капитала дочерних компаний, не принадлежащая материнской организации.",
+        "hint": "Раздел КАПИТАЛ баланса (отдельная подстрока). Может быть как положительной, так и отрицательной.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "DERIVATIVE_LIABILITIES",
+        "name_ru": "Производные финансовые обязательства",
+        "name_en": "Derivatives",
+        "aliases_ru": [
+          "Производные финансовые инструменты (обязательства)",
+          "Деривативы (обязательства)"
+        ],
+        "aliases_en": [
+          "Derivative financial instruments",
+          "Derivative liabilities"
+        ],
+        "description": "Обязательства по производным финансовым инструментам, оцениваемые по справедливой стоимости.",
+        "hint": "Балансовый отчёт. Также в Примечании 'Финансовые инструменты' / 'Управление рисками'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INSURANCE_LIABILITIES",
+        "name_ru": "Обязательства по договорам страхования",
+        "name_en": "Insurance contracts liabilities",
+        "aliases_ru": [
+          "Страховые резервы",
+          "Страховые обязательства"
+        ],
+        "aliases_en": [
+          "Insurance liabilities",
+          "Technical reserves"
+        ],
+        "description": "Обязательства страховщика по договорам страхования (резервы убытков, премии).",
+        "hint": "Балансовый отчёт страховой компании. Только если компания ведёт страховую деятельность.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "CASH_AND_CASH_BALANCES_WITH_CB",
+        "name_ru": "Обязательные резервы на счетах в центральных банках",
+        "name_en": "Cash and cash balances with central bank",
+        "aliases_ru": [
+          "Обязательные резервы на счетах в ЦБ РФ",
+          "Обязательные резервы на счетах в Центральном банке"
+        ],
+        "aliases_en": [
+          "Mandatory reserves with central bank",
+          "Reserve deposits with central bank"
+        ],
+        "description": "Обязательные резервы и средства банка на счетах в центральных банках.",
+        "hint": "Балансовый отчёт банка, актив. Часто первая строка раздела активов.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "FUNDS_FROM_CENTRAL_BANK",
+        "name_ru": "Средства, предоставленные ЦБ",
+        "name_en": "Funds provided by the Central Bank",
+        "aliases_ru": [
+          "Кредиты ЦБ",
+          "Рефинансирование от центрального банка"
+        ],
+        "aliases_en": [
+          "Loans from central bank",
+          "Borrowings from the central bank"
+        ],
+        "description": "Кредиты и депозиты, полученные банком от центрального банка.",
+        "hint": "Балансовый отчёт банка, обязательство. Также в Примечании 'Привлечённые средства'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INTEREST_INCOME_ER",
+        "name_ru": "Процентные доходы, рассчитываемые по методу эффективной процентной ставки",
+        "name_en": "Interest income, calculated on the basis of effective interest rate",
+        "aliases_ru": [
+          "Процентные доходы (по методу ЭПС)"
+        ],
+        "aliases_en": [
+          "Interest income calculated using the effective interest method",
+          "Interest income (EIR basis)"
+        ],
+        "description": "Процентные доходы, рассчитанные по методу эффективной процентной ставки.",
+        "hint": "P&L банка, верхняя строка раздела процентных доходов. Детализация в Примечании 'Процентные доходы и расходы'.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INTEREST_EXPENSE_ER",
+        "name_ru": "Процентные расходы, рассчитываемые по методу эффективной процентной ставки",
+        "name_en": "Interest expense, calculated on the basis of effective interest rate",
+        "aliases_ru": [
+          "Процентные расходы (по методу ЭПС)"
+        ],
+        "aliases_en": [
+          "Interest expense calculated using the effective interest method",
+          "Interest expense (EIR basis)"
+        ],
+        "description": "Процентные расходы, рассчитанные по методу эффективной процентной ставки.",
+        "hint": "P&L банка, после процентных доходов. Бери строку процентных расходов и сохраняй знак/скобки как в источнике.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "FEE_AND_COMMISSION_INCOME",
+        "name_ru": "Комиссионный доход",
+        "name_en": "Fee and comission income",
+        "aliases_ru": [
+          "Комиссионные доходы",
+          "Доход от комиссий"
+        ],
+        "aliases_en": [
+          "Fee income",
+          "Commission income"
+        ],
+        "description": "Доходы от комиссионных и расчётно-кассовых операций.",
+        "hint": "P&L банка. Детализация в Примечании 'Комиссионные доходы и расходы'.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "FEE_AND_COMMISSION_EXPENSE",
+        "name_ru": "Комиссионный расход",
+        "name_en": "Fee and comission expense",
+        "aliases_ru": [
+          "Комиссионные расходы",
+          "Расходы по комиссиям"
+        ],
+        "aliases_en": [
+          "Fee expense",
+          "Commission expense"
+        ],
+        "description": "Расходы по комиссионным операциям (в т.ч. платежи системам, контрагентам).",
+        "hint": "P&L банка, после комиссионных доходов. Бери строку комиссионных расходов и сохраняй знак/скобки как в источнике.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "CURRENCY_METALS_INCOME",
+        "name_ru": "Чистый доход от операций с иностранными валютами и драгоценными металлами",
+        "name_en": "Net income from operations with foreign currency and precious metals",
+        "aliases_ru": [
+          "Чистый доход от операций с иностранной валютой"
+        ],
+        "aliases_en": [
+          "Net foreign exchange income",
+          "Net FX income"
+        ],
+        "description": "Чистый результат по операциям с иностранной валютой и драгоценными металлами.",
+        "hint": "P&L банка, в составе непроцентных доходов.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "INSURANCE_INCOME",
+        "name_ru": "Выручка по страховой деятельности",
+        "name_en": "Insurance service income",
+        "aliases_ru": [
+          "Страховая премия",
+          "Заработанные страховые премии"
+        ],
+        "aliases_en": [
+          "Insurance premium income",
+          "Net earned premiums"
+        ],
+        "description": "Доходы страховщика по договорам страхования (по IFRS 17).",
+        "hint": "P&L страховой компании. Не применимо к не-страховым организациям — null.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "INSURANCE_EXPENSE",
+        "name_ru": "Расходы по страховой деятельности",
+        "name_en": "Insurance service expense",
+        "aliases_ru": [
+          "Страховые выплаты",
+          "Расходы по страховым случаям"
+        ],
+        "aliases_en": [
+          "Insurance claims and expenses",
+          "Claims and benefits paid"
+        ],
+        "description": "Расходы страховщика по договорам страхования (по IFRS 17).",
+        "hint": "P&L страховой компании. Не применимо к не-страховым — null.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "NET_OTHER_RESERVES",
+        "name_ru": "Чистое восстановление прочих резервов",
+        "name_en": "Net other reserves",
+        "aliases_ru": [
+          "(Создание)/восстановление резерва под судебные иски и прочие обязательства",
+          "Восстановление резерва под кредитные убытки по прочим финансовым активам"
+        ],
+        "aliases_en": [
+          "Net reversal of other provisions",
+          "Net recovery of other provisions"
+        ],
+        "description": "Чистый эффект от прочих резервов за период (восстановление минус начисление).",
+        "hint": "ОДДС или P&L. Может быть в составе 'Прочие операционные доходы/расходы' или отдельной строкой.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "LOANS_STAGE1_GROSS",
+        "name_ru": "Кредиты Этап 1 (валовые)",
+        "name_en": "Loans Stage 1 (gross)",
+        "aliases_ru": [
+          "Валовая балансовая стоимость Этап 1",
+          "Кредиты и авансы клиентам Этап 1 Валовая стоимость",
+          "Кредиты клиентам Этап 1 Валовая стоимость"
+        ],
+        "aliases_en": [
+          "Stage 1 loans",
+          "Performing loans (Stage 1)"
+        ],
+        "description": "Валовая балансовая стоимость кредитов на стадии 1 (12-month ECL) по IFRS 9.",
+        "hint": "Примечание 'Кредиты клиентам' — таблица распределения кредитов по стадиям ECL.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "LOANS_STAGE2_GROSS",
+        "name_ru": "Кредиты Этап 2 (валовые)",
+        "name_en": "Loans Stage 2 (gross)",
+        "aliases_ru": [
+          "Валовая балансовая стоимость Этап 2",
+          "Кредиты и авансы клиентам Этап 2 Валовая стоимость",
+          "Кредиты клиентам Этап 2 Валовая стоимость"
+        ],
+        "aliases_en": [
+          "Stage 2 loans",
+          "Under-performing loans (Stage 2)"
+        ],
+        "description": "Валовая балансовая стоимость кредитов на стадии 2 (lifetime ECL без обесценения) по IFRS 9.",
+        "hint": "Примечание 'Кредиты клиентам' — таблица распределения по стадиям.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "LOANS_STAGE3_GROSS",
+        "name_ru": "Кредиты Этап 3 (валовые)",
+        "name_en": "Loans Stage 3 (gross)",
+        "aliases_ru": [
+          "Валовая балансовая стоимость Этап 3",
+          "Кредиты и авансы клиентам Этап 3 Валовая стоимость",
+          "Кредиты клиентам Этап 3 Валовая стоимость"
+        ],
+        "aliases_en": [
+          "Stage 3 loans",
+          "Non-performing loans (Stage 3)"
+        ],
+        "description": "Валовая балансовая стоимость обесцененных кредитов (стадия 3, lifetime ECL) по IFRS 9.",
+        "hint": "Примечание 'Кредиты клиентам' — таблица распределения по стадиям.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "ECL_ALLOWANCE_STAGE1",
+        "name_ru": "Резерв под обесценение кредитов Этап 1",
+        "name_en": "ECL allowance Stage 1",
+        "aliases_ru": [
+          "Оценочный резерв под ожидаемые кредитные убытки Этап 1",
+          "ОКУ Этап 1",
+          "Оценочный резерв под кредитные убытки по кредитам",
+          "предоставленным клиентам Этап 1"
+        ],
+        "aliases_en": [
+          "Stage 1 ECL allowance"
+        ],
+        "description": "Резерв под ожидаемые кредитные убытки на стадии 1 (12 месяцев).",
+        "hint": "Примечание 'Кредиты клиентам' / 'Резервы под обесценение'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "ECL_ALLOWANCE_STAGE2",
+        "name_ru": "Резерв под обесценение кредитов Этап 2",
+        "name_en": "ECL allowance Stage 2",
+        "aliases_ru": [
+          "Оценочный резерв под ожидаемые кредитные убытки Этап 2",
+          "ОКУ Этап 2",
+          "Оценочный резерв под кредитные убытки по кредитам",
+          "предоставленным клиентам Этап 2"
+        ],
+        "aliases_en": [
+          "Stage 2 ECL allowance"
+        ],
+        "description": "Резерв под ожидаемые кредитные убытки за весь срок жизни (стадия 2).",
+        "hint": "Примечание 'Кредиты клиентам' / 'Резервы под обесценение'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "ECL_ALLOWANCE_STAGE3",
+        "name_ru": "Резерв под обесценение кредитов Этап 3",
+        "name_en": "ECL allowance Stage 3",
+        "aliases_ru": [
+          "Оценочный резерв под ожидаемые кредитные убытки Этап 3",
+          "ОКУ Этап 3",
+          "Оценочный резерв под кредитные убытки по кредитам",
+          "предоставленным клиентам Этап 3"
+        ],
+        "aliases_en": [
+          "Stage 3 ECL allowance"
+        ],
+        "description": "Резерв под ожидаемые кредитные убытки за весь срок жизни (стадия 3, обесцененные кредиты).",
+        "hint": "Примечание 'Кредиты клиентам' / 'Резервы под обесценение'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SECURITIES_FVPL",
+        "name_ru": "Ценные бумаги по справедливой стоимости через прибыль или убыток",
+        "name_en": "Securities at FVPL",
+        "aliases_ru": [
+          "Финансовые активы",
+          "оцениваемые по ССЧПУ",
+          "Ценные бумаги",
+          "оцениваемые по справедливой стоимости через прибыль или убыток",
+          "Финансовые активы",
+          "оцениваемые по справедливой стоимости через прибыль или убыток"
+        ],
+        "aliases_en": [
+          "Financial assets at FVTPL",
+          "Securities at fair value through profit or loss"
+        ],
+        "description": "Финансовые активы, оцениваемые по справедливой стоимости через ОПУ.",
+        "hint": "Балансовый отчёт банка. Категория измерения по IFRS 9.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SECURITIES_FVOCI",
+        "name_ru": "Ценные бумаги по справедливой стоимости через прочий совокупный доход (FVOCI)",
+        "name_en": "Securities at FVOCI",
+        "aliases_ru": [
+          "Финансовые активы",
+          "оцениваемые по ССПСД",
+          "Ценные бумаги",
+          "оцениваемые по справедливой стоимости через прибыль или убыток",
+          "Финансовые активы",
+          "оцениваемые по справедливой стоимости через прибыль или убыток"
+        ],
+        "aliases_en": [
+          "Financial assets at FVOCI",
+          "AFS securities"
+        ],
+        "description": "Финансовые активы, оцениваемые по справедливой стоимости через ПСД (по IFRS 9).",
+        "hint": "Балансовый отчёт банка. Категория измерения по IFRS 9.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "SECURITIES_AMORTISED_COST",
+        "name_ru": "Ценные бумаги по амортизированной стоимости (AC)",
+        "name_en": "Securities at amortised cost",
+        "aliases_ru": [
+          "Финансовые активы по амортизированной стоимости",
+          "AC securities"
+        ],
+        "aliases_en": [
+          "Financial assets at amortised cost",
+          "HTM securities"
+        ],
+        "description": "Долговые ценные бумаги, удерживаемые до погашения, по амортизированной стоимости.",
+        "hint": "Балансовый отчёт банка. Категория измерения по IFRS 9.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "REPO_PLEDGED_SECURITIES",
+        "name_ru": "Ценные бумаги, заложенные по договорам репо",
+        "name_en": "Securities pledged under repo",
+        "aliases_ru": [
+          "Ценные бумаги",
+          "заложенные по РЕПО",
+          "Переданные в обеспечение ценные бумаги"
+        ],
+        "aliases_en": [
+          "Securities sold under repurchase agreements",
+          "Pledged securities"
+        ],
+        "description": "Ценные бумаги, переданные в залог по сделкам репо.",
+        "hint": "Балансовый отчёт или Примечание 'Финансовые инструменты'. Внебалансовая или балансовая статья в зависимости от учётной политики.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "RISK_WEIGHTED_ASSETS",
+        "name_ru": "Активы, взвешенные по риску (RWA)",
+        "name_en": "Risk-weighted assets (RWA)",
+        "aliases_ru": [
+          "RWA"
+        ],
+        "aliases_en": [
+          "Risk-weighted assets",
+          "RWA"
+        ],
+        "description": "Активы, взвешенные по уровню риска для расчёта нормативов достаточности капитала.",
+        "hint": "Примечание 'Достаточность капитала' / 'Управление капиталом'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "CET1_RATIO_DISCLOSED",
+        "name_ru": "Норматив CET1 (раскрываемый)",
+        "name_en": "CET1 ratio (disclosed)",
+        "aliases_ru": [
+          "CET1 ratio",
+          "норматив Н 1.0",
+          "норматив Н 20.1"
+        ],
+        "aliases_en": [
+          "CET1 capital ratio",
+          "Common equity Tier 1 ratio"
+        ],
+        "description": "Раскрываемый банком норматив достаточности базового капитала первого уровня.",
+        "hint": "Примечание 'Достаточность капитала'. Единица — проценты.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "TIER1_RATIO_DISCLOSED",
+        "name_ru": "Норматив Tier 1 (раскрываемый)",
+        "name_en": "Tier 1 ratio (disclosed)",
+        "aliases_ru": [
+          "Tier 1 ratio",
+          "норматив Н 1.1",
+          "норматив Н 20.2"
+        ],
+        "aliases_en": [
+          "Tier 1 capital ratio"
+        ],
+        "description": "Раскрываемый банком норматив достаточности капитала первого уровня (в процентах).",
+        "hint": "Примечание 'Достаточность капитала'. Единица — проценты.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "EPS",
+        "name_ru": "Прибыль на одну обыкновенную акцию",
+        "name_en": "Earnings per ordinary share",
+        "aliases_ru": [
+          "Прибыль на акцию"
+        ],
+        "aliases_en": [
+          "Earnings per share",
+          "EPS",
+          "Basic EPS",
+          "Basic earnings per share"
+        ],
+        "description": "Чистая прибыль на одну обыкновенную акцию (валюта на акцию, не в миллионах).",
+        "hint": "P&L: строка Basic earnings per share после net income. Бери Basic, не Diluted; значение может быть дробным и обычно имеет единицу валюта/share, не millions.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "DIVIDENDS_RECEIVED",
+        "name_ru": "Дивиденды полученные",
+        "name_en": "Dividends received",
+        "aliases_ru": [
+          "Полученные дивиденды"
+        ],
+        "aliases_en": [
+          "Cash dividends received"
+        ],
+        "description": "Денежные поступления дивидендов от ассоциированных и прочих компаний.",
+        "hint": "ОДДС, раздел 'Инвестиционная деятельность'.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB, ДГР",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "CHANGE_IN_EXPECTED_CREDIT_LOSSES",
+        "name_ru": "Изменение резерва по ожидаемым кредитным убыткам",
+        "name_en": "Change in ECL",
+        "aliases_ru": [
+          "Резерв под кредитные убытки по денежжным средствам",
+          "их эквивалентам",
+          "средствам в других банках и кредитам и авансам клиентам"
+        ],
+        "aliases_en": [
+          "Movement in ECL allowance",
+          "Changes in ECL allowance"
+        ],
+        "description": "Изменение оценочных резервов ECL за период (по всем финансовым активам, не только кредитам).",
+        "hint": "P&L банка или таблица движения резервов: бери только чистый поток создания/восстановления/изменения ECL за период. Приоритетная строка: 'создание/формирование резервов', 'расходы по кредитным убыткам', 'изменение резерва по ожидаемым кредитным убыткам'. Если строка означает создание/расходы/формирование резервов, возвращай отрицательное значение; если восстановление/reversal — положительное. Не бери closing balance/остаток резерва на дату, NII before/after provisions, OCI/FVOCI reserve movement или сумму allowance в балансе. Если нет отдельной строки flow за период - null.",
+        "period_type": "duration",
+        "standard": "Любой",
+        "role": "CIB, ДГР, ДИЭ",
+        "formula_default_abs_behavior": false
+      },
+      {
+        "enum": "DEBT_SECURITIES_ISSUED",
+        "name_ru": "Выпущенные долговые ценные бумаги",
+        "name_en": "Debt securities issued",
+        "aliases_ru": [
+          "Выпущенные облигации",
+          "Долговые ценные бумаги в обращении"
+        ],
+        "aliases_en": [
+          "Bonds issued",
+          "Notes and bonds issued"
+        ],
+        "description": "Облигации и прочие долговые ценные бумаги, эмитированные банком.",
+        "hint": "Балансовый отчёт банка, обязательство. Детализация в Примечании 'Долговые ценные бумаги'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "CIB",
+        "formula_default_abs_behavior": true
+      },
+      {
+        "enum": "LEASE_LIABILITIES_BANKS",
+        "name_ru": "Обязательства по аренде",
+        "name_en": "Lease liabilities",
+        "aliases_ru": [
+          "Арендные обязательства"
+        ],
+        "aliases_en": [
+          "Lease liabilities"
+        ],
+        "description": "Обязательства по аренде по IFRS 16 у банка (общая сумма, без разбивки на долго/краткосрочные).",
+        "hint": "Балансовый отчёт банка, обязательство. Также в Примечании 'IFRS 16'.",
+        "period_type": "point",
+        "standard": "Любой",
+        "role": "Общий ответ",
+        "formula_default_abs_behavior": true
+      }
+    ]
+  },
+  "calculated": {
+    "non_financial": [
+      {
+        "enum": "CAPEX",
+        "name_ru": "Капитальные затраты",
+        "name_en": "Capital expenditure",
+        "formula": "ASSET_PURCHASES + INTANGIBLE_ASSET_PURCHASES - ASSET_SALES_PROCEEDS",
+        "deps": [
+          "ASSET_PURCHASES",
+          "INTANGIBLE_ASSET_PURCHASES",
+          "ASSET_SALES_PROCEEDS"
+        ],
+        "role": "Общий ответ, ДИЭ, CIB, Риски",
+        "hint": "ОДДС или MD&A, раздел инвестиционной деятельности / capital expenditures. Если компания раскрывает итоговый CapEx/capital expenditures напрямую, бери раскрытый итог и все его колонки периодов, включая 3M/Q и 6M/YTD. Иначе используй приобретение ОС плюс НМА. Сохраняй знак/скобки как в источнике; не заменяй CapEx одной строкой покупки ОС, если есть отдельный итоговый CapEx или отдельная покупка НМА."
+      },
+      {
+        "enum": "DIVIDENDS",
+        "name_ru": "Дивиденды и уплаченные дивиденды",
+        "name_en": "Dividends \nor\nDividends paid",
+        "formula": "DIVIDENDS_SHAREHOLDERS + DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+        "deps": [
+          "DIVIDENDS_SHAREHOLDERS",
+          "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "TOTAL_DEBT",
+        "name_ru": "Общий долг",
+        "name_en": "Total debt",
+        "formula": "LONG_TERM_DEBT + LONG_TERM_LEASE_LIABILITIES + SHORT_TERM_BORROWINGS + SHORT_TERM_LEASE_LIABILITIES",
+        "deps": [
+          "LONG_TERM_DEBT",
+          "LONG_TERM_LEASE_LIABILITIES",
+          "SHORT_TERM_BORROWINGS",
+          "SHORT_TERM_LEASE_LIABILITIES"
+        ],
+        "role": "Общий ответ, Риски, CIB"
+      },
+      {
+        "enum": "NET_DEBT",
+        "name_ru": "Чистый долг",
+        "name_en": "Net debt",
+        "formula": "TOTAL_DEBT – CASH_EQUIVALENTS - BANK_DEPOSITS",
+        "deps": [
+          "TOTAL_DEBT",
+          "CASH_EQUIVALENTS",
+          "BANK_DEPOSITS"
+        ],
+        "role": "Общий ответ, Риски, CIB"
+      },
+      {
+        "enum": "EBITDA",
+        "name_ru": "Прибыль до вычета процентов, налогов, износа и амортизации",
+        "name_en": "EBITDA",
+        "formula": "OPERATING_PROFIT + DEPRECIATION_AMORTIZATION",
+        "deps": [
+          "OPERATING_PROFIT",
+          "DEPRECIATION_AMORTIZATION"
+        ],
+        "role": "Общий ответ, Риски, CIB",
+        "hint": "Сегментная отчётность или MD&A. Для main metric бери итог/Total по EBITDA, не отдельный сегмент, не elimination-only строку и не EBITDA before IFRS 16/adjusted subtotal, если раскрыт консолидированный total. Если строка 'EBITDA по сегменту' содержит сегменты, исключения/eliminations и затем итоговые значения в последних колонках или в конце строки, бери эти итоговые значения как main EBITDA. Возвращай null только если явной строки EBITDA/OIBDA нет."
+      },
+      {
+        "enum": "RATIO_NET_DEBT_EBITDA",
+        "name_ru": "Чистый долг / Прибыль до вычета процентов, налогов, износа и амортизации",
+        "name_en": "Net-Debt-To-EBITDA ratio",
+        "formula": "NET_DEBT / ANNUAL(EBITDA)",
+        "deps": [
+          "NET_DEBT",
+          "EBITDA"
+        ],
+        "role": "Общий ответ, Риски, CIB"
+      },
+      {
+        "enum": "NET_INTEREST_PAID",
+        "name_ru": "Чистые уплаченные проценты",
+        "name_en": "Net interest paid",
+        "formula": "INTEREST_PAID – INTEREST_RECEIVED",
+        "deps": [
+          "INTEREST_PAID",
+          "INTEREST_RECEIVED"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "EBITDA_MARGIN",
+        "name_ru": "Рентабельность по EBITDA",
+        "name_en": "EBITDA margin",
+        "formula": "EBITDA / SALES_REVENUE * 100%",
+        "deps": [
+          "EBITDA",
+          "SALES_REVENUE"
+        ],
+        "role": "Общий ответ, Риски, CIB"
+      },
+      {
+        "enum": "INVESTMENTS",
+        "name_ru": "Инвестиции",
+        "name_en": "Investments",
+        "formula": "SUBSIDIARY_ACQUISITIONS + ASSOCIATE_INVESTMENTS – ASSOCIATE_INCOMES",
+        "deps": [
+          "SUBSIDIARY_ACQUISITIONS",
+          "ASSOCIATE_INVESTMENTS",
+          "ASSOCIATE_INCOMES"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "FREE_CASH_FLOW",
+        "name_ru": "Свободный денежный поток",
+        "name_en": "Free cash flow",
+        "formula": "NET_OPERATING_CASH_FLOW – CAPEX",
+        "deps": [
+          "NET_OPERATING_CASH_FLOW",
+          "CAPEX"
+        ],
+        "role": "Общий ответ, ДИЭ, Риски"
+      },
+      {
+        "enum": "FREE_CASH_FLOW_FIRM",
+        "name_ru": "Свободный денежный поток (для кредиторов)",
+        "name_en": "Free cash flow to firm",
+        "formula": "FREE_CASH_FLOW – INVESTMENTS – DIVIDENDS",
+        "deps": [
+          "FREE_CASH_FLOW",
+          "INVESTMENTS",
+          "DIVIDENDS"
+        ],
+        "role": "Общий ответ"
+      },
+      {
+        "enum": "COMBINED_ASSET_PURCHASES",
+        "name_ru": "Приобретение основных средств и нематериальных активов",
+        "name_en": "Fixed asset purchases",
+        "formula": "ASSET_PURCHASES + INTANGIBLE_ASSET_PURCHASES",
+        "deps": [
+          "ASSET_PURCHASES",
+          "INTANGIBLE_ASSET_PURCHASES"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "GROSS_PROFIT",
+        "name_ru": "Валовая прибыль",
+        "name_en": "Gross profit",
+        "formula": "SALES_REVENUE – COSTS_EXPENSES",
+        "deps": [
+          "SALES_REVENUE",
+          "COSTS_EXPENSES"
+        ],
+        "role": "Общий ответ, ДИЭ, CIB"
+      },
+      {
+        "enum": "EBIT_MARGIN",
+        "name_ru": "Рентабельность по EBIT",
+        "name_en": "EBIT margin",
+        "formula": "OPERATING_PROFIT / SALES_REVENUE * 100%",
+        "deps": [
+          "OPERATING_PROFIT",
+          "SALES_REVENUE"
+        ],
+        "role": "Общий ответ, ДИЭ, CIB"
+      },
+      {
+        "enum": "DEBT_TO_EQUITY_RATIO",
+        "name_ru": "Коэффициент левериджа",
+        "name_en": "Debt-To-Equity ratio",
+        "formula": "TOTAL_DEBT / TOTAL_EQUITY",
+        "deps": [
+          "TOTAL_DEBT",
+          "TOTAL_EQUITY"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "ACCOUNTS_PAYABLE_TURNOVER",
+        "name_ru": "Оборачиваемость кредиторской задолженности",
+        "name_en": "Accounts payable turnover",
+        "formula": "DAYS_IN_PERIOD / (COSTS_EXPENSES / AVG (ACCOUNTS_PAYABLE))",
+        "deps": [
+          "COSTS_EXPENSES",
+          "ACCOUNTS_PAYABLE"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "ACCOUNTS_RECEIVABLE_TURNOVER",
+        "name_ru": "Оборачиваемость дебиторской задолженности",
+        "name_en": "Accounts receivable turnover",
+        "formula": "DAYS_IN_PERIOD / (SALES_REVENUE / AVG (ACCOUNTS_RECEIVABLE))",
+        "deps": [
+          "SALES_REVENUE",
+          "ACCOUNTS_RECEIVABLE"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "INVENTORIES_TURNOVER",
+        "name_ru": "Оборачиваемость запасов",
+        "name_en": "Inventories turnover",
+        "formula": "DAYS_IN_PERIOD / (COSTS_EXPENSES / AVG (INVENTORIES))",
+        "deps": [
+          "COSTS_EXPENSES",
+          "INVENTORIES"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "CASH_CONVERSION_CYCLE",
+        "name_ru": "Финансовый (денежный) цикл",
+        "name_en": "Cash conversion cycle",
+        "formula": "ACCOUNTS_RECEIVABLE_TURNOVER + INVENTORIES_TURNOVER - ACCOUNTS_PAYABLE_TURNOVER",
+        "deps": [
+          "ACCOUNTS_RECEIVABLE_TURNOVER",
+          "INVENTORIES_TURNOVER",
+          "ACCOUNTS_PAYABLE_TURNOVER"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "CURRENT_RATIO",
+        "name_ru": "Коэффициент текущей ликвидности",
+        "name_en": "Current ratio",
+        "formula": "TOTAL_CURRENT_ASSETS / TOTAL_CURRENT_LIABILITIES",
+        "deps": [
+          "TOTAL_CURRENT_ASSETS",
+          "TOTAL_CURRENT_LIABILITIES"
+        ],
+        "role": "Общий ответ, Риски, CIB"
+      },
+      {
+        "enum": "ROE",
+        "name_ru": "Рентабельность собственного капитала",
+        "name_en": "Return on equity (ROE)",
+        "formula": "NET_INCOME / AVG (TOTAL_EQUITY)",
+        "deps": [
+          "NET_INCOME",
+          "TOTAL_EQUITY"
+        ],
+        "role": "Общий ответ, Риски, CIB, ДИЭ, БАиФП"
+      },
+      {
+        "enum": "ASSETS_TO_EQUITY_RATIO",
+        "name_ru": "Финансовый рычаг",
+        "name_en": "Assets-To-Equity ratio",
+        "formula": "TOTAL_ASSETS / TOTAL_EQUITY",
+        "deps": [
+          "TOTAL_ASSETS",
+          "TOTAL_EQUITY"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "INTEREST_COVERAGE_RATIO",
+        "name_ru": "Коэффициент покрытия процентов",
+        "name_en": "Interest coverage ratio",
+        "formula": "EBITDA / NET_INTEREST_PAID",
+        "deps": [
+          "EBITDA",
+          "ABS",
+          "NET_INTEREST_PAID"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "NET_INCOME_MARGIN",
+        "name_ru": "Рентабельность по чистой прибыли",
+        "name_en": "Net income margin",
+        "formula": "NET_INCOME / SALES_REVENUE * 100%",
+        "deps": [
+          "NET_INCOME",
+          "SALES_REVENUE"
+        ],
+        "role": "Общий ответ, ДИЭ, CIB"
+      },
+      {
+        "enum": "ASSET_TURNOVER",
+        "name_ru": "Оборачиваемость активов",
+        "name_en": "Asset turnover",
+        "formula": "SALES_REVENUE / AVG (TOTAL_ASSETS)",
+        "deps": [
+          "SALES_REVENUE",
+          "TOTAL_ASSETS"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "FIXED_ASSET_TURNOVER",
+        "name_ru": "Оборачиваемость основных средств",
+        "name_en": "Fixed asset turnover",
+        "formula": "SALES_REVENUE / AVG (RIGHT_OF_USE_ASSETS + PPE)",
+        "deps": [
+          "SALES_REVENUE",
+          "RIGHT_OF_USE_ASSETS",
+          "PPE"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "ROA",
+        "name_ru": "Рентабельность активов",
+        "name_en": "Return on assets (ROA)",
+        "formula": "NET_INCOME / AVG (TOTAL_ASSETS) * 100%",
+        "deps": [
+          "NET_INCOME",
+          "TOTAL_ASSETS"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "TOTAL_CASH_EQUIVALENTS",
+        "name_ru": "Денежные средства и краткосрочные депозиты",
+        "name_en": "Cash and cash equivalents",
+        "formula": "CASH_EQUIVALENTS + BANK_DEPOSITS",
+        "deps": [
+          "CASH_EQUIVALENTS",
+          "BANK_DEPOSITS"
+        ],
+        "role": "Риски, CIB"
+      },
+      {
+        "enum": "RATIO_TOTAL_DEBT_NOCF",
+        "name_ru": "Отношение долга к чистому денежному потоку от операционной деятельности",
+        "name_en": "Total debt to net operating cash flow",
+        "formula": "TOTAL_DEBT / ANNUAL(NET_OPERATING_CASH_FLOW)",
+        "deps": [
+          "TOTAL_DEBT",
+          "NET_OPERATING_CASH_FLOW"
+        ],
+        "role": "Риски, CIB"
+      },
+      {
+        "enum": "EBITDA_TO_INTEREST_PAID",
+        "name_ru": "Отношение EBITDA к уплаченным процентам",
+        "name_en": "Ebitda to interest paid",
+        "formula": "EBITDA / INTEREST_PAID",
+        "deps": [
+          "EBITDA",
+          "INTEREST_PAID"
+        ],
+        "role": "Риски, CIB"
+      },
+      {
+        "enum": "FCF_TO_INTEREST_PAID",
+        "name_ru": "Отношение свободного денежного потока у процентам уплаченным",
+        "name_en": "Free cash flow to interest paid",
+        "formula": "FREE_CASH_FLOW / INTEREST_PAID",
+        "deps": [
+          "FREE_CASH_FLOW",
+          "INTEREST_PAID"
+        ],
+        "role": "Риски"
+      },
+      {
+        "enum": "CASH_TO_SHORT_TERM_DEBT",
+        "name_ru": "Отношение денежных средств и эквивалентов к краткосрочному долгу",
+        "name_en": "Cash to short term debt",
+        "formula": "TOTAL_CASH_EQUIVALENTS / (SHORT_TERM_BORROWINGS + SHORT_TERM_LEASE_LIABILITIES) * 100%",
+        "deps": [
+          "TOTAL_CASH_EQUIVALENTS",
+          "SHORT_TERM_BORROWINGS",
+          "SHORT_TERM_LEASE_LIABILITIES"
+        ],
+        "role": "Риски, CIB"
+      },
+      {
+        "enum": "SHORT_TERM_PORTION_OF_DEBT",
+        "name_ru": "Краткосрочная часть долга",
+        "name_en": "Short term portion of debt",
+        "formula": "(SHORT_TERM_BORROWINGS + SHORT_TERM_LEASE_LIABILITIES) / TOTAL_DEBT * 100%",
+        "deps": [
+          "SHORT_TERM_BORROWINGS",
+          "SHORT_TERM_LEASE_LIABILITIES",
+          "TOTAL_DEBT"
+        ],
+        "role": "Риски, CIB"
+      },
+      {
+        "enum": "RATIO_TOTAL_DEBT_EBITDA",
+        "name_ru": "Отношение общего долга к EBITDA",
+        "name_en": "Ratio total debt to EBITDA",
+        "formula": "TOTAL_DEBT / ANNUAL(EBITDA)",
+        "deps": [
+          "TOTAL_DEBT",
+          "EBITDA"
+        ],
+        "role": "Риски, CIB"
+      },
+      {
+        "enum": "TOTAL_LIABILITIES",
+        "name_ru": "Итого обязательства",
+        "name_en": "Total liabilities",
+        "formula": "TOTAL_ASSETS - TOTAL_EQUITY",
+        "deps": [
+          "TOTAL_ASSETS",
+          "TOTAL_EQUITY"
+        ],
+        "role": "Общий ответ, БАиФП, CIB, ДГР"
+      },
+      {
+        "enum": "CAPEX_TO_REVENUE",
+        "name_ru": "Отношение капитальных затрат к выручке",
+        "name_en": "Capex to Revenue Ratio",
+        "formula": "CAPEX / SALES_REVENUE * 100%",
+        "deps": [
+          "CAPEX",
+          "SALES_REVENUE"
+        ],
+        "role": "ДИЭ, CIB"
+      },
+      {
+        "enum": "GROSS_MARGIN",
+        "name_ru": "Рентабельность по валовой прибыли",
+        "name_en": "Gross margin",
+        "formula": "GROSS_PROFIT / SALES_REVENUE * 100%",
+        "deps": [
+          "GROSS_PROFIT",
+          "SALES_REVENUE"
+        ],
+        "role": "ДИЭ, CIB"
+      },
+      {
+        "enum": "DIVIDEND_PAYOUT_RATIO",
+        "name_ru": "Коэффициент выплаты дивидендов",
+        "name_en": "Dividend payout ratio",
+        "formula": "DIVIDENDS / NET_INCOME",
+        "deps": [
+          "DIVIDENDS",
+          "NET_INCOME"
+        ],
+        "role": "ДИЭ, CIB"
+      },
+      {
+        "enum": "RIGHT_OF_USE_ASSETS",
+        "name_ru": "Активы в форме права пользования",
+        "name_en": "ROU",
+        "formula": "SHORT_TERM_ROU + LONG_TERM_ROU",
+        "deps": [
+          "SHORT_TERM_ROU",
+          "LONG_TERM_ROU"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "NET_DEBT_IAS_17",
+        "name_ru": "Чистый долг в соответствии с IAS 17",
+        "name_en": "Net debt in accordance with IAS 17",
+        "formula": "TOTAL_DEBT – CASH_EQUIVALENTS",
+        "deps": [
+          "TOTAL_DEBT",
+          "CASH_EQUIVALENTS"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "TOTAL_DEBT_IAS_17",
+        "name_ru": "Общий долг в соответствии с IAS 17",
+        "name_en": "Total debt in accordance with IAS 17",
+        "formula": "LONG_TERM_DEBT + SHORT_TERM_BORROWINGS",
+        "deps": [
+          "LONG_TERM_DEBT",
+          "SHORT_TERM_BORROWINGS"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "TAX_EXPENDITURE",
+        "name_ru": "Общий расход по налогу",
+        "name_en": "Total Tax expenditure",
+        "formula": "EBT - NET_INCOME",
+        "deps": [
+          "EBT",
+          "NET_INCOME"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "FREE_CASH_FLOW_GEN",
+        "name_ru": "Свободный денежный поток",
+        "name_en": "Free Cash Flow",
+        "formula": "EBITDA + CHANGES_OCF_ASSETS_LIABILITIES - TAX_EXPENDITURE - CAPEX - NET_INTEREST_PAID - DIVIDENDS + DIVIDENDS_RECEIVED",
+        "deps": [
+          "EBITDA",
+          "CHANGES_OCF_ASSETS_LIABILITIES",
+          "TAX_EXPENDITURE",
+          "CAPEX",
+          "NET_INTEREST_PAID",
+          "DIVIDENDS",
+          "DIVIDENDS_RECEIVED"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "FREE_CASH_FLOW_DEBT",
+        "name_ru": "Свободный денежный поток (для кредиторов)",
+        "name_en": "Free Cash Flow (Debt)",
+        "formula": "FREE_CASH_FLOW_GEN – INVESTMENTS – DIVIDENDS_SHAREHOLDERS - PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+        "deps": [
+          "FREE_CASH_FLOW_GEN",
+          "INVESTMENTS",
+          "DIVIDENDS_SHAREHOLDERS",
+          "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "ADJ_OCF_TO_INTEREST_PAID",
+        "name_ru": "Отношение скорректированного  операционного денежного потока у процентам уплаченным",
+        "name_en": "Adjusted operating cash flow to interest paid",
+        "formula": "(FREE_CASH_FLOW_DEBT + CAPEX + INTEREST_PAID)/ INTEREST_PAID",
+        "deps": [
+          "FREE_CASH_FLOW_DEBT",
+          "CAPEX",
+          "INTEREST_PAID"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "NET_INSURANCE_INCOME",
+        "name_ru": "Чистый страховой доход",
+        "name_en": "Net insurance income",
+        "formula": "INSURANCE_INCOME - INSURANCE_EXPENSE",
+        "deps": [
+          "INSURANCE_INCOME",
+          "INSURANCE_EXPENSE"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "FCF_TO_INTEREST_PAID_CIB",
+        "name_ru": "Отношение свободного денежного потока к процентам уплаченным (CIB)",
+        "name_en": "Free Cash Flow (CIB)",
+        "formula": "FREE_CASH_FLOW_GEN / INTEREST_PAID",
+        "deps": [
+          "FREE_CASH_FLOW_GEN",
+          "INTEREST_PAID"
+        ],
+        "role": "CIB"
+      }
+    ],
+    "bank": [
+      {
+        "enum": "DIVIDENDS",
+        "name_ru": "Дивиденды и уплаченные дивиденды",
+        "name_en": "Dividends \nor\nDividends paid",
+        "formula": "DIVIDENDS_SHAREHOLDERS + DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+        "deps": [
+          "DIVIDENDS_SHAREHOLDERS",
+          "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "NET_INTEREST_PAID",
+        "name_ru": "Чистые уплаченные проценты",
+        "name_en": "Net interest paid",
+        "formula": "INTEREST_PAID – INTEREST_RECEIVED",
+        "deps": [
+          "INTEREST_PAID",
+          "INTEREST_RECEIVED"
+        ],
+        "role": "Общий ответ, CIB"
+      },
+      {
+        "enum": "ROE",
+        "name_ru": "Рентабельность собственного капитала",
+        "name_en": "Return on equity (ROE)",
+        "formula": "NET_INCOME / AVG (TOTAL_EQUITY)",
+        "deps": [
+          "NET_INCOME",
+          "TOTAL_EQUITY"
+        ],
+        "role": "Общий ответ, CIB, ДИЭ, БАиФП"
+      },
+      {
+        "enum": "TAX_EXPENDITURE",
+        "name_ru": "Общий расход по налогу",
+        "name_en": "Total Tax expenditure",
+        "formula": "EBT - NET_INCOME",
+        "deps": [
+          "EBT",
+          "NET_INCOME"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "ORGANIC_NET_INCOME",
+        "name_ru": "Органическая чистая прибыль",
+        "name_en": "Organic net income",
+        "formula": "(NET_INTEREST_INCOME + NET_COMMISSION_INCOME - TOTAL_CREDIT_ALLOWANCE - OPERATING_EXPENSES_BANKS) * 0,75",
+        "deps": [
+          "NET_INTEREST_INCOME",
+          "NET_COMMISSION_INCOME",
+          "TOTAL_CREDIT_ALLOWANCE",
+          "OPERATING_EXPENSES_BANKS"
+        ],
+        "role": "БАиФП"
+      },
+      {
+        "enum": "NON_REGULAR_NET_INCOME",
+        "name_ru": "Нерегулярная чистая прибыль",
+        "name_en": "Non-regular net income",
+        "formula": "NET_INCOME - ORGANIC_NET_INCOME - DEFERRED_TAX_ASSETS",
+        "deps": [
+          "NET_INCOME",
+          "ORGANIC_NET_INCOME",
+          "DEFERRED_TAX_ASSETS"
+        ],
+        "role": "БАиФП, CIB"
+      },
+      {
+        "enum": "OPERATING_INCOME_CIR",
+        "name_ru": "Операционный доход, рассчитанный через CIR",
+        "name_en": "Operating income calculated through CIR",
+        "formula": "OPERATING_EXPENSES_BANKS / COST_TO_INCOME_RATIO",
+        "deps": [
+          "OPERATING_EXPENSES_BANKS",
+          "COST_TO_INCOME_RATIO"
+        ],
+        "role": "БАиФП, CIB"
+      },
+      {
+        "enum": "EXTREMELY_LIQUID_ASSETS",
+        "name_ru": "Высоколиквидные активы",
+        "name_en": "Highly liquid assets",
+        "formula": "CASH_EQUIVALENTS + INTERBANK_DEPOSITS",
+        "deps": [
+          "CASH_EQUIVALENTS",
+          "INTERBANK_DEPOSITS"
+        ],
+        "role": "БАиФП, CIB"
+      },
+      {
+        "enum": "NET_OTHER_ASSETS",
+        "name_ru": "Чистые прочие активы",
+        "name_en": "Net other assets",
+        "formula": "OTHER_ASSETS - TOTAL_CREDIT_ALLOWANCE",
+        "deps": [
+          "OTHER_ASSETS",
+          "TOTAL_CREDIT_ALLOWANCE"
+        ],
+        "role": "БАиФП, CIB"
+      },
+      {
+        "enum": "OTHER_OTHER_ASSETS",
+        "name_ru": "Прочие нефинансовые активы",
+        "name_en": "Other non-financial assets",
+        "formula": "NET_OTHER_ASSETS - PPE - INTANGIBLE_ASSETS - TOTAL_ASSOCIATE_INVESTMENTS",
+        "deps": [
+          "NET_OTHER_ASSETS",
+          "PPE",
+          "INTANGIBLE_ASSETS",
+          "TOTAL_ASSOCIATE_INVESTMENTS"
+        ],
+        "role": "БАиФП, CIB"
+      },
+      {
+        "enum": "NON_CONSUMER_DEPOSITS",
+        "name_ru": "Средства Юридических лиц",
+        "name_en": "Non-consumer deposits",
+        "formula": "CORPORATE_DEPOSITS + GOVERNMENTAL_DEPOSITS",
+        "deps": [
+          "CORPORATE_DEPOSITS",
+          "GOVERNMENTAL_DEPOSITS"
+        ],
+        "role": "БАиФП, CIB"
+      },
+      {
+        "enum": "TOTAL_LIABILITIES",
+        "name_ru": "Итого обязательства",
+        "name_en": "Total liabilities",
+        "formula": "TOTAL_ASSETS - TOTAL_EQUITY",
+        "deps": [
+          "TOTAL_ASSETS",
+          "TOTAL_EQUITY"
+        ],
+        "role": "Общий ответ, БАиФП, CIB, ДГР"
+      },
+      {
+        "enum": "NET_OTHER_LIABILITIES",
+        "name_ru": "Чистые прочие обязательства",
+        "name_en": "Net Other lliabilities",
+        "formula": "OTHER_LIABILITIES - JUNIOR_DEBT",
+        "deps": [
+          "OTHER_LIABILITIES",
+          "JUNIOR_DEBT"
+        ],
+        "role": "БАиФП, CIB"
+      },
+      {
+        "enum": "CORPORATE_LOANS_TO_DEPOSITS_RATIO",
+        "name_ru": "Отношение кредитов к Депозитам (Юр. лица)",
+        "name_en": "Loans to deposits ratio (corporate sector only)",
+        "formula": "CORPORATE_LOANS  / NON_CONSUMER_DEPOSITS * 100",
+        "deps": [
+          "CORPORATE_LOANS",
+          "NON_CONSUMER_DEPOSITS"
+        ],
+        "role": "БАиФП, CIB"
+      },
+      {
+        "enum": "LOANS_TO_DEPOSITS",
+        "name_ru": "Отношение кредитов к Депозитам",
+        "name_en": "Loans to deposits ratio",
+        "formula": "TOTAL_LOANS_TO_CLIENTS / CLIENT_DEPOSITS",
+        "deps": [
+          "TOTAL_LOANS_TO_CLIENTS",
+          "CLIENT_DEPOSITS"
+        ],
+        "role": "ДИЭ, CIB"
+      },
+      {
+        "enum": "DIVIDEND_PAYOUT_RATIO",
+        "name_ru": "Коэффициент выплаты дивидендов",
+        "name_en": "Dividend payout ratio",
+        "formula": "DIVIDENDS / NET_INCOME",
+        "deps": [
+          "DIVIDENDS",
+          "NET_INCOME"
+        ],
+        "role": "ДИЭ, CIB"
+      },
+      {
+        "enum": "NET_INSURANCE_INCOME",
+        "name_ru": "Чистый страховой доход",
+        "name_en": "Net insurance income",
+        "formula": "INSURANCE_INCOME - INSURANCE_EXPENSE",
+        "deps": [
+          "INSURANCE_INCOME",
+          "INSURANCE_EXPENSE"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "COST_TO_INCOME_RATIO",
+        "name_ru": "Отношение расходов к доходам (Cost/Income)",
+        "name_en": "Cost to Income Ratio",
+        "formula": "OPERATING_EXPENSES_BANKS / OPERATING_INCOME_BANKS",
+        "deps": [
+          "OPERATING_INCOME_BANKS",
+          "OPERATING_EXPENSES_BANKS"
+        ],
+        "role": "CIB, ДИЭ, БАиФП"
+      },
+      {
+        "enum": "COST_OF_RISK_GENERAL",
+        "name_ru": "Стоимость риска (CoR)",
+        "name_en": "Cost of risk (CoR)",
+        "formula": "ABS(CHANGE_IN_EXPECTED_CREDIT_LOSSES) / AVG(TOTAL_LOANS_TO_CLIENTS)",
+        "deps": [
+          "CHANGE_IN_EXPECTED_CREDIT_LOSSES",
+          "TOTAL_LOANS_TO_CLIENTS"
+        ],
+        "role": "CIB, БАиФП, ДИЭ"
+      },
+      {
+        "enum": "INTEREST_EARNING_ASSETS",
+        "name_ru": "Процентные активы",
+        "name_en": "Interest-earning assets",
+        "formula": "TOTAL_LOANS_TO_CLIENTS + SECURITIES_ASSETS + INTERBANK_DEPOSITS",
+        "deps": [
+          "TOTAL_LOANS_TO_CLIENTS",
+          "SECURITIES_ASSETS",
+          "INTERBANK_DEPOSITS"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "INTEREST_BEARING_LIABILITIES",
+        "name_ru": "Процентные обязательства",
+        "name_en": "Interest-bearing liabilities",
+        "formula": "CLIENT_DEPOSITS + INTERBANK_LOANS + DEBT_SECURITIES_ISSUED + FUNDS_FROM_CENTRAL_BANK + JUNIOR_DEBT",
+        "deps": [
+          "CLIENT_DEPOSITS",
+          "INTERBANK_LOANS",
+          "DEBT_SECURITIES_ISSUED",
+          "FUNDS_FROM_CENTRAL_BANK",
+          "JUNIOR_DEBT"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "NET_INTEREST_MARGIN",
+        "name_ru": "Чистая процентная маржа (NIM)",
+        "name_en": "Net interest margin (NIM)",
+        "formula": "NET_INTEREST_INCOME / AVG (INTEREST_EARNING_ASSETS)",
+        "deps": [
+          "NET_INTEREST_INCOME",
+          "INTEREST_EARNING_ASSETS"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "COST_TO_ASSETS",
+        "name_ru": "Затраты к активам",
+        "name_en": "Cost-to-assets",
+        "formula": "OPERATING_EXPENSES_BANKS / AVG(TOTAL_ASSETS)",
+        "deps": [
+          "OPERATING_EXPENSES_BANKS",
+          "TOTAL_ASSETS"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "STAGE3_RATIO",
+        "name_ru": "Доля Stage 3 (proxy NPL)",
+        "name_en": "Stage 3 loans ratio (proxy NPL)",
+        "formula": "LOANS_STAGE3_GROSS / TOTAL_LOANS_TO_CLIENTS",
+        "deps": [
+          "LOANS_STAGE3_GROSS",
+          "TOTAL_LOANS_TO_CLIENTS"
+        ],
+        "role": "CIB, БАиФП"
+      },
+      {
+        "enum": "STAGE3_COVERAGE",
+        "name_ru": "Покрытие Stage 3 резервами",
+        "name_en": "Stage 3 coverage ratio",
+        "formula": "ECL_ALLOWANCE_STAGE3 / LOANS_STAGE3_GROSS",
+        "deps": [
+          "ECL_ALLOWANCE_STAGE3",
+          "LOANS_STAGE3_GROSS"
+        ],
+        "role": "CIB, БАиФП"
+      },
+      {
+        "enum": "RETAIL_DEPOSIT_SHARE",
+        "name_ru": "Доля розничных депозитов",
+        "name_en": "Retail deposits share",
+        "formula": "INDIVIDUALS_DEPOSITS / (INDIVIDUALS_DEPOSITS + CORPORATE_DEPOSITS)",
+        "deps": [
+          "INDIVIDUALS_DEPOSITS",
+          "CORPORATE_DEPOSITS"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "RWA_DENSITY",
+        "name_ru": "Плотность RWA",
+        "name_en": "RWA density",
+        "formula": "RISK_WEIGHTED_ASSETS / TOTAL_ASSETS",
+        "deps": [
+          "RISK_WEIGHTED_ASSETS",
+          "TOTAL_ASSETS"
+        ],
+        "role": "CIB"
+      },
+      {
+        "enum": "NET_COMMISSION_INCOME",
+        "name_ru": "Чистый комиссионный доход",
+        "name_en": "Net comission and fee income",
+        "formula": "FEE_AND_COMMISSION_INCOME - FEE_AND_COMMISSION_EXPENSE",
+        "deps": [
+          "FEE_AND_COMMISSION_INCOME",
+          "FEE_AND_COMMISSION_EXPENSE"
+        ],
+        "role": "БАиФП, CIB, ДГР",
+        "hint": "P&L банка. Если в отчёте отдельно не раскрыт — null (мы досчитаем). В interim-отчетах с колонками 3M/Q и 6M/YTD возвращай обе группы периодов, не только YTD."
+      }
+    ]
+  }
+}

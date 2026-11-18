@@ -1,0 +1,66 @@
+# FA-CLAW tool whitelist
+#
+# Controls which tools from the in-code REGISTRY are EXPOSED to the
+# OpenClaw agent. Removing a tool from `enabled` makes it invisible to
+# the agent without deleting its handler (handler stays in tools.py).
+#
+# Per the AUA regulatory framework (УЭК-АУА-7, УЭК-АУА-13): the agent
+# may only use tools from a centralized, controlled catalog. Adding a
+# new tool to this list is the explicit "approval" gesture — change
+# goes through git, reviewable.
+#
+# Format:
+#   enabled: list of tool names that should appear in the agent's
+#            function-calling payload
+#   notes:   free-text comments, ignored by code
+
+enabled:
+  - fe_news_lookup      # поиск по УЖЕ собранным новостям дайджеста. Заведён
+                        # 17.08 после живого хода: агент не смог ответить про
+                        # новость из СВОЕГО ЖЕ выпуска и девять раз позвал
+                        # веб-поиск — читать собранное было нечем.
+  - fe_methodology      # правка МЕТОДИКИ анализа под пользователя (#123):
+                        # адресная дельта к правилу вместо дописки в промпт;
+                        # scope=turn — «в этот раз», always — «считай так всегда»
+  - tavily_search       # web search via Tavily
+  - fetch_url           # one-shot URL→text. Use ONLY when the URL is part
+                        # of agent reasoning, NOT when the user dropped a
+                        # link to ask about it — use kb_add_url for that.
+  - list_sources        # list files uploaded as Sources to current project
+  - read_source         # read text content of a project Source by file_id
+  - fe_idp_ocr          # run IDP-OCR on a doc → text sidecar (agent-callable parse step)
+  - fe_scenario_settings
+  - fe_skill_editor      # #93: правка кода навыка по просьбе (glm-5.2, гейт, патч)  # #88: агент правит настройки автоматизаций (окно календаря, расписание)
+  - fe_classify_report  # classify report (lang/standard/company-type → cell), no LLM
+  - fe_find_report_online  # Срез 7 (A5): find + safely download + register a
+                        # report from the internet as an ordinary Document —
+                        # SSRF-checked, sha256-deduped, same doc.probe/textify
+                        # pipeline as manual upload downstream
+  - get_daily_registry  # bundled IR Daily config (79 companies, macro, regs, sources)
+  - get_watchlist       # per-(user, project) tracked-companies list
+  - update_watchlist    # add/remove a company from the watchlist
+  - daily_news_digest   # run/fetch Daily News ETL pipeline (replaces agentic search)
+  # kb_add_url / kb_search removed 2026-09-10 — снесены из REGISTRY коммитом
+  # e261150 (07.09, снос базы знаний чата); этот whitelist не тронули тогда.
+  - factor_analysis     # ФА Plan-Fact decomposition (xlsx-based, ТМХ-демо)
+  - ir_calendar_run     # hybrid ±14d corp-events calendar (IR sites + Finnhub +
+                        # e-disclosure + smart-lab), source-agreement confidence
+  - ask_user            # clarifying question with option cards (intercepted in
+                        # openclaw.py → ends the turn, hands the question to the user)
+  # ir_daily_run removed 2026-05-21 — Daily News is daily_news_digest now
+  # fe_registry_find removed 2026-08-19 — решение владельца: тулов в станции
+  # два (OCR и поиск в сети), остальное скиллсет. Его работу делает справочник
+  # ячейки station-skills/aifa-extract/method/catalogue/*.md, который едет в
+  # воркспейс гейтвея (deploy/sync_workspace_skills.sh) и назван в теле навыка.
+  # Handler и ToolDef остались в tools.py — см. шапку файла.
+
+notes: |
+  Adding a new tool requires:
+  1. Implementing handler in src/finengine/llm/tools.py
+  2. Adding ToolDef to REGISTRY
+  3. Adding the tool name to `enabled` list above
+  4. Updating workspace SKILLS.md so the agent knows the playbook
+  5. (Future) processing through П1518 if for production
+
+  See project_aua_regulatory_requirements.md for full compliance
+  context.

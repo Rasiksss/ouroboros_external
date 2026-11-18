@@ -1,0 +1,36 @@
+# EXAMPLE: no Redis/Radish integration is required.
+MTLS:
+- NAME: model-gateway
+  HOST: <MODEL_HOST>
+  PORT: 443
+- NAME: s3-host
+  HOST: <S3_HOST>
+  PORT: 443
+POSTGRES:
+- NAME: ouroboros-pg
+  HOST: <ISSUED_HOST>
+  IP: <ISSUED_IP>
+  PORT: 5432
+  INNERPORT: 15432
+- NAME: aifa-pg
+  HOST: <ISSUED_HOST>
+  IP: <ISSUED_IP>
+  PORT: 5432
+  INNERPORT: 15433
+- NAME: workstation-pg
+  HOST: <ISSUED_HOST>
+  IP: <ISSUED_IP>
+  PORT: 5432
+  INNERPORT: 15434
+KAFKA:
+  CLUSTERS:
+  - NAME: app-messages
+    HOSTS:
+    - HOST: <BROKER_HOST>
+      PORT: 9093
+    MESH_PORT: 19096
+    PROTOCOL: kafka
+INGRESS_WHITELIST:
+- NAME: aifa-ingress
+  CN: <TRUSTED_CLIENT_CN_PATTERN>
+  PATH: <ALLOWED_PATH_PATTERN>

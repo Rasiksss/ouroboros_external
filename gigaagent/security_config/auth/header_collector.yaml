@@ -1,0 +1,7 @@
+parameters:
+  - type: header
+    name: X-Sudir-Token
+    ttl_sec: 3600
+  - type: cookie
+    name: sudir_session
+    ttl_sec: 3600

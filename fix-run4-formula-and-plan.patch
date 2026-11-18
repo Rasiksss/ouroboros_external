@@ -1,0 +1,70 @@
+diff --git a/aifa/finengine/src/finengine/data/registry_layers/company__ifrs__bank.json b/aifa/finengine/src/finengine/data/registry_layers/company__ifrs__bank.json
+index f3d9d7b..eea60b3 100644
+--- a/aifa/finengine/src/finengine/data/registry_layers/company__ifrs__bank.json
++++ b/aifa/finengine/src/finengine/data/registry_layers/company__ifrs__bank.json
+@@ -553,8 +553,8 @@
+             "Interbank borrowings",
+             "Deposits from banks"
+           ],
+-          "description": "Кредиты, выданные другим банкам.",
+-          "hint": "Балансовый отчёт банка. Может быть отдельной строкой от кредитов клиентам.",
++          "description": "Средства, привлечённые от других банков: кредиты и депозиты банков.",
++          "hint": "Балансовый отчёт банка, обязательства. Не путать со средствами в банках (актив, INTERBANK_DEPOSITS).",
+           "standard": "Любой",
+           "period_type": "point",
+           "unit": "",
+diff --git a/aifa/finengine/src/finengine/skills/versioning.py b/aifa/finengine/src/finengine/skills/versioning.py
+index 03863fd..0da133e 100644
+--- a/aifa/finengine/src/finengine/skills/versioning.py
++++ b/aifa/finengine/src/finengine/skills/versioning.py
+@@ -52,7 +52,11 @@ from pathlib import Path
+ # Каталог ПОСТАВКИ. С #153 ячейка может читаться из внешнего каталога, но
+ # Старый каталог нужен только как compatibility marker для тестов и реальных
+ # legacy shelf/external profiles; built-in путь компилируется из layers.
+-from finengine.skills.metric_schema import _BUILTIN_REGISTRY_DIR as _REGISTRY_DIR
++from finengine.paths import PACKAGE_DIR
++
++# Только маркер legacy-раскладки: каталог может отсутствовать в поставке.
++# Встроенные правила ниже читаются через compiled_registry_for_profile.
++_REGISTRY_DIR = PACKAGE_DIR / "data" / "registry"
+ _DEFAULT_LEGACY_REGISTRY_DIR = Path(_REGISTRY_DIR)
+ 
+ # Общий реестр — вторая половина старого shelf/external формата: legacy adapter
+diff --git a/gigaagent/ouroboros/tools/service/task_planning.py b/gigaagent/ouroboros/tools/service/task_planning.py
+index dde750f..c8732e2 100644
+--- a/gigaagent/ouroboros/tools/service/task_planning.py
++++ b/gigaagent/ouroboros/tools/service/task_planning.py
+@@ -34,15 +34,27 @@ _FENCED_BLOCK = re.compile(r"```[A-Za-z]*[ \t]*\n(.*?)```", re.DOTALL)
+ 
+ 
+ def _proposal_json(message: str) -> str:
+-    """The planner's final message with a Markdown fence around the object, if it has one.
+-
+-    Models fence JSON no matter what the skill asks. The last fenced block holding an object is the
+-    proposal; a message without one stays as it is, so the validation error still names the real text.
+-    """
++    """Extract one complete proposal, allowing model commentary outside JSON."""
+     for block in reversed(_FENCED_BLOCK.findall(message)):
+         if block.strip().startswith("{"):
+             return block.strip()
+-    return message
++    decoder = json.JSONDecoder()
++    proposals: list[str] = []
++    offset = 0
++    for match in re.finditer(r"(?m)^[ \t]*\{", message):
++        start = message.index("{", match.start())
++        if start < offset:
++            continue
++        try:
++            _, length = decoder.raw_decode(message[start:])
++        except ValueError:
++            # Do not salvage nested fragments of a malformed proposal.
++            return message
++        proposals.append(message[start:start + length])
++        offset = start + length
++    if len(proposals) > 1:
++        raise ValueError("planning child returned multiple JSON objects; return one full proposal")
++    return proposals[0] if proposals else message
+ 
+ 
+ def _same_scope(ctx: ToolContext, task: TaskRecord) -> bool:

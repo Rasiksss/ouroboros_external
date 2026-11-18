@@ -1,0 +1,340 @@
+{
+  "schema_version": "registry-layer/v1",
+  "layer_id": "language.ifrs_nf_ru",
+  "version": "2026.09.22.1",
+  "kind": "language",
+  "priority": 300,
+  "selector": {
+    "standard": "ifrs",
+    "company_type": "non_financial",
+    "language": "ru"
+  },
+  "metrics": {
+    "extractable": [
+      {
+        "enum": "ADJUSTMENTS_OPERATING_CASH_FLOWS",
+        "fields": {
+          "aliases_ru": [
+            "Поправки (для неденежных статей)",
+            "Корректировки",
+            "Корректировки операционного денежного потока"
+          ],
+          "aliases_en": [
+            "Non-cash adjustments",
+            "Adjustments for non-cash items"
+          ],
+          "description": "Итог/сумма корректировок прибыли в операционном ДДС до изменений оборотного капитала.",
+          "hint": "МСФО ОДДС: суммируй строки блока корректировок после прибыли за период и до изменений оборотного капитала. Если итог блока не напечатан, суммируй только строки этого блока. Не включай изменения оборотного капитала, проценты, налоги и инвестиционный/финансовый ДДС."
+        }
+      },
+      {
+        "enum": "ASSET_PURCHASES",
+        "fields": {
+          "aliases_en": [
+            "Purchases of property, plant and equipment",
+            "Additions to properties, plant and equipment",
+            "Additions to PP&E"
+          ]
+        }
+      },
+      {
+        "enum": "ASSET_SALES_PROCEEDS",
+        "fields": {
+          "aliases_ru": [
+            "Поступления от реализации основных средств",
+            "Поступления от выбытия основных средств и нематериальных активов",
+            "Поступления от реализации нематериальных активов"
+          ],
+          "aliases_en": [
+            "Proceeds from sale of PP&E",
+            "Proceeds from disposal of fixed assets",
+            "Proceeds from divestitures, net",
+            "Proceeds from dispositions"
+          ],
+          "hint": "ОДДС, инвестиционная деятельность: денежные поступления от продажи/выбытия внеоборотных операционных активов. Если отдельно раскрыты поступления от продажи ОС и НМА, суммируй релевантные строки. Не бери только PPE, если есть proceeds from intangibles."
+        }
+      },
+      {
+        "enum": "CASH_EQUIVALENTS",
+        "fields": {
+          "hint": "Баланс, ОДДС или примечание к денежным средствам. Извлекай все явно раскрытые даты денежных средств и их эквивалентов, не только даты баланса; включай сравнительные начальные/конечные остатки, если они прямо показаны. Не путай с банковскими депозитами/time deposits и ценными бумагами."
+        }
+      },
+      {
+        "enum": "CHANGES_OCF_ASSETS_LIABILITIES",
+        "fields": {
+          "aliases_ru": [
+            "Изменения в операционных активах и обязательствах",
+            "Изменения оборотного капитала"
+          ],
+          "aliases_en": [
+            "Changes in operating assets and liabilities",
+            "Working capital movements"
+          ],
+          "description": "Итог/сумма изменений оборотного капитала внутри операционного ДДС.",
+          "hint": "МСФО ОДДС: суммируй блок изменений оборотного капитала / операционных активов и обязательств. Если итог блока не напечатан, суммируй только строки этого блока. Не включай неденежные корректировки, проценты, налоги и инвестиционный/финансовый ДДС."
+        }
+      },
+      {
+        "enum": "DEPRECIATION_AMORTIZATION",
+        "fields": {
+          "aliases_ru": [
+            "Амортизация основных средств и нематериальных активов",
+            "Износ и амортизация основных средств и нематериальных активов",
+            "Амортизация основных средств и АФПП",
+            "Амортизация основных средств и активов в форме права пользования",
+            "Амортизация нематериальных активов",
+            "Амортизация основных средств"
+          ],
+          "hint": "ОДДС/примечания: если рядом раскрыты Depreciation and amortization и отдельная amortization of acquisition-related intangibles, общая D&A — их сумма. Не путай с ROU amortization. РУССКИЕ ОТЧЁТЫ ЧАЩЕ ВСЕГО ДАЮТ ДВЕ СТРОКИ: «Амортизация основных средств и АФПП» (или «…и активов в форме права пользования») и «Амортизация нематериальных активов». Общая D&A — их СУММА; взять одну из них значит занизить показатель. ⚠️ В этой раскладке АФПП (право пользования) уже ВНУТРИ первой строки и отдельно не вычитается — предупреждение про ROU выше относится к англоязычным отчётам, где ROU-амортизация раскрыта самостоятельной строкой."
+        }
+      },
+      {
+        "enum": "DIVIDENDS",
+        "fields": {
+          "aliases_ru": [
+            "Дивиденды уплаченные",
+            "Дивиденды выплаченные",
+            "Выплаченные дивиденды"
+          ],
+          "aliases_en": [
+            "Dividends paid"
+          ],
+          "description": "Все денежные дивиденды, выплаченные группой за период.",
+          "hint": "ОДДС: все cash dividends paid за период. Если отдельно раскрыты дивиденды акционерам материнской компании и неконтролирующим долям, суммируй их. Только parent-only dividends относятся к DIVIDENDS_SHAREHOLDERS."
+        }
+      },
+      {
+        "enum": "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+        "fields": {
+          "aliases_ru": [
+            "Дивиденды",
+            "выплаченные неконтролирующим акционерам",
+            "Дивиденды",
+            "уплаченные акционерам с неконтролирующими долями участия"
+          ]
+        }
+      },
+      {
+        "enum": "EQUITY_SHAREHOLDERS",
+        "fields": {
+          "aliases_ru": [
+            "Капитал, приходящийся на собственников материнской компании",
+            "Итого капитал акционеров материнской компании",
+            "Капитал акционеров материнской компании"
+          ],
+          "aliases_en": []
+        }
+      },
+      {
+        "enum": "INCOME_TAX",
+        "fields": {
+          "aliases_ru": [
+            "Текущий налог на прибыль",
+            "Расход по текущему налогу на прибыль"
+          ],
+          "aliases_en": [
+            "Tax expense",
+            "Provision for income taxes",
+            "Income tax provision (benefit)"
+          ],
+          "description": "Расход по текущему налогу на прибыль за период, без отложенного налога и разовых налоговых эффектов.",
+          "hint": "МСФО P&L/примечание по налогу: бери строку текущего расхода по налогу на прибыль за период. Не заменяй её итоговой строкой дохода/(расхода) по налогу, где смешаны текущий налог, отложенный налог и разовые эффекты."
+        }
+      },
+      {
+        "enum": "LONG_TERM_DEBT",
+        "fields": {
+          "aliases_ru": [
+            "Долгосрочные заемные средства",
+            "Долгосрочные займы и кредиты",
+            "Долгосрочное долговое финансирование"
+          ]
+        }
+      },
+      {
+        "enum": "NET_INCOME_SHAREHOLDERS",
+        "fields": {
+          "aliases_ru": [
+            "Прибыль, приходящаяся на собственников материнской компании",
+            "Прибыль акционеров материнской компании",
+            "Прибыль, относящаяся к акционерам материнской компании",
+            "Прибыль, причитающаяся акционерам материнской компании"
+          ],
+          "aliases_en": []
+        }
+      },
+      {
+        "enum": "OPERATING_EXPENSES",
+        "fields": {
+          "aliases_en": [
+            "Operating expenses",
+            "Selling, general and administrative expenses",
+            "Selling, general and administrative",
+            "SG&A",
+            "General and administrative expense",
+            "Marketing, general and administrative",
+            "G&A"
+          ],
+          "hint": "P&L: расходы после валовой прибыли и до операционной прибыли. Если единой строки operating expenses нет, суммируй операционные расходные строки между gross profit и operating profit: коммерческие/административные расходы, амортизацию, LTIP, ECL и похожие операционные расходы. Исключай себестоимость, прочие операционные доходы и финансовые/налоговые строки."
+        }
+      },
+      {
+        "enum": "RIGHT_OF_USE_ASSETS",
+        "fields": {
+          "aliases_ru": [
+            "Право пользования активами",
+            "Активы с правом пользования",
+            "Активы в форме права пользования"
+          ],
+          "aliases_en": [
+            "Right-of-use assets",
+            "ROU assets"
+          ],
+          "hint": "Баланс или примечание по аренде / активам в форме права пользования. Извлекай все явно раскрытые даты, не только даты баланса; включай сравнительные конечные остатки из примечания по аренде, если они прямо показаны."
+        }
+      },
+      {
+        "enum": "SALES_REVENUE",
+        "fields": {
+          "hint": "P&L: первая строка выручки от обычной деятельности. Для сегментного раскрытия SALES_REVENUE предпочитай выручку от внешних покупателей/сторонних организаций; не включай внутрисегментную выручку, если она раскрыта отдельно."
+        }
+      }
+    ],
+    "calculated": []
+  },
+  "orders": {
+    "extractable": [
+      "MODIFIED_AUDITORS_OPINION",
+      "LONG_TERM_DEBT",
+      "LONG_TERM_LEASE_LIABILITIES",
+      "SHORT_TERM_BORROWINGS",
+      "SHORT_TERM_LEASE_LIABILITIES",
+      "CASH_EQUIVALENTS",
+      "BANK_DEPOSITS",
+      "PERPETUAL_BONDS",
+      "ACCOUNTS_PAYABLE",
+      "ACCOUNTS_RECEIVABLE",
+      "INVENTORIES",
+      "TOTAL_CURRENT_ASSETS",
+      "TOTAL_CURRENT_LIABILITIES",
+      "TOTAL_ASSETS",
+      "PPE",
+      "DEFERRED_TAX_ASSETS",
+      "DEFERRED_TAX_LIABILITIES",
+      "INTANGIBLE_ASSETS",
+      "GOODWILL",
+      "TOTAL_EQUITY",
+      "RIGHT_OF_USE_ASSETS",
+      "SALES_REVENUE",
+      "OPERATING_PROFIT",
+      "COSTS_EXPENSES",
+      "NET_INCOME",
+      "EBT",
+      "CAPITALIZED_INTEREST",
+      "GROSS_PROFIT",
+      "OPERATING_EXPENSES",
+      "DEPRECIATION_AMORTIZATION",
+      "CAPEX",
+      "INTEREST_PAID",
+      "INTEREST_RECEIVED",
+      "DIVIDENDS_SHAREHOLDERS",
+      "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+      "DIVIDENDS",
+      "SHARES_BUYBACK",
+      "NET_OPERATING_CASH_FLOW",
+      "SUBSIDIARY_ACQUISITIONS",
+      "ASSOCIATE_INVESTMENTS",
+      "ASSOCIATE_INCOMES",
+      "ASSET_PURCHASES",
+      "INTANGIBLE_ASSET_PURCHASES",
+      "COMBINED_ASSET_PURCHASES",
+      "ASSET_SALES_PROCEEDS",
+      "FINANCIAL_INCOME",
+      "FINANCIAL_EXPENSES",
+      "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+      "ADJUSTMENTS_OPERATING_CASH_FLOWS",
+      "CHANGES_OCF_ASSETS_LIABILITIES",
+      "EBITDA",
+      "GUARANTEES",
+      "COMMITTED_CREDIT_FACILITIES",
+      "FUTURE_CAPEX_LIABILITIES",
+      "DOUBTFUL_ACCOUNTS_ALLOWANCE",
+      "INCOME_TAX",
+      "SECURITIES_ASSETS",
+      "TOTAL_ASSOCIATE_INVESTMENTS",
+      "SECURITIES_LIABILITIES",
+      "LONG_TERM_ROU",
+      "SHORT_TERM_ROU",
+      "ROU_DEPRECIATION",
+      "INTEREST_PAID_LEASE_LIABILITIES",
+      "SHARE_CAPITAL",
+      "SHARE_PREMIUM",
+      "TREASURY_SHARES",
+      "RETAINED_EARNINGS",
+      "NON_CONTROL_INTEREST",
+      "DERIVATIVE_LIABILITIES",
+      "INSURANCE_LIABILITIES",
+      "INSURANCE_INCOME",
+      "INSURANCE_EXPENSE",
+      "NET_OTHER_RESERVES",
+      "EPS",
+      "DIVIDENDS_RECEIVED",
+      "NET_INCOME_SHAREHOLDERS",
+      "EQUITY_SHAREHOLDERS"
+    ],
+    "calculated": [
+      "CAPEX",
+      "DIVIDENDS",
+      "TOTAL_DEBT",
+      "NET_DEBT",
+      "EBITDA",
+      "RATIO_NET_DEBT_EBITDA",
+      "NET_INTEREST_PAID",
+      "EBITDA_MARGIN",
+      "INVESTMENTS",
+      "FREE_CASH_FLOW",
+      "FREE_CASH_FLOW_FIRM",
+      "COMBINED_ASSET_PURCHASES",
+      "GROSS_PROFIT",
+      "EBIT_MARGIN",
+      "DEBT_TO_EQUITY_RATIO",
+      "ACCOUNTS_PAYABLE_TURNOVER",
+      "ACCOUNTS_RECEIVABLE_TURNOVER",
+      "INVENTORIES_TURNOVER",
+      "CASH_CONVERSION_CYCLE",
+      "CURRENT_RATIO",
+      "ROE",
+      "ASSETS_TO_EQUITY_RATIO",
+      "INTEREST_COVERAGE_RATIO",
+      "NET_INCOME_MARGIN",
+      "ASSET_TURNOVER",
+      "FIXED_ASSET_TURNOVER",
+      "ROA",
+      "TOTAL_CASH_EQUIVALENTS",
+      "RATIO_TOTAL_DEBT_NOCF",
+      "EBITDA_TO_INTEREST_PAID",
+      "FCF_TO_INTEREST_PAID",
+      "CASH_TO_SHORT_TERM_DEBT",
+      "SHORT_TERM_PORTION_OF_DEBT",
+      "RATIO_TOTAL_DEBT_EBITDA",
+      "TOTAL_LIABILITIES",
+      "CAPEX_TO_REVENUE",
+      "GROSS_MARGIN",
+      "DIVIDEND_PAYOUT_RATIO",
+      "RIGHT_OF_USE_ASSETS",
+      "NET_DEBT_IAS_17",
+      "TOTAL_DEBT_IAS_17",
+      "TAX_EXPENDITURE",
+      "FREE_CASH_FLOW_GEN",
+      "FREE_CASH_FLOW_DEBT",
+      "ADJ_OCF_TO_INTEREST_PAID",
+      "NET_INSURANCE_INCOME",
+      "FCF_TO_INTEREST_PAID_CIB",
+      "QUICK_RATIO",
+      "WORKING_CAPITAL",
+      "OCF_TO_EBITDA",
+      "ROE_SHAREHOLDERS"
+    ]
+  }
+}

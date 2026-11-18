@@ -1,0 +1,213 @@
+# AIFA + GigaAgent + Workstation. Paths are relative to aifa/deploy/.
+name: aifa-sym
+services:
+  ouroboros:
+    build:
+      context: ../../gigaagent
+      dockerfile: Dockerfile
+      args:
+        BUILD_IMAGE: ${BUILD_IMAGE:-docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a}
+        RUN_IMAGE: ${RUN_IMAGE:-docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a}
+        TOKEN_OSC: ${TOKEN_OSC:-}
+        NEXUS_USERNAME: ${NEXUS_USERNAME:-}
+        NEXUS_PASSWORD: ${NEXUS_PASSWORD:-}
+        NEXUS_TOKEN_USERNAME: ${NEXUS_TOKEN_USERNAME:-}
+        NEXUS_TOKEN_PASSWORD: ${NEXUS_TOKEN_PASSWORD:-}
+    image: aifa-sym-ouroboros:dev
+    restart: unless-stopped
+    init: true
+    mem_limit: 1536m
+    env_file:
+    - path: ../../gigaagent/deploy/ouroboros.env
+      required: false
+    environment:
+      OUROBOROS_ENV: production
+      OUROBOROS_DATA_DIR: /data
+      OUROBOROS_SERVER_HOST: 0.0.0.0
+    ports:
+    - 127.0.0.1:18180:8080
+    volumes:
+    - ouro-data:/data
+    depends_on:
+      ouro-postgres:
+        condition: service_healthy
+      s3-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/ready',
+        timeout=5)
+      interval: 10s
+      timeout: 5s
+      retries: 24
+      start_period: 120s
+    networks:
+    - internal
+  ouro-postgres:
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ouroboros
+      POSTGRES_USER: ouroboros
+      POSTGRES_PASSWORD: ${AIFA_SYM_OURO_PG_PASSWORD:-}
+    volumes:
+    - ouro-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U ouroboros -d ouroboros
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+    networks:
+    - internal
+  s3:
+    image: ${S3_IMAGE:-chrislusf/seaweedfs:4.48}
+    restart: unless-stopped
+    command:
+    - server
+    - -dir=/data
+    - -s3
+    - -s3.port=8333
+    - -master.volumeSizeLimitMB=512
+    - -volume.max=40
+    environment:
+      AWS_ACCESS_KEY_ID: ${AIFA_SYM_S3_USER:-}
+      AWS_SECRET_ACCESS_KEY: ${AIFA_SYM_S3_PASSWORD:-}
+    volumes:
+    - s3-data:/data
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - nc -z 127.0.0.1 8333
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 15s
+    networks:
+    - internal
+  s3-init:
+    image: ${S3_INIT_IMAGE:-amazon/aws-cli:2.38.1}
+    restart: 'no'
+    depends_on:
+      s3:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: ${AIFA_SYM_S3_USER:-}
+      AWS_SECRET_ACCESS_KEY: ${AIFA_SYM_S3_PASSWORD:-}
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint:
+    - sh
+    - -c
+    command:
+    - for b in ouroboros finengine; do aws --endpoint-url http://s3:8333 s3api head-bucket
+      --bucket $$b 2>/dev/null || aws --endpoint-url http://s3:8333 s3 mb s3://$$b
+      || exit 1; done
+    networks:
+    - internal
+  workstation:
+    build:
+      context: ../../workstation
+      dockerfile: Dockerfile
+      args:
+        BUILD_IMAGE: ${BUILD_IMAGE:-docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a}
+        RUN_IMAGE: ${RUN_IMAGE:-docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a}
+        TOKEN_OSC: ${TOKEN_OSC:-}
+        NEXUS_USERNAME: ${NEXUS_USERNAME:-}
+        NEXUS_PASSWORD: ${NEXUS_PASSWORD:-}
+        NEXUS_TOKEN_USERNAME: ${NEXUS_TOKEN_USERNAME:-}
+        NEXUS_TOKEN_PASSWORD: ${NEXUS_TOKEN_PASSWORD:-}
+    image: aifa-sym-workstation:dev
+    restart: unless-stopped
+    mem_limit: 1536m
+    memswap_limit: 1536m
+    cpus: 1.5
+    pids_limit: 256
+    environment:
+      WORKSTATION_CREATE_SECRET: ${AIFA_SYM_WORKSTATION_CREATE_SECRET:-}
+      EXEC_TIMEOUT_SEC: '300'
+      SESSION_RLIMIT_CPU_SEC: '300'
+      SESSION_RLIMIT_AS: '1073741824'
+    expose:
+    - '8080'
+    networks:
+    - internal
+  engine:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        BUILD_IMAGE: ${BUILD_IMAGE:-docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a}
+        RUN_IMAGE: ${RUN_IMAGE:-docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a}
+        TOKEN_OSC: ${TOKEN_OSC:-}
+        NEXUS_USERNAME: ${NEXUS_USERNAME:-}
+        NEXUS_PASSWORD: ${NEXUS_PASSWORD:-}
+        NEXUS_TOKEN_USERNAME: ${NEXUS_TOKEN_USERNAME:-}
+        NEXUS_TOKEN_PASSWORD: ${NEXUS_TOKEN_PASSWORD:-}
+    image: aifa-sym-engine:dev
+    restart: unless-stopped
+    init: true
+    mem_limit: 2g
+    env_file:
+    - path: engine.env
+      required: false
+    volumes:
+    - engine-data:/app/data
+    depends_on:
+      engine-postgres:
+        condition: service_healthy
+      s3-init:
+        condition: service_completed_successfully
+    expose:
+    - '8080'
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health',
+        timeout=5)
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+    - internal
+  engine-postgres:
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: finengine
+      POSTGRES_USER: finengine
+      POSTGRES_PASSWORD: ${AIFA_SYM_ENGINE_PG_PASSWORD:-}
+    volumes:
+    - engine-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U finengine -d finengine
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+    networks:
+    - internal
+networks:
+  internal:
+    name: aifa-sym-internal
+    driver: bridge
+volumes:
+  ouro-data:
+    name: aifa-sym-ouro-data
+  ouro-pgdata:
+    name: aifa-sym-ouro-pgdata
+  s3-data:
+    name: aifa-sym-s3-data
+  engine-data:
+    name: aifa-sym-engine-data
+  engine-pgdata:
+    name: aifa-sym-engine-pgdata

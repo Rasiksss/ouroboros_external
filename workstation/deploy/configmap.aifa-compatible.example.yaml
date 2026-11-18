@@ -1,0 +1,9 @@
+# Совместимый перенос активных настроек actual Workstation.
+# Новые возможности безопасности и S3 здесь намеренно не включаются автоматически.
+RUNTIME_MODE: "local"
+APP_HOST: "127.0.0.1"
+APP_PORT: "8080"
+APP_LOG_LEVEL: "INFO"
+DATABASE_URL: "sqlite+aiosqlite:////tmp/workstation.db"
+MEMORY_LIMIT_BYTES: "536870912"
+NETWORK_ENABLED: "false"

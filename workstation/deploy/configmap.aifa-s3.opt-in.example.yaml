@@ -1,0 +1,16 @@
+# Опциональный overlay для включения durable /workspace после отдельной настройки S3.
+# Накладывается поверх совместимого baseline, не является активной конфигурацией пакета.
+WORKSPACE_STORE_ENABLED: "true"
+WORKSPACE_STORE_BACKEND: "s3"
+WORKSPACE_STORE_S3_BUCKET: "<aifa-workstation-bucket>"
+WORKSPACE_STORE_S3_ENDPOINT_URL: "https://<s3-endpoint>"
+WORKSPACE_STORE_S3_PREFIX: "aifa/workspaces"
+WORKSPACE_STORE_RESTORE_TIMEOUT_SEC: "300"
+WORKSPACE_STORE_SNAPSHOT_TIMEOUT_SEC: "300"
+
+# Включать последним и только одновременно с sessionCreateSecret в AEFClaw.
+IS_CREATE_SESSION_SECRET: "true"
+
+# Не превышать этими серверными hard caps значения клиента.
+SESSION_IDLE_TIMEOUT_SEC: "900"
+SESSION_ABSOLUTE_TTL_SEC: "3600"

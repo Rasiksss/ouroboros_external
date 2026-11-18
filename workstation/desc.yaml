@@ -1,0 +1,39 @@
+wrapper: 1.0.0.openclaw
+domain: omega
+sonar:
+  key: aif-agents-aef
+  srcFolder: ./
+  exclusions: ./build/*,./dist/*,**/*.html,venv/**,.venv/**,wrapper/**,vendor/**,**/*.c,**/*.h,**/*.cpp,**/*.hpp
+app:
+  author: Потапов Евгений
+  emails:
+  - enpotapov@sberbank.ru
+  unit: AI Finance
+  description: Сборка изолированного контейнера Workstation для запуска команд OpenClaw
+  language: PYTHON
+  baseImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+  runImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+  resources:
+    limits:
+      cpu: 800m
+      memory: 1500Mi
+  connections:
+    endpoints:
+    - alias: S3_URL
+      description: Ссылка на S3
+  envs:
+    DATABASE_URL: sqlite+aiosqlite:////tmp/workstation.db
+    MEMORY_LIMIT_BYTES: '536870912'
+    RUNTIME_MODE: local
+    APP_LOG_LEVEL: INFO
+    APP_HOST: 0.0.0.0
+    APP_PORT: '8080'
+    WORKSPACE_STORE_ENABLED: 'false'
+    WORKSPACE_STORE_BACKEND: s3
+    WORKSPACE_STORE_S3_PREFIX: aifa/workspaces
+    WORKSPACE_STORE_RESTORE_TIMEOUT_SEC: '300'
+    WORKSPACE_STORE_SNAPSHOT_TIMEOUT_SEC: '300'
+    IS_CREATE_SESSION_SECRET: 'false'
+    SESSION_IDLE_TIMEOUT_SEC: '900'
+    SESSION_ABSOLUTE_TTL_SEC: '3600'
+    REDIS_ENABLED: 'false'

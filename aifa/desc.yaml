@@ -1,0 +1,124 @@
+wrapper: 1.0.0.aef.fastapi
+domain: omega
+sonar:
+  key: aif-agents-aef-aifa
+  srcFolder: ./
+  exclusions: ./build/*,./dist/*,**/*.html,venv/**,.venv/**,wrapper/**,vendor/**,**/*.c,**/*.h,**/*.cpp,**/*.hpp
+app:
+  author: Магомедов Магомедрасул 
+  emails:
+  - MBagaMagomedov@sberbank.ru
+  unit: AI Finance
+  description: 'Движок AIFA: API, обработка документов и финансовые расчёты'
+  language: PYTHON
+  baseImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+  runImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+  # 🔴 ПОДПАКЕТЫ И ДАННЫЕ ДВИЖКА — ФЛАГАМИ, А НЕ ХУКОМ (15.11.2026).
+  # Платформа собирает бандл своим PyInstaller-ом на шаге `builder` и передаёт
+  # сюда ровно этот `args`. Наш hook-finengine.py до её сборки не доходит, а
+  # `--additional-hooks-dir` из Dockerfile она не передаёт: в логе сборки видно
+  # `missing module named 'finengine.api' - imported by main (top-level)`, то есть
+  # подпакеты не попали в бандл и под падал с `No module named 'finengine.api'`.
+  #
+  # `--collect-submodules` заменяет `hiddenimports` из хука: PyInstaller обходит
+  # все подпакеты finengine и добавляет их явно. `--collect-data` — `datas`:
+  # без него в бандл не попадут `.md`-промпты методик и `.yaml`-справочники,
+  # которые `finengine.policy` читает НА ИМПОРТЕ, то есть без них сервис падает
+  # целиком, а не одной функцией.
+  #
+  # 🔴 `--collect-submodules passlib` (16.11.2026). `CryptContext(schemes=["bcrypt"])`
+  # грузит хешер ПО ИМЕНИ строкой, через `passlib.registry`. Статический анализ
+  # такой импорт не видит, и под падал с `No module named 'passlib.handlers.bcrypt'`.
+  # Список подпакетов passlib — закрытый и небольшой, поэтому собираем целиком.
+  #
+  # Сам пакет ставится строкой `./finengine` в requirements.txt — на том же шаге
+  # `builder`, до запуска PyInstaller.
+  pyinstaller:
+    args: >-
+      --collect-all fastapi --collect-all uvicorn
+      --hidden-import=home --add-data /app:. --hidden-import main
+      --collect-submodules finengine --collect-data finengine
+      --collect-submodules passlib
+  resources:
+    limits:
+      cpu: 800m
+      memory: 2Gi
+  envs:
+    # Общие значения применяются ко всем стендам. Различающиеся значения задайте в dev/ift/psi/prom.
+    # ПРОВЕРИТЬ — логин администратора AIFA. Пароль FINENGINE_ADMIN_PASSWORD передаётся через SecMan.
+    AIFA_ENGINE_TOKEN: '123'
+    FINENGINE_AUTH_SECRET: '123'
+    FINENGINE_ADMIN_PASSWORD: '123'
+    FINENGINE_ADMIN_USERNAME: admin
+    FINENGINE_ENFORCE_INTERNAL_AUTH: '0'
+    # ЗАПОЛНИТЬ — имя выданной корзины S3 для документов и артефактов AIFA.
+    FINENGINE_S3_BUCKET: 'agnbf-af-aifaouroboros'
+    # ПРОВЕРИТЬ — регион, который ожидает S3 при подписи запросов.
+    FINENGINE_S3_REGION: us-east-1
+    # ЗАПОЛНИТЬ — внутренний URL Workstation для сессий и выполнения команд.
+    FINENGINE_WORKSTATION_URL: 'http://workstation-v1-service.ci09529287-aif-agnbf-af-aifaouroboros-dev.svc.cluster.local:8080'
+    FINENGINE_PLANNER_REASONING_EFFORT: medium
+    FINENGINE_OUROBOROS_LOOP_MAX_WALL_SEC: '2400'
+    FINENGINE_OUROBOROS_SUBTASK_WAIT_SEC: '1200'
+    FINENGINE_GRAPH_MIN_WALL_SECONDS: '1800'
+    FINENGINE_OUROBOROS_HARD_TIMEOUT_SEC: '5400'
+    FINENGINE_HOST: 0.0.0.0
+    FINENGINE_PORT: '8080'
+    FINENGINE_LOG_LEVEL: INFO
+    PYTHONUNBUFFERED: '1'
+    # 🔴 КАТАЛОГИ ДАННЫХ — В /tmp (16.11.2026). Корневая ФС контейнера
+    # смонтирована только для чтения: `/app/data` не создаётся, и под падал на
+    # импорте `finengine.config` с `OSError: [Errno 30] Read-only file system`.
+    # `/tmp` в базовом образе записываемый всегда, поэтому запуск не зависит от
+    # того, примонтировал ли стенд том.
+    # ПЕРЕД ПРОДОМ: заменить на постоянный том (emptyDir или PVC) — в /tmp
+    # документы и артефакты не переживут рестарт пода.
+    FINENGINE_DATA_DIR: /tmp/data
+    FINENGINE_DOCS_DIR: /tmp/data/documents
+    # TOML POSTGRES-DB задаёт DSN всех хранилищ и FINENGINE_PG_SCHEMA.
+    # AIFA_ENGINE_TOKEN должен совпадать с токеном GigaAgent, FINENGINE_WORKSTATION_CREATE_SECRET — с SESSION_CREATE_SECRET Workstation.
+    SECMAN_SECRETS_FILE: /vault/secrets/secret-files/databases-aifa-v1
+    FINENGINE_SECRETS_DIR: /vault/secrets/secret-files
+    SECMAN_WAIT_SEC: '30'
+    # Платформенный TOML содержит URL-кодированный password; декодировать один раз.
+    SECMAN_POSTGRES_PASSWORD_ENCODING: url
+    # ЗАПОЛНИТЬ — внутренний URL роли transport GigaAgent для запросов AIFA и WebSocket.
+    # Подставьте порт Service из сгенерированного конфига стенда.
+    FINENGINE_OUROBOROS_URL: 'http://transport-v1-service.ci09529287-aif-agnbf-af-aifaouroboros-dev.svc.cluster.local:8080'
+    OPENROUTER_API_KEY: 'custom-local'
+    FINENGINE_OPENROUTER_MODEL: glm-5.2-mip/glm-5.2-fp8
+    FINENGINE_PLANNER_MODEL: glm-5.2-mip/glm-5.2-fp8
+    FINENGINE_LOCATE_MODEL: glm-5.2-mip/glm-5.2-fp8
+    FINENGINE_READ_VALUE_MODEL: glm-5.2-mip/glm-5.2-fp8
+    FINENGINE_NEWS_CLASSIFY_MODEL: glm-5.2-mip/glm-5.2-fp8
+    # ПРОВЕРИТЬ для нужного стенда — ID моделей в модельном шлюзе.
+    # OPENROUTER_MODEL — основная, PLANNER_MODEL — планирование, LOCATE_MODEL — поиск по документу,
+    # READ_VALUE_MODEL — извлечение значений, NEWS_CLASSIFY_MODEL — классификация новостей.
+    FINENGINE_REDIS_URL: ''
+    FINENGINE_WORKERS: '1'
+    # OCR только внутри контура. Пустые/неполные настройки не включают публичный /predict.
+    FINENGINE_IDP_OCR_URL: ''
+    FINENGINE_OCR_CLIENT_ID: aifa-test-agent
+    FINENGINE_OCR_PROCESSING_TIMEOUT_SECONDS: '600'
+  connections:
+    endpoints:
+    - alias: FINENGINE_OUROBOROS_URL
+      description: GigaAgent internal API and WebSocket
+    - alias: FINENGINE_WORKSTATION_URL
+      description: Workstation sessions API
+    - alias: FINENGINE_OPENROUTER_BASE_URL
+      description: Corporate OpenAI-compatible model gateway
+      # dev — тот же llm-router, что и SELFHOSTED_LLM_BASE_URL у GigaAgent.
+    - alias: FINENGINE_OCR_GATEWAY_URL
+      description: Internal OCR file gateway (upload and result download)
+    - alias: FINENGINE_DOCUMENT_EXTRACTOR_URL
+      description: Internal document extractor (POST /api/extract)
+    - alias: FINENGINE_S3_ENDPOINT
+      description: AIFA object storage
+      # ЗАПОЛНИТЬ в подключениях AEF — URL S3 API, которому принадлежит FINENGINE_S3_BUCKET.
+    databases:
+    - alias: POSTGRES-DB
+      description: Shared PostgreSQL database and schema for AIFA and GigaAgent
+      changelog:
+        searchPath: liquibase/
+        changelogFile: changelog.sql

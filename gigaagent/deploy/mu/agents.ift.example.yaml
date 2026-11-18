@@ -1,0 +1,423 @@
+# MU without Redis: Kafka broker, no settings cache, one AIFA replica/worker.
+- AGENT_NAME: gigaagent
+  PROBE:
+    READINESS:
+      PORT: 9090
+      PATH: /ready
+    LIVENESS:
+      PORT: 9090
+      PATH: /live
+  ADDITIONAL_PORTS:
+    APP_SERVICE_PORTS:
+    - NAME: http-9090
+      PROTOCOL: TCP
+      PORT: 9090
+      TARGET_PORT: 9090
+  RESOURCES:
+    REPLICAS: 1
+    LIMITS:
+      CPU: 1000m
+      MEMORY: 2Gi
+    REQUESTS:
+      CPU: 500m
+      MEMORY: 1Gi
+  AGENT_CUSTOM_ARGS:
+  - /opt/venv/bin/python
+  - -m
+  - multiuser_config.agent_runtime.run
+  ENV:
+    OUROBOROS_MULTIUSER: 'true'
+    BROWSER_INGRESS_ENABLED: 'true'
+    OUROBOROS_WORKER_SLOTS: '4'
+    OUROBOROS_HARD_TIMEOUT_SEC: '5400'
+    OUROBOROS_MEMORY_DISTILL: 'false'
+    OUROBOROS_TOOL_CONFIRMATION_ENABLED: 'false'
+    OUROBOROS_ENABLED_TOOLS: aifa-engine.aifa_open,aifa-engine.aifa_wait,aifa-engine.aifa_state,aifa-engine.aifa_doc,aifa-engine.aifa_atoms,aifa-engine.aifa_move,aifa-engine.aifa_register_atom,aifa-engine.aifa_report,aifa-engine.aifa_finish
+    OUROBOROS_DISABLED_TOOLS: attachment_read,vlm_query,data_read,data_list,data_write,send_file,send_image,send_photo,send_user_message,gigasearch,browse_page,browser_action,image_generate,memory_save,memory_read,memory_list,memory_delete,create_scheduled_task,create_reminder,list_schedules,edit_schedule,cancel_schedule,pause_schedule,resume_schedule,confirm_schedule,move_schedule_here
+    OUROBOROS_DISABLED_SKILLS: distribution:agent-delegation,distribution:calendar-orientation,distribution:docx-tools,distribution:image-generation,distribution:pdf-tools,distribution:tasks-scheduler,distribution:xlsx-tools
+    OUROBOROS_USER_ENABLED_SKILL_IDS: distribution:workstation,distribution:aifa-planning,distribution:aifa-plan-author,distribution:aifa-engine,distribution:aifa-atom-author
+    OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS: distribution:aifa-engine
+    OUROBOROS_S3_BUCKET: <ISSUED_OUROBOROS_BUCKET>
+    OUROBOROS_S3_REGION: us-east-1
+    WORKSTATION_BASE_URL: http://<WORKSTATION_SERVICE>:8080
+    AIFA_ENGINE_URL: http://<AIFA_SERVICE>:8080
+    OUROBOROS_ENV: production
+    OUROBOROS_REPO_DIR: /tmp/repo
+    OUROBOROS_DATA_DIR: /tmp/data
+    OUROBOROS_SERVER_HOST: 0.0.0.0
+    OUROBOROS_SERVER_PORT: '9090'
+    SECMAN_SECRETS_FILE: /vault/secrets/secret-files/gigaagent-secrets
+    SECMAN_WAIT_SEC: '30'
+    SECMAN_POSTGRES_PASSWORD_ENCODING: url
+    OUROBOROS_MODEL: cloudru::glm-5.2-mip/glm-5.2-fp8
+    OUROBOROS_MODEL_LIGHT: cloudru::qwen/qwen35-397b-a17b-fp8
+    OUROBOROS_MODEL_FALLBACK: cloudru::qwen/qwen35-397b-a17b-fp8
+    OUROBOROS_BROKER_BACKEND: kafka
+    OUROBOROS_KAFKA_BOOTSTRAP_SERVERS: <ISSUED_KAFKA_MESH_HOST:PORT>
+    OUROBOROS_KAFKA_TOPIC_PREFIX: aifa.ift
+    OUROBOROS_SETTINGS_CACHE_BACKEND: none
+    OUROBOROS_APP_ROOT: /tmp
+    PYTHONPATH: /app
+    OUROBOROS_CHAT_ENCRYPTION_ENABLED: 'true'
+    OUROBOROS_STORAGE_TENANT_ID: aifa-ift
+    OUROBOROS_S3_ENDPOINT: <ISSUED_S3_CLIENT_URL>
+    CLOUDRU_FOUNDATION_MODELS_BASE_URL: <ISSUED_MODEL_BASE_URL>
+    MCP_ENABLED: 'false'
+    A2A_ENABLED: 'false'
+    DIALOGS_GRPC_ENDPOINT: ''
+- AGENT_NAME: transport
+  PROBE:
+    READINESS:
+      PORT: 9090
+      PATH: /ready
+    LIVENESS:
+      PORT: 9090
+      PATH: /live
+  ADDITIONAL_PORTS:
+    APP_SERVICE_PORTS:
+    - NAME: http-9090
+      PROTOCOL: TCP
+      PORT: 9090
+      TARGET_PORT: 9090
+  RESOURCES:
+    REPLICAS: 1
+    LIMITS:
+      CPU: 500m
+      MEMORY: 1Gi
+    REQUESTS:
+      CPU: 250m
+      MEMORY: 512Mi
+  AGENT_CUSTOM_ARGS:
+  - /opt/venv/bin/python
+  - -m
+  - multiuser_config.transport.browser
+  ENV:
+    OUROBOROS_MULTIUSER: 'true'
+    BROWSER_INGRESS_ENABLED: 'true'
+    OUROBOROS_WORKER_SLOTS: '1'
+    OUROBOROS_HARD_TIMEOUT_SEC: '5400'
+    OUROBOROS_MEMORY_DISTILL: 'false'
+    OUROBOROS_TOOL_CONFIRMATION_ENABLED: 'false'
+    OUROBOROS_ENABLED_TOOLS: aifa-engine.aifa_open,aifa-engine.aifa_wait,aifa-engine.aifa_state,aifa-engine.aifa_doc,aifa-engine.aifa_atoms,aifa-engine.aifa_move,aifa-engine.aifa_register_atom,aifa-engine.aifa_report,aifa-engine.aifa_finish
+    OUROBOROS_DISABLED_TOOLS: attachment_read,vlm_query,data_read,data_list,data_write,send_file,send_image,send_photo,send_user_message,gigasearch,browse_page,browser_action,image_generate,memory_save,memory_read,memory_list,memory_delete,create_scheduled_task,create_reminder,list_schedules,edit_schedule,cancel_schedule,pause_schedule,resume_schedule,confirm_schedule,move_schedule_here
+    OUROBOROS_DISABLED_SKILLS: distribution:agent-delegation,distribution:calendar-orientation,distribution:docx-tools,distribution:image-generation,distribution:pdf-tools,distribution:tasks-scheduler,distribution:xlsx-tools
+    OUROBOROS_USER_ENABLED_SKILL_IDS: distribution:workstation,distribution:aifa-planning,distribution:aifa-plan-author,distribution:aifa-engine,distribution:aifa-atom-author
+    OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS: distribution:aifa-engine
+    OUROBOROS_S3_BUCKET: <ISSUED_OUROBOROS_BUCKET>
+    OUROBOROS_S3_REGION: us-east-1
+    WORKSTATION_BASE_URL: http://<WORKSTATION_SERVICE>:8080
+    AIFA_ENGINE_URL: http://<AIFA_SERVICE>:8080
+    OUROBOROS_ENV: production
+    OUROBOROS_REPO_DIR: /tmp/repo
+    OUROBOROS_DATA_DIR: /tmp/data
+    OUROBOROS_SERVER_HOST: 0.0.0.0
+    OUROBOROS_SERVER_PORT: '9090'
+    SECMAN_SECRETS_FILE: /vault/secrets/secret-files/gigaagent-secrets
+    SECMAN_WAIT_SEC: '30'
+    SECMAN_POSTGRES_PASSWORD_ENCODING: url
+    OUROBOROS_MODEL: cloudru::glm-5.2-mip/glm-5.2-fp8
+    OUROBOROS_MODEL_LIGHT: cloudru::qwen/qwen35-397b-a17b-fp8
+    OUROBOROS_MODEL_FALLBACK: cloudru::qwen/qwen35-397b-a17b-fp8
+    OUROBOROS_BROKER_BACKEND: kafka
+    OUROBOROS_KAFKA_BOOTSTRAP_SERVERS: <ISSUED_KAFKA_MESH_HOST:PORT>
+    OUROBOROS_KAFKA_TOPIC_PREFIX: aifa.ift
+    OUROBOROS_SETTINGS_CACHE_BACKEND: none
+    OUROBOROS_APP_ROOT: /tmp
+    PYTHONPATH: /app
+    OUROBOROS_CHAT_ENCRYPTION_ENABLED: 'true'
+    OUROBOROS_STORAGE_TENANT_ID: aifa-ift
+    OUROBOROS_S3_ENDPOINT: <ISSUED_S3_CLIENT_URL>
+    CLOUDRU_FOUNDATION_MODELS_BASE_URL: <ISSUED_MODEL_BASE_URL>
+    MCP_ENABLED: 'false'
+    A2A_ENABLED: 'false'
+    DIALOGS_GRPC_ENDPOINT: ''
+- AGENT_NAME: supervisor
+  PROBE:
+    READINESS:
+      PORT: 9090
+      PATH: /ready
+    LIVENESS:
+      PORT: 9090
+      PATH: /live
+  ADDITIONAL_PORTS:
+    APP_SERVICE_PORTS:
+    - NAME: http-9090
+      PROTOCOL: TCP
+      PORT: 9090
+      TARGET_PORT: 9090
+  RESOURCES:
+    REPLICAS: 1
+    LIMITS:
+      CPU: 500m
+      MEMORY: 1Gi
+    REQUESTS:
+      CPU: 250m
+      MEMORY: 512Mi
+  AGENT_CUSTOM_ARGS:
+  - /opt/venv/bin/python
+  - -m
+  - multiuser_config.supervisor
+  ENV:
+    OUROBOROS_MULTIUSER: 'true'
+    BROWSER_INGRESS_ENABLED: 'true'
+    OUROBOROS_WORKER_SLOTS: '1'
+    OUROBOROS_HARD_TIMEOUT_SEC: '5400'
+    OUROBOROS_MEMORY_DISTILL: 'false'
+    OUROBOROS_TOOL_CONFIRMATION_ENABLED: 'false'
+    OUROBOROS_ENABLED_TOOLS: aifa-engine.aifa_open,aifa-engine.aifa_wait,aifa-engine.aifa_state,aifa-engine.aifa_doc,aifa-engine.aifa_atoms,aifa-engine.aifa_move,aifa-engine.aifa_register_atom,aifa-engine.aifa_report,aifa-engine.aifa_finish
+    OUROBOROS_DISABLED_TOOLS: attachment_read,vlm_query,data_read,data_list,data_write,send_file,send_image,send_photo,send_user_message,gigasearch,browse_page,browser_action,image_generate,memory_save,memory_read,memory_list,memory_delete,create_scheduled_task,create_reminder,list_schedules,edit_schedule,cancel_schedule,pause_schedule,resume_schedule,confirm_schedule,move_schedule_here
+    OUROBOROS_DISABLED_SKILLS: distribution:agent-delegation,distribution:calendar-orientation,distribution:docx-tools,distribution:image-generation,distribution:pdf-tools,distribution:tasks-scheduler,distribution:xlsx-tools
+    OUROBOROS_USER_ENABLED_SKILL_IDS: distribution:workstation,distribution:aifa-planning,distribution:aifa-plan-author,distribution:aifa-engine,distribution:aifa-atom-author
+    OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS: distribution:aifa-engine
+    OUROBOROS_S3_BUCKET: <ISSUED_OUROBOROS_BUCKET>
+    OUROBOROS_S3_REGION: us-east-1
+    WORKSTATION_BASE_URL: http://<WORKSTATION_SERVICE>:8080
+    AIFA_ENGINE_URL: http://<AIFA_SERVICE>:8080
+    OUROBOROS_ENV: production
+    OUROBOROS_REPO_DIR: /tmp/repo
+    OUROBOROS_DATA_DIR: /tmp/data
+    OUROBOROS_SERVER_HOST: 0.0.0.0
+    OUROBOROS_SERVER_PORT: '9090'
+    SECMAN_SECRETS_FILE: /vault/secrets/secret-files/gigaagent-secrets
+    SECMAN_WAIT_SEC: '30'
+    SECMAN_POSTGRES_PASSWORD_ENCODING: url
+    OUROBOROS_MODEL: cloudru::glm-5.2-mip/glm-5.2-fp8
+    OUROBOROS_MODEL_LIGHT: cloudru::qwen/qwen35-397b-a17b-fp8
+    OUROBOROS_MODEL_FALLBACK: cloudru::qwen/qwen35-397b-a17b-fp8
+    OUROBOROS_BROKER_BACKEND: kafka
+    OUROBOROS_KAFKA_BOOTSTRAP_SERVERS: <ISSUED_KAFKA_MESH_HOST:PORT>
+    OUROBOROS_KAFKA_TOPIC_PREFIX: aifa.ift
+    OUROBOROS_SETTINGS_CACHE_BACKEND: none
+    OUROBOROS_APP_ROOT: /tmp
+    PYTHONPATH: /app
+    OUROBOROS_CHAT_ENCRYPTION_ENABLED: 'true'
+    OUROBOROS_STORAGE_TENANT_ID: aifa-ift
+    OUROBOROS_S3_ENDPOINT: <ISSUED_S3_CLIENT_URL>
+    CLOUDRU_FOUNDATION_MODELS_BASE_URL: <ISSUED_MODEL_BASE_URL>
+    MCP_ENABLED: 'false'
+    A2A_ENABLED: 'false'
+    DIALOGS_GRPC_ENDPOINT: ''
+- AGENT_NAME: memory
+  PROBE:
+    READINESS:
+      PORT: 9090
+      PATH: /ready
+    LIVENESS:
+      PORT: 9090
+      PATH: /live
+  ADDITIONAL_PORTS:
+    APP_SERVICE_PORTS:
+    - NAME: http-9090
+      PROTOCOL: TCP
+      PORT: 9090
+      TARGET_PORT: 9090
+  RESOURCES:
+    REPLICAS: 1
+    LIMITS:
+      CPU: 500m
+      MEMORY: 512Mi
+    REQUESTS:
+      CPU: 100m
+      MEMORY: 256Mi
+  AGENT_CUSTOM_ARGS:
+  - /opt/venv/bin/python
+  - -m
+  - multiuser_config.background_memory.run
+  ENV:
+    OUROBOROS_MULTIUSER: 'true'
+    BROWSER_INGRESS_ENABLED: 'true'
+    OUROBOROS_WORKER_SLOTS: '1'
+    OUROBOROS_HARD_TIMEOUT_SEC: '5400'
+    OUROBOROS_MEMORY_DISTILL: 'false'
+    OUROBOROS_TOOL_CONFIRMATION_ENABLED: 'false'
+    OUROBOROS_ENABLED_TOOLS: aifa-engine.aifa_open,aifa-engine.aifa_wait,aifa-engine.aifa_state,aifa-engine.aifa_doc,aifa-engine.aifa_atoms,aifa-engine.aifa_move,aifa-engine.aifa_register_atom,aifa-engine.aifa_report,aifa-engine.aifa_finish
+    OUROBOROS_DISABLED_TOOLS: attachment_read,vlm_query,data_read,data_list,data_write,send_file,send_image,send_photo,send_user_message,gigasearch,browse_page,browser_action,image_generate,memory_save,memory_read,memory_list,memory_delete,create_scheduled_task,create_reminder,list_schedules,edit_schedule,cancel_schedule,pause_schedule,resume_schedule,confirm_schedule,move_schedule_here
+    OUROBOROS_DISABLED_SKILLS: distribution:agent-delegation,distribution:calendar-orientation,distribution:docx-tools,distribution:image-generation,distribution:pdf-tools,distribution:tasks-scheduler,distribution:xlsx-tools
+    OUROBOROS_USER_ENABLED_SKILL_IDS: distribution:workstation,distribution:aifa-planning,distribution:aifa-plan-author,distribution:aifa-engine,distribution:aifa-atom-author
+    OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS: distribution:aifa-engine
+    OUROBOROS_S3_BUCKET: <ISSUED_OUROBOROS_BUCKET>
+    OUROBOROS_S3_REGION: us-east-1
+    WORKSTATION_BASE_URL: http://<WORKSTATION_SERVICE>:8080
+    AIFA_ENGINE_URL: http://<AIFA_SERVICE>:8080
+    OUROBOROS_ENV: production
+    OUROBOROS_REPO_DIR: /tmp/repo
+    OUROBOROS_DATA_DIR: /tmp/data
+    OUROBOROS_SERVER_HOST: 0.0.0.0
+    OUROBOROS_SERVER_PORT: '9090'
+    SECMAN_SECRETS_FILE: /vault/secrets/secret-files/gigaagent-secrets
+    SECMAN_WAIT_SEC: '30'
+    SECMAN_POSTGRES_PASSWORD_ENCODING: url
+    OUROBOROS_MODEL: cloudru::glm-5.2-mip/glm-5.2-fp8
+    OUROBOROS_MODEL_LIGHT: cloudru::qwen/qwen35-397b-a17b-fp8
+    OUROBOROS_MODEL_FALLBACK: cloudru::qwen/qwen35-397b-a17b-fp8
+    OUROBOROS_BROKER_BACKEND: kafka
+    OUROBOROS_KAFKA_BOOTSTRAP_SERVERS: <ISSUED_KAFKA_MESH_HOST:PORT>
+    OUROBOROS_KAFKA_TOPIC_PREFIX: aifa.ift
+    OUROBOROS_SETTINGS_CACHE_BACKEND: none
+    OUROBOROS_APP_ROOT: /tmp
+    PYTHONPATH: /app
+    OUROBOROS_CHAT_ENCRYPTION_ENABLED: 'true'
+    OUROBOROS_STORAGE_TENANT_ID: aifa-ift
+    OUROBOROS_S3_ENDPOINT: <ISSUED_S3_CLIENT_URL>
+    CLOUDRU_FOUNDATION_MODELS_BASE_URL: <ISSUED_MODEL_BASE_URL>
+    MCP_ENABLED: 'false'
+    A2A_ENABLED: 'false'
+    DIALOGS_GRPC_ENDPOINT: ''
+- AGENT_NAME: config-registry
+  PROBE:
+    READINESS:
+      PORT: 9090
+      PATH: /ready
+    LIVENESS:
+      PORT: 9090
+      PATH: /live
+  ADDITIONAL_PORTS:
+    APP_SERVICE_PORTS:
+    - NAME: http-9090
+      PROTOCOL: TCP
+      PORT: 9090
+      TARGET_PORT: 9090
+  RESOURCES:
+    REPLICAS: 1
+    LIMITS:
+      CPU: 500m
+      MEMORY: 512Mi
+    REQUESTS:
+      CPU: 100m
+      MEMORY: 256Mi
+  AGENT_CUSTOM_ARGS:
+  - /opt/venv/bin/python
+  - -m
+  - multiuser_config.config_registry
+  ENV:
+    OUROBOROS_MULTIUSER: 'true'
+    BROWSER_INGRESS_ENABLED: 'true'
+    OUROBOROS_WORKER_SLOTS: '1'
+    OUROBOROS_HARD_TIMEOUT_SEC: '5400'
+    OUROBOROS_MEMORY_DISTILL: 'false'
+    OUROBOROS_TOOL_CONFIRMATION_ENABLED: 'false'
+    OUROBOROS_ENABLED_TOOLS: aifa-engine.aifa_open,aifa-engine.aifa_wait,aifa-engine.aifa_state,aifa-engine.aifa_doc,aifa-engine.aifa_atoms,aifa-engine.aifa_move,aifa-engine.aifa_register_atom,aifa-engine.aifa_report,aifa-engine.aifa_finish
+    OUROBOROS_DISABLED_TOOLS: attachment_read,vlm_query,data_read,data_list,data_write,send_file,send_image,send_photo,send_user_message,gigasearch,browse_page,browser_action,image_generate,memory_save,memory_read,memory_list,memory_delete,create_scheduled_task,create_reminder,list_schedules,edit_schedule,cancel_schedule,pause_schedule,resume_schedule,confirm_schedule,move_schedule_here
+    OUROBOROS_DISABLED_SKILLS: distribution:agent-delegation,distribution:calendar-orientation,distribution:docx-tools,distribution:image-generation,distribution:pdf-tools,distribution:tasks-scheduler,distribution:xlsx-tools
+    OUROBOROS_USER_ENABLED_SKILL_IDS: distribution:workstation,distribution:aifa-planning,distribution:aifa-plan-author,distribution:aifa-engine,distribution:aifa-atom-author
+    OUROBOROS_TRUSTED_EXECUTABLE_SKILL_IDS: distribution:aifa-engine
+    OUROBOROS_S3_BUCKET: <ISSUED_OUROBOROS_BUCKET>
+    OUROBOROS_S3_REGION: us-east-1
+    WORKSTATION_BASE_URL: http://<WORKSTATION_SERVICE>:8080
+    AIFA_ENGINE_URL: http://<AIFA_SERVICE>:8080
+    OUROBOROS_ENV: production
+    OUROBOROS_REPO_DIR: /tmp/repo
+    OUROBOROS_DATA_DIR: /tmp/data
+    OUROBOROS_SERVER_HOST: 0.0.0.0
+    OUROBOROS_SERVER_PORT: '9090'
+    SECMAN_SECRETS_FILE: /vault/secrets/secret-files/gigaagent-secrets
+    SECMAN_WAIT_SEC: '30'
+    SECMAN_POSTGRES_PASSWORD_ENCODING: url
+    OUROBOROS_MODEL: cloudru::glm-5.2-mip/glm-5.2-fp8
+    OUROBOROS_MODEL_LIGHT: cloudru::qwen/qwen35-397b-a17b-fp8
+    OUROBOROS_MODEL_FALLBACK: cloudru::qwen/qwen35-397b-a17b-fp8
+    OUROBOROS_BROKER_BACKEND: kafka
+    OUROBOROS_KAFKA_BOOTSTRAP_SERVERS: <ISSUED_KAFKA_MESH_HOST:PORT>
+    OUROBOROS_KAFKA_TOPIC_PREFIX: aifa.ift
+    OUROBOROS_SETTINGS_CACHE_BACKEND: none
+    OUROBOROS_APP_ROOT: /tmp
+    PYTHONPATH: /app
+    OUROBOROS_CHAT_ENCRYPTION_ENABLED: 'true'
+    OUROBOROS_STORAGE_TENANT_ID: aifa-ift
+    OUROBOROS_S3_ENDPOINT: <ISSUED_S3_CLIENT_URL>
+    CLOUDRU_FOUNDATION_MODELS_BASE_URL: <ISSUED_MODEL_BASE_URL>
+    MCP_ENABLED: 'false'
+    A2A_ENABLED: 'false'
+    DIALOGS_GRPC_ENDPOINT: ''
+- AGENT_NAME: aifa
+  PROBE:
+    READINESS:
+      PORT: 8080
+      PATH: /health
+    LIVENESS:
+      PORT: 8080
+      PATH: /health
+  ADDITIONAL_PORTS:
+    APP_SERVICE_PORTS:
+    - NAME: http-8080
+      PROTOCOL: TCP
+      PORT: 8080
+      TARGET_PORT: 8080
+  RESOURCES:
+    REPLICAS: 1
+    LIMITS:
+      CPU: 1000m
+      MEMORY: 2Gi
+    REQUESTS:
+      CPU: 500m
+      MEMORY: 1Gi
+  ENV:
+    FINENGINE_ADMIN_USERNAME: admin
+    FINENGINE_ENFORCE_INTERNAL_AUTH: '1'
+    FINENGINE_S3_BUCKET: <ISSUED_FINENGINE_BUCKET>
+    FINENGINE_S3_REGION: us-east-1
+    FINENGINE_WORKSTATION_URL: http://<WORKSTATION_SERVICE>:8080
+    FINENGINE_PLANNER_REASONING_EFFORT: medium
+    FINENGINE_OUROBOROS_LOOP_MAX_WALL_SEC: '2400'
+    FINENGINE_OUROBOROS_SUBTASK_WAIT_SEC: '1200'
+    FINENGINE_GRAPH_MIN_WALL_SECONDS: '1800'
+    FINENGINE_OUROBOROS_HARD_TIMEOUT_SEC: '5400'
+    FINENGINE_HOST: 0.0.0.0
+    FINENGINE_PORT: '8080'
+    FINENGINE_DATA_DIR: /app/data
+    FINENGINE_DOCS_DIR: /app/data/documents
+    SECMAN_SECRETS_FILE: /vault/secrets/secret-files/aifa-secrets
+    SECMAN_WAIT_SEC: '30'
+    SECMAN_POSTGRES_PASSWORD_ENCODING: url
+    FINENGINE_OUROBOROS_URL: http://<TRANSPORT_SERVICE>:9090
+    FINENGINE_OPENROUTER_MODEL: glm-5.2-mip/glm-5.2-fp8
+    FINENGINE_PLANNER_MODEL: glm-5.2-mip/glm-5.2-fp8
+    FINENGINE_LOCATE_MODEL: glm-5.2-mip/glm-5.2-fp8
+    FINENGINE_READ_VALUE_MODEL: glm-5.2-mip/glm-5.2-fp8
+    FINENGINE_NEWS_CLASSIFY_MODEL: glm-5.2-mip/glm-5.2-fp8
+    FINENGINE_WORKERS: '1'
+    FINENGINE_PG_SCHEMA: finengine
+    FINENGINE_S3_ENDPOINT: <ISSUED_S3_CLIENT_URL>
+    FINENGINE_OPENROUTER_BASE_URL: <ISSUED_MODEL_BASE_URL>
+    FINENGINE_REDIS_URL: ''
+- AGENT_NAME: workstation
+  PROBE:
+    READINESS:
+      PORT: 8080
+      PATH: /health/readiness
+    LIVENESS:
+      PORT: 8080
+      PATH: /health/liveness
+  ADDITIONAL_PORTS:
+    APP_SERVICE_PORTS:
+    - NAME: http-8080
+      PROTOCOL: TCP
+      PORT: 8080
+      TARGET_PORT: 8080
+  RESOURCES:
+    REPLICAS: 1
+    LIMITS:
+      CPU: 800m
+      MEMORY: 1500Mi
+    REQUESTS:
+      CPU: 400m
+      MEMORY: 768Mi
+  ENV:
+    DATABASE_URL: sqlite+aiosqlite:////tmp/workstation.db
+    MEMORY_LIMIT_BYTES: '536870912'
+    RUNTIME_MODE: local
+    APP_LOG_LEVEL: INFO
+    APP_HOST: 0.0.0.0
+    APP_PORT: '8080'
+    SECMAN_SECRETS_FILE: /vault/secrets/secret-files/workstation-secrets
+    WORKSPACE_STORE_ENABLED: 'false'
+    WORKSPACE_STORE_BACKEND: s3
+    WORKSPACE_STORE_S3_BUCKET: agnbf-af-aifaclaw
+    WORKSPACE_STORE_S3_ENDPOINT_URL: http://s3-pvsup-edz-03.delta.sbrf.ru:8080
+    WORKSPACE_STORE_S3_PREFIX: aifa/workspaces
+    WORKSPACE_STORE_RESTORE_TIMEOUT_SEC: '300'
+    WORKSPACE_STORE_SNAPSHOT_TIMEOUT_SEC: '300'
+    IS_CREATE_SESSION_SECRET: 'true'
+    SESSION_IDLE_TIMEOUT_SEC: '900'
+    SESSION_ABSOLUTE_TTL_SEC: '3600'
+    REDIS_ENABLED: 'false'

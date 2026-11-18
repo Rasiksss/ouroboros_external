@@ -1,0 +1,2087 @@
+{
+  "schema_version": "registry-layer/v1",
+  "layer_id": "company.us_gaap.non_financial",
+  "version": "2026.09.22.1",
+  "kind": "company_type",
+  "priority": 200,
+  "selector": {
+    "standard": "us_gaap",
+    "company_type": "non_financial"
+  },
+  "metrics": {
+    "extractable": [
+      {
+        "enum": "ACCOUNTS_PAYABLE",
+        "fields": {
+          "name_ru": "Кредиторская задолженность",
+          "name_en": "Accounts payable",
+          "aliases_ru": [
+            "Торговая и прочая кредиторская задолженность",
+            "Торговая кредиторская задолженность"
+          ],
+          "aliases_en": [
+            "Trade and other payables",
+            "Trade payables"
+          ],
+          "description": "Суммы, причитающиеся поставщикам, подрядчикам и прочим кредиторам.",
+          "hint": "Краткосрочные обязательства баланса. Детализация в Примечании 'Кредиторская задолженность'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "ACCOUNTS_RECEIVABLE",
+        "fields": {
+          "name_ru": "Дебиторская задолженность",
+          "name_en": "Accounts receivable",
+          "aliases_ru": [
+            "Торговая и прочая дебиторская задолженность",
+            "Торговая дебиторская задолженность"
+          ],
+          "aliases_en": [
+            "Trade and other receivables",
+            "Trade receivables",
+            "Trade accounts receivable",
+            "Trade accounts receivable, net",
+            "Accounts receivable, net"
+          ],
+          "description": "Суммы, причитающиеся компании от покупателей и прочих контрагентов.",
+          "hint": "Оборотные активы баланса. Бери торговую дебиторскую задолженность / accounts receivable, net. Не включай предоплаты, авансы выданные, НДС к возмещению и прочую дебиторскую задолженность, если они раскрыты отдельно.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "ADJUSTMENTS_OPERATING_CASH_FLOWS",
+        "fields": {
+          "name_ru": "Корректировки",
+          "name_en": "Operating cash flow adjustments",
+          "aliases_ru": [
+            "Поправки (для неденежных статей)"
+          ],
+          "aliases_en": [
+            "Non-cash adjustments",
+            "Adjustments for non-cash items"
+          ],
+          "description": "Сумма всех неденежных корректировок прибыли при формировании операционного ДДС (D&A, изменения резервов и пр.).",
+          "hint": "ОДДС, верхняя часть раздела 'Операционная деятельность' между прибылью и движением оборотного капитала.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "ASSET_PURCHASES",
+        "fields": {
+          "name_ru": "Приобретение основных средств",
+          "name_en": "PPE purchases",
+          "aliases_ru": [
+            "Покупка основных фондов",
+            "Приобретение внеоборотных активов"
+          ],
+          "aliases_en": [
+            "Purchases of property",
+            "plant and equipment",
+            "Additions to PP&E",
+            "Purchases of property, plant and equipment",
+            "Additions to properties, plant and equipment"
+          ],
+          "description": "Денежные расходы на приобретение основных средств за период.",
+          "hint": "ОДДС, раздел 'Инвестиционная деятельность'. Если в отчёте сумма с НМА вместе — используйте COMBINED_ASSET_PURCHASES.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "ASSET_SALES_PROCEEDS",
+        "fields": {
+          "name_ru": "Поступления от продажи основных средств и нематериальных активов",
+          "name_en": "Proceeds from disposal of PPE and Intangible assets",
+          "aliases_ru": [
+            "Поступления от реализации основных средств",
+            "Поступления от выбытия основных средств и нематериальных активов"
+          ],
+          "aliases_en": [
+            "Proceeds from sale of PP&E",
+            "Proceeds from disposal of fixed assets",
+            "Proceeds from divestitures, net",
+            "Proceeds from dispositions"
+          ],
+          "description": "Денежные поступления от продажи внеоборотных активов за период.",
+          "hint": "ОДДС, раздел 'Инвестиционная деятельность'. Также может называться proceeds from divestitures/dispositions; это денежные поступления от продажи активов/бизнесов, не выручка.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "ASSOCIATE_INCOMES",
+        "fields": {
+          "name_ru": "Доходы от ассоциированных компаний",
+          "name_en": "Associate incomes",
+          "aliases_ru": [
+            "Выбытие компаний Группы",
+            "Выбытие дочерних предприятий за вычетом денежных средств",
+            "Доходы от ассоциированных компаний",
+            "Доля в прибыли ассоциированных компаний"
+          ],
+          "aliases_en": [
+            "Proceeds from disposal of subsidiaries",
+            "Disposal of subsidiaries and associates",
+            "Equity income in investee",
+            "Equity income from investees",
+            "Share of profit of associates"
+          ],
+          "description": "Доля компании в прибыли/убытке ассоциированных компаний или инвестиций по методу долевого участия.",
+          "hint": "P&L или примечания equity method/investee. Не путать с proceeds from sale/disposal of subsidiaries.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "ASSOCIATE_INVESTMENTS",
+        "fields": {
+          "name_ru": "Вложения в ассоциированные организации (общества) и совместные предприятия",
+          "name_en": "Associate investments",
+          "aliases_ru": [
+            "Инвестиции в ассоциированные организации и совместные предприятия",
+            "Вложения в объекты инвестиций по методу долевого участия"
+          ],
+          "aliases_en": [
+            "Investments in associates and joint ventures",
+            "Equity-accounted investments"
+          ],
+          "description": "Доли в компаниях, на которые компания оказывает существенное влияние (обычно 20-50% долей).",
+          "hint": "Внеоборотные активы баланса. Учёт по методу долевого участия. Примечание 'Ассоциированные компании и совместные предприятия'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "BANK_DEPOSITS",
+        "fields": {
+          "name_ru": "Банковские депозиты",
+          "name_en": "Bank deposits",
+          "aliases_ru": [
+            "Депозиты",
+            "Срочные банковские депозиты",
+            "Краткосрочные депозиты",
+            "Краткосрочные финансовые вложения депозиты"
+          ],
+          "aliases_en": [
+            "Time deposits",
+            "Short-term bank deposits",
+            "Bank deposits",
+            "Short-term deposits"
+          ],
+          "description": "Денежные средства, размещённые в банках на срочной основе (обычно < 12 месяцев).",
+          "hint": "Оборотные активы баланса или примечание к денежным средствам/краткосрочным инвестициям. Если строка баланса 'краткосрочные финансовые вложения' раскрыта в примечании как банковские/time deposits, бери эту строку. Не путай с cash equivalents и marketable securities.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "CAPEX",
+        "fields": {
+          "name_ru": "Капитальные затраты",
+          "name_en": "Capital expenditure",
+          "aliases_ru": [
+            "Капитальные вложения"
+          ],
+          "aliases_en": [
+            "Capex",
+            "Capital expenditures",
+            "Payments to acquire property, plant and equipment",
+            "Capital expenditures total"
+          ],
+          "description": "Совокупные капитальные затраты — приобретение ОС + НМА за вычетом продажи.",
+          "hint": "ОДДС или MD&A, раздел инвестиционной деятельности / capital expenditures. Если компания раскрывает итоговый CapEx/capital expenditures напрямую, бери раскрытый итог и все его колонки периодов, включая 3M/Q и 6M/YTD. Иначе используй приобретение ОС плюс НМА. Сохраняй знак/скобки как в источнике; не заменяй CapEx одной строкой покупки ОС, если есть отдельный итоговый CapEx или отдельная покупка НМА.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "CAPITALIZED_INTEREST",
+        "fields": {
+          "name_ru": "Капитализированные и уплаченные проценты",
+          "name_en": "Capitalized interest",
+          "aliases_ru": [
+            "Капитализированные проценты",
+            "Капитализированные затраты по займам"
+          ],
+          "aliases_en": [
+            "Capitalized borrowing costs",
+            "Borrowing costs capitalized"
+          ],
+          "description": "Проценты по займам, капитализированные в стоимость квалифицируемых активов.",
+          "hint": "Примечание 'Кредиты и займы' или 'Затраты по займам'. Также может быть в Примечании 'Основные средства'.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "CHANGES_OCF_ASSETS_LIABILITIES",
+        "fields": {
+          "name_ru": "Изменения в оборотном капитале",
+          "name_en": "Changes in working capital",
+          "aliases_ru": [
+            "Изменения в операционных активах и обязательствах"
+          ],
+          "aliases_en": [
+            "Changes in operating assets and liabilities",
+            "Working capital movements"
+          ],
+          "description": "Совокупное изменение оборотного капитала (запасы, дебиторка, кредиторка) за период.",
+          "hint": "ОДДС, средняя часть раздела 'Операционная деятельность' (между корректировками прибыли и налоговыми платежами).",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "COMBINED_ASSET_PURCHASES",
+        "fields": {
+          "name_ru": "Приобретение основных средств и нематериальных активов",
+          "name_en": "Fixed asset purchases",
+          "aliases_ru": [
+            "Приобретение основных средств и внеоборотных активов"
+          ],
+          "aliases_en": [
+            "Purchase of PP&E and intangible assets",
+            "Capital expenditures"
+          ],
+          "description": "Объединённая статья денежных расходов на приобретение ОС и НМА (когда в отчёте они не разделены).",
+          "hint": "ОДДС, раздел 'Инвестиционная деятельность'. Заполнять только если ASSET_PURCHASES и INTANGIBLE_ASSET_PURCHASES объединены в одну строку.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "COMMITTED_CREDIT_FACILITIES",
+        "fields": {
+          "name_ru": "Неиспользованные кредитные линии",
+          "name_en": "Committed credit facilities",
+          "aliases_ru": [
+            "Доступные кредитные линии (лимиты)",
+            "Неиспользованные долгосрочные кредитные линии",
+            "Действующие кредитные соглашения с банками"
+          ],
+          "aliases_en": [
+            "Undrawn committed facilities",
+            "Available credit lines"
+          ],
+          "description": "Сумма доступных, но неиспользованных кредитных линий.",
+          "hint": "Note: for narrative/text disclosures without a table header, preserve the amount and scale exactly as written in the sentence. Example: if the source says \"$3 billion available under a revolving credit agreement\", return value \"3\" (or \"3.0\") and unit_text \"$ billion\"/\"billion\"; do not convert it to \"3,000\" and do not borrow \"in millions\" from nearby tables. Do not create a comparative period unless the facility amount is explicitly disclosed for that date.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "COSTS_EXPENSES",
+        "fields": {
+          "name_ru": "Себестоимость",
+          "name_en": "Costs and expenses",
+          "aliases_ru": [
+            "Себестоимость реализации",
+            "Себестоимость продаж",
+            "Себестоимость реализованной продукции"
+          ],
+          "aliases_en": [
+            "Cost of goods sold",
+            "Cost of sales",
+            "Cost of revenue",
+            "Cost of products",
+            "Cost of services"
+          ],
+          "description": "Прямые затраты, связанные с производством проданной продукции/услуг.",
+          "hint": "P&L: прямая себестоимость обычно идёт сразу после выручки и перед gross profit. В разных отраслях может называться по деятельности компании, но должна оставаться прямыми затратами на проданные товары/услуги. Если прямые затраты раскрыты несколькими строками (например cost of services/products), суммируй только эти строки. Не бери subtotal/total, который включает amortization, SG&A, R&D или operating expenses; не рассчитывай из выручки и operating income.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "DEPRECIATION_AMORTIZATION",
+        "fields": {
+          "name_ru": "Амортизация материальных и нематериальных активов",
+          "name_en": "Depreciation and amortization",
+          "aliases_ru": [
+            "Амортизация основных средств и нематериальных активов",
+            "Износ и амортизация основных средств и нематериальных активов"
+          ],
+          "aliases_en": [
+            "D&A",
+            "DD&A",
+            "Depreciation",
+            "depletion and amortization",
+            "Depreciation and amortization",
+            "Amortization of acquisition-related intangibles"
+          ],
+          "description": "Сумма амортизации основных средств и нематериальных активов за период.",
+          "hint": "ОДДС/примечания: если рядом раскрыты Depreciation and amortization и отдельная amortization of acquisition-related intangibles, общая D&A — их сумма. Не путай с ROU amortization.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+        "fields": {
+          "name_ru": "Дивиденды, выплаченные держателям неконтролирующих долей",
+          "name_en": "Dividends paid to non-controlling interests",
+          "aliases_ru": [
+            "Дивиденды",
+            "выплаченные неконтролирующим акционерам",
+            "уплаченные акционерам с неконтролирующими долями участия"
+          ],
+          "aliases_en": [
+            "Dividends paid to minority interests",
+            "Dividends to non-controlling shareholders"
+          ],
+          "description": "Денежные выплаты дивидендов держателям неконтролирующих долей дочерних компаний.",
+          "hint": "ОДДС, раздел 'Финансовая деятельность' (отдельной строкой от дивидендов акционерам).",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "DIVIDENDS_SHAREHOLDERS",
+        "fields": {
+          "name_ru": "Дивиденды акционерам",
+          "name_en": "Dividends paid to shareholders",
+          "aliases_ru": [
+            "Дивиденды для акционеров"
+          ],
+          "aliases_en": [
+            "Dividends paid to equity holders of the parent"
+          ],
+          "description": "Денежные выплаты дивидендов акционерам материнской компании за период.",
+          "hint": "ОДДС, раздел 'Финансовая деятельность'. Бери строку выплат дивидендов акционерам и сохраняй знак/скобки как в источнике.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "DOUBTFUL_ACCOUNTS_ALLOWANCE",
+        "fields": {
+          "name_ru": "Резерв под ожидаемые кредитные убытки (дебиторская задолженность)",
+          "name_en": "Allowance for doubtful accounts",
+          "aliases_ru": [
+            "Оценочный резерв под ожидаемые кредитные убытки"
+          ],
+          "aliases_en": [
+            "ECL allowance",
+            "Allowance for expected credit losses",
+            "Provision for credit losses"
+          ],
+          "description": "Резерв под ожидаемые кредитные убытки по дебиторской задолженности.",
+          "hint": "Примечание 'Дебиторская задолженность' или 'Управление кредитным риском'. Может быть отдельной строкой 'Изменение резерва ECL'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "EBITDA",
+        "fields": {
+          "name_ru": "Прибыль до вычета процентов, налогов, износа и амортизации",
+          "name_en": "EBITDA",
+          "aliases_ru": [
+            "EBITDA скорректированная",
+            "EBITDAC",
+            "EBITDA по сегменту"
+          ],
+          "aliases_en": [
+            "Adjusted EBITDA",
+            "Segment EBITDA",
+            "EBITDA total"
+          ],
+          "description": "Операционная прибыль до амортизации (EBIT + D&A). Часто компании раскрывают как нефинансовую метрику.",
+          "hint": "Сегментная отчётность или MD&A. Для main metric бери итог/Total по EBITDA, не отдельный сегмент, не elimination-only строку и не EBITDA before IFRS 16/adjusted subtotal, если раскрыт консолидированный total. Если строка 'EBITDA по сегменту' содержит сегменты, исключения/eliminations и затем итоговые значения в последних колонках или в конце строки, бери эти итоговые значения как main EBITDA. Возвращай null только если явной строки EBITDA/OIBDA нет.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "EBT",
+        "fields": {
+          "hint": "P&L, предпоследняя строка. Если у компании убыток, в источнике обычно стоят скобки или минус; сохраняй знак/скобки как в источнике."
+        }
+      },
+      {
+        "enum": "FINANCIAL_EXPENSES",
+        "fields": {
+          "name_ru": "Финансовые расходы",
+          "name_en": "Financial expenses",
+          "aliases_ru": [
+            "Расходы на обслуживание заемных средств",
+            "Процентные расходы"
+          ],
+          "aliases_en": [
+            "Finance costs",
+            "Interest expense"
+          ],
+          "description": "Процентные расходы по кредитам, займам, облигациям и прочее обслуживание долга.",
+          "hint": "P&L, после операционной прибыли. Бери строку finance costs/interest expense и сохраняй знак/скобки как в источнике.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "FINANCIAL_INCOME",
+        "fields": {
+          "name_ru": "Финансовые доходы",
+          "name_en": "Financial income",
+          "aliases_ru": [
+            "Процентные доходы"
+          ],
+          "aliases_en": [
+            "Interest income",
+            "Finance income"
+          ],
+          "description": "Процентные и прочие финансовые доходы (от размещения средств, депозитов, ценных бумаг).",
+          "hint": "P&L, после операционной прибыли. Бери строку finance/financial income и сохраняй значение как в источнике.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "FUTURE_CAPEX_LIABILITIES",
+        "fields": {
+          "name_ru": "Обязательства будущих периодов по капитальным затратам",
+          "name_en": "Future capital liabilities",
+          "aliases_ru": [
+            "Контрактные обязательства по капитальным вложениям"
+          ],
+          "aliases_en": [
+            "Capital commitments",
+            "Committed capital expenditures"
+          ],
+          "description": "Договорные обязательства по будущим капитальным затратам, ещё не отражённые в балансе.",
+          "hint": "Примечание 'Условные обязательства' / 'Капитальные обязательства' / 'Договорные обязательства'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "GROSS_PROFIT",
+        "fields": {
+          "name_ru": "Валовая прибыль",
+          "name_en": "Gross profit",
+          "aliases_ru": [
+            "Валовая прибыль",
+            "Валовая маржа"
+          ],
+          "aliases_en": [
+            "Gross margin",
+            "Gross profit",
+            "Subtotal after cost of sales"
+          ],
+          "description": "Выручка минус себестоимость продаж.",
+          "hint": "P&L, строка после себестоимости. Если строка Gross profit не подписана, но есть очевидный subtotal после прямых costs of sales/products/services и перед operating expenses, можно брать этот subtotal. Не выводи gross profit, если есть только operating income без раскрытой себестоимости.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "GUARANTEES",
+        "fields": {
+          "name_ru": "Гарантии, поручительства",
+          "name_en": "Garantees",
+          "aliases_ru": [
+            "Гарантии",
+            "Поручительства",
+            "Выданные гарантии и обязательства по предоставлению кредитов"
+          ],
+          "aliases_en": [
+            "Financial guarantees",
+            "Bank guarantees",
+            "Contingent liabilities"
+          ],
+          "description": "Сумма выданных гарантий и поручительств за третьих лиц.",
+          "hint": "Примечание 'Условные обязательства' / 'Гарантии и поручительства'. Внебалансовая статья.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INSURANCE_EXPENSE",
+        "fields": {
+          "name_ru": "Расходы по страховой деятельности",
+          "name_en": "Insurance service expense",
+          "aliases_ru": [
+            "Страховые выплаты",
+            "Расходы по страховым случаям"
+          ],
+          "aliases_en": [
+            "Insurance claims and expenses",
+            "Claims and benefits paid"
+          ],
+          "description": "Расходы страховщика по договорам страхования (по IFRS 17).",
+          "hint": "P&L страховой компании. Не применимо к не-страховым — null.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INSURANCE_INCOME",
+        "fields": {
+          "name_ru": "Выручка по страховой деятельности",
+          "name_en": "Insurance service income",
+          "aliases_ru": [
+            "Страховая премия",
+            "Заработанные страховые премии"
+          ],
+          "aliases_en": [
+            "Insurance premium income",
+            "Net earned premiums"
+          ],
+          "description": "Доходы страховщика по договорам страхования (по IFRS 17).",
+          "hint": "P&L страховой компании. Не применимо к не-страховым организациям — null.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INSURANCE_LIABILITIES",
+        "fields": {
+          "name_ru": "Обязательства по договорам страхования",
+          "name_en": "Insurance contracts liabilities",
+          "aliases_ru": [
+            "Страховые резервы",
+            "Страховые обязательства"
+          ],
+          "aliases_en": [
+            "Insurance liabilities",
+            "Technical reserves"
+          ],
+          "description": "Обязательства страховщика по договорам страхования (резервы убытков, премии).",
+          "hint": "Балансовый отчёт страховой компании. Только если компания ведёт страховую деятельность.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INTANGIBLE_ASSET_PURCHASES",
+        "fields": {
+          "name_ru": "Приобретение нематериальных активов",
+          "name_en": "Intangible asset purchases",
+          "aliases_ru": [
+            "Приобретение лицензий"
+          ],
+          "aliases_en": [
+            "Purchases of intangible assets",
+            "Acquisition of intangible assets"
+          ],
+          "description": "Денежные расходы на приобретение нематериальных активов за период.",
+          "hint": "ОДДС, раздел 'Инвестиционная деятельность' (отдельной строкой от ОС). Если в отчёте объединено с ОС — null, см. COMBINED_ASSET_PURCHASES.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INTEREST_PAID_LEASE_LIABILITIES",
+        "fields": {
+          "name_ru": "Уплаченные проценты по лизингу",
+          "name_en": "Interest paid on lease liabilities",
+          "aliases_ru": [
+            "Проценты уплаченные по лизингу",
+            "Процентные расходы по обязательствам по аренде"
+          ],
+          "aliases_en": [
+            "Interest expense on lease liabilities",
+            "Cash paid for lease interest"
+          ],
+          "description": "Процентная составляющая лизинговых платежей за период.",
+          "hint": "ОДДС, раздел 'Финансовая деятельность'. Также в Примечании 'IFRS 16' / 'Аренда'.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "INVENTORIES",
+        "fields": {
+          "name_ru": "Запасы",
+          "name_en": "Inventories",
+          "aliases_ru": [
+            "Товарно-материальные запасы",
+            "ТМЗ"
+          ],
+          "aliases_en": [
+            "Inventory",
+            "Stocks"
+          ],
+          "description": "Сырьё, незавершённое производство и готовая продукция, удерживаемые для продажи.",
+          "hint": "Оборотные активы баланса. Детализация в Примечании 'Запасы'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "LONG_TERM_DEBT",
+        "fields": {
+          "name_ru": "Долгосрочные кредиты и займы",
+          "name_en": "Long-term debt",
+          "aliases_ru": [
+            "Долгосрочные заемные средства",
+            "Долгосрочные займы и кредиты"
+          ],
+          "aliases_en": [
+            "Long-term borrowings",
+            "Long-term loans and borrowings"
+          ],
+          "description": "Кредиты и займы со сроком погашения более 12 месяцев.",
+          "hint": "Долгосрочные обязательства баланса. Детализация (валюта, ставка, сроки) в Примечании 'Кредиты и займы' / 'Заёмные средства'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "LONG_TERM_LEASE_LIABILITIES",
+        "fields": {
+          "name_ru": "Долгосрочные обязательства по аренде",
+          "name_en": "Long-term lease liabilities",
+          "aliases_ru": [
+            "Обязательства по аренде",
+            "долгосрочная часть",
+            "Долгосрочная часть обязательств по аренде"
+          ],
+          "aliases_en": [
+            "Non-current lease liabilities",
+            "Long-term portion of lease liabilities"
+          ],
+          "description": "Обязательства по аренде по IFRS 16 со сроком погашения более 12 месяцев.",
+          "hint": "Долгосрочные обязательства баланса. Также в Примечании 'IFRS 16' — графа 'Свыше 1 года'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "LONG_TERM_ROU",
+        "fields": {
+          "name_ru": "Долгосрочные активы в форме права пользования",
+          "name_en": "Long Term Right of Use Assets",
+          "aliases_ru": [
+            "Долгосрочная часть активов в форме права пользования"
+          ],
+          "aliases_en": [
+            "Non-current right-of-use assets",
+            "Long-term ROU assets"
+          ],
+          "description": "Активы ППА к признанию через более 12 месяцев.",
+          "hint": "Это активы права пользования (ROU assets), а не обязательства по аренде. Бери строку баланса/right-of-use assets; не подставляй current/non-current lease liabilities.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "NET_OPERATING_CASH_FLOW",
+        "fields": {
+          "name_ru": "Чистый операционный денежный поток",
+          "name_en": "Net operating cash flow",
+          "aliases_ru": [
+            "Чистые денежные средства",
+            "полученные от операционной деятельности",
+            "Чистые денежные потоки от операционной деятельности"
+          ],
+          "aliases_en": [
+            "Net cash from operating activities",
+            "Net cash provided by operating activities"
+          ],
+          "description": "Итоговый денежный поток от основной операционной деятельности (после уплаты налогов и процентов).",
+          "hint": "ОДДС (Cash Flow Statement), итоговая строка раздела 'Операционная деятельность'.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "NET_OTHER_RESERVES",
+        "fields": {
+          "name_ru": "Чистое восстановление прочих резервов",
+          "name_en": "Net other reserves",
+          "aliases_ru": [
+            "(Создание)/восстановление резерва под судебные иски и прочие обязательства",
+            "Восстановление резерва под кредитные убытки по прочим финансовым активам"
+          ],
+          "aliases_en": [
+            "Net reversal of other provisions",
+            "Net recovery of other provisions"
+          ],
+          "description": "Чистый эффект от прочих резервов за период (восстановление минус начисление).",
+          "hint": "ОДДС или P&L. Может быть в составе 'Прочие операционные доходы/расходы' или отдельной строкой.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "OPERATING_EXPENSES",
+        "fields": {
+          "name_ru": "Операционные расходы",
+          "name_en": "Operating expenses",
+          "aliases_ru": [
+            "Коммерческие",
+            "общехозяйственные и административные расходы",
+            "Коммерческие и административные расходы"
+          ],
+          "aliases_en": [
+            "SG&A",
+            "Selling",
+            "general and administrative expenses",
+            "General and administrative expense",
+            "Marketing, general and administrative",
+            "G&A",
+            "Operating expenses",
+            "Selling, general and administrative expenses",
+            "Selling, general and administrative"
+          ],
+          "description": "Расходы, связанные с операционной деятельностью, кроме себестоимости (коммерческие + общехозяйственные + админ).",
+          "hint": "P&L, после валовой прибыли. Приоритет: total operating expenses / operating, selling, general and administrative expenses. Если отдельными строками раскрыты Operating expenses и SG&A/G&A без общего subtotal, суммируй эти operating-expense строки. Не бери себестоимость и total costs and expenses.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "OPERATING_PROFIT",
+        "fields": {
+          "name_ru": "Операционная прибыль",
+          "name_en": "Operating profit",
+          "aliases_ru": [
+            "Прибыль от операционной деятельности",
+            "Прибыль от продаж",
+            "Прибыль от основной деятельности"
+          ],
+          "aliases_en": [
+            "Operating income",
+            "EBIT",
+            "Income from operations"
+          ],
+          "description": "Прибыль до финансовых доходов/расходов и налога — результат основной деятельности.",
+          "hint": "P&L, строка после операционных расходов и до 'Финансовые доходы/расходы'.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": false,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "PERPETUAL_BONDS",
+        "fields": {
+          "name_ru": "Бессрочные облигации",
+          "name_en": "Perpetual bonds",
+          "aliases_ru": [
+            "Облигации без срока погашения",
+            "Выпуск бессрочных облигаций",
+            "бессрочный субординированный займ"
+          ],
+          "aliases_en": [
+            "Perpetual notes",
+            "Hybrid capital notes"
+          ],
+          "description": "Облигации без даты погашения, классифицируемые как часть собственного капитала.",
+          "hint": "Раздел КАПИТАЛ баланса (если эмитент учитывает их как капитал) или Долгосрочные обязательства.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "ROU_DEPRECIATION",
+        "fields": {
+          "name_ru": "Амортизация активов в форме права пользования",
+          "name_en": "Right of Use Assets Depreciation",
+          "aliases_ru": [
+            "Износ активов в форме права пользования",
+            "Амортизация права пользования активами"
+          ],
+          "aliases_en": [
+            "Depreciation of right-of-use assets",
+            "ROU asset depreciation",
+            "Amortization of operating lease right-of-use assets"
+          ],
+          "description": "Амортизация активов IFRS 16 за период.",
+          "hint": "Примечание 'Аренда' / lease note или ОДДС: amortization/depreciation of right-of-use assets. Не путай с общей depreciation and amortization.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SALES_REVENUE",
+        "fields": {
+          "name_ru": "Выручка",
+          "name_en": "Sales revenue",
+          "aliases_ru": [
+            "Выручка от реализации",
+            "Выручка от реализации продукции"
+          ],
+          "aliases_en": [
+            "Revenue",
+            "Net revenue",
+            "Net sales"
+          ],
+          "description": "Доходы компании от обычной операционной деятельности (без НДС).",
+          "hint": "Первая строка отчёта о прибылях и убытках (P&L). Детализация по сегментам в одноимённой ноте.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SECURITIES_LIABILITIES",
+        "fields": {
+          "name_ru": "Финансовые инструменты (Обязательства)",
+          "name_en": "Securities",
+          "aliases_ru": [
+            "Финансовые обязательства",
+            "Выпущенные долговые инструменты"
+          ],
+          "aliases_en": [
+            "Financial instruments",
+            "Financial liabilities",
+            "Debt instruments issued"
+          ],
+          "description": "Облигации и прочие долговые ценные бумаги, выпущенные компанией.",
+          "hint": "Балансовый отчёт. Детализация в Примечании 'Долговые ценные бумаги' / 'Облигационный заём'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SHARES_BUYBACK",
+        "fields": {
+          "name_ru": "Выкуп собственных акций",
+          "name_en": "Shares buyback",
+          "aliases_ru": [
+            "Приобретение собственных акций компании",
+            "Приобретение акций компании"
+          ],
+          "aliases_en": [
+            "Share repurchase",
+            "Repurchase of common shares",
+            "Purchase of own shares"
+          ],
+          "description": "Денежные расходы на выкуп собственных акций у акционеров.",
+          "hint": "ОДДС, раздел 'Финансовая деятельность'. Бери строку выкупа/покупки собственных акций и сохраняй знак/скобки как в источнике.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SHORT_TERM_BORROWINGS",
+        "fields": {
+          "name_ru": "Краткосрочные кредиты и займы",
+          "name_en": "Short-term borrowings and current portion of long-term debt",
+          "aliases_ru": [
+            "Краткосрочные заемные средства",
+            "Краткосрочные кредиты",
+            "займы и текущая часть долгосрочной задолженности",
+            "Краткосрочное долговое финансирование"
+          ],
+          "aliases_en": [
+            "Current borrowings",
+            "Short-term loans and borrowings",
+            "Current portion of long-term debt"
+          ],
+          "description": "Кредиты и займы со сроком погашения в течение 12 месяцев (включая текущую часть долгосрочных).",
+          "hint": "Краткосрочные обязательства баланса. Часто включает текущую часть долгосрочного долга.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SHORT_TERM_LEASE_LIABILITIES",
+        "fields": {
+          "name_ru": "Краткосрочные обязательства по аренде",
+          "name_en": "Short-term lease liabilities",
+          "aliases_ru": [
+            "Краткосрочная часть обязательств по аренде",
+            "Текущая часть обязательств по аренде"
+          ],
+          "aliases_en": [
+            "Current lease liabilities",
+            "Current portion of lease liabilities"
+          ],
+          "description": "Обязательства по аренде по IFRS 16 со сроком погашения в течение 12 месяцев.",
+          "hint": "Краткосрочные обязательства баланса или примечание по аренде. Бери current portion/current lease liabilities, даже если в балансе она включена в accrued/other current liabilities.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SHORT_TERM_ROU",
+        "fields": {
+          "name_ru": "Краткосрочные активы в форме права пользования",
+          "name_en": "Short Term Right of Use Assets",
+          "aliases_ru": [
+            "Краткосрочная часть активов в форме права пользования"
+          ],
+          "aliases_en": [
+            "Current right-of-use assets",
+            "Short-term ROU assets"
+          ],
+          "description": "Активы ППА к признанию в течение 12 месяцев.",
+          "hint": "Примечание 'IFRS 16' / 'Аренда' — графа 'До 1 года'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "SUBSIDIARY_ACQUISITIONS",
+        "fields": {
+          "name_ru": "Приобретение дочерних организаций (обществ) за вычетом (минусом) денежных средств и за вычетом (минусом) полученных денежных средств",
+          "name_en": "Subsidairy acquisitions",
+          "aliases_ru": [
+            "Приобретение дочернего предприятия",
+            "Приобретение бизнеса за вычетом полученных денежных средств"
+          ],
+          "aliases_en": [
+            "Acquisition of subsidiaries net of cash",
+            "Business combinations",
+            "Acquisition of businesses"
+          ],
+          "description": "Денежные расходы на приобретение дочерних компаний (за вычетом приобретённых денежных средств).",
+          "hint": "ОДДС, раздел 'Инвестиционная деятельность'. Включай строки денежных оттоков на приобретение бизнесов/дочерних организаций, включая приобретения у связанных сторон. Не бери покупки/выкуп неконтролирующих долей без приобретения бизнеса. Сохраняй знак/скобки как в источнике.",
+          "standard": "Любой",
+          "period_type": "duration",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "TOTAL_CURRENT_ASSETS",
+        "fields": {
+          "name_ru": "Итого оборотных активов",
+          "name_en": "Total current assets",
+          "aliases_ru": [
+            "Итого оборотные активы",
+            "Оборотные активы всего",
+            "Текущие активы",
+            "Краткосрочные активы"
+          ],
+          "aliases_en": [
+            "Total current assets",
+            "Current assets"
+          ],
+          "description": "Сумма ликвидных активов, ожидаемых к реализации в течение 12 месяцев.",
+          "hint": "Балансовый отчёт, итоговая строка блока 'Оборотные активы' (запасы, дебиторка, денежные средства).",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      },
+      {
+        "enum": "TOTAL_CURRENT_LIABILITIES",
+        "fields": {
+          "name_ru": "Итого краткосрочных обязательств",
+          "name_en": "Total current liabilities",
+          "aliases_ru": [
+            "Итого краткосрочные обязательства",
+            "Текущие обязательства",
+            "Краткосрочные обязательства всего",
+            "Итого текущих обязательств"
+          ],
+          "aliases_en": [
+            "Total current liabilities",
+            "Current liabilities"
+          ],
+          "description": "Сумма обязательств с погашением в течение 12 месяцев.",
+          "hint": "Балансовый отчёт, итоговая строка блока 'Краткосрочные обязательства'.",
+          "standard": "Любой",
+          "period_type": "point",
+          "unit": "",
+          "formula_default_abs_behavior": true,
+          "unit_kind": "",
+          "scale_hint": "",
+          "document_types": [
+            "financial_report"
+          ]
+        }
+      }
+    ],
+    "calculated": [
+      {
+        "enum": "ACCOUNTS_PAYABLE_TURNOVER",
+        "fields": {
+          "name_ru": "Оборачиваемость кредиторской задолженности",
+          "name_en": "",
+          "formula": "DAYS_IN_PERIOD / (COSTS_EXPENSES / AVG (ACCOUNTS_PAYABLE))",
+          "deps": [
+            "COSTS_EXPENSES",
+            "ACCOUNTS_PAYABLE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "days",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "ACCOUNTS_RECEIVABLE_TURNOVER",
+        "fields": {
+          "name_ru": "Оборачиваемость дебиторской задолженности",
+          "name_en": "",
+          "formula": "DAYS_IN_PERIOD / (SALES_REVENUE / AVG (ACCOUNTS_RECEIVABLE))",
+          "deps": [
+            "SALES_REVENUE",
+            "ACCOUNTS_RECEIVABLE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "days",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "ADJ_OCF_TO_INTEREST_PAID",
+        "fields": {
+          "name_ru": "Отношение скорректированного  операционного денежного потока у процентам уплаченным",
+          "name_en": "",
+          "formula": "(FREE_CASH_FLOW_DEBT + CAPEX + INTEREST_PAID)/ INTEREST_PAID",
+          "deps": [
+            "FREE_CASH_FLOW_DEBT",
+            "CAPEX",
+            "INTEREST_PAID"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "ASSETS_TO_EQUITY_RATIO",
+        "fields": {
+          "name_ru": "Финансовый рычаг",
+          "name_en": "",
+          "formula": "TOTAL_ASSETS / TOTAL_EQUITY",
+          "deps": [
+            "TOTAL_ASSETS",
+            "TOTAL_EQUITY"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "ASSET_TURNOVER",
+        "fields": {
+          "name_ru": "Оборачиваемость активов",
+          "name_en": "",
+          "formula": "SALES_REVENUE / AVG (TOTAL_ASSETS)",
+          "deps": [
+            "SALES_REVENUE",
+            "TOTAL_ASSETS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "CAPEX",
+        "fields": {
+          "name_ru": "Капитальные затраты",
+          "name_en": "",
+          "formula": "ASSET_PURCHASES + INTANGIBLE_ASSET_PURCHASES - ASSET_SALES_PROCEEDS",
+          "deps": [
+            "ASSET_PURCHASES",
+            "INTANGIBLE_ASSET_PURCHASES",
+            "ASSET_SALES_PROCEEDS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "CAPEX_TO_REVENUE",
+        "fields": {
+          "name_ru": "Отношение капитальных затрат к выручке",
+          "name_en": "",
+          "formula": "CAPEX / SALES_REVENUE * 100%",
+          "deps": [
+            "CAPEX",
+            "SALES_REVENUE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "CASH_CONVERSION_CYCLE",
+        "fields": {
+          "name_ru": "Финансовый (денежный) цикл",
+          "name_en": "",
+          "formula": "ACCOUNTS_RECEIVABLE_TURNOVER + INVENTORIES_TURNOVER - ACCOUNTS_PAYABLE_TURNOVER",
+          "deps": [
+            "ACCOUNTS_RECEIVABLE_TURNOVER",
+            "INVENTORIES_TURNOVER",
+            "ACCOUNTS_PAYABLE_TURNOVER"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "days",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "CASH_TO_SHORT_TERM_DEBT",
+        "fields": {
+          "name_ru": "Отношение денежных средств и эквивалентов к краткосрочному долгу",
+          "name_en": "",
+          "formula": "TOTAL_CASH_EQUIVALENTS / (SHORT_TERM_BORROWINGS + SHORT_TERM_LEASE_LIABILITIES) * 100%",
+          "deps": [
+            "TOTAL_CASH_EQUIVALENTS",
+            "SHORT_TERM_BORROWINGS",
+            "SHORT_TERM_LEASE_LIABILITIES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "COMBINED_ASSET_PURCHASES",
+        "fields": {
+          "name_ru": "Приобретение основных средств и нематериальных активов",
+          "name_en": "",
+          "formula": "ASSET_PURCHASES + INTANGIBLE_ASSET_PURCHASES",
+          "deps": [
+            "ASSET_PURCHASES",
+            "INTANGIBLE_ASSET_PURCHASES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "CURRENT_RATIO",
+        "fields": {
+          "name_ru": "Коэффициент текущей ликвидности",
+          "name_en": "",
+          "formula": "TOTAL_CURRENT_ASSETS / TOTAL_CURRENT_LIABILITIES",
+          "deps": [
+            "TOTAL_CURRENT_ASSETS",
+            "TOTAL_CURRENT_LIABILITIES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "DEBT_TO_EQUITY_RATIO",
+        "fields": {
+          "name_ru": "Коэффициент левериджа",
+          "name_en": "",
+          "formula": "TOTAL_DEBT / TOTAL_EQUITY",
+          "deps": [
+            "TOTAL_DEBT",
+            "TOTAL_EQUITY"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "DIVIDENDS",
+        "fields": {
+          "name_ru": "Дивиденды и уплаченные дивиденды",
+          "name_en": "",
+          "formula": "DIVIDENDS_SHAREHOLDERS + DIVIDENDS_PAID_NONCONTROLLING_INTERESTS",
+          "deps": [
+            "DIVIDENDS_SHAREHOLDERS",
+            "DIVIDENDS_PAID_NONCONTROLLING_INTERESTS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "EBITDA",
+        "fields": {
+          "name_ru": "Прибыль до вычета процентов, налогов, износа и амортизации",
+          "name_en": "",
+          "formula": "OPERATING_PROFIT + DEPRECIATION_AMORTIZATION",
+          "deps": [
+            "OPERATING_PROFIT",
+            "DEPRECIATION_AMORTIZATION"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "EBITDA_MARGIN",
+        "fields": {
+          "name_ru": "Рентабельность по EBITDA",
+          "name_en": "",
+          "formula": "EBITDA / SALES_REVENUE * 100%",
+          "deps": [
+            "EBITDA",
+            "SALES_REVENUE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "EBITDA_TO_INTEREST_PAID",
+        "fields": {
+          "name_ru": "Отношение EBITDA к уплаченным процентам",
+          "name_en": "",
+          "formula": "EBITDA / INTEREST_PAID",
+          "deps": [
+            "EBITDA",
+            "INTEREST_PAID"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "EBIT_MARGIN",
+        "fields": {
+          "name_ru": "Рентабельность по EBIT",
+          "name_en": "",
+          "formula": "OPERATING_PROFIT / SALES_REVENUE * 100%",
+          "deps": [
+            "OPERATING_PROFIT",
+            "SALES_REVENUE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "FCF_TO_INTEREST_PAID",
+        "fields": {
+          "name_ru": "Отношение свободного денежного потока у процентам уплаченным",
+          "name_en": "",
+          "formula": "FREE_CASH_FLOW / INTEREST_PAID",
+          "deps": [
+            "FREE_CASH_FLOW",
+            "INTEREST_PAID"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "FCF_TO_INTEREST_PAID_CIB",
+        "fields": {
+          "name_ru": "Отношение свободного денежного потока к процентам уплаченным (CIB)",
+          "name_en": "",
+          "formula": "FREE_CASH_FLOW_GEN / INTEREST_PAID",
+          "deps": [
+            "FREE_CASH_FLOW_GEN",
+            "INTEREST_PAID"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "FIXED_ASSET_TURNOVER",
+        "fields": {
+          "name_ru": "Оборачиваемость основных средств",
+          "name_en": "",
+          "formula": "SALES_REVENUE / AVG (RIGHT_OF_USE_ASSETS + PPE)",
+          "deps": [
+            "SALES_REVENUE",
+            "RIGHT_OF_USE_ASSETS",
+            "PPE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "FREE_CASH_FLOW",
+        "fields": {
+          "name_ru": "Свободный денежный поток",
+          "name_en": "",
+          "formula": "NET_OPERATING_CASH_FLOW – CAPEX",
+          "deps": [
+            "NET_OPERATING_CASH_FLOW",
+            "CAPEX"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "FREE_CASH_FLOW_DEBT",
+        "fields": {
+          "name_ru": "Свободный денежный поток (для кредиторов)",
+          "name_en": "",
+          "formula": "FREE_CASH_FLOW_GEN – INVESTMENTS – DIVIDENDS_SHAREHOLDERS - PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES",
+          "deps": [
+            "FREE_CASH_FLOW_GEN",
+            "INVESTMENTS",
+            "DIVIDENDS_SHAREHOLDERS",
+            "PRINCIPAL_REPAYMENT_OF_LEASE_LIABILITIES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "FREE_CASH_FLOW_FIRM",
+        "fields": {
+          "name_ru": "Свободный денежный поток (для кредиторов)",
+          "name_en": "",
+          "formula": "FREE_CASH_FLOW – INVESTMENTS – DIVIDENDS",
+          "deps": [
+            "FREE_CASH_FLOW",
+            "INVESTMENTS",
+            "DIVIDENDS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "FREE_CASH_FLOW_GEN",
+        "fields": {
+          "name_ru": "Свободный денежный поток",
+          "name_en": "",
+          "formula": "EBITDA + CHANGES_OCF_ASSETS_LIABILITIES - TAX_EXPENDITURE - CAPEX - NET_INTEREST_PAID - DIVIDENDS + DIVIDENDS_RECEIVED",
+          "deps": [
+            "EBITDA",
+            "CHANGES_OCF_ASSETS_LIABILITIES",
+            "TAX_EXPENDITURE",
+            "CAPEX",
+            "NET_INTEREST_PAID",
+            "DIVIDENDS",
+            "DIVIDENDS_RECEIVED"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "GROSS_MARGIN",
+        "fields": {
+          "name_ru": "Рентабельность по валовой прибыли",
+          "name_en": "",
+          "formula": "GROSS_PROFIT / SALES_REVENUE * 100%",
+          "deps": [
+            "GROSS_PROFIT",
+            "SALES_REVENUE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "GROSS_PROFIT",
+        "fields": {
+          "name_ru": "Валовая прибыль",
+          "name_en": "",
+          "formula": "SALES_REVENUE – COSTS_EXPENSES",
+          "deps": [
+            "SALES_REVENUE",
+            "COSTS_EXPENSES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "INTEREST_COVERAGE_RATIO",
+        "fields": {
+          "name_ru": "Коэффициент покрытия процентов",
+          "name_en": "",
+          "formula": "EBITDA / NET_INTEREST_PAID",
+          "deps": [
+            "EBITDA",
+            "ABS",
+            "NET_INTEREST_PAID"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "INVENTORIES_TURNOVER",
+        "fields": {
+          "name_ru": "Оборачиваемость запасов",
+          "name_en": "",
+          "formula": "DAYS_IN_PERIOD / (COSTS_EXPENSES / AVG (INVENTORIES))",
+          "deps": [
+            "COSTS_EXPENSES",
+            "INVENTORIES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "days",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "INVESTMENTS",
+        "fields": {
+          "name_ru": "Инвестиции",
+          "name_en": "",
+          "formula": "SUBSIDIARY_ACQUISITIONS + ASSOCIATE_INVESTMENTS – ASSOCIATE_INCOMES",
+          "deps": [
+            "SUBSIDIARY_ACQUISITIONS",
+            "ASSOCIATE_INVESTMENTS",
+            "ASSOCIATE_INCOMES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "NET_DEBT",
+        "fields": {
+          "name_ru": "Чистый долг",
+          "name_en": "",
+          "formula": "TOTAL_DEBT – CASH_EQUIVALENTS - BANK_DEPOSITS",
+          "deps": [
+            "TOTAL_DEBT",
+            "CASH_EQUIVALENTS",
+            "BANK_DEPOSITS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "NET_DEBT_IAS_17",
+        "fields": {
+          "name_ru": "Чистый долг в соответствии с IAS 17",
+          "name_en": "",
+          "formula": "TOTAL_DEBT – CASH_EQUIVALENTS",
+          "deps": [
+            "TOTAL_DEBT",
+            "CASH_EQUIVALENTS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "NET_INCOME_MARGIN",
+        "fields": {
+          "name_ru": "Рентабельность по чистой прибыли",
+          "name_en": "",
+          "formula": "NET_INCOME / SALES_REVENUE * 100%",
+          "deps": [
+            "NET_INCOME",
+            "SALES_REVENUE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "NET_INSURANCE_INCOME",
+        "fields": {
+          "name_ru": "Чистый страховой доход",
+          "name_en": "",
+          "formula": "INSURANCE_INCOME - INSURANCE_EXPENSE",
+          "deps": [
+            "INSURANCE_INCOME",
+            "INSURANCE_EXPENSE"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "OCF_TO_EBITDA",
+        "fields": {
+          "name_ru": "Конверсия EBITDA в операционный поток",
+          "name_en": "",
+          "formula": "NET_OPERATING_CASH_FLOW / EBITDA * 100%",
+          "deps": [
+            "NET_OPERATING_CASH_FLOW",
+            "EBITDA"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "QUICK_RATIO",
+        "fields": {
+          "name_ru": "Коэффициент быстрой ликвидности",
+          "name_en": "",
+          "formula": "(TOTAL_CURRENT_ASSETS - INVENTORIES) / TOTAL_CURRENT_LIABILITIES",
+          "deps": [
+            "TOTAL_CURRENT_ASSETS",
+            "INVENTORIES",
+            "TOTAL_CURRENT_LIABILITIES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "RATIO_NET_DEBT_EBITDA",
+        "fields": {
+          "name_ru": "Чистый долг / Прибыль до вычета процентов, налогов, износа и амортизации",
+          "name_en": "",
+          "formula": "NET_DEBT / ANNUAL(EBITDA)",
+          "deps": [
+            "NET_DEBT",
+            "EBITDA"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "RATIO_TOTAL_DEBT_EBITDA",
+        "fields": {
+          "name_ru": "Отношение общего долга к EBITDA",
+          "name_en": "",
+          "formula": "TOTAL_DEBT / ANNUAL(EBITDA)",
+          "deps": [
+            "TOTAL_DEBT",
+            "EBITDA"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "RATIO_TOTAL_DEBT_NOCF",
+        "fields": {
+          "name_ru": "Отношение долга к чистому денежному потоку от операционной деятельности",
+          "name_en": "",
+          "formula": "TOTAL_DEBT / ANNUAL(NET_OPERATING_CASH_FLOW)",
+          "deps": [
+            "TOTAL_DEBT",
+            "NET_OPERATING_CASH_FLOW"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "RIGHT_OF_USE_ASSETS",
+        "fields": {
+          "name_ru": "Активы в форме права пользования",
+          "name_en": "",
+          "formula": "SHORT_TERM_ROU + LONG_TERM_ROU",
+          "deps": [
+            "SHORT_TERM_ROU",
+            "LONG_TERM_ROU"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "SHORT_TERM_PORTION_OF_DEBT",
+        "fields": {
+          "name_ru": "Краткосрочная часть долга",
+          "name_en": "",
+          "formula": "(SHORT_TERM_BORROWINGS + SHORT_TERM_LEASE_LIABILITIES) / TOTAL_DEBT * 100%",
+          "deps": [
+            "SHORT_TERM_BORROWINGS",
+            "SHORT_TERM_LEASE_LIABILITIES",
+            "TOTAL_DEBT"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "TOTAL_CASH_EQUIVALENTS",
+        "fields": {
+          "name_ru": "Денежные средства и краткосрочные депозиты",
+          "name_en": "",
+          "formula": "CASH_EQUIVALENTS + BANK_DEPOSITS",
+          "deps": [
+            "CASH_EQUIVALENTS",
+            "BANK_DEPOSITS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "TOTAL_DEBT",
+        "fields": {
+          "name_ru": "Общий долг",
+          "name_en": "",
+          "formula": "LONG_TERM_DEBT + LONG_TERM_LEASE_LIABILITIES + SHORT_TERM_BORROWINGS + SHORT_TERM_LEASE_LIABILITIES",
+          "deps": [
+            "LONG_TERM_DEBT",
+            "LONG_TERM_LEASE_LIABILITIES",
+            "SHORT_TERM_BORROWINGS",
+            "SHORT_TERM_LEASE_LIABILITIES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "TOTAL_DEBT_IAS_17",
+        "fields": {
+          "name_ru": "Общий долг в соответствии с IAS 17",
+          "name_en": "",
+          "formula": "LONG_TERM_DEBT + SHORT_TERM_BORROWINGS",
+          "deps": [
+            "LONG_TERM_DEBT",
+            "SHORT_TERM_BORROWINGS"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      },
+      {
+        "enum": "WORKING_CAPITAL",
+        "fields": {
+          "name_ru": "Оборотный капитал",
+          "name_en": "",
+          "formula": "TOTAL_CURRENT_ASSETS - TOTAL_CURRENT_LIABILITIES",
+          "deps": [
+            "TOTAL_CURRENT_ASSETS",
+            "TOTAL_CURRENT_LIABILITIES"
+          ],
+          "hint": "",
+          "role": "",
+          "source": "",
+          "unit_kind": "",
+          "annualize": false
+        }
+      }
+    ]
+  }
+}

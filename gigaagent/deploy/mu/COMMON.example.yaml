@@ -1,0 +1,91 @@
+# EXAMPLE: replace all placeholders before applying to a cluster.
+hub:
+  name: <OUR_HUB>
+  id: <OUR_HUB_CI>
+aef:
+  name: <OUR_AEF>
+  id: <OUR_APP_CI>
+  module_id: <OUR_MODULE_CI>
+agents:
+- name: gigaagent
+  jiraProject: <OUR_JIRA_PROJECT>
+  git: <OUR_MONOREPO_GIT_URL>
+  branch: <RELEASE_BRANCH>
+  path: /gigaagent
+  assembly:
+    baseImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+    runImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+    aefsdk: false
+    claw: 'true'
+- name: transport
+  jiraProject: <OUR_JIRA_PROJECT>
+  git: <OUR_MONOREPO_GIT_URL>
+  branch: <RELEASE_BRANCH>
+  path: /gigaagent
+  assembly:
+    baseImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+    runImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+    aefsdk: false
+    claw: 'true'
+- name: supervisor
+  jiraProject: <OUR_JIRA_PROJECT>
+  git: <OUR_MONOREPO_GIT_URL>
+  branch: <RELEASE_BRANCH>
+  path: /gigaagent
+  assembly:
+    baseImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+    runImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+    aefsdk: false
+    claw: 'true'
+- name: memory
+  jiraProject: <OUR_JIRA_PROJECT>
+  git: <OUR_MONOREPO_GIT_URL>
+  branch: <RELEASE_BRANCH>
+  path: /gigaagent
+  assembly:
+    baseImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+    runImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+    aefsdk: false
+    claw: 'true'
+- name: config-registry
+  jiraProject: <OUR_JIRA_PROJECT>
+  git: <OUR_MONOREPO_GIT_URL>
+  branch: <RELEASE_BRANCH>
+  path: /gigaagent
+  assembly:
+    baseImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+    runImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+    aefsdk: false
+    claw: 'true'
+- name: aifa
+  jiraProject: <OUR_JIRA_PROJECT>
+  git: <OUR_MONOREPO_GIT_URL>
+  branch: <RELEASE_BRANCH>
+  path: /aifa
+  assembly:
+    baseImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+    runImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+    aefsdk: false
+    claw: 'true'
+- name: workstation
+  jiraProject: <OUR_JIRA_PROJECT>
+  git: <OUR_MONOREPO_GIT_URL>
+  branch: <RELEASE_BRANCH>
+  path: /workstation
+  assembly:
+    baseImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+    runImage: docker-dev.registry-ci.delta.sbrf.ru/ci09191965/ci09985638/python-image:d-01.010.18@sha256:3994272b8d65af0c477a0fe7b5d712640d80f7970e80515f3609543fb65be89a
+    aefsdk: false
+    claw: 'true'
+buildCredentials:
+  GIT_SSH_CREDENTIAL_ID: <JENKINS_CREDENTIAL_ID>
+  PASS_CREDENTIAL_ID: <JENKINS_CREDENTIAL_ID>
+  OSC_TOKEN_CREDENTIAL_ID: <JENKINS_CREDENTIAL_ID>
+  BASE64_OSC_TOKEN_CREDENTIAL_ID: <JENKINS_CREDENTIAL_ID>
+qg:
+  mus_code: <OUR_VALUE>
+  mus_name: <OUR_VALUE>
+  mus_po_mail: <OUR_VALUE>
+  sm_id: <OUR_VALUE>
+  sm_name: <OUR_VALUE>
+  jira_area: <OUR_VALUE>

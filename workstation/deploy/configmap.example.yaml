@@ -1,0 +1,44 @@
+# ConfigMap data для workstation. Только то, что задаётся под окружение.
+# Внутренние knobs (rlimits, allowlists, пути бинарей, таймауты, пул БД,
+# APP_TITLE/VERSION/SERVICE_NAME) не выносятся — дефолты в app/core/config.py.
+# Секреты — в secman-файле (см. workstation-secrets.example).
+# AGENT_ID/AGENT_INSTANCE_ID/DISTRIBUTIVE/AI_HUB_ID/HUB_NAME/CLUSTER_ID/
+# POD_NAMESPACE/POD_NAME сюда НЕ кладём: приходят из downward API
+# (valueFrom.fieldRef) в Deployment.
+
+# --- путь к secman-файлу ---
+# Раскомментировать, если mount отличается от дефолта
+# /vault/secrets/secret-files/workstation-secrets. Файла по указанному пути нет
+# -> секреты молча не применятся, останутся значения из этого configmap.
+# SECMAN_SECRETS_FILE: "/vault/secrets/secret-files/workstation-secrets"
+
+# --- тумблеры фич ---
+RUNTIME_MODE: "local" # local | bwrap
+NETWORK_ENABLED: "false"
+AUDIT_ENABLED: "true"
+METRICS_ENABLED: "true"
+AUTH_ENABLED: "true"
+REDIS_ENABLED: "true"
+KAFKA_ENABLED: "true"
+KAFKA_CONSUMER_ENABLED: "false"
+WORKSPACE_STORE_ENABLED: "true"
+NODOC: "true"
+IS_ERR_DETAIL_HIDDEN: "true"
+
+# --- подключения / эндпоинты (несекретные) ---
+AUTH_HOST: "http://auth.dev0.svc.cluster.local:8080"
+AUTH_URI: "/api/v1/token/validate"
+KAFKA_TOPIC: "system.events_AIGW"
+KAFKA_BROKERS: "egress-kafka-aigw-collectors.dev0.svc.cluster.local:19093"
+KAFKA_BOOTSTRAP_SERVERS: "egress-kafka-aigw-collectors.dev0.svc.cluster.local:19093"
+KAFKA_GROUP_ID: "workstation"
+KAFKA_CLIENT_ID: "workstation"
+WORKSPACE_STORE_S3_BUCKET: "aef-workstation"
+WORKSPACE_STORE_S3_ENDPOINT_URL: "https://s3.dev0.svc.cluster.local"
+WORKSPACE_STORE_S3_PREFIX: "workstation/workspaces"
+
+# --- наблюдаемость / маршрутизация ---
+APP_LOG_LEVEL: "INFO"
+TIMEZONE_NAME: "UTC"
+BACKEND_CORS_ORIGINS: "https://aef.example.com"
+APP_ROOT_PATH: "/workstation"
