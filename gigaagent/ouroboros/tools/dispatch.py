@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any
 from config_registry.user_settings.tool_access import skill_tool_refusal
 from new_core.tools.catalog import ToolCatalog
 from new_core.tools.interfaces import ToolResult
+from ouroboros.agent.memory_policy import tool_refusal
 from ouroboros.storage.runtime_backend import STORE_FAILURES, ExecutionClaimUnavailable
 from ouroboros.storage.runtime_persistence import runtime_persistence
 from ouroboros.tools.catalog import spec_for_tool
@@ -77,6 +78,9 @@ async def execute_tool(
     task_id = str(ctx.task_id or "").strip()
     name = str(name or "").strip()
     args = dict(args or {})
+    refused = tool_refusal(ctx, name, args)
+    if refused is not None:
+        return refused
 
     direct_excluded_allowed = _excluded_direct_execute_allowed(ctx, name, args)
     if spec_for_tool(name).surface == "excluded" and not direct_excluded_allowed:
@@ -90,6 +94,9 @@ async def execute_tool(
     if descriptor is not None:
         # A provider may have resolved an alias; gates run on the canonical name.
         name = descriptor.name
+        refused = tool_refusal(ctx, name, args)
+        if refused is not None:
+            return refused
 
     if descriptor is None:
         # A provider may own the name and still withhold it — a dead extension's tool is

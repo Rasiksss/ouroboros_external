@@ -34,6 +34,8 @@ def register_turn(settings: Any, scope: OwnerScope, source_message_id: str, mess
     registration = {"owner_id": scope.owner_id, "agent_id": scope.agent_id, "chat_id": scope.chat_id,
                         "source_message_id": source_message_id, "message": message,
                         "attachment_ids": [a["id"] for a in reports]}
+    if getattr(settings, "OUROBOROS_MEMORYLESS_MODE", False):
+        registration["memoryless"] = True
     headers = with_agent_header(with_trace_header({"Authorization": f"Bearer {token}"}, generate=True))
     with tempfile.TemporaryDirectory(prefix="dialogs-aifa-") as directory, ExitStack() as stack:
         files = []

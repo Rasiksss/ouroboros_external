@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import uuid
 
@@ -236,8 +237,10 @@ def _get_task_result(ctx: ToolContext, task_id: str, current: TaskRecord | None 
     return output
 
 
-def _wait_for_task(ctx: ToolContext, task_id: str) -> str:
-    current = _current_task(ctx, task_id)
+async def _wait_for_task(ctx: ToolContext, task_id: str, wait_sec: float = 240) -> str:
+    if isinstance(wait_sec, bool) or not isinstance(wait_sec, (int, float)) or not 0 <= wait_sec <= 240:
+        return "ERROR: wait_sec must be between 0 and 240 seconds."
+    current = await asyncio.to_thread(_current_task, ctx, task_id)
     if current and current.detached and not load_settings().OUROBOROS_DURABLE_JOBS_ENABLED:
         return _get_task_result(ctx, task_id, current)
     if current and _worker_slots() <= 1 and current.status in OUTSTANDING_SUBTASK_STATUSES:
@@ -255,6 +258,17 @@ def _wait_for_task(ctx: ToolContext, task_id: str) -> str:
                 "because only one task worker is available. Check status later or "
                 "continue without blocking."
             )
+    deadline = asyncio.get_running_loop().time() + wait_sec
+    while current is not None and current.status in OUTSTANDING_SUBTASK_STATUSES:
+        if ctx.stop_requested():
+            return f"Task {task_id}: wait stopped."
+        left = deadline - asyncio.get_running_loop().time()
+        if left <= 0:
+            break
+        await asyncio.sleep(min(0.25, left))
+        current = await asyncio.to_thread(_current_task, ctx, task_id)
+    if current is None:
+        return f"Task {task_id}: unknown or not yet registered"
     return _get_task_result(ctx, task_id, current)
 
 
@@ -322,14 +336,15 @@ def get_tools() -> list[ToolEntry]:
             schema=ToolSchema(
                 name="wait_for_task",
                 description=(
-                    "Check whether a subtask has completed. Returns result if done, "
-                    "or the current task status if still pending/running."
+                    "Wait up to wait_sec for a GigaAgent subtask. Returns its saved result when finished, "
+                    "or its current status at timeout. Use aifa_wait only for AIFA job_id."
                 ),
                 parameters={
                     "type": "object",
                     "required": ["task_id"],
                     "properties": {
                         "task_id": {"type": "string", "description": "Task ID to check"},
+                        "wait_sec": {"type": "number", "minimum": 0, "maximum": 240, "default": 240},
                     },
                 },
             ),

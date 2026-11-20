@@ -58,6 +58,7 @@ class ToolContext:
     #: engine cannot name the kinds, so the list is typed by what the run publishes.
     pending_events: list[Any] = field(default_factory=list)
     current_task_type: str | None = None
+    memoryless_mode: bool = False
     transport: dict[str, Any] = field(default_factory=dict)
     #: How this run hands the owner a file. One boundary handed over by the composition
     #: root that built the run, never a pair of callables captured from another component:

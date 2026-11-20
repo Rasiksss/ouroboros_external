@@ -61,10 +61,10 @@ class ToolApi:
         self._subtasks = subtasks or SubtaskWaits()
         self._binding = Binding(gateway)
         tools: tuple[Tool, ...] = (
-            OpenTool(board, opening, desk), WaitTool(board, self._subtasks, desk), StateTool(board, desk), DocTool(board, desk),
+            OpenTool(board, opening, desk), WaitTool(board), StateTool(board, desk), DocTool(board, desk),
             AtomsTool(desk),
             MoveTool(board, desk), RegisterTool(board, desk), ReportTool(desk, self._subtasks),
-            FinishTool(board, desk, self._subtasks),
+            FinishTool(board, desk),
         )
         self._tools: dict[str, Tool] = {tool.name: tool for tool in tools}
 

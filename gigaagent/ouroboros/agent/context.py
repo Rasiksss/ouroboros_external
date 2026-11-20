@@ -27,6 +27,7 @@ from new_core.prompt import (
 )
 from new_core.skills.models import SkillId
 from new_core.skills.surface import SkillSurface
+from ouroboros.agent.memory_policy import MEMORY_SECTIONS, memoryless_for_task
 from ouroboros.skills.loader import SkillSummary, summarize_skills
 from ouroboros.storage.chat_store import list_recent_owner_messages
 from ouroboros.storage.conversation_format import format_attachment_descriptors, format_chat_summary_line
@@ -788,6 +789,8 @@ class SectionInputs:
     @cached_property
     def headers(self) -> list[MemoryHeader]:
         """The caller's header listing — the one recall selected from — or our own."""
+        if memoryless_for_task(self.task):
+            return []
         if self.memory_headers is not None:
             return self.memory_headers
         return get_memory().list_prompt_headers(self.scope)
@@ -798,6 +801,8 @@ class SectionInputs:
 
     @cached_property
     def recent_chat(self) -> _RecentChat | None:
+        if memoryless_for_task(self.task):
+            return None
         return _build_recent_chat(self.env.drive_root, self.scope, self.task)
 
 
@@ -856,7 +861,12 @@ def _section_recalled_memories(inputs: SectionInputs) -> str:
 
 
 def _section_runtime(inputs: SectionInputs) -> str:
-    return build_runtime_section(inputs.task, inputs.scope)
+    text = build_runtime_section(inputs.task, inputs.scope)
+    if memoryless_for_task(inputs.task):
+        text += ("\n\nMemoryless mode: use only this task's request, attachments, explicit subtask context and tool results. "
+                 "Past chat, scratchpad, saved memories and previous tasks are unavailable. "
+                 "Ask for missing inputs rather than assuming earlier work.")
+    return text
 
 
 def _section_recent_chat(inputs: SectionInputs) -> str:
@@ -885,7 +895,7 @@ def prompt_sections(inputs: SectionInputs) -> list[PromptSection[SectionInputs]]
     its byte budget between two data blocks, and it does that from the values its
     builder holds rather than by parsing its own output back apart.
     """
-    return [
+    sections = [
         _ACTIVE_SKILLS,
         PromptSection(
             name="base_prompt",
@@ -976,6 +986,8 @@ def prompt_sections(inputs: SectionInputs) -> list[PromptSection[SectionInputs]]
             build=_section_working_retrieval,
         ),
     ]
+    return [section for section in sections
+            if not (memoryless_for_task(inputs.task) and section.name in MEMORY_SECTIONS)]
 
 
 def estimate_message_tokens(msg: dict[str, Any]) -> int:

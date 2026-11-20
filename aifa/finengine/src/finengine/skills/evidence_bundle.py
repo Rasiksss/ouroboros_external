@@ -213,6 +213,8 @@ def legacy_rows_from_bundle(
             "enum": enum,
             "value_current": by_period.get(main_period),
             "value_prev": by_period.get(prev_period),
+            "period_values": [{"period": period, "value": value, "unit": unit_by_enum.get(enum)}
+                              for period, value in by_period.items()],
             "unit": unit_by_enum.get(enum),
             "found": True,
             "is_calculated": enum in calculated_enums,

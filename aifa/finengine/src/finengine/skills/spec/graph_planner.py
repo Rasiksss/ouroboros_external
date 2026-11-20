@@ -831,7 +831,8 @@ class GraphPlanner:
                 if atom.requirement_extra is not None else extra
             )
             req_key = self._resolve(
-                spec.input_type, spec.concept, entity_ref=entity_ref, period_ref=period_ref, basis=basis,
+                spec.input_type, spec.concept, entity_ref=entity_ref,
+                period_ref=(spec.period_ref or None) if spec.period_ref is not None else period_ref, basis=basis,
                 document_version=document_version, policy_version=policy_version, extra=requirement_extra,
                 requested_by=atom.name, available=available, state=state, run_passport=run_passport,
             )

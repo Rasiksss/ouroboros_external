@@ -22,6 +22,7 @@ from openai import AsyncOpenAI, DefaultAsyncHttpxClient
 
 from finengine.config import settings
 from finengine.diagnostics import http_event_hooks, log_failure
+from finengine.llm.audit import audit_llm
 
 log = logging.getLogger(__name__)
 _REQUEST_HEADERS: _cv.ContextVar[dict[str, str]] = _cv.ContextVar("llm_request_headers", default={})
@@ -238,6 +239,7 @@ async def complete(
     return text
 
 
+@audit_llm()
 async def complete_with_usage(
     prompt: str,
     model: str | None = None,
@@ -318,7 +320,7 @@ async def complete_with_usage(
                 kwargs["response_format"] = response_format
             if _REQUEST_HEADERS.get():
                 kwargs["extra_headers"] = dict(_REQUEST_HEADERS.get())
-            resp = await client.chat.completions.create(**kwargs)
+            resp = await _completion_request(client, **kwargs)
             choice = resp.choices[0].message
             content = choice.content or ""
             # ⚠️ РАЗМЫШЛЕНИЯ — НЕ ОТВЕТ (11.08.2026, прогон ФосАгро).
@@ -397,6 +399,22 @@ async def complete_with_usage(
     return "", {"in": 0, "out": 0, "cached": 0, "model": m}
 
 
+@audit_llm(kind="llm_attempt")
+async def _completion_request(client, **kwargs):
+    return await client.chat.completions.create(**kwargs)
+
+
+@audit_llm(kind="llm_attempt")
+async def _stream_request(client, **kwargs):
+    response = await client.chat.completions.create(**kwargs)
+    try:
+        async for chunk in response:
+            yield chunk
+    finally:
+        await response.close()
+
+
+@audit_llm()
 async def stream(
     prompt: str,
     system_prompt: str | None = None,
@@ -457,8 +475,9 @@ async def stream(
     response_chars = 0
     log.info("event=llm_stream_start model=%s prompt_chars=%d system_chars=%d",
              m, len(prompt), len(system_prompt or ""))
+    stream_ = None
     try:
-        stream_ = await client.chat.completions.create(**kwargs)
+        stream_ = _stream_request(client, **kwargs)
         async for chunk in stream_:
             # OpenRouter sends a usage-only chunk at the end (no choices) when
             # stream_options.include_usage=True. Drop it into the sink so the
@@ -486,6 +505,8 @@ async def stream(
         log_failure(log, "llm_stream_failed", error, started, model=m)
         raise
     finally:
+        if stream_ is not None:
+            await stream_.aclose()
         log.info("event=llm_stream_closed model=%s duration_ms=%.1f response_chars=%d",
                  m, (time.monotonic() - started) * 1000, response_chars)
         await _close_client(client)

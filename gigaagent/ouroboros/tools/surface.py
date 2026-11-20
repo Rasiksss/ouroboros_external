@@ -14,6 +14,7 @@ from config_registry.user_settings.tool_access import skill_tool_refusal
 from new_core.identity import OwnerScope
 from new_core.tools.catalog import ToolCatalog
 from new_core.tools.interfaces import ToolDescriptor, ToolSurface
+from ouroboros.agent.memory_policy import HISTORY_TOOLS
 
 
 class ProviderToolSurface(ToolSurface):
@@ -25,12 +26,14 @@ class ProviderToolSurface(ToolSurface):
         active_names: set[str],
         scope: OwnerScope,
         skill_origins: frozenset[str] | None = None,
+        *, memoryless_mode: bool = False,
     ) -> None:
         self._catalog = catalog
         # The live set the graph owns; read, never written here.
         self._active_names = active_names
         self._scope = scope
         self._skill_origins = skill_origins
+        self._memoryless_mode = memoryless_mode
         self._pending: list[tuple[str, Any]] = []
 
     def catalog(self) -> Sequence[ToolDescriptor]:
@@ -38,6 +41,7 @@ class ProviderToolSurface(ToolSurface):
             desc
             for desc in self._catalog.descriptors(self._scope)
             if skill_tool_refusal(desc.name, desc.origin, self._skill_origins) is None
+            and not (self._memoryless_mode and desc.name in HISTORY_TOOLS)
         )
 
     def find(self, name: str) -> ToolDescriptor | None:
@@ -45,6 +49,7 @@ class ProviderToolSurface(ToolSurface):
         return (
             desc
             if desc is not None and skill_tool_refusal(desc.name, desc.origin, self._skill_origins) is None
+            and not (self._memoryless_mode and desc.name in HISTORY_TOOLS)
             else None
         )
 

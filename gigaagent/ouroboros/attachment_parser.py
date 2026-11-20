@@ -122,8 +122,9 @@ def _parse_pdf(path: pathlib.Path, mode: str, timing: _ImportTiming | None = Non
         from pypdf import PdfReader
 
     reader = PdfReader(str(path))
-    if reader.is_encrypted:
-        raise ValueError("encrypted PDF is not supported")
+    # Owner restrictions can encrypt a PDF that still opens without a password.
+    if reader.is_encrypted and not reader.decrypt(""):
+        raise ValueError("password-protected PDF requires a password to open")
     if mode == "validate":
         len(reader.pages)
         return ""

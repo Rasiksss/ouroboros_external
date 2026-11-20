@@ -86,7 +86,7 @@ class SubtaskResult:
 
 
 class SubtaskSink(Protocol):
-    """Точка расширения: потребитель — `aifa_wait(task_id)` (шаг 16)."""
+    """Получатель итогов подзадач браузерного хода для учёта отчётов службы."""
 
     def subtask_finished(self, result: SubtaskResult) -> None: ...
 

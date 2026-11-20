@@ -21,6 +21,7 @@ from pydantic import BaseModel
 from finengine.contracts import NodeKey, NodeRun, PlanGraph
 from finengine.contracts.base import result_id_of
 from finengine.contracts import RunPassport as _RunPassport
+from finengine.llm.audit import atom_context
 from finengine.policy.sandbox_profiles import (
     DYNAMIC_SANDBOX_PROFILES,
     SANDBOX_PROFILES,
@@ -470,7 +471,8 @@ class GraphExecutor:
         retries = 0
         while True:
             try:
-                produced = tuple(atom.executor(node_args, ctx) or ())
+                with atom_context(ctx, atom.name, [node_args]):
+                    produced = tuple(atom.executor(node_args, ctx) or ())
             except Exception as exc:  # noqa: BLE001 — граница атома: любая его ошибка становится статусом узла, не падением исполнителя
                 if retries < max_retries:
                     retries += 1
@@ -500,7 +502,8 @@ class GraphExecutor:
         args_list = [node_args[k] for k in keys]
         while True:
             try:
-                results = atom.executor(args_list, ctx) or {}
+                with atom_context(ctx, atom.name, args_list):
+                    results = atom.executor(args_list, ctx) or {}
             except Exception as exc:  # noqa: BLE001 — сбой ВСЕГО физического вызова (не одного концепта)
                 if retries < max_retries:
                     retries += 1

@@ -30,6 +30,8 @@ test_division_by_zero_never_publishes_a_calculated_fact`). Наружу к эт�
 """
 from __future__ import annotations
 
+import ast
+
 from finengine.contracts import (
     AdHocFormulaSpec,
     CalculatedMetric,
@@ -49,8 +51,22 @@ from finengine.skills.periods import normalize_period_label, period_kind_for_enu
 from finengine.skills.ratios import compute_ratios
 from finengine.skills.spec.atom_registry import NodeArgs
 from finengine.skills.spec.target import InputSpec
+from finengine.skills.bulk_extractor.formula_engine import _normalise_formula_expr
+from finengine.skills.bulk_extractor.period_selection import _period_boundary_keys, _point_period_key
 
-ATOM_VERSION = "2.0.0"  # эволюция calc.formula_engine 1.0.0 — расширенный DerivedFact + новые гейты
+ATOM_VERSION = "2.2.0"  # Preserve calculated dependencies as DerivedFact inputs.
+
+
+def _averaged_dependencies(expression: str, dependencies: list[str]) -> set[str]:
+    tree = ast.parse(_normalise_formula_expr(expression), mode="eval")
+    return {name.id for call in ast.walk(tree)
+            if isinstance(call, ast.Call) and isinstance(call.func, ast.Name) and call.func.id.upper() == "AVG"
+            for arg in call.args for name in ast.walk(arg)
+            if isinstance(name, ast.Name) and name.id in dependencies}
+
+
+def _average_boundaries(period: str | None):
+    return _period_boundary_keys(normalize_period_label(period, value_kind="duration")) if period else None
 
 
 def _ad_hoc_spec_from_extra(node_args: NodeArgs) -> AdHocFormulaSpec | None:
@@ -101,10 +117,17 @@ def calc_formula_requires(node_args: NodeArgs, run_passport: RunPassport | None)
     if formula_def is None:
         return ()
     ad_hoc_deps = set(formula_def.ad_hoc_dependencies)
-    return tuple(
-        InputSpec(input_type="ExtractedMetric" if d in ad_hoc_deps else "MetricEvidence", concept=d)
-        for d in formula_def.dependencies
-    )
+    averaged = _averaged_dependencies(formula_def.expression, formula_def.dependencies)
+    boundaries = _average_boundaries(node_args.period_ref)
+    requires = []
+    for dep in formula_def.dependencies:
+        kind = "ExtractedMetric" if dep in ad_hoc_deps else "MetricEvidence"
+        if dep in averaged and boundaries:
+            requires.extend(InputSpec(input_type=kind, concept=dep, period_ref=f"{day:02}.{month:02}.{year}")
+                            for year, month, day in boundaries)
+        else:
+            requires.append(InputSpec(input_type=kind, concept=dep, period_ref="" if dep in averaged else None))
+    return tuple(requires)
 
 
 def calc_formula_requirement_extra(node_args: NodeArgs, requirement: InputSpec) -> dict[str, str]:
@@ -120,14 +143,6 @@ def calc_formula_requirement_extra(node_args: NodeArgs, requirement: InputSpec) 
         return {}
     spec = load_specs(node_args.extra).get(requirement.concept.strip().upper())
     return {EXTRA_KEY: dump_specs([spec])} if spec is not None else {}
-
-
-def _evidence_id_of(evidence: ExtractedMetric | CalculatedMetric | UserProvidedMetric) -> str:
-    if isinstance(evidence, ExtractedMetric):
-        return evidence.scalar_fact.evidence_id
-    if isinstance(evidence, CalculatedMetric):
-        return evidence.derived_fact.evidence_id
-    return evidence.human_override.evidence_id
 
 
 def _scalar_input(evidence: ExtractedMetric | UserProvidedMetric) -> ScalarFact:
@@ -148,7 +163,9 @@ def _scalar_input(evidence: ExtractedMetric | UserProvidedMetric) -> ScalarFact:
     )
 
 
-def _align_to_requested_period(requested: str, facts: list[ScalarFact]) -> tuple[str, list[ScalarFact]]:
+def _align_to_requested_period(
+    requested: str, facts: list[ScalarFact | DerivedFact],
+) -> tuple[str, list[ScalarFact | DerivedFact]]:
     """`(main_period, facts)` для legacy-конверта: зависимости, относящиеся к
     ЗАПРОШЕННОМУ периоду, лежат под одной меткой.
 
@@ -179,7 +196,7 @@ def _align_to_requested_period(requested: str, facts: list[ScalarFact]) -> tuple
     return main_label, [f.model_copy(update={"period_ref": main_label}) if id(f) in ids else f for f in facts]
 
 
-def _period_slices(facts: list[ScalarFact]) -> list[tuple[str, list[ScalarFact]]]:
+def _period_slices(facts: list[ScalarFact | DerivedFact]) -> list[tuple[str, list[ScalarFact | DerivedFact]]]:
     """Срезы входных фактов по периодам: `[(главная метка, факты с выровненными
     метками), ...]` — по одному на каждый различный период.
 
@@ -187,7 +204,7 @@ def _period_slices(facts: list[ScalarFact]) -> list[tuple[str, list[ScalarFact]]
     `_align_to_requested_period` приводит их к одной метке, а повтор срезов с
     одинаковой нормализованной главной меткой отбрасывается. Нет фактов —
     один пустой срез, чтобы поведение «нечего считать → пусто» не менялось."""
-    slices: list[tuple[str, list[ScalarFact]]] = []
+    slices: list[tuple[str, list[ScalarFact | DerivedFact]]] = []
     seen: set[str] = set()
     for label in dict.fromkeys(f.period_ref for f in facts if f.period_ref):
         main_label, aligned = _align_to_requested_period(label, facts)
@@ -217,12 +234,14 @@ def calc_formula_executor(args: NodeArgs, ctx) -> list:
         if isinstance(e, (ExtractedMetric, CalculatedMetric, UserProvidedMetric)) and e.concept in formula_def.dependencies
     ]
     scalar_facts = [_scalar_input(e) for e in deps if isinstance(e, (ExtractedMetric, UserProvidedMetric))]
+    derived_facts = [e.derived_fact for e in deps if isinstance(e, CalculatedMetric)]
+    input_facts = [*scalar_facts, *derived_facts]
     requested = args.period_ref or ""
     # Срез 31 (П6): период не назван — считаем по КАЖДОМУ периоду, найденному во
     # входных фактах (все доступные даты). Назван — один период, как раньше.
     period_slices = (
-        [_align_to_requested_period(requested, scalar_facts)] if requested
-        else _period_slices(scalar_facts)
+        [_align_to_requested_period(requested, input_facts)] if requested
+        else _period_slices(input_facts)
     )
     extra_formulas = None
     if formula_def.source == "ad_hoc":
@@ -245,14 +264,16 @@ def calc_formula_executor(args: NodeArgs, ctx) -> list:
     concept_key = (args.concept or "").strip().upper()
     results: list[CalculatedMetric] = []
     failures: list[VerificationFinding] = []
-    for main_period, aligned in period_slices:
+    for main_period, _ in period_slices:
         envelope = legacy_rows_from_bundle(
-            EvidenceBundleV2(run_id=ctx.run_id, scalar_facts=aligned), main_period=main_period,
+            EvidenceBundleV2(run_id=ctx.run_id, scalar_facts=scalar_facts, derived_facts=derived_facts),
+            main_period=main_period,
         )
         try:
             computed = compute_ratios(
                 envelope["metrics"], passport.classification.profile_id, only=[args.concept],
                 extra=extra_formulas, registry_override=registry,
+                period_current=main_period,
             )
         except (ValueError, ZeroDivisionError) as exc:
             # Вторая линия защиты (см. докстринг модуля) — деление на ноль внутри
@@ -271,19 +292,42 @@ def calc_formula_executor(args: NodeArgs, ctx) -> list:
             continue
 
         result_bundle = evidence_bundle_from_envelope(ctx.run_id, {"metrics": computed})
-        raw_facts = [f for f in result_bundle.derived_facts if (f.concept or "").strip().upper() == concept_key]
+        raw_facts = [f for f in result_bundle.derived_facts
+                     if (f.concept or "").strip().upper() == concept_key
+                     and normalize_period_label(f.period_ref) == normalize_period_label(main_period)]
         if not raw_facts:
             # Недостающая зависимость — штатный пустой результат (0 доказательств),
             # НЕ заменяется нулём в значении (карточка: «отсутствующий вход не
             # заменяется нулём и не даёт рассчитанный факт»).
+            averaged = _averaged_dependencies(formula_def.expression, formula_def.dependencies)
+            missing = [f"{dep} за {normalize_period_label(main_period, value_kind=period_kind_for_enum(dep))}"
+                       for dep in formula_def.dependencies if dep not in averaged
+                       and not any(f.concept == dep and normalize_period_label(f.period_ref)
+                                   == normalize_period_label(main_period, value_kind=period_kind_for_enum(dep))
+                                   for f in input_facts)]
+            boundaries = _average_boundaries(main_period)
+            if boundaries:
+                for dep in sorted(averaged):
+                    for boundary in boundaries:
+                        if not any(f.concept == dep and _point_period_key(f.period_ref) == boundary for f in input_facts):
+                            year, month, day = boundary
+                            missing.append(f"{dep} на {day:02}.{month:02}.{year}")
+            detail = (f"Не рассчитан {args.concept} за {main_period}: нет входных значений: {', '.join(missing)}"
+                      if missing else f"Не рассчитан {args.concept} за {main_period}: вычислитель не вернул результат; "
+                      "проверьте периоды входов, единицы и допустимость формулы (включая деление на ноль).")
+            failures.append(VerificationFinding(
+                produced_by_atom="calc.formula", produced_by_atom_version=ATOM_VERSION,
+                source_ref=formula_def.formula_id, concept=args.concept, period_ref=main_period or None,
+                check_kind="bounds_hard", status="fail", detail=detail,
+            ))
             continue
 
-        if requested:
-            dep_evidence_ids = [_evidence_id_of(e) for e in deps]
-        else:
-            # У значения за конкретный период — только входы ЭТОГО периода.
-            period_key = normalize_period_label(main_period)
-            dep_evidence_ids = [f.evidence_id for f in aligned if normalize_period_label(f.period_ref) == period_key]
+        averaged = _averaged_dependencies(formula_def.expression, formula_def.dependencies)
+        boundaries = _average_boundaries(main_period)
+        dep_evidence_ids = [f.evidence_id for f in input_facts
+                            if (f.concept in averaged and boundaries and _point_period_key(f.period_ref) in boundaries)
+                            or (f.concept not in averaged and normalize_period_label(f.period_ref)
+                                == normalize_period_label(main_period, value_kind=period_kind_for_enum(f.concept)))]
         for f in raw_facts:
             enriched = DerivedFact(
                 produced_by_atom="calc.formula", produced_by_atom_version=ATOM_VERSION,
@@ -301,7 +345,9 @@ def calc_formula_executor(args: NodeArgs, ctx) -> list:
                 derived_fact=enriched, concept=enriched.concept or args.concept,
                 period_ref=enriched.period_ref or main_period or "unknown", definition_origin=formula_def.source,
             ))
-    return [*results, *failures]
+    # With no requested period, missing comparative-only slices must not
+    # invalidate the periods that actually have enough inputs to calculate.
+    return results if results and not requested else [*results, *failures]
 
 
 __all__ = [

@@ -37,6 +37,7 @@ from ouroboros.llm.providers.base import sanitize_chat_completion_tools, strip_c
 from ouroboros.llm.registry import ProviderRegistry, get_registry
 from ouroboros.llm.targets import RemoteTarget
 from ouroboros.observability.diagnostics import log_response, operation, safe_url
+from ouroboros.observability.llm_audit import audit_llm, mark_provider_dispatch
 from ouroboros.storage.task_results import ExecutionClaimLost, check_execution_claim
 
 log = logging.getLogger(__name__)
@@ -426,6 +427,7 @@ class LLMClient:
     def _resolve_remote_target(self, model: str) -> RemoteTarget:
         return self.resolve_target(model)
 
+    @audit_llm
     def chat(
         self,
         messages: list[dict[str, Any]],
@@ -457,6 +459,7 @@ class LLMClient:
                     if remaining <= 0:
                         raise LocalLLMDeadlineError("LLM deadline expired before the provider call")
                     effective_timeout = remaining if timeout_sec is None else min(timeout_sec, remaining)
+                mark_provider_dispatch(target)
                 result = adapter.chat(
                     target,
                     messages,
@@ -472,6 +475,7 @@ class LLMClient:
             log_response(log, call_id, *result)
             return result
 
+    @audit_llm
     async def async_chat(
         self,
         messages: list[dict[str, Any]],
@@ -503,6 +507,7 @@ class LLMClient:
                     if remaining <= 0:
                         raise LocalLLMDeadlineError("LLM deadline expired before the provider call")
                     effective_timeout = remaining if timeout_sec is None else min(timeout_sec, remaining)
+                mark_provider_dispatch(target)
                 result = await adapter.async_chat(
                     target,
                     messages,

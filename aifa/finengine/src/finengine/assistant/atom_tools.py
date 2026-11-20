@@ -82,7 +82,7 @@ class ReportTool:
             if call.is_root:
                 return ouro_view.refusal(Refusal.NOT_THE_ROLE, "aifa_report со status=done вызывает только подзадача.")
             self._subtasks.report_done(run_id, task_id, note or label)
-            return f"{ouro_view.Code.READY}\nИтог принят: корень получит его в aifa_wait."
+            return f"{ouro_view.Code.READY}\nОтчёт принят. Полный итог задачи верни финальным сообщением; корень получит его через wait_for_task в GigaAgent."
         loop = await self._desk.open_loop_of(call)
         if loop is None:
             return no_loop()

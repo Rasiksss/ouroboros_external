@@ -552,6 +552,15 @@ def _incomplete_refusal(
     `canonical_pipeline_incomplete` — из него ничего не понять. Теперь: узел упал —
     называется узел и причина; узлы отработали, но пусто — говорится, ЧТО искали
     (имя и синонимы, придуманные моделью, либо код показателя реестра)."""
+    calculation = goal.intent_kind in ("calculate_registered_metric", "calculate_ad_hoc_metric")
+    details = list(dict.fromkeys(
+        value.detail for item in outcome.roots
+        for values in item.execution.evidence_by_key.values() for value in values
+        if getattr(value, "produced_by_atom", "") == "calc.formula"
+        and getattr(value, "status", "") == "fail"
+    )) if calculation else []
+    if details:
+        return typed_error_event(code="calculation_incomplete", message="; ".join(details), retryable=False)
     failed = _failed_nodes(outcome)
     if failed:
         return typed_error_event(
@@ -560,6 +569,13 @@ def _incomplete_refusal(
             retryable=True,
         )
     if goal.intent_kind in _METRIC_KINDS:
+        if calculation:
+            codes = ", ".join(t.concept for t in goal.targets) or "запрошенный показатель"
+            message = (
+                f"Не удалось рассчитать {codes}: расчёт не вернул результат. Проверьте наличие входных значений "
+                "за нужные периоды и диагностику узла calc.formula; это не поиск готового показателя в отчёте."
+            )
+            return typed_error_event(code="calculation_incomplete", message=message, retryable=False)
         spec = roots[0].ad_hoc_spec if roots else None
         if spec is not None and getattr(spec, "components", None):
             names = ", ".join(c.name_ru or c.term for c in spec.components)

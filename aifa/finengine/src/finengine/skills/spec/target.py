@@ -79,6 +79,8 @@ class InputSpec:
     input_type: str
     concept: str | None = None
     cardinality: Cardinality = "ONE"
+    # None inherits the consumer's period; "" requests all available periods.
+    period_ref: str | None = None
 
 
 @dataclass(frozen=True)

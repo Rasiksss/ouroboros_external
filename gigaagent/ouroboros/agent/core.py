@@ -32,6 +32,7 @@ from new_core.tools.interfaces import ToolOutbound
 from ouroboros.agent.context import build_llm_messages
 from ouroboros.agent.interfaces.owner_session import IOwnerSessionRepository
 from ouroboros.agent.interfaces.startup_usage import IStartupUsageRepository
+from ouroboros.agent.memory_policy import memoryless_for_task
 from ouroboros.agent.startup_checks import (
     inject_crash_report,
     verify_system_state,
@@ -51,6 +52,7 @@ from ouroboros.contracts.attachments import ATTACHMENTS_ADAPTER
 from ouroboros.llm import LLMClient
 from ouroboros.observability import aef_tracing
 from ouroboros.observability.event_record import emit_worker_log_event, record_event
+from ouroboros.observability.llm_audit import audit_task
 from ouroboros.storage.core_memory.memory.domain.models import RecalledMemory
 from ouroboros.storage.execution_memory.interfaces import IExecutionMemoryRepository
 from ouroboros.storage.runtime_backend import STORE_FAILURES, ExecutionClaimUnavailable
@@ -295,6 +297,7 @@ class OuroborosAgent:
             extension_runtime=self.extension_runtime,
             pending_events=self._pending_events,
             current_task_type=self._current_task_type,
+            memoryless_mode=memoryless_for_task(task),
             transport=dict(task.get("transport") or {}),
             outbound=self._outbound,
             emit_progress_fn=self._progress_emitter(scope, task.get("transport") or {}, task_id),
@@ -357,11 +360,13 @@ class OuroborosAgent:
         # One header listing for the whole build: recall selects from it and both
         # memory blocks are rendered from it. Reading it per section was three
         # scans of the same table for one prompt.
-        memory_headers = None
+        memoryless = memoryless_for_task(task)
+        memory_headers = [] if memoryless else None
         try:
             from ouroboros.storage.core_memory.memory import get_memory
 
-            memory_headers = get_memory().list_prompt_headers(scope)
+            if not memoryless:
+                memory_headers = get_memory().list_prompt_headers(scope)
         except Exception:
             log.debug("Failed to list memory headers, sections will read their own", exc_info=True)
 
@@ -370,7 +375,7 @@ class OuroborosAgent:
             from ouroboros.agent.memory_recall import recall_relevant_memories
             from ouroboros.storage.core_memory.memory import get_memory
 
-            recalled_memories = recall_relevant_memories(
+            recalled_memories = [] if memoryless else recall_relevant_memories(
                 query=str(task.get("text", "")),
                 store=get_memory(),
                 scope=scope,
@@ -425,6 +430,7 @@ class OuroborosAgent:
             task["trace_id"] = aef_tracing.current_trace_id()
             return self._run_task(task, cancellation=cancellation)
 
+    @audit_task
     def _run_task(
         self,
         task: dict[str, Any],
@@ -433,6 +439,12 @@ class OuroborosAgent:
     ) -> list[AgentEvent]:
         """`handle_task`'s body, run inside the task's trace scope."""
         start_time = time.time()
+        # Snapshot the deployment policy for this execution, never a model argument.
+        from ouroboros.storage.settings.store import load_settings
+
+        task["memoryless_mode"] = load_settings().OUROBOROS_MEMORYLESS_MODE
+        log.info("event=task_memory_policy task_id=%s memoryless_mode=%s",
+                 task.get("id", ""), task["memoryless_mode"])
         self._task_started_ts = start_time
         self._last_progress_ts = time.monotonic()
         self._pending_events = []

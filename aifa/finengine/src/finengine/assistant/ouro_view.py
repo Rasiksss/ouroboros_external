@@ -73,30 +73,6 @@ def waiting(job_id: str) -> str:
     )
 
 
-_SUBTASK_HINT = "Состояние подзадачи — get_task_result, снять её — cancel_task."
-
-
-def waiting_subtask(task_id: str) -> str:
-    return (
-        f"{Code.WAIT} task={task_id}\n"
-        "Подзадача ещё работает. Вызови aifa_wait с этим task_id (wait_sec от 10 до 240) и жди итог. " + _SUBTASK_HINT
-    )
-
-
-def subtask_silent(task_id: str, seconds: float) -> str:
-    return refusal(
-        Refusal.SUBTASK_SILENT,
-        f"Подзадача {task_id} не ответила за {seconds:g} с. {_SUBTASK_HINT} Продолжай план без её итога.",
-    )
-
-
-def subtask_result(task_id: str, text: str, *, failed: bool, limit: int) -> str:
-    """Итог подзадачи: её последнее сообщение или `note` её `aifa_report done`; упавшая — с пометкой."""
-    title = f"Итог подзадачи {task_id}: подзадача упала" if failed else f"Итог подзадачи {task_id}"
-    body = text if len(text) <= limit - TAIL_RESERVE else text[: limit - TAIL_RESERVE] + "…[итог обрезан]"
-    return f"{Code.READY}\n## {title}\n{body}"
-
-
 def registered(
     session: LoopSession, atom_name: str, version: str, output: dict | None, known: frozenset[str], *, limit: int,
 ) -> str:

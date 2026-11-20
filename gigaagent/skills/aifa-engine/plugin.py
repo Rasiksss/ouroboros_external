@@ -45,17 +45,17 @@ TOOLS = (
     Tool(
         name="aifa_wait",
         description=(
-            "Дождаться итога фонового задания службы (job_id из ответа «ЖДИ job=…») либо подзадачи (task_id "
-            "из schedule_task); укажи что-то одно."
+            "Дождаться итога фонового задания AIFA по job_id из ответа «ЖДИ job=…». "
+            "Подзадачи GigaAgent из schedule_task ожидай через wait_for_task(task_id, wait_sec)."
         ),
         schema={
             "type": "object",
             "properties": {
                 "job_id": {"type": "string"},
-                "task_id": {"type": "string"},
                 "wait_sec": {"type": "integer", "minimum": 10, "maximum": 240},
             },
-            "required": ["wait_sec"],
+            "required": ["job_id", "wait_sec"],
+            "additionalProperties": False,
         },
         capability_class="read_only",
     ),

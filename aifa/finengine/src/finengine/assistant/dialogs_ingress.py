@@ -43,6 +43,7 @@ class DialogsTurn(BaseModel):
     source_message_id: str = Field(min_length=1, max_length=255)
     message: str = Field(max_length=100_000)
     attachment_ids: list[str] = Field(default_factory=list, max_length=10)
+    memoryless: bool = False
 
 
 @dataclass(frozen=True)
@@ -78,7 +79,7 @@ def register_turn(turn: DialogsTurn, files: list[tuple[str, bytes]], *, trace_id
     identity = hashlib.sha256(scope.encode()).hexdigest()
     run_id = uuid.uuid5(uuid.NAMESPACE_URL, json.dumps(["dialogs", identity, turn.source_message_id])).hex
     fingerprint = hashlib.sha256(json.dumps([
-        turn.message, turn.attachment_ids,
+        turn.message, turn.attachment_ids, *(["memoryless"] if turn.memoryless else []),
         [(name, hashlib.sha256(content).hexdigest()) for name, content in files],
     ]).encode()).hexdigest()
     user_id = owner_user(identity)
@@ -108,12 +109,12 @@ def register_turn(turn: DialogsTurn, files: list[tuple[str, bytes]], *, trace_id
                                     file_path=key, sha256=digest, ocr_engine="idp" if suffix == ".pdf" else "pymupdf")
                 store.add_document(meta, [])
             doc_ids.append(doc_id)
-        if not files:
+        if not files and not turn.memoryless:
             previous = state.get("dialogs_chat", owner=user_id, key=identity) or {}
             doc_ids = previous.get("doc_ids", [])
         record = TurnRecord(run_id=run_id, owner_id=turn.owner_id, agent_id=turn.agent_id,
                             chat_id=turn.chat_id, message=turn.message, user_id=user_id,
-                            case_id="dialogs-" + identity, doc_ids=tuple(doc_ids),
+                            case_id="dialogs-" + identity + ("-" + run_id if turn.memoryless else ""), doc_ids=tuple(doc_ids),
                             active_doc_id=doc_ids[0] if len(doc_ids) == 1 else "", role="", trace_id=trace_id)
         receipt = state.claim("dialogs_turn", owner=user_id, key=run_id,
                               doc={"fingerprint": fingerprint, "record": asdict(record)})

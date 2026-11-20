@@ -214,7 +214,8 @@ def bind_tool_surface(
     lets ``list_available_tools`` / ``enable_tools`` read the catalog without a registry.
     """
     active_tool_names: set[str] = set()
-    surface = ProviderToolSurface(catalog, active_tool_names, tool_ctx.scope, tool_ctx.skill_origins)
+    surface = ProviderToolSurface(catalog, active_tool_names, tool_ctx.scope, tool_ctx.skill_origins,
+                                  memoryless_mode=tool_ctx.memoryless_mode)
     descriptors = list(surface.catalog())
     tool_schemas, initial_names = _initial_tool_schemas(descriptors, tool_ctx)
     active_tool_names.update(initial_names)

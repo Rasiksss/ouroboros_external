@@ -30,6 +30,7 @@ import logging
 from typing import AsyncIterator
 
 from finengine.config import settings
+from finengine.llm.audit import audit_llm
 
 logger = logging.getLogger(__name__)
 
@@ -154,6 +155,7 @@ async def complete_with_usage(
     return text, usage
 
 
+@audit_llm(kind="llm_attempt")
 def _sync_complete(
     *,
     prompt: str,
