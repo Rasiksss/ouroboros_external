@@ -1,5 +1,18 @@
 schema: spec-driven
 
+rules:
+  tasks:
+    - Every task states how to verify it (a test, a command, or observable behaviour).
+    - Keep one logical change per commit; mark tasks that need separate refactor/format commits.
+    - A bugfix task names the failing reproduction and the red-before/green-after command; a
+      new-behaviour task names the assertion that fails without the behaviour; a task changing
+      a contract between components names the real producer/consumer pair and the external
+      boundary where a fake is allowed (a compatible refactor needs a composition test that
+      stays green, not an artificial failure). See coding_standards 6.3, 6.5. "Run the tests"
+      is not enough.
+  design:
+    - Enumerate every startup side-effect touched and where it is preserved (CLAUDE.md R2.1).
+
 # Project context (optional)
 # This is shown to AI when creating artifacts.
 # Add your tech stack, conventions, style guides, domain knowledge, etc.
